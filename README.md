@@ -9,7 +9,6 @@ This repo tracks the effort to digest a shared internal metadata model for Open 
 post/media/channel/show/etc plus what metadata fields are there for each type, how are relations defined, images, does description text contain HTML, is it filtered somehow, ...
 
 - Collect status quo of RSS feed generation
-
 - Collect status quo of other read APIs
 
 ## Define internal data model
@@ -17,6 +16,7 @@ post/media/channel/show/etc plus what metadata fields are there for each type, h
 - Oriented at schema.org?
 - Compare existing standards
 - Define record types, their fields and their relations based on the research
+- See the [datamodel draft](datamodel.md)
 
 ## Spec out the "RSS oplog"
 
