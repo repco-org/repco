@@ -122,7 +122,10 @@ MediaAsset <--> Chapter
 MediaAsset --> Actor : role
 
 ```
+
 `License` should be on `MediaAsset`, `ContentItem`, `Show`, `PublicationChannel`
+
 `Image` should be on `MediaAsset`, `ContentItem`, `Show`, `Chapter`, `Grouping`
+
 `Contribution` should be on `MediaAsset`, `ContentItem`, `Collection`
 
