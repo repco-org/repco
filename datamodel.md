@@ -114,19 +114,6 @@ class Contribution {
     ➜actor
 }
 
-class Concept {
-    originNamespace
-    name
-    summary
-    description    
-    type[subject,person,event]
-    wikidataID
-    ➜hasParentConcept
-    ➜isChildOf
-    ➜isSameAs
-    ➜image
-}
-
 Contribution --> Actor
 Image --> File: 1
 ContentItem <--> Collection: n..1
@@ -149,3 +136,19 @@ Some relations are left out in the diagram to keep things clearer. Relations not
 
 `Contribution` is linked from `MediaAsset`, `ContentItem`, `Collection`
 
+
+```mermaid
+classDiagram
+class Concept {
+    originNamespace
+    name
+    summary
+    description    
+    type[subject,person,event]
+    wikidataID
+    ➜hasParentConcept
+    ➜isChildOf
+    ➜isSameAs
+    ➜image
+}
+Conecpt <--> Conecpt
