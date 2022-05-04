@@ -114,18 +114,17 @@ ContentItem --> MediaAsset: n..n
 Grouping --> Collection: n..1
 BroadcastEvent <--> BroadcastChannel
 BroadcastChannel <--> PublicationChannel
-PublicationChannel --> Actor
 MediaAsset <--> BroadcastEvent
 MediaAsset <--> File
 MediaAsset <--> Transcript
 MediaAsset <--> Chapter
-MediaAsset --> Actor : role
 
 ```
+Some relations are left out in the diagram to keep things clearer. Relations not in the diagram but part of the datamodel are:
 
-`License` should be on `MediaAsset`, `ContentItem`, `Show`, `PublicationChannel`
+`License` is linked from `MediaAsset`, `ContentItem`, `Show`, `PublicationChannel`
 
-`Image` should be on `MediaAsset`, `ContentItem`, `Show`, `Chapter`, `Grouping`
+`Image` is linked from `MediaAsset`, `ContentItem`, `Show`, `Chapter`, `Grouping`
 
-`Contribution` should be on `MediaAsset`, `ContentItem`, `Collection`
+`Contribution` is linked from `MediaAsset`, `ContentItem`, `Collection`
 
