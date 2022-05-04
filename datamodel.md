@@ -3,6 +3,8 @@
 repco defines a data model for the exchange of community media. This represenation is developed to suit a number of domains: Podcasts, community radio and television, conference recordings, collections of cultural heritage, arts.
 The data model is intended to be generic enough to fit these domains, and also be specific enough to become a shared basis for replication and shared frontends.
 
+The ➜ sigil before a field name denotes that this field is a relation (link) to another entity. Not all relations are marked in the doc, see below for relations left out for clarity of the diagram.
+
 ```mermaid
 classDiagram
 class License {
@@ -24,17 +26,18 @@ class MediaAsset {
    description
    mediaType[audio,video,image,document]
    duration
-   imageID
-   conceptID[]
-   contributorID[]
+   ➜image
+   ➜concepts
+   ➜contributors
+   ➜transcripts
 }
 class Chapter {
-    startTime
-    endTime
+    start
+    duration
     title
     type[music,speech]
     meta
-    concepts
+    ➜concepts
 }
 class Transcript {
     text
@@ -48,14 +51,15 @@ class Collection {
     subtitle
     summary
     description
-    imageID
     variant[EPISODIC|SERIAL]
     broadcastSchedule[channel, rrule]
-    contributorIDs
     rssFeedURL
     
     creationDate
     terminationDate
+    
+    ➜image
+    ➜contributors
 }
 
 class BroadcastEvent {
@@ -76,34 +80,51 @@ class ContentItem {
     subtitle
     summary
     fullText
-    concepts
-    showID
-    groupingID
+    
+    ➜collection
+    ➜grouping
     groupingDelta
-    contributorID[]
-    mediaAssetID[]
-    relatedContentItemID[]
+    ➜mediaAssets
+    ➜relatedContentItems
+    ➜concepts
 }
+
 class Grouping {
     title
-    showID
+    ordinalNumber
+    ➜show
 }
+
 class Actor {
     name
     type[person,group,organization]
-    name
     contactInformation
-    logo/avatar
+    ➜image
 }
+
 class Image {
     title
     alt
-    fileIDs
+    ➜files
 }
+
 class Contribution {
-    contributedTo
+    ➜contributedTo
     role
-    actor
+    ➜actor
+}
+
+class Concept {
+    originNamespace
+    name
+    summary
+    description    
+    type[subject,person,event]
+    wikidataID
+    ➜hasParentConcept
+    ➜isChildOf
+    ➜isSameAs
+    ➜image
 }
 
 Contribution --> Actor
