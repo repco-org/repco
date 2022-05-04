@@ -62,12 +62,13 @@ class Collection {
     
     ➜image
     ➜contributors
+    ➜concepts
 }
 
 class BroadcastEvent {
-    startTime
-    endTime
-    channel
+    start
+    duration
+    ➜channel
 }
 class BroadcastChannel {
     name
