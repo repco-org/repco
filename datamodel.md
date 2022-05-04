@@ -137,6 +137,8 @@ Some relations are left out in the diagram to keep things clearer. Relations not
 `Contribution` is linked from `MediaAsset`, `ContentItem`, `Collection`
 
 
+For denoting categories, subjects, tags and similar means of categorizing content, we are looking into a simple-yet-powerful nested and namespaced `Concept` model. Most entity types from above will feature a `concepts` field that relates an entity to one or more `Concept`s. Concepts themselves can be related to other concepts, both in a is-same-as relationship and in a hierarchical relationship. Concepts may be namespaced to make importing existing tagging hierarchies from third parties straightforward.
+
 ```mermaid
 classDiagram
 class Concept {
