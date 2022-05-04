@@ -121,6 +121,7 @@ Image --> File: 1
 ContentItem <--> Collection: n..1
 ContentItem <--> Grouping: n..1
 ContentItem --> MediaAsset: n..n
+ContentItem <--> BroadcastEvent
 Grouping --> Collection: n..1
 BroadcastEvent <--> BroadcastChannel
 BroadcastChannel <--> PublicationChannel
