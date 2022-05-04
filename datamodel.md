@@ -153,4 +153,8 @@ class Concept {
     ➜isSameAs
     ➜image
 }
-Conecpt <--> Conecpt
+Concept  <--> Concept
+Concept --> ContentItem
+Concept --> MediaAsset
+Concept --> Collection
+Concept --> Actor
