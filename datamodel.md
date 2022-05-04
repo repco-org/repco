@@ -161,3 +161,11 @@ Concept --> ContentItem
 Concept --> MediaAsset
 Concept --> Collection
 Concept --> Actor
+
+### IDs, headers and changes
+
+* all entities have an `id` property. Q: Will this be an internal or external id?
+* all entities have an `alternativeIDs` property with a list of alternative IDs
+* more metadata for tracking changes in a `header` property?
+
+*tbd*
