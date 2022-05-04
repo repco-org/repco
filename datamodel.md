@@ -162,6 +162,8 @@ Concept --> MediaAsset
 Concept --> Collection
 Concept --> Actor
 
+
+
 ### IDs, headers and changes
 
 * all entities have an `id` property. Q: Will this be an internal or external id?
