@@ -1,0 +1,158 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator erd {
+  provider = "prisma-erd-generator"
+  theme    = "forrest"
+}
+
+model License {
+  id   String @unique @default(uuid())
+  name String
+}
+
+model ContentItem {
+  id                       String                     @id @unique @default(uuid())
+  title                    String
+  subtitle                 String
+  summary                  String
+  fullText                 String
+  // What is that for?
+  groupingDelta            String
+  Collection               Collection?                @relation(fields: [collectionId], references: [id])
+  collectionId             String?
+  Grouping                 Grouping?                  @relation(fields: [groupingId], references: [id])
+  groupingId               String?
+  ContentItemsOnMediaAsset ContentItemsOnMediaAsset[]
+  // extra Table?!
+  relatedTo                ContentItem[]              @relation("Related", references: [id])
+  relatedFrom              ContentItem[]              @relation("Related", references: [id])
+}
+
+model ContentItemsOnMediaAsset {
+  contentItem   ContentItem @relation(fields: [contentItemId], references: [id])
+  contentItemId String
+  mediaAsset    MediaAsset  @relation(fields: [mediaAssetId], references: [id])
+  mediaAssetId  String
+
+  @@id([contentItemId, mediaAssetId])
+}
+
+model MediaAsset {
+  id                         String                       @unique @default(uuid())
+  title                      String
+  description                String
+  duration                   Float
+  ContentItemsOnMediaAsset   ContentItemsOnMediaAsset[]
+  MediaAssetOnBroadcastEvent MediaAssetOnBroadcastEvent[]
+  Transcript                 Transcript[]
+  Chapter                    Chapter[]
+}
+
+model MediaAssetOnBroadcastEvent {
+  mediaAsset       MediaAsset     @relation(fields: [mediaAssetId], references: [id])
+  mediaAssetId     String
+  broadcastEvent   BroadcastEvent @relation(fields: [broadcastEventId], references: [id])
+  broadcastEventId String
+
+  @@id([mediaAssetId, broadcastEventId])
+}
+
+model Chapter {
+  id           String     @unique @default(uuid())
+  start        String
+  duration     Float
+  title        String
+  meta         String
+  mediaAsset   MediaAsset @relation(fields: [mediaAssetId], references: [id])
+  mediaAssetId String
+}
+
+model BroadcastEvent {
+  id                         String                       @unique @default(uuid())
+  start                      String
+  duration                   Float
+  mediaAssetOnBroadcastEvent MediaAssetOnBroadcastEvent[]
+  broadcastChannel           BroadcastChannel             @relation(fields: [broadcastChannelId], references: [id])
+  broadcastChannelId         String                       @unique
+}
+
+model BroadcastChannel {
+  id               String           @unique @default(uuid())
+  name             String
+  publisher        String
+  broadcastEvents  BroadcastEvent[]
+  broadcastEventId String           @unique
+}
+
+model PublicationChannel {
+  id      String @unique @default(uuid())
+  address String
+}
+
+model Transcript {
+  id           String     @unique @default(uuid())
+  text         String
+  engine       String
+  mediaAsset   MediaAsset @relation(fields: [mediaAssetId], references: [id])
+  mediaAssetId String
+}
+
+model Grouping {
+  id            String        @unique @default(uuid())
+  title         String
+  ordinalNumber Int
+  contentItems  ContentItem[]
+}
+
+model Collection {
+  id              String        @unique @default(uuid())
+  title           String
+  subtitle        String
+  summary         String
+  description     String
+  rssFeedUrl      String
+  creationDate    DateTime
+  terminationDate DateTime
+  contentItems    ContentItem[]
+}
+
+model File {
+  id                 String  @unique @default(uuid())
+  contentUrl         String
+  mimeType           String
+  size               Float
+  hash               String
+  duration           Float
+  codec              String
+  bitrate            Float
+  resolution         String
+  additionalMetadata String
+  Image              Image[]
+}
+
+model Image {
+  id     String @unique @default(uuid())
+  title  String
+  alt    String
+  file   File   @relation(fields: [fileId], references: [id])
+  fileId String
+}
+
+model Contribution {
+  id   String @unique @default(uuid())
+  role String
+
+}
+
+model Actor {
+  id                 String @unique @default(uuid())
+  contactInformation String
+  role               String
+}
