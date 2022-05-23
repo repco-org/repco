@@ -33,7 +33,8 @@ model Actor {
   contactInformation String
   // same as type?
   role               String
-  // missing relation image/file
+  // may Image?
+  file File?
 }
 
 
@@ -179,6 +180,9 @@ model File {
   mediaAssetId String
   collection Collection @relation(fields: [collectionId], references: [id])
   collectionId String
+  actor Actor @relation(fields: [actorId], references: [id])
+  actorId String
+  
 }
 
 model Image {
