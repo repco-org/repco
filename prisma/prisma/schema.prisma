@@ -15,7 +15,27 @@ generator erd {
 model License {
   id   String @unique @default(uuid())
   name String
+  // missing relation MediaAsset, ContentItem, Show, PublicationChannl
 }
+
+model Contribution {
+  id   String @unique @default(uuid())
+  role String
+  // missing relation Actor, contributedTo
+
+}
+
+model Actor {
+  id                 String @unique @default(uuid())
+  name String
+  // better as Enum?
+  // type String
+  contactInformation String
+  // same as type?
+  role               String
+  // missing relation image/file
+}
+
 
 model ContentItem {
   id                       String                     @id @unique @default(uuid())
@@ -33,6 +53,7 @@ model ContentItem {
   // extra Table?!
   relatedTo                ContentItem[]              @relation("Related", references: [id])
   relatedFrom              ContentItem[]              @relation("Related", references: [id])
+// missing relation Concepts
 }
 
 model ContentItemsOnMediaAsset {
@@ -49,10 +70,14 @@ model MediaAsset {
   title                      String
   description                String
   duration                   Float
+  // mediaType as Enum?
+  mediaType String
   ContentItemsOnMediaAsset   ContentItemsOnMediaAsset[]
   MediaAssetOnBroadcastEvent MediaAssetOnBroadcastEvent[]
   Transcript                 Transcript[]
   Chapter                    Chapter[]
+  // image ... ?
+  File File?
 }
 
 model MediaAssetOnBroadcastEvent {
@@ -72,6 +97,7 @@ model Chapter {
   meta         String
   mediaAsset   MediaAsset @relation(fields: [mediaAssetId], references: [id])
   mediaAssetId String
+  // relation Concepts
 }
 
 model BroadcastEvent {
@@ -89,11 +115,15 @@ model BroadcastChannel {
   publisher        String
   broadcastEvents  BroadcastEvent[]
   broadcastEventId String           @unique
+  //one-to-many || many-to-many ?
+  publicationChannel PublicationChannel[]
 }
 
 model PublicationChannel {
   id      String @unique @default(uuid())
   address String
+  broadcatsChannel BroadcastChannel @relation(fields: [broadcastChannelId], references: [id])
+  broadcastChannelId String
 }
 
 model Transcript {
@@ -109,8 +139,11 @@ model Grouping {
   title         String
   ordinalNumber Int
   contentItems  ContentItem[]
+  // missing relation Collection
 }
 
+// name it Listing 
+// TODO check completness add relations
 model Collection {
   id              String        @unique @default(uuid())
   title           String
@@ -135,6 +168,8 @@ model File {
   resolution         String
   additionalMetadata String
   Image              Image[]
+  MediaAsset MediaAsset @relation(fields: [mediaAssetId], references: [id])
+  mediaAssetId String
 }
 
 model Image {
@@ -145,14 +180,21 @@ model Image {
   fileId String
 }
 
-model Contribution {
+
+
+
+// taging and categorization
+
+model Concept {
   id   String @unique @default(uuid())
-  role String
-
-}
-
-model Actor {
-  id                 String @unique @default(uuid())
-  contactInformation String
-  role               String
+  originNamespace String
+  name String
+  summary String
+  desciption String
+  type String
+  wikidataID String
+  // missing relation on Concepts
+  // hasParentConcept, is ChildOf, isSameAs, image/file
+  //missing - many to many -> ContentItem, MediaAsset, Collection, Actor
+  
 }
