@@ -141,7 +141,6 @@ model Grouping {
   contentItems  ContentItem[]
   collection Collection @relation(fields: [collectionId], references: [id])
   collectionId String
-  // missing relation Collection
 }
 
 // name it Listing 
