@@ -26,7 +26,9 @@ model Contribution {
   id   String @unique @default(uuid())
   role String
   actor Actor[]
-  // missing relation contributedTo
+  mediaAssets[]
+  ContentItem[]
+  collection[]
 
 }
 
@@ -62,6 +64,8 @@ model ContentItem {
   relatedFrom              ContentItem[]              @relation("Related", references: [id])
   license License @relation(fields: [licenseId], references: [id])
   licenseId String
+  contribution Contribution @relation(fields: [ContributionId], references: [id])
+  ContributionId String
 // missing relation Concepts
 }
 
@@ -90,6 +94,8 @@ model MediaAsset {
   File File?
   license License @relation(fields: [licenseId], references: [id])
   licenseId String
+  contribution Contribution @relation(fields: [ContributionId], references: [id])
+  ContributionId String
 }
 
 
@@ -180,6 +186,8 @@ model Collection {
   grouping Grouping[]
   //image ... ?
   file File?
+  contribution Contribution @relation(fields: [ContributionId], references: [id])
+  ContributionId String
 }
 
 model File {
