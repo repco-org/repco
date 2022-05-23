@@ -146,6 +146,8 @@ model Grouping {
 // TODO check completness add relations
 model Collection {
   id              String        @unique @default(uuid())
+  // as Enum?
+  type String
   title           String
   subtitle        String
   summary         String
@@ -154,6 +156,7 @@ model Collection {
   creationDate    DateTime
   terminationDate DateTime
   contentItems    ContentItem[]
+  // missing relation concepts file/image
 }
 
 model File {
