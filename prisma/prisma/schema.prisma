@@ -15,14 +15,18 @@ generator erd {
 model License {
   id   String @unique @default(uuid())
   name String
-  // missing relation MediaAsset, ContentItem, Show, PublicationChannl
+  mediaAsset MediaAsset[]
+  contentItem ContentItem[]
+  publicationChanle PublicationChannel[]
+  //show === Grouping?
+  grouping Grouping[]
 }
 
 model Contribution {
   id   String @unique @default(uuid())
   role String
   actor Actor[]
-  // missing relation Actor, contributedTo
+  // missing relation contributedTo
 
 }
 
@@ -40,7 +44,6 @@ model Actor {
   contributionId String
 }
 
-
 model ContentItem {
   id                       String                     @id @unique @default(uuid())
   title                    String
@@ -57,6 +60,8 @@ model ContentItem {
   // extra Table?!
   relatedTo                ContentItem[]              @relation("Related", references: [id])
   relatedFrom              ContentItem[]              @relation("Related", references: [id])
+  license License @relation(fields: [licenseId], references: [id])
+  licenseId String
 // missing relation Concepts
 }
 
@@ -68,6 +73,7 @@ model ContentItemsOnMediaAsset {
 
   @@id([contentItemId, mediaAssetId])
 }
+
 
 model MediaAsset {
   id                         String                       @unique @default(uuid())
@@ -82,7 +88,10 @@ model MediaAsset {
   Chapter                    Chapter[]
   // image ... ?
   File File?
+  license License @relation(fields: [licenseId], references: [id])
+  licenseId String
 }
+
 
 model MediaAssetOnBroadcastEvent {
   mediaAsset       MediaAsset     @relation(fields: [mediaAssetId], references: [id])
@@ -123,11 +132,15 @@ model BroadcastChannel {
   publicationChannel PublicationChannel[]
 }
 
+
+
 model PublicationChannel {
   id      String @unique @default(uuid())
   address String
   broadcatsChannel BroadcastChannel @relation(fields: [broadcastChannelId], references: [id])
   broadcastChannelId String
+  License License @relation(fields: [licenseId], references: [id])
+  licenseId String
 }
 
 model Transcript {
@@ -145,10 +158,12 @@ model Grouping {
   contentItems  ContentItem[]
   collection Collection @relation(fields: [collectionId], references: [id])
   collectionId String
+  License License @relation(fields: [licenseId], references: [id])
+  licenseId String
 }
 
 // name it Listing 
-// TODO check completness add relations
+// add relations
 model Collection {
   id              String        @unique @default(uuid())
   // as Enum?
