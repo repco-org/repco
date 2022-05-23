@@ -225,11 +225,10 @@ model Concept {
   desciption      String
   type            String
   wikidataID      String
-  // missing relation on Concepts
-  // hasParentConcept, is ChildOf, isSameAs, image/file
-  //missing - many to many -> ContentItem, MediaAsset, Collection, Actor
   contentItem     ContentItem[]
   mediaAsset      MediaAsset[]
   collection      Collection[]
   actor           Actor[]
+  // hasParentConcept, is ChildOf, isSameAs, image/file
+
 }
