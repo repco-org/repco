@@ -139,6 +139,8 @@ model Grouping {
   title         String
   ordinalNumber Int
   contentItems  ContentItem[]
+  collection Collection @relation(fields: [collectionId], references: [id])
+  collectionId String
   // missing relation Collection
 }
 
@@ -156,6 +158,8 @@ model Collection {
   creationDate    DateTime
   terminationDate DateTime
   contentItems    ContentItem[]
+  //shows
+  grouping Grouping[]
   // missing relation concepts file/image
 }
 
