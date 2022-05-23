@@ -21,6 +21,7 @@ model License {
 model Contribution {
   id   String @unique @default(uuid())
   role String
+  actor Actor[]
   // missing relation Actor, contributedTo
 
 }
@@ -35,6 +36,8 @@ model Actor {
   role               String
   // may Image?
   file File?
+  contribution Contribution @relation(fields: [contributionId], references: [id])
+  contributionId String
 }
 
 
