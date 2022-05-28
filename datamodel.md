@@ -9,30 +9,55 @@ The ➜ sigil before a field name denotes that this field is a relation (link) t
 
 ```mermaid
 classDiagram
-class License {
-    name
+class ContentGrouping {
+    groupingType[show, season, event]
+    title
+    subtitle
+    summary
+    description
+    variant [episodic, serial]
+    broadcastSchedule [channel, rrule]
+    
+    beginningDate
+    terminationDate
+    
+    ➜teaserImage
+    ➜contributors
+    ➜concepts
 }
-class File {
-    contentURL
-    mimetype
-    size
-    hash
-    duration
-    codec
-    bitrate
-    resolution
-    additionalMetadata
+class ContentItem {
+    title
+    subtitle
+    summary
+    fullText
+    ➜teaserImage
+    ➜groupings
+    ➜mediaAssets
+    ➜relatedContentItems
+    ➜concepts
 }
+
 class MediaAsset {
    title
    description
    mediaType[audio,video,image,document]
    duration
-   ➜image
+   ➜teaserImage
    ➜concepts
    ➜contributors
    ➜transcripts
 }
+
+class File {
+    contentURL
+    mediaType [audiovideo,image,other]
+    mimetype
+    size
+    hash
+    audioVideoTracks?
+    imageMetadata?
+}
+
 class Chapter {
     start
     duration
@@ -47,89 +72,53 @@ class Transcript {
     engine
 }
 
-class Collection {
-    type[podcast,event]
-    title
-    subtitle
-    summary
-    description
-    variant[EPISODIC|SERIAL]
-    broadcastSchedule[channel, rrule]
-    rssFeedURL
-    
-    creationDate
-    terminationDate
-    
-    ➜image
-    ➜contributors
-    ➜concepts
-}
-
 class BroadcastEvent {
     start
     duration
     ➜channel
 }
-class BroadcastChannel {
+class BroadcastService {
     name
-    publisher
-}
-class PublicationChannel {
-    type(FM, Web)
-    address
-}
-class ContentItem {
-    title
-    subtitle
-    summary
-    fullText
-    
-    ➜collection
-    ➜grouping
-    groupingDelta
-    ➜mediaAssets
-    ➜relatedContentItems
-    ➜concepts
+    organization 
+    publications[web,fm,..]
 }
 
-class Grouping {
-    title
-    ordinalNumber
-    ➜show
-}
+ContentItem <-- ContentGrouping
+ContentGrouping <-- ContentGrouping
+ContentItem --> MediaAsset
+BroadcastEvent --> BroadcastService
+BroadcastService --> Organization
+MediaAsset --> BroadcastEvent
+MediaAsset --> File
+MediaAsset --> Transcript
+MediaAsset --> Chapter
 
+```
+
+actors and contributions:
+```mermaid
+classDiagram
 class Actor {
     name
     type[person,group,organization]
     contactInformation
     ➜image
 }
-
-class Image {
-    title
-    alt
-    ➜files
-}
-
 class Contribution {
     ➜contributedTo
     role
     ➜actor
 }
-
+class License {
+    name
+}
 Contribution --> Actor
-Image --> File: 1
-ContentItem <--> Collection: n..1
-ContentItem <--> Grouping: n..1
-ContentItem --> MediaAsset: n..n
-ContentItem <--> BroadcastEvent
-Grouping --> Collection: n..1
-BroadcastEvent <--> BroadcastChannel
-BroadcastChannel <--> PublicationChannel
-MediaAsset <--> BroadcastEvent
-MediaAsset <--> File
-MediaAsset <--> Transcript
-MediaAsset <--> Chapter
+ContentItem --> Contribution
+MediaAsset --> Contribution
+ContentItem --> License
+MediaAsset --> License
+end
+
 
 ```
 Some relations are left out in the diagram to keep things clearer. Relations not in the diagram but part of the datamodel are:
