@@ -13,8 +13,38 @@ generator erd {
 }
 
 model License {
-  id   String @unique @default(uuid())
-  name String
+  id                String               @id @unique @default(uuid())
+  name              String
+  mediaAsset        MediaAsset[]
+  contentItem       ContentItem[]
+  publicationChanle PublicationChannel[]
+  //show === Grouping?
+  grouping          Grouping[]
+}
+
+model Contribution {
+  id          String        @id @unique @default(uuid())
+  role        String
+  actor       Actor[]
+  mediaAsset  MediaAsset[]
+  contentItem ContentItem[]
+  collection  Collection[]
+
+}
+
+model Actor {
+  id                 String       @id @unique @default(uuid())
+  name               String
+  // better as Enum?
+  contactInformation String
+  // same as type?
+  // type String
+  role               String
+  // may Image?
+  file               File?
+  contribution       Contribution @relation(fields: [contributionId], references: [id])
+  contributionId     String
+  concept            Concept[]
 }
 
 model ContentItem {
@@ -33,6 +63,11 @@ model ContentItem {
   // extra Table?!
   relatedTo                ContentItem[]              @relation("Related", references: [id])
   relatedFrom              ContentItem[]              @relation("Related", references: [id])
+  license                  License                    @relation(fields: [licenseId], references: [id])
+  licenseId                String
+  contribution             Contribution               @relation(fields: [ContributionId], references: [id])
+  ContributionId           String
+  concept                  Concept[]
 }
 
 model ContentItemsOnMediaAsset {
@@ -45,14 +80,23 @@ model ContentItemsOnMediaAsset {
 }
 
 model MediaAsset {
-  id                         String                       @unique @default(uuid())
+  id                         String                       @id @unique @default(uuid())
   title                      String
   description                String
   duration                   Float
+  // mediaType as Enum?
+  mediaType                  String
   ContentItemsOnMediaAsset   ContentItemsOnMediaAsset[]
   MediaAssetOnBroadcastEvent MediaAssetOnBroadcastEvent[]
   Transcript                 Transcript[]
   Chapter                    Chapter[]
+  // image ... ?
+  File                       File?
+  license                    License                      @relation(fields: [licenseId], references: [id])
+  licenseId                  String
+  contribution               Contribution                 @relation(fields: [ContributionId], references: [id])
+  ContributionId             String
+  concept                    Concept[]
 }
 
 model MediaAssetOnBroadcastEvent {
@@ -65,7 +109,7 @@ model MediaAssetOnBroadcastEvent {
 }
 
 model Chapter {
-  id           String     @unique @default(uuid())
+  id           String     @id @unique @default(uuid())
   start        String
   duration     Float
   title        String
@@ -75,7 +119,7 @@ model Chapter {
 }
 
 model BroadcastEvent {
-  id                         String                       @unique @default(uuid())
+  id                         String                       @id @unique @default(uuid())
   start                      String
   duration                   Float
   mediaAssetOnBroadcastEvent MediaAssetOnBroadcastEvent[]
@@ -84,20 +128,25 @@ model BroadcastEvent {
 }
 
 model BroadcastChannel {
-  id               String           @unique @default(uuid())
-  name             String
-  publisher        String
-  broadcastEvents  BroadcastEvent[]
-  broadcastEventId String           @unique
+  id                 String               @id @unique @default(uuid())
+  name               String
+  publisher          String
+  broadcastEvents    BroadcastEvent[]
+  broadcastEventId   String               @unique
+  publicationChannel PublicationChannel[]
 }
 
 model PublicationChannel {
-  id      String @unique @default(uuid())
-  address String
+  id                 String           @id @unique @default(uuid())
+  address            String
+  broadcatsChannel   BroadcastChannel @relation(fields: [broadcastChannelId], references: [id])
+  broadcastChannelId String
+  License            License          @relation(fields: [licenseId], references: [id])
+  licenseId          String
 }
 
 model Transcript {
-  id           String     @unique @default(uuid())
+  id           String     @id @unique @default(uuid())
   text         String
   engine       String
   mediaAsset   MediaAsset @relation(fields: [mediaAssetId], references: [id])
@@ -105,14 +154,21 @@ model Transcript {
 }
 
 model Grouping {
-  id            String        @unique @default(uuid())
+  id            String        @id @unique @default(uuid())
   title         String
   ordinalNumber Int
   contentItems  ContentItem[]
+  collection    Collection    @relation(fields: [collectionId], references: [id])
+  collectionId  String
+  License       License       @relation(fields: [licenseId], references: [id])
+  licenseId     String
 }
 
+// name it Listing
 model Collection {
-  id              String        @unique @default(uuid())
+  id              String        @id @unique @default(uuid())
+  // as Enum?
+  type            String
   title           String
   subtitle        String
   summary         String
@@ -121,10 +177,17 @@ model Collection {
   creationDate    DateTime
   terminationDate DateTime
   contentItems    ContentItem[]
+  //shows
+  grouping        Grouping[]
+  //image ... ?
+  file            File?
+  contribution    Contribution  @relation(fields: [ContributionId], references: [id])
+  ContributionId  String
+  concept         Concept[]
 }
 
 model File {
-  id                 String  @unique @default(uuid())
+  id                 String     @id @unique @default(uuid())
   contentUrl         String
   mimeType           String
   size               Float
@@ -135,24 +198,37 @@ model File {
   resolution         String
   additionalMetadata String
   Image              Image[]
+  MediaAsset         MediaAsset @relation(fields: [mediaAssetId], references: [id])
+  mediaAssetId       String     @unique
+  collection         Collection @relation(fields: [collectionId], references: [id])
+  collectionId       String     @unique
+  actor              Actor      @relation(fields: [actorId], references: [id])
+  actorId            String     @unique
+
 }
 
 model Image {
-  id     String @unique @default(uuid())
+  id     String @id @unique @default(uuid())
   title  String
   alt    String
   file   File   @relation(fields: [fileId], references: [id])
   fileId String
 }
 
-model Contribution {
-  id   String @unique @default(uuid())
-  role String
+// taging and categorization
 
-}
+model Concept {
+  id              String        @id @unique @default(uuid())
+  originNamespace String
+  name            String
+  summary         String
+  desciption      String
+  type            String
+  wikidataID      String
+  contentItem     ContentItem[]
+  mediaAsset      MediaAsset[]
+  collection      Collection[]
+  actor           Actor[]
+  // hasParentConcept, is ChildOf, isSameAs, image/file
 
-model Actor {
-  id                 String @unique @default(uuid())
-  contactInformation String
-  role               String
 }
