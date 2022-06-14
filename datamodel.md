@@ -9,6 +9,7 @@ The ➜ sigil before a field name denotes that this field is a relation (link) t
 
 ```mermaid
 classDiagram
+direction LR
 class ContentGrouping {
     groupingType[show, season, event]
     title
@@ -25,6 +26,9 @@ class ContentGrouping {
     ➜contributors
     ➜concepts
 }
+ContentGrouping --> ContentItem
+ContentGrouping --> ContentGrouping
+
 class ContentItem {
     title
     subtitle
@@ -72,6 +76,7 @@ class Transcript {
     engine
 }
 
+
 class BroadcastEvent {
     start
     duration
@@ -82,9 +87,12 @@ class BroadcastService {
     organization 
     publications[web,fm,..]
 }
+class Organization {
+    name
+    title
+}
 
-ContentItem <-- ContentGrouping
-ContentGrouping <-- ContentGrouping
+
 ContentItem --> MediaAsset
 BroadcastEvent --> BroadcastService
 BroadcastService --> Organization
@@ -98,6 +106,8 @@ MediaAsset --> Chapter
 actors and contributions:
 ```mermaid
 classDiagram
+direction LR
+
 class Actor {
     name
     type[person,group,organization]
@@ -135,6 +145,8 @@ For denoting categories, subjects, tags and similar means of categorizing conten
 
 ```mermaid
 classDiagram
+direction LR
+
 class Concept {
     originNamespace
     name
