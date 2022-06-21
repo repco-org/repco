@@ -6,6 +6,9 @@
         "lib": [
             "esnext"
         ],
-        "esModuleInterop": true
-    }
+        "esModuleInterop": true,
+        "target": "esnext",
+        "experimentalDecorators": true
+        "moduleResolution": "node"
+    },
 }
