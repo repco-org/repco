@@ -1,5 +1,5 @@
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -7,152 +7,195 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator dbml {
+  provider = "prisma-dbml-generator"
+  output = "../generated/dbml"
+}
 generator erd {
   provider = "prisma-erd-generator"
   theme    = "forrest"
+  output = "../generated/erd-diagram.svg"
 }
 
-model License {
-  id   String @unique @default(uuid())
-  name String
+generator docs {
+  provider = "node node_modules/prisma-docs-generator"
+  output = "../generated/docs"
+}
+
+generator pothos {
+  provider = "prisma-pothos-types"
+  clientOutput = "@prisma/client"
+  output = "../generated/pothos/pothos-types.ts"
+}
+
+generator class_validator {
+  provider   = "prisma-class-validator-generator"
+  output     = "../generated/models"
+}
+
+generator graphql {
+  provider = "graphql-schema-generator"
+  createCRUD = "true"
+  output = "../generated/graphql"
+}
+
+enum ContentGroupingVariant {
+  EPISODIC
+  SERIAL
+}
+
+model ContentGrouping {
+  uid          String @id @unique
+  groupingType String // TODO: enum?
+
+  title       String
+  subtitle    String
+  summary     String
+  description String
+
+  variant           ContentGroupingVariant
+  broadcastSchedule String // TODO: JSON (channel, rrule)
+
+  startingDate    DateTime
+  terminationDate DateTime
+
+  license                License       @relation(fields: [licenseUid], references: [uid])
+  licenseUid             String
+  contentItemsPrimary    ContentItem[] @relation("primaryGrouping")
+  contentItemsAdditional ContentItem[]
 }
 
 model ContentItem {
-  id                       String                     @id @unique @default(uuid())
-  title                    String
-  subtitle                 String
-  summary                  String
-  fullText                 String
-  // What is that for?
-  groupingDelta            String
-  Collection               Collection?                @relation(fields: [collectionId], references: [id])
-  collectionId             String?
-  Grouping                 Grouping?                  @relation(fields: [groupingId], references: [id])
-  groupingId               String?
-  ContentItemsOnMediaAsset ContentItemsOnMediaAsset[]
-  // extra Table?!
-  relatedTo                ContentItem[]              @relation("Related", references: [id])
-  relatedFrom              ContentItem[]              @relation("Related", references: [id])
+  uid                  String            @id @unique
+  title               String
+  subtitle            String
+  summary             String
+  content             String
+  contentFormat       String
+  primaryGrouping     ContentGrouping   @relation("primaryGrouping", fields: [primaryGroupingUid], references: [uid])
+  primaryGroupingUid  String
+  additionalGroupings ContentGrouping[]
+  license             License           @relation(fields: [licenseUid], references: [uid])
+  licenseUid          String
+  mediaAssets         MediaAsset[]
+  contributions       Contribution[]
+  concepts            Concept[]
+  broadcastEvents    BroadcastEvent[]
 }
 
-model ContentItemsOnMediaAsset {
-  contentItem   ContentItem @relation(fields: [contentItemId], references: [id])
-  contentItemId String
-  mediaAsset    MediaAsset  @relation(fields: [mediaAssetId], references: [id])
-  mediaAssetId  String
-
-  @@id([contentItemId, mediaAssetId])
+model License {
+  uid              String            @id @unique
+  name             String
+  contentItems     ContentItem[]
+  mediaAssets      MediaAsset[]
+  contentGroupings ContentGrouping[]
 }
 
 model MediaAsset {
-  id                         String                       @unique @default(uuid())
-  title                      String
-  description                String
-  duration                   Float
-  ContentItemsOnMediaAsset   ContentItemsOnMediaAsset[]
-  MediaAssetOnBroadcastEvent MediaAssetOnBroadcastEvent[]
-  Transcript                 Transcript[]
-  Chapter                    Chapter[]
-}
+  uid         String  @id @unique
+  title       String
+  description String?
 
-model MediaAssetOnBroadcastEvent {
-  mediaAsset       MediaAsset     @relation(fields: [mediaAssetId], references: [id])
-  mediaAssetId     String
-  broadcastEvent   BroadcastEvent @relation(fields: [broadcastEventId], references: [id])
-  broadcastEventId String
+  file  File @relation("file", fields: [fileUid], references: [uid])
+  fileUid String
 
-  @@id([mediaAssetId, broadcastEventId])
-}
+  duration  Float?
+  mediaType String // TODO: Enum?
 
-model Chapter {
-  id           String     @unique @default(uuid())
-  start        String
-  duration     Float
-  title        String
-  meta         String
-  mediaAsset   MediaAsset @relation(fields: [mediaAssetId], references: [id])
-  mediaAssetId String
-}
+  contentItems   ContentItem[]
+  transcripts    Transcript[]
+  chapters       Chapter[]
+  teaserImage    File?         @relation("thumbnail", fields: [teaserImageUid], references: [uid])
+  teaserImageUid String
 
-model BroadcastEvent {
-  id                         String                       @unique @default(uuid())
-  start                      String
-  duration                   Float
-  mediaAssetOnBroadcastEvent MediaAssetOnBroadcastEvent[]
-  broadcastChannel           BroadcastChannel             @relation(fields: [broadcastChannelId], references: [id])
-  broadcastChannelId         String                       @unique
-}
+  license    License @relation(fields: [licenseUid], references: [uid])
+  licenseUid String
 
-model BroadcastChannel {
-  id               String           @unique @default(uuid())
-  name             String
-  publisher        String
-  broadcastEvents  BroadcastEvent[]
-  broadcastEventId String           @unique
-}
-
-model PublicationChannel {
-  id      String @unique @default(uuid())
-  address String
-}
-
-model Transcript {
-  id           String     @unique @default(uuid())
-  text         String
-  engine       String
-  mediaAsset   MediaAsset @relation(fields: [mediaAssetId], references: [id])
-  mediaAssetId String
-}
-
-model Grouping {
-  id            String        @unique @default(uuid())
-  title         String
-  ordinalNumber Int
-  contentItems  ContentItem[]
-}
-
-model Collection {
-  id              String        @unique @default(uuid())
-  title           String
-  subtitle        String
-  summary         String
-  description     String
-  rssFeedUrl      String
-  creationDate    DateTime
-  terminationDate DateTime
-  contentItems    ContentItem[]
-}
-
-model File {
-  id                 String  @unique @default(uuid())
-  contentUrl         String
-  mimeType           String
-  size               Float
-  hash               String
-  duration           Float
-  codec              String
-  bitrate            Float
-  resolution         String
-  additionalMetadata String
-  Image              Image[]
-}
-
-model Image {
-  id     String @unique @default(uuid())
-  title  String
-  alt    String
-  file   File   @relation(fields: [fileId], references: [id])
-  fileId String
+  contributions Contribution[]
+  concepts      Concept[]
 }
 
 model Contribution {
-  id   String @unique @default(uuid())
-  role String
-
+  uid          String        @id @unique
+  role         String
+  actors       Actor[]
+  mediaAssets  MediaAsset[]
+  contentItems ContentItem[]
 }
 
 model Actor {
-  id                 String @unique @default(uuid())
-  contactInformation String
-  role               String
+  uid                  String             @id @unique
+  name                 String
+  personOrOrganization String
+  contactInformation   String
+  profilePicture       File?              @relation(fields: [profilePictureUid], references: [uid])
+  profilePictureUid    String
+  contributions        Contribution[]
+  broadcastService     BroadcastService[]
+}
+
+model Chapter {
+  uid           String     @id @unique
+  start         Float
+  duration      Float
+  title         String
+  type          String // TODO: enum?
+  mediaAsset    MediaAsset @relation(fields: [mediaAssetUid], references: [uid])
+  mediaAssetUid String
+}
+
+model BroadcastEvent {
+  uid                 String           @id @unique
+  start               Float
+  duration            Float
+  contentItem         ContentItem @relation(fields: [contentItemUid], references: [uid])
+  contentItemUid String
+  broadcastService    BroadcastService @relation(fields: [broadcastServiceUid], references: [uid])
+  broadcastServiceUid String
+}
+
+model BroadcastService {
+  uid             String           @id @unique
+  name            String
+  publisher       Actor            @relation(fields: [publisherUid], references: [uid])
+  publisherUid    String
+  broadcastEvents BroadcastEvent[]
+  medium          String // FM, Web, ...
+  address         String
+}
+
+model Transcript {
+  uid           String     @id @unique
+  language      String
+  text          String
+  engine        String
+  mediaAsset    MediaAsset @relation(fields: [mediaAssetUid], references: [uid])
+  mediaAssetUid String
+}
+
+model File {
+  uid                String       @id @unique
+  contentUrl         String
+  mimeType           String
+  contentSize        Int // size in bytes
+  multihash          String // hash encoded as multihash (IPFS spec)
+  duration           Float
+  codec              String
+  bitrate            Int
+  resolution         String
+  additionalMetadata String
+  asMediaAssets       MediaAsset[] @relation("file")
+  asThumbnail         MediaAsset[] @relation("thumbnail")
+  actors              Actor[]
+}
+
+model Concept {
+  uid             String        @id @unique
+  originNamespace String
+  name            String
+  summary         String
+  description     String
+  wikidataID      String
+  contentItems    ContentItem[]
+  mediaAssets     MediaAsset[]
 }
