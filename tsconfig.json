@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "include": ["src/**/*", "sandbox/**/*"],
+  "compilerOptions": {
+    "sourceMap": true,
+    "outDir": "dist",
+    "typeRoots": [ "./types", "../node_modules/@types"],
+    "lib": ["esnext", "dom"],
+    "module": "es2020",
+    "moduleResolution": "node",
+    "target": "es2020",
+    "declaration": true,
+    "checkJs": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": ["node"]
+  }
+}
