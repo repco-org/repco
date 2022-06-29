@@ -49,18 +49,18 @@ model ContentGrouping {
   groupingType String // TODO: enum?
 
   title       String
-  subtitle    String
-  summary     String
-  description String
+  subtitle    String?
+  summary     String?
+  description String?
 
   variant           ContentGroupingVariant
-  broadcastSchedule String // TODO: JSON (channel, rrule)
+  broadcastSchedule String? // TODO: JSON (channel, rrule)
 
-  startingDate    DateTime
-  terminationDate DateTime
+  startingDate    DateTime?
+  terminationDate DateTime?
 
-  license                License       @relation(fields: [licenseUid], references: [uid])
-  licenseUid             String
+  license                License?       @relation(fields: [licenseUid], references: [uid])
+  licenseUid             String?
   contentItemsPrimary    ContentItem[] @relation("primaryGrouping")
   contentItemsAdditional ContentItem[]
 }
