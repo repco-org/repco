@@ -1,5 +1,7 @@
 import { UID } from "./shared.js";
-import { Entity, EntityBatch } from "./entity.js";
+import { EntityBatch } from "./entity.js";
+import { HttpError } from "./helpers/httpErrors.js";
+
 
 export type DataSourceDefinition = {
   // The unique ID for this data source instance.
@@ -27,6 +29,7 @@ export interface DataSourceStatic {
 export interface DataSource {
   // get definition (): DataSourceDefinition;
   fetchUpdates(cursor: string | null): Promise<EntityBatch>;
+  urn (type: string, id: string | number): string;
   // fetchByUID(uid: string): Promise<Entity>;
 }
 
