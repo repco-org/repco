@@ -1,5 +1,9 @@
 {
   "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w"
+  },
   "devDependencies": {
     "@types/node": "^18.0.0",
     "typedoc": "^0.22.17",

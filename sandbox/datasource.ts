@@ -1,6 +1,6 @@
 import { UID } from "./shared.js";
 import { EntityBatch } from "./entity.js";
-import { HttpError } from "./helpers/httpErrors.js";
+import { HttpError } from "./helpers/error.js";
 
 
 export type DataSourceDefinition = {

@@ -1,5 +1,5 @@
 import { CbaDataSource } from "./datasources/cba.js";
-import { EntityBatch } from "./datasources/entity.js";
+import { EntityBatch } from "./entity.js";
 
 main().catch(console.error)
 

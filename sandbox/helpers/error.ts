@@ -1,6 +1,3 @@
-import { Entity, EntityBatch } from "../../sandbox/datasources/entity";
-
-
 export class HttpError extends Error {
   constructor (public code: number, message: string, public details?: any) {
     super(message)
