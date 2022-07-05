@@ -1,17 +1,13 @@
 // @ts-ignore
 import { fetch } from 'fetch-undici'
 
-import { DataSource } from "../datasource.js";
-import { Entity, EntityBatch, ContentItem, ContentGrouping } from "../entity.js";
+import { DataSource } from "./datasource.js";
+import { Entity, EntityBatch, ContentItem, ContentGrouping } from "./entity.js";
 import { CbaPost, CbaSeries } from './cba/types.js';
+import { HttpError } from '../helpers/httpErrors.js'
+import { extractCursorAndMap, FetchOpts } from '../helpers/datamapping.js'
 
-interface MapFn<T> {
-  (input: T): Entity[];
-}
 
-interface ExtractCursorFn<T> {
-  (input: T): string
-}
 
 // series:
 // https://cba.fro.at/wp-json/wp/v2/series?page=1&per_page=1&_embed&orderby=modified&order=asc&modified_after=2021-07-27T10:29:04
@@ -24,7 +20,7 @@ interface ExtractCursorFn<T> {
 // posts:
 // https://cba.fro.at/wp-json/wp/v2/posts
 
-export class CbaDataSource implements DataSource {
+export class CbaDataSource implements DataSource{
   endpoint: string
   constructor () {
     this.endpoint = 'https://cba.fro.at/wp-json/wp/v2'
@@ -140,31 +136,3 @@ export class CbaDataSource implements DataSource {
   
 }
 
-class HttpError extends Error {
-  constructor (public code: number, message: string, public details?: any) {
-    super(message)
-    this.code = code
-    this.details = details
-  }
-  static fromResponse (res: Response) {
-    return new HttpError(res.status, res.statusText)
-  }
-}
-
-export type FetchOpts = ResponseInit & {
-  params?: Record<string, any>
-}
-
-function extractCursorAndMap<T>(
-  input: T[], 
-  map: MapFn<T>,
-  extractCursor: ExtractCursorFn<T>,
-): EntityBatch | null {
-  if (!input.length) return null
-  const nextCursor = extractCursor(input.at(input.length - 1)!)
-  const entities = []
-  for (const item of input) {
-    entities.push(...map(item))
-  }
-  return { cursor: nextCursor, entities }
-}
