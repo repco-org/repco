@@ -1,4 +1,4 @@
-import { Entity, EntityBatch } from "../../sandbox/entity";
+import { Entity, EntityBatch } from "../../sandbox/datasources/entity";
 
 
 export class HttpError extends Error {

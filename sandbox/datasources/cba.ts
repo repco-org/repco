@@ -1,8 +1,8 @@
 // @ts-ignore
 import { fetch } from 'fetch-undici'
 
-import { DataSource } from "../datasource.js";
-import { Entity, EntityBatch, ContentItem, ContentGrouping } from "../entity.js";
+import { DataSource } from "./datasource.js";
+import { Entity, EntityBatch, ContentItem, ContentGrouping } from "./entity.js";
 import { CbaPost, CbaSeries } from './cba/types.js';
 import { HttpError } from '../helpers/httpErrors.js'
 import { extractCursorAndMap, FetchOpts } from '../helpers/datamapping.js'

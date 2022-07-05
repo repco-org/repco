@@ -1,4 +1,4 @@
-import { Entity, EntityBatch } from "../entity.js";
+import { Entity, EntityBatch } from "../datasources/entity.js";
 
 interface ExtractCursorFn<T> {
   (input: T): string
