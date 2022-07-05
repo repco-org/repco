@@ -1,13 +1,10 @@
 // @ts-ignore
 import { fetch } from 'fetch-undici'
-
-import { DataSource } from "../datasource.js";
+import { DataSource, DataSourceDefinition } from "../datasource.js";
 import { Entity, EntityBatch, ContentItem, ContentGrouping } from "../entity.js";
 import { CbaPost, CbaSeries } from './cba/types.js';
 import { HttpError } from '../helpers/error.js'
 import { extractCursorAndMap, FetchOpts } from '../helpers/datamapping.js'
-
-
 
 // series:
 // https://cba.fro.at/wp-json/wp/v2/series?page=1&per_page=1&_embed&orderby=modified&order=asc&modified_after=2021-07-27T10:29:04
@@ -25,6 +22,14 @@ export class CbaDataSource implements DataSource{
   constructor () {
     this.endpoint = 'https://cba.fro.at/wp-json/wp/v2'
   }
+
+  get definition(): DataSourceDefinition {
+    return {
+      name: 'Cultural Broacasting Archive',
+      uid: 'repco:datasource:cba.media'
+    }
+  }
+
   async fetchUpdates(cursorString: string | null): Promise<EntityBatch> {
     const cursor = cursorString ? JSON.parse(cursorString) : {}
     const entities = []
@@ -50,8 +55,12 @@ export class CbaDataSource implements DataSource{
   }
 
 
-  urn (type: string, id: string | number): string {
+  private _urn (type: string, id: string | number): string {
     return `urn:repco:cba.media:${type}:${id}`
+  }
+
+  private _revisionUrn (type: string, id: string | number, revisionId: string | number): string {
+    return `urn:repco:cba.media:revision:${type}:${id}:${revisionId}`
   }
 
   private async _fetchSeries(cursor?: string) {
@@ -82,10 +91,11 @@ export class CbaDataSource implements DataSource{
 
   private _mapSeries(series: CbaSeries): Entity[] {
     const item: ContentGrouping = {
-      uid: this.urn('series', series.id),
+      uid: this._urn('series', series.id),
+      revisionId: this._revisionUrn("series", series.id, new Date(series.modified).getTime()),
       title: series.title.rendered,
       description: series.content.rendered,
-      licenseUid: 'missing',
+      licenseUid: null,
       groupingType: 'show',
       subtitle: null,
       summary: null,
@@ -94,24 +104,25 @@ export class CbaDataSource implements DataSource{
       terminationDate: null,
       variant: 'EPISODIC'
     }
-    return [item]
+    return [{ type: 'ContentGrouping', value: item }]
   }
 
   private _mapPost(post: CbaPost): Entity[] {
     const item: ContentItem = {
-      uid: this.urn('post', post.id),
+      uid: this._urn('post', post.id),
+      revisionId: this._revisionUrn("post", post.id, new Date(post.modified).getTime()),
       content: post.content.rendered,
       contentFormat: 'text/html',
       title: post.title.rendered,
-      licenseUid: 'missing',
-      primaryGroupingUid: 'missing',
+      licenseUid: null,
+      primaryGroupingUid: null,
       subtitle: 'missing',
       summary: post.excerpt.rendered,
     }
-    return [item]
+    return [{ type: 'ContentItem', value: item }]
   }
 
-  async _fetch<T = any>(urlString: string, opts: FetchOpts = {}): Promise<T> {
+  private async _fetch<T = any>(urlString: string, opts: FetchOpts = {}): Promise<T> {
     const url = new URL(this.endpoint + urlString)
     if (opts.params) {
       for (const [key, value] of Object.entries(opts.params)) {
@@ -132,7 +143,4 @@ export class CbaDataSource implements DataSource{
     const json = await res.json()
     return json as T
   }
-
-  
 }
-

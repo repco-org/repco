@@ -1,26 +1,39 @@
 import { CbaDataSource } from "./datasources/cba.js";
-import { EntityBatch } from "./entity.js";
+import { PrismaClient } from "./prisma.js"
+import * as dotenv from "dotenv"
+import { persistUpdatesFromDataSource  } from "./datasource.js";
 
+const USAGE = `Usage: node example.js <COMMAND>
+
+Commands:
+  ingest         Fetch and persist updates from datasources
+  log-revisions  Load and print all revisions from the local database`
+
+dotenv.config()
 main().catch(console.error)
 
 async function main () {
+  const [command] = process.argv.slice(2)
+  const prisma = new PrismaClient()
   const ds = new CbaDataSource()
-
-  let iterations = 2
-  let cursor = null
-  while (--iterations >= 0) {
-    // const cursor = await fetchCursor(ds.id)
-    console.log('fetch updates for cursor', cursor)
-    const result: EntityBatch = await ds.fetchUpdates(cursor)
-    // await saveBatch(result.entities)
-    // await saveCursor(ds.id, cursor)
-    console.log('result', result)
-    cursor = result.cursor
+  if (command === 'ingest') {
+    console.log(`Ingest updates from \`${ds.definition.uid}\` ("${ds.definition.name}")`)
+    const { count, cursor } = await persistUpdatesFromDataSource(prisma, ds)
+    console.log(`Ingested ${count} new revisions. New cursor: ${cursor}`)
+  } else if (command === 'log-revisions') {
+    await loadAndLogAllEntities(prisma)
+  } else {
+    console.log(USAGE)
+    process.exit(1)
   }
-  // console.log('cursor', cursor)
-  // console.log('result', result)
-  // const nextCursor = result.cursor
-  // console.log('cursor', nextCursor)
-  // const result = await ds.fetchUpdates(cursor)
-  // console.log('result', result)
+}
+
+async function loadAndLogAllEntities (prisma: PrismaClient) {
+  const revisions = await prisma.revision.findMany({
+    include: {
+      contentItem: true,
+      contentGrouping: true
+    }
+  })
+  console.log(JSON.stringify(revisions, null, 2))
 }

@@ -2,21 +2,17 @@ import  {
   ContentItem,
   ContentGrouping,
   MediaAsset,
+  Revision
 } from './prisma.js'
-import { RID, UID } from './shared.js'
 
-export { ContentItem, MediaAsset, ContentGrouping }
-
-export type Revision = {
-  uid: UID,
-  rid: RID,
-  entityType: string,
-  parentRevision: string,
-}
+export { ContentItem, MediaAsset, ContentGrouping, Revision }
 
 export type EntityBatch = {
   cursor: string,
   entities: Entity[]
 }
 
-export type Entity = ContentItem | MediaAsset | ContentGrouping
+export type Entity = {
+  type: string,
+  value: ContentItem | MediaAsset | ContentGrouping
+}

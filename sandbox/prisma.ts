@@ -1,1 +1,1 @@
-export * from '../prisma/node_modules/.prisma/client'
+export * from '../prisma/node_modules/.prisma/client/index.js'

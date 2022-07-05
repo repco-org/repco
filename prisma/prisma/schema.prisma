@@ -9,34 +9,35 @@ generator client {
 
 generator dbml {
   provider = "prisma-dbml-generator"
-  output = "../generated/dbml"
+  output   = "../generated/dbml"
 }
+
 generator erd {
   provider = "prisma-erd-generator"
   theme    = "forrest"
-  output = "../generated/erd-diagram.svg"
+  output   = "../generated/erd-diagram.svg"
 }
 
 generator docs {
   provider = "node node_modules/prisma-docs-generator"
-  output = "../generated/docs"
+  output   = "../generated/docs"
 }
 
 generator pothos {
-  provider = "prisma-pothos-types"
+  provider     = "prisma-pothos-types"
   clientOutput = "@prisma/client"
-  output = "../generated/pothos/pothos-types.ts"
+  output       = "../generated/pothos/pothos-types.ts"
 }
 
 generator class_validator {
-  provider   = "prisma-class-validator-generator"
-  output     = "../generated/models"
+  provider = "prisma-class-validator-generator"
+  output   = "../generated/models"
 }
 
 generator graphql {
-  provider = "graphql-schema-generator"
+  provider   = "graphql-schema-generator"
   createCRUD = "true"
-  output = "../generated/graphql"
+  output     = "../generated/graphql"
 }
 
 enum ContentGroupingVariant {
@@ -44,8 +45,41 @@ enum ContentGroupingVariant {
   SERIAL
 }
 
+model DataSource {
+  uid String @id @unique
+  cursor String
+}
+
+model Revision {
+  id                 String    @id @unique
+  type               String
+  uid                String
+  created            DateTime
+  previousRevisionId String?   @unique
+  previousRevision   Revision? @relation("RevisionHistory", fields: [previousRevisionId], references: [id])
+  nextRevision       Revision? @relation("RevisionHistory")
+  datasource         String
+
+
+  contentGrouping  ContentGrouping?
+  contentItem      ContentItem?
+  license          License?
+  mediaAsset       MediaAsset?
+  file             File?
+  concept          Concept?
+  actor            Actor?
+  broadcastEvent   BroadcastEvent?
+  broadcastService BroadcastService?
+  chapter          Chapter?
+  contribution     Contribution?
+}
+
 model ContentGrouping {
-  uid          String @id @unique
+  uid String @id @unique
+
+  revisionId String   @unique
+  revision   Revision @relation(fields: [revisionId], references: [id])
+
   groupingType String // TODO: enum?
 
   title       String
@@ -59,32 +93,36 @@ model ContentGrouping {
   startingDate    DateTime?
   terminationDate DateTime?
 
-  license                License?       @relation(fields: [licenseUid], references: [uid])
+  license                License?      @relation(fields: [licenseUid], references: [uid])
   licenseUid             String?
   contentItemsPrimary    ContentItem[] @relation("primaryGrouping")
   contentItemsAdditional ContentItem[]
 }
 
 model ContentItem {
-  uid                  String            @id @unique
+  uid                 String            @id @unique
+  revisionId          String            @unique
+  revision            Revision          @relation(fields: [revisionId], references: [id])
   title               String
   subtitle            String
   summary             String
   content             String
   contentFormat       String
-  primaryGrouping     ContentGrouping   @relation("primaryGrouping", fields: [primaryGroupingUid], references: [uid])
-  primaryGroupingUid  String
+  primaryGrouping     ContentGrouping?   @relation("primaryGrouping", fields: [primaryGroupingUid], references: [uid])
+  primaryGroupingUid  String?
   additionalGroupings ContentGrouping[]
-  license             License           @relation(fields: [licenseUid], references: [uid])
-  licenseUid          String
+  license             License?           @relation(fields: [licenseUid], references: [uid])
+  licenseUid          String?
   mediaAssets         MediaAsset[]
   contributions       Contribution[]
   concepts            Concept[]
-  broadcastEvents    BroadcastEvent[]
+  broadcastEvents     BroadcastEvent[]
 }
 
 model License {
   uid              String            @id @unique
+  revisionId       String            @unique
+  revision         Revision          @relation(fields: [revisionId], references: [id])
   name             String
   contentItems     ContentItem[]
   mediaAssets      MediaAsset[]
@@ -92,11 +130,13 @@ model License {
 }
 
 model MediaAsset {
-  uid         String  @id @unique
+  uid         String   @id @unique
+  revisionId  String   @unique
+  revision    Revision @relation(fields: [revisionId], references: [id])
   title       String
   description String?
 
-  file  File @relation("file", fields: [fileUid], references: [uid])
+  file    File   @relation("file", fields: [fileUid], references: [uid])
   fileUid String
 
   duration  Float?
@@ -117,6 +157,8 @@ model MediaAsset {
 
 model Contribution {
   uid          String        @id @unique
+  revisionId   String        @unique
+  revision     Revision      @relation(fields: [revisionId], references: [id])
   role         String
   actors       Actor[]
   mediaAssets  MediaAsset[]
@@ -125,6 +167,8 @@ model Contribution {
 
 model Actor {
   uid                  String             @id @unique
+  revisionId           String             @unique
+  revision             Revision           @relation(fields: [revisionId], references: [id])
   name                 String
   personOrOrganization String
   contactInformation   String
@@ -136,6 +180,8 @@ model Actor {
 
 model Chapter {
   uid           String     @id @unique
+  revisionId    String     @unique
+  revision      Revision   @relation(fields: [revisionId], references: [id])
   start         Float
   duration      Float
   title         String
@@ -146,16 +192,20 @@ model Chapter {
 
 model BroadcastEvent {
   uid                 String           @id @unique
+  revisionId          String           @unique
+  revision            Revision         @relation(fields: [revisionId], references: [id])
   start               Float
   duration            Float
-  contentItem         ContentItem @relation(fields: [contentItemUid], references: [uid])
-  contentItemUid String
+  contentItem         ContentItem      @relation(fields: [contentItemUid], references: [uid])
+  contentItemUid      String
   broadcastService    BroadcastService @relation(fields: [broadcastServiceUid], references: [uid])
   broadcastServiceUid String
 }
 
 model BroadcastService {
   uid             String           @id @unique
+  revisionId      String           @unique
+  revision        Revision         @relation(fields: [revisionId], references: [id])
   name            String
   publisher       Actor            @relation(fields: [publisherUid], references: [uid])
   publisherUid    String
@@ -175,6 +225,8 @@ model Transcript {
 
 model File {
   uid                String       @id @unique
+  revisionId         String       @unique
+  revision           Revision     @relation(fields: [revisionId], references: [id])
   contentUrl         String
   mimeType           String
   contentSize        Int // size in bytes
@@ -184,13 +236,15 @@ model File {
   bitrate            Int
   resolution         String
   additionalMetadata String
-  asMediaAssets       MediaAsset[] @relation("file")
-  asThumbnail         MediaAsset[] @relation("thumbnail")
-  actors              Actor[]
+  asMediaAssets      MediaAsset[] @relation("file")
+  asThumbnail        MediaAsset[] @relation("thumbnail")
+  actors             Actor[]
 }
 
 model Concept {
   uid             String        @id @unique
+  revisionId      String        @unique
+  revision        Revision      @relation(fields: [revisionId], references: [id])
   originNamespace String
   name            String
   summary         String
