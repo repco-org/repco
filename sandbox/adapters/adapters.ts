@@ -1,4 +1,4 @@
-import { Entity } from "../entity";
+import { Entity } from "../datasources/entity";
 
 export interface Adapter {
     // send a String to Matrix, Activitypup, etc
