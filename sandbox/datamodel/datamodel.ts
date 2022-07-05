@@ -1,4 +1,4 @@
-import { Entity, EntityBatch } from "../entity";
+import { Entity, EntityBatch } from "../datasources/entity";
 
 export interface Datamodel{
     //add Header of our Datamodel
