@@ -28,6 +28,8 @@ export interface DataSourceStatic {
  */
 export interface DataSource {
   // get definition (): DataSourceDefinition;
+  
+  endpoint: string
   fetchUpdates(cursor: string | null): Promise<EntityBatch>;
   urn (type: string, id: string | number): string;
   // fetchByUID(uid: string): Promise<Entity>;
