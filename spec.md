@@ -121,3 +121,9 @@ We are writing a reference implementation of a *repco* node in TypeScript. This 
 
 ---
 
+# Conventions
+
+## Interfaces
+
+- Interfaces implement only public classes or methods.
+- Private functions are named starting with an underscore (\_).
