@@ -40,7 +40,7 @@ export interface DataSource {
  * Set maxIterations to Infinity to fetch all updates until no more
  * updates are returned, then stop.
  */
-export async function persistUpdatesFromDataSource (prisma: PrismaClient, datasource: DataSource, maxIterations = 1) {
+export async function ingestUpdatesFromDataSource (prisma: PrismaClient, datasource: DataSource, maxIterations = 1) {
   let count = 0
   let cursor = await fetchCursor(prisma, datasource)
   while (--maxIterations >= 0) {
