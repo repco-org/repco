@@ -12,16 +12,16 @@ generator dbml {
   output   = "../generated/dbml"
 }
 
-generator erd {
-  provider = "prisma-erd-generator"
-  theme    = "forrest"
-  output   = "../generated/erd-diagram.svg"
-}
+// generator erd {
+//   provider = "prisma-erd-generator"
+//   theme    = "forrest"
+//   output   = "../generated/erd-diagram.svg"
+// }
 
-generator docs {
-  provider = "node node_modules/prisma-docs-generator"
-  output   = "../generated/docs"
-}
+// generator docs {
+//   provider = "node node_modules/prisma-docs-generator"
+//   output   = "../generated/docs"
+// }
 
 generator pothos {
   provider     = "prisma-pothos-types"
