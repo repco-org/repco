@@ -38,18 +38,5 @@ export async function storeEntityBatchFromDataSource (prisma: PrismaClient, data
   }
 }
 
-export async function loadAndLogAllEntities (prisma: PrismaClient) {
-  const revisions = await prisma.revision.findMany({
-    include: {
-      contentItem: true,
-      contentGrouping: true
-    }
-  })
-  console.log('loaded revisions from database', revisions.map(revision => ({
-    id: revision.id,
-    uid: revision.uid,
-    type: revision.type,
-    contentItemTitle: revision.contentItem?.title,
-    contentGroupingTitle: revision.contentGrouping?.title,
-  })))
-}
+// async function storeEntityUpdate(type: string, content: Entity) {
+// }
