@@ -1,7 +1,7 @@
 import { CbaDataSource } from "./datasources/cba.js";
 import { PrismaClient } from "./prisma.js"
 import * as dotenv from "dotenv"
-import { persistUpdatesFromDataSource  } from "./datasource.js";
+import { ingestUpdatesFromDataSource } from "./datasource.js";
 
 const USAGE = `Usage: node example.js <COMMAND>
 
@@ -18,7 +18,7 @@ async function main () {
   const ds = new CbaDataSource()
   if (command === 'ingest') {
     console.log(`Ingest updates from \`${ds.definition.uid}\` ("${ds.definition.name}")`)
-    const { count, cursor } = await persistUpdatesFromDataSource(prisma, ds)
+    const { count, cursor } = await ingestUpdatesFromDataSource(prisma, ds)
     console.log(`Ingested ${count} new revisions. New cursor: ${cursor}`)
   } else if (command === 'log-revisions') {
     await loadAndLogAllEntities(prisma)

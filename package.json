@@ -1,16 +1,4 @@
 {
-  "type": "module",
-  "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w"
-  },
-  "devDependencies": {
-    "@types/node": "^18.0.0",
-    "typedoc": "^0.22.17",
-    "typescript": "^4.7.4"
-  },
-  "dependencies": {
-    "dotenv": "^16.0.1",
-    "fetch-undici": "^3.0.1"
-  }
+  "private": true,
+  "workspaces": ["packages/**"]
 }
