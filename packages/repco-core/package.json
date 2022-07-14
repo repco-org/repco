@@ -5,8 +5,10 @@
   "maintainers": ["repco contributors"],
   "type": "module",
   "scripts": {
+    "example": "node dist/example.js",
     "build": "tsc",
-    "watch": "tsc -w"
+    "watch": "tsc -w",
+    "docs": "typedoc src/mod.ts --out ./docs"
   },
   "dependencies": {
     "repco-prisma": "*",
