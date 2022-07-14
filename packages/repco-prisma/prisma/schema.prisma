@@ -12,17 +12,6 @@ generator dbml {
   output   = "../generated/dbml"
 }
 
-// generator erd {
-//   provider = "prisma-erd-generator"
-//   theme    = "forrest"
-//   output   = "../generated/erd-diagram.svg"
-// }
-
-// generator docs {
-//   provider = "node node_modules/prisma-docs-generator"
-//   output   = "../generated/docs"
-// }
-
 generator pothos {
   provider     = "prisma-pothos-types"
   clientOutput = "@prisma/client"
@@ -38,6 +27,17 @@ generator graphql {
   provider   = "graphql-schema-generator"
   createCRUD = "true"
   output     = "../generated/graphql"
+}
+
+generator zod {
+  provider                 = "zod-prisma"
+  output                   = "../generated/zod"
+  modelCase                = "PascalCase"
+  modelSuffix              = "Model"
+  useDecimalJs             = true
+  imports                  = "../src/zod-schemas.js"
+  prismaJsonNullability    = true
+  includeJSExtension       = true
 }
 
 enum ContentGroupingVariant {
@@ -100,7 +100,7 @@ model ContentGrouping {
 }
 
 model ContentItem {
-  uid                 String            @id @unique
+  uid                 String            @id @unique /// @zod.refine(imports.isValidUID)
   revisionId          String            @unique
   revision            Revision          @relation(fields: [revisionId], references: [id])
   title               String
