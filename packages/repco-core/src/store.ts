@@ -1,5 +1,5 @@
 import { EntityBatch } from "./entity.js";
-import { ContentGrouping, ContentItem, PrismaClient } from "./prisma.js"
+import { zod, ContentGrouping, ContentItem, PrismaClient } from "./prisma.js"
 import type { DataSource } from "./datasource.js";
 
 export async function storeEntityBatchFromDataSource (prisma: PrismaClient, datasource: DataSource, batch: EntityBatch) {
@@ -21,13 +21,15 @@ export async function storeEntityBatchFromDataSource (prisma: PrismaClient, data
       })
 
       if (type === 'ContentItem') {
+        const data = zod.ContentItemModel.parse(entity.value)
         await prisma.contentItem.create({
-          data: entity.value as ContentItem
+          data
         })
       }
       if (type === 'ContentGrouping') {
+        const data = zod.ContentGroupingModel.parse(entity.value)
         await prisma.contentGrouping.create({
-          data: entity.value as ContentGrouping
+          data
         })
       }
       // console.log(`saved ${uid} revision ${revisionId}`)
