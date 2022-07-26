@@ -9,7 +9,7 @@
   "scripts": {
     "migrate": "cd packages/repco-prisma && yarn prisma migrate deploy",
     "server": "cd packages/repco-server && yarn start",
-    "cli": "cd packages/repco-core && yarn example"
+    "cli": "cd packages/repco-core && yarn cli"
   },
   "devDependencies": {
     "@types/node": "^18.0.0",
