@@ -1,11 +1,11 @@
-import { Entity, EntityBatch } from "../entity.js";
+import { EntityForm, EntityBatch } from "../entity.js";
 
 interface ExtractCursorFn<T> {
   (input: T): string
 }
 
 interface MapFn<T> {
-  (input: T): Entity[];
+  (input: T): EntityForm[];
 }
 
 export type FetchOpts = ResponseInit & {

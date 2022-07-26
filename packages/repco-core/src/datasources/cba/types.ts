@@ -29,6 +29,7 @@ export interface CbaPost {
     featured_image:  number;
     production_date: Date;
     _links:          Links;
+    mediaAssets:    string[];
 }
 
 
