@@ -1,0 +1,17 @@
+{
+  "name": "repco-prisma-generate",
+  "version": "0.1.0",
+  "bin": {
+    "repco-prisma-generate": "dist/bin.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w"
+  },
+  "type": "module",
+	"dependencies": {
+		"@prisma/generator-helper": "~3.8.1",
+		"parenthesis": "^3.1.8",
+		"ts-morph": "^13.0.2"
+	}
+}
