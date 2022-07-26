@@ -1,8 +1,6 @@
 import express from 'express'
-import { Request, Response } from 'express'
-import { PrismaClient, fetchRevisions, ingestRevisions } from 'repco-core'
-import { Prisma } from '@prisma/client'
-import { ServerError } from './error.js'
+import { Response } from 'express'
+import { PrismaClient } from 'repco-core'
 import Changes from './routes/changes.js'
 
 export type Locals = {
@@ -26,10 +24,6 @@ router.get('/', async (req, res) => {
 
 router.get('/health', (req, res) => {
   res.send({ ok: true })
-})
-
-router.get('/error', async (req, res) => {
-  throw new ServerError(400, 'bad')
 })
 
 router.use(Changes)
