@@ -1861,13 +1861,6 @@ fastq@^1.6.0:
   dependencies:
     reusify "^1.0.4"
 
-fetch-undici@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/fetch-undici/-/fetch-undici-3.0.1.tgz#d7ea6b478f99489cc6e51a29c21e8b26304eb1c4"
-  integrity sha512-UHHu1HqW22ZhK6C/1Zmjf7mQpOwPwLYZ+xcsOgpzistONU8QqvCop6Od29p/kw1GUVoq2Ihu6ItpKLtlojx4FQ==
-  dependencies:
-    undici "^5.0.0"
-
 file-entry-cache@^6.0.1:
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/file-entry-cache/-/file-entry-cache-6.0.1.tgz#211b2dd9659cb0394b073e7323ac3c933d522027"
@@ -4157,7 +4150,7 @@ undici@5.1.1:
   resolved "https://registry.yarnpkg.com/undici/-/undici-5.1.1.tgz#356427b0d1f032ca4cf85537b1e1694a52090438"
   integrity sha512-CmK9JzLSMGx+2msOao8LhkKn3J7eKo2M50v0KZQ2XbiHcGqLS1HiIj01ceIm3jbUYlspw/FTSb6nMdSNyvVyaQ==
 
-undici@^5.0.0, undici@^5.8.0:
+undici@^5.8.0:
   version "5.8.0"
   resolved "https://registry.yarnpkg.com/undici/-/undici-5.8.0.tgz#dec9a8ccd90e5a1d81d43c0eab6503146d649a4f"
   integrity sha512-1F7Vtcez5w/LwH2G2tGnFIihuWUlc58YidwLiCv+jR2Z50x0tNXpRRw7eOIJ+GvqCqIkg9SB7NWAJ/T9TLfv8Q==
