@@ -12,7 +12,7 @@
     "build": "tsc",
     "watch": "tsc -w",
     "docs": "typedoc src/mod.ts --out ./docs",
-    "test": "yarn build && brittle dist/test/*.js"
+    "test": "brittle dist/test/*.js"
   },
   "dependencies": {
     "brittle": "^2.4.0",

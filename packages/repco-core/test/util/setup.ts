@@ -2,8 +2,8 @@ import { Test } from 'brittle'
 import { ChildProcess, spawn as spawnProcess, SpawnOptions } from 'node:child_process'
 import Dotenv from 'dotenv'
 
-const COMPOSE_FILE = '../../docker-compose.test.yml'
-const ENV_FILE = '../../.env.test'
+const COMPOSE_FILE = '../../test/docker-compose.test.yml'
+const ENV_FILE = '../../test/test.env'
 
 Dotenv.config({
   path: ENV_FILE
