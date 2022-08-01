@@ -13,7 +13,7 @@ The implementation is written in TypeScript. Currently, it consists of two packa
 Note: These are priliminary docs for how to run Repco in a developer's setup. Docs for production deployment will come later.
 
 First clone this repo. Then, from within the repo folder, you can run the following commands:
-```
+```sh
 # install dependencies and build project
 yarn && yarn build
 # copy the env file. the defaults are fine for a local setup.
