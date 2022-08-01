@@ -1,12 +1,12 @@
 // @ts-ignore
 import 'express-async-errors'
-import { PrismaClient } from 'repco-core'
-import express from 'express'
-import cors from 'cors'
 import * as error from './error.js'
+import cors from 'cors'
+import express from 'express'
+import { PrismaClient } from 'repco-core'
 import Routes from './routes.js'
 
-export function runServer (prisma: PrismaClient, port: number) {
+export function runServer(prisma: PrismaClient, port: number) {
   const app = express()
   app.use(express.json({ limit: '100mb' }))
   app.use(cors())

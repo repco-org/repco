@@ -1,11 +1,11 @@
-import { EntityForm, EntityBatch } from "../entity.js";
+import { EntityBatch, EntityForm } from '../entity.js'
 
 interface ExtractCursorFn<T> {
   (input: T): string
 }
 
 interface MapFn<T> {
-  (input: T): EntityForm[];
+  (input: T): EntityForm[]
 }
 
 export type FetchOpts = ResponseInit & {
@@ -13,7 +13,7 @@ export type FetchOpts = ResponseInit & {
 }
 
 export function extractCursorAndMap<T>(
-  input: T[], 
+  input: T[],
   map: MapFn<T>,
   extractCursor: ExtractCursorFn<T>,
 ): EntityBatch | null {

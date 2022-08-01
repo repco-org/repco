@@ -4,4 +4,4 @@ export { PrismaClient } from './prisma.js'
 export * from './entity.js'
 export * from './shared.js'
 export * from './store.js'
-export { createRevisionId } from "./helpers/id.js";
+export { createRevisionId } from './helpers/id.js'
