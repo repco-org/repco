@@ -17,7 +17,9 @@ First clone this repo. Then, from within the repo folder, you can run the follow
 # install dependencies and build project
 yarn
 yarn build
-# start database server
+# copy the env file. the defaults are fine for a local setup.
+cp env.sample .env
+# start the database server via docker compose
 docker-compose up -d
 # initial db migration (required)
 yarn migrate
