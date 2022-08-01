@@ -109,7 +109,6 @@ export class CbaDataSource implements DataSource {
     const medias = await this._fetch(url)
     if (!medias.length) throw new Error('Media not found')
     const media = medias[0]
-    // console.log('media', media)
     if (!media.source_url) throw new Error('Missing media source URL')
     const fileId = this._urn('file', media.id)
     const mediaId = this._urn('media', media.id)
@@ -186,7 +185,6 @@ export class CbaDataSource implements DataSource {
 
   private async _fetch<T = any>(urlString: string, opts: FetchOpts = {}): Promise<T> {
     const url = new URL(this.endpoint + urlString)
-    console.log(process.env.CBA_API_KEY)
     if (opts.params) {
       for (const [key, value] of Object.entries(opts.params)) {
         url.searchParams.set(key, value)
@@ -194,9 +192,8 @@ export class CbaDataSource implements DataSource {
       opts.params = undefined
     }
     if (process.env.CBA_API_KEY) {
-      url.searchParams.set('api_key', 'k8WHfNbal0rjIs2f')
+      url.searchParams.set('api_key', process.env.CBA_API_KEY)
     }
-    console.log('FETCH', url.toString())
     const res = await fetch(url.toString(), opts)
     if (!res.ok) {
       try {
