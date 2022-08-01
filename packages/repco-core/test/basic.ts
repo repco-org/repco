@@ -1,12 +1,17 @@
 import test from 'brittle'
 import { setup } from './util/setup.js'
-import { PrismaClient, storeEntity, EntityForm, fetchRevisions } from '../index.js'
+import {
+  EntityForm,
+  fetchRevisions,
+  PrismaClient,
+  storeEntity,
+} from '../index.js'
 
-test('smoke', async assert => {
+test('smoke', async (assert) => {
   await setup(assert.teardown)
   const prisma = new PrismaClient()
   const input: EntityForm = {
-    type: "ContentItem",
+    type: 'ContentItem',
     content: {
       uid: 'urn:repco:foo:bar',
       title: 'foo',
@@ -16,7 +21,7 @@ test('smoke', async assert => {
       primaryGroupingUid: null,
       subtitle: 'asdf',
       summary: 'yoo',
-    }
+    },
   }
   await storeEntity(prisma, input)
   const revisions = await fetchRevisions(prisma, {})

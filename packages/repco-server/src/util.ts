@@ -1,5 +1,7 @@
-
-export async function * batchAsyncIterator<T>(iter: AsyncIterable<T>, batchSize: number): AsyncIterable<T[]> {
+export async function* batchAsyncIterator<T>(
+  iter: AsyncIterable<T>,
+  batchSize: number,
+): AsyncIterable<T[]> {
   let batch = []
   for await (const line of iter) {
     batch.push(line)
@@ -11,7 +13,9 @@ export async function * batchAsyncIterator<T>(iter: AsyncIterable<T>, batchSize:
   if (batch.length) yield batch
 }
 
-export async function * parseNdjsonLines<T = any> (body: AsyncIterable<Uint8Array>): AsyncIterable<T> {
+export async function* parseNdjsonLines<T = any>(
+  body: AsyncIterable<Uint8Array>,
+): AsyncIterable<T> {
   let buf = ''
   for await (const chunk of body) {
     buf += new TextDecoder().decode(chunk)
@@ -26,4 +30,3 @@ export async function * parseNdjsonLines<T = any> (body: AsyncIterable<Uint8Arra
   }
   if (buf.length) yield JSON.parse(buf) as T
 }
-

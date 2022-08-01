@@ -5,7 +5,12 @@ export const notFoundHandler = async () => {
   throw new ServerError(404, 'Not found')
 }
 
-export const handler = (err: Error, _req: Request, res: Response, _next: any) => {
+export const handler = (
+  err: Error,
+  _req: Request,
+  res: Response,
+  _next: any,
+) => {
   let status
   let message
   if (ServerError.is(err)) {

@@ -1,12 +1,18 @@
-import { EntityForm, Entity, EntityBatch, RevisionForm, AnyEntityContent, EntityFormContent } from "./entity.js";
+import {
+  upsertEntity,
+  validateEntity,
+} from 'repco-prisma/dist/generated/repco/index.js'
 import { z } from 'zod'
-import { Prisma, zod, ContentGrouping, ContentItem, Revision, PrismaClient } from "./prisma.js"
-import type { DataSource } from "./datasource.js";
-import { createRevisionId } from "./helpers/id.js";
-import { EntityInput, validateEntity, upsertEntity } from "repco-prisma/dist/generated/repco/index.js";
+import type { DataSource } from './datasource.js'
+import { Entity, EntityBatch, EntityForm } from './entity.js'
+import { createRevisionId } from './helpers/id.js'
+import { Prisma, PrismaClient, zod } from './prisma.js'
 
-
-export async function storeEntityBatchFromDataSource (prisma: PrismaClient, datasource: DataSource, batch: EntityBatch) {
+export async function storeEntityBatchFromDataSource(
+  prisma: PrismaClient,
+  datasource: DataSource,
+  batch: EntityBatch,
+) {
   for (const entity of batch.entities) {
     try {
       if (!entity.revision) entity.revision = {}
@@ -22,12 +28,23 @@ export async function storeEntityBatchFromDataSource (prisma: PrismaClient, data
   }
 }
 
-export async function storeEntity (prisma: PrismaClient, input: EntityForm): Promise<Entity> {
-  if ((await findRevisionByAlternativeIds(prisma, input.revision?.alternativeIds)) !== null) {
+export async function storeEntity(
+  prisma: PrismaClient,
+  input: EntityForm,
+): Promise<Entity> {
+  if (
+    (await findRevisionByAlternativeIds(
+      prisma,
+      input.revision?.alternativeIds,
+    )) !== null
+  ) {
     throw new Error('Revision exists')
   }
   const now = new Date()
-  const previousRevisionId = await findLatestRevisionId(prisma, input.content.uid)
+  const previousRevisionId = await findLatestRevisionId(
+    prisma,
+    input.content.uid,
+  )
   const revisionId = createRevisionId(now)
   const revisionInput = {
     type: input.type,
@@ -37,37 +54,46 @@ export async function storeEntity (prisma: PrismaClient, input: EntityForm): Pro
     created: now,
     alternativeIds: input.revision?.alternativeIds || [],
     previousRevisionId,
-    content: input.content
+    content: input.content,
   }
   const { entity, revision } = await storeRevision(prisma, revisionInput)
   return {
     revision,
     type: revision.type,
-    content: entity.content
+    content: entity.content,
   }
 }
 
-async function findLatestRevisionId (prisma: PrismaClient, uid: string): Promise<string | null> {
+async function findLatestRevisionId(
+  prisma: PrismaClient,
+  uid: string,
+): Promise<string | null> {
   const previousRevision = await prisma.revision.findFirst({
     where: { uid },
     select: { id: true },
-    orderBy: [{ created: 'desc' }]
+    orderBy: [{ created: 'desc' }],
   })
-  return (previousRevision?.id) || null
+  return previousRevision?.id || null
 }
 
-async function findRevisionByAlternativeIds (prisma: PrismaClient, alternativeIds?: string[] | null): Promise<string | null> {
+async function findRevisionByAlternativeIds(
+  prisma: PrismaClient,
+  alternativeIds?: string[] | null,
+): Promise<string | null> {
   if (!alternativeIds) return null
   const existing = await prisma.revision.findFirst({
     select: { id: true },
     where: {
-      alternativeIds: { hasSome: alternativeIds }
-    }
+      alternativeIds: { hasSome: alternativeIds },
+    },
   })
-  return (existing?.id) || null
+  return existing?.id || null
 }
 
-export async function ingestRevisions (prisma: PrismaClient, revisions: RevisionCreateInput[]) {
+export async function ingestRevisions(
+  prisma: PrismaClient,
+  revisions: RevisionCreateInput[],
+) {
   const storedRevisions = []
   for (const revision of revisions) {
     storedRevisions.push(await storeRevision(prisma, revision))
@@ -75,9 +101,14 @@ export async function ingestRevisions (prisma: PrismaClient, revisions: Revision
   return storedRevisions
 }
 
-
-export type RevisionCreateInput = Omit<Prisma.RevisionCreateInput, "content"> & {
-  content: Prisma.JsonValue | null | z.infer<typeof zod.RevisionModel>["content"]
+export type RevisionCreateInput = Omit<
+  Prisma.RevisionCreateInput,
+  'content'
+> & {
+  content:
+    | Prisma.JsonValue
+    | null
+    | z.infer<typeof zod.RevisionModel>['content']
 }
 
 export async function storeRevision(prisma: PrismaClient, revisionInput: any) {
@@ -85,39 +116,46 @@ export async function storeRevision(prisma: PrismaClient, revisionInput: any) {
   return await storeRevisionUnchecked(prisma, validatedRevisionInput)
 }
 
-export async function storeRevisionUnchecked(prisma: PrismaClient, revisionInput: RevisionCreateInput) {
+export async function storeRevisionUnchecked(
+  prisma: PrismaClient,
+  revisionInput: RevisionCreateInput,
+) {
   // store revision
   const revision = await prisma.revision.create({
     data: {
       ...revisionInput,
-      content: revisionInput.content || Prisma.JsonNull
-    }
+      content: revisionInput.content || Prisma.JsonNull,
+    },
   })
   // validate entity input
   const entityInput = {
     type: revisionInput.type,
-    content: revisionInput.content
+    content: revisionInput.content,
   }
-  const validatedInput = validateEntity(entityInput.type, entityInput.content, revision.id)
+  const validatedInput = validateEntity(
+    entityInput.type,
+    entityInput.content,
+    revision.id,
+  )
   // upsert entity
   const entity = await upsertEntity(prisma, validatedInput, revision.id)
-  return { revision, entity } 
+  return { revision, entity }
 }
-
 
 export type FetchRevisionOpts = {
   from?: string
 }
 
-export async function fetchRevisions(prisma: PrismaClient, opts: FetchRevisionOpts) {
+export async function fetchRevisions(
+  prisma: PrismaClient,
+  opts: FetchRevisionOpts,
+) {
   const where: Prisma.RevisionWhereInput = {}
   if (opts.from) {
     where.id = { gte: opts.from }
   }
   const revisions = await prisma.revision.findMany({
-    orderBy: [
-      { id: 'asc' }
-    ],
+    orderBy: [{ id: 'asc' }],
     where,
   })
   return revisions

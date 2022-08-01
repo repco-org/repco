@@ -1,8 +1,12 @@
 import express from 'express'
-import { fetchRevisions, ingestRevisions, RevisionCreateInput } from 'repco-core'
-import { getLocals } from '../routes.js'
+import {
+  fetchRevisions,
+  ingestRevisions,
+  RevisionCreateInput,
+} from 'repco-core'
 import { ServerError } from '../error.js'
-import { batchAsyncIterator, parseNdjsonLines } from "../util.js"
+import { getLocals } from '../routes.js'
+import { batchAsyncIterator, parseNdjsonLines } from '../util.js'
 
 const router = express.Router()
 
@@ -12,7 +16,7 @@ const HEADER_NDJSON = 'application/x-ndjson'
 router.get('/changes', async (req, res) => {
   const { prisma } = getLocals(res)
   const opts = {
-    from: req.query.from?.toString()
+    from: req.query.from?.toString(),
   }
   const revisions = await fetchRevisions(prisma, opts)
 
@@ -31,8 +35,11 @@ router.put('/changes', async (req, res) => {
     return res.send({ ok: true })
   }
   if (req.header('content-type') === HEADER_NDJSON) {
-    const parsedRevisions = batchAsyncIterator(parseNdjsonLines<RevisionCreateInput>(req), 10)
-    for await (let revisions of parsedRevisions) {
+    const parsedRevisions = batchAsyncIterator(
+      parseNdjsonLines<RevisionCreateInput>(req),
+      10,
+    )
+    for await (const revisions of parsedRevisions) {
       await ingestRevisions(prisma, revisions)
     }
     return res.send({ ok: true })
@@ -42,9 +49,10 @@ router.put('/changes', async (req, res) => {
 
 export default router
 
-export function sendNdJson (res: express.Response, data: any[]): express.Response {
-  const body = data.map(r => JSON.stringify(r)).join('\n') + '\n'
-  return res
-    .header('content-type', 'application/x-ndjson')
-    .send(body)
+export function sendNdJson(
+  res: express.Response,
+  data: any[],
+): express.Response {
+  const body = data.map((r) => JSON.stringify(r)).join('\n') + '\n'
+  return res.header('content-type', 'application/x-ndjson').send(body)
 }

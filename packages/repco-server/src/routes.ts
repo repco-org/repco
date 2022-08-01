@@ -1,5 +1,4 @@
-import express from 'express'
-import { Response } from 'express'
+import express, { Response } from 'express'
 import { PrismaClient } from 'repco-core'
 import Changes from './routes/changes.js'
 
@@ -14,7 +13,6 @@ export function getLocals(res: Response): Locals {
   const prisma = res.locals.prisma as PrismaClient
   return { prisma }
 }
-
 
 const router = express.Router()
 
