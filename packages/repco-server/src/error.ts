@@ -9,7 +9,7 @@ export const handler = (
   err: Error,
   _req: Request,
   res: Response,
-  _next: any,
+  // _next: any,
 ) => {
   let status
   let message
