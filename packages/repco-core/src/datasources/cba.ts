@@ -1,9 +1,8 @@
-// @ts-ignore
-import { fetch } from 'fetch-undici'
 import {
   FileInput,
   MediaAssetInput,
 } from 'repco-prisma/dist/generated/repco/index.js'
+import { fetch } from 'undici'
 import { CbaPost, CbaSeries } from './cba/types.js'
 import { DataSource, DataSourceDefinition } from '../datasource.js'
 import { ContentGroupingVariant, EntityBatch, EntityForm } from '../entity.js'
@@ -215,13 +214,7 @@ export class CbaDataSource implements DataSource {
     }
     const res = await fetch(url.toString(), opts)
     if (!res.ok) {
-      try {
-        const errorJson = await res.json()
-        throw new HttpError(res.code, errorJson.message, errorJson)
-      } catch (err) {
-        if (err instanceof HttpError) throw err
-        else throw HttpError.fromResponse(res)
-      }
+      throw await HttpError.fromResponseJson(res)
     }
     const json = await res.json()
     return json as T
