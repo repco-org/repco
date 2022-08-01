@@ -8,22 +8,15 @@ generatorHandler({
   onManifest() {
     return {
       // version,
-      prettyName: 'Repco Helpers',
+      prettyName: 'Repco Prisma Generator',
       defaultOutput: 'repco',
     }
   },
   async onGenerate(options) {
-    console.log('hello')
+    const outputPath = options.generator.output?.value
+    if (!outputPath) throw new Error('Missing output path')
+
     const project = new Project()
-    const outputPath = options.generator.output!.value
-
-    // const info = {
-    //   ...options,
-    //   datamodel: null
-    // }
-    // const json = JSON.stringify(info, null, 2)
-    // await fs.writeFile(`${outputPath}/options.json`, json)
-
     const indexFile = project.createSourceFile(
       `${outputPath}/index.ts`,
       {},
@@ -37,7 +30,15 @@ generatorHandler({
       convertTabsToSpaces: true,
       indentMultiLineObjectLiteralBeginningOnBlankLine: true,
     })
+
     await project.save()
-    console.log('fin')
+
+    // snippet to print datamodel and options into a JSON file for debugging.
+    // const info = {
+    //   ...options,
+    //   datamodel: null
+    // }
+    // const json = JSON.stringify(info, null, 2)
+    // await fs.writeFile(`${outputPath}/options.json`, json)
   },
 })
