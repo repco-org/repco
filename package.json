@@ -1,19 +1,30 @@
 {
   "private": true,
   "workspaces": {
-    "packages": ["packages/*"]
+    "packages": [
+      "packages/*"
+    ]
   },
-   "engines": {
+  "engines": {
     "node": ">=16"
   },
   "scripts": {
-    "migrate": "cd packages/repco-prisma && yarn prisma migrate deploy",
-    "server": "cd packages/repco-server && yarn start",
-    "cli": "cd packages/repco-core && yarn cli"
+    "build": "run-s build:prisma build:core build:server",
+    "build:prisma": "yarn --cwd packages/repco-prisma build",
+    "build:core": "yarn --cwd packages/repco-core build",
+    "build:server": "yarn --cwd packages/repco-server build",
+    "build-and-test": "yarn --frozen-lockfile && run-s build test",
+    "test": "run-s test:*",
+    "test:core": "yarn --cwd packages/repco-core test",
+    "migrate": "yarn --cwd packages/repco-prisma prisma migrate deploy",
+    "server": "yarn --cwd packages/repco-server start",
+    "cli": "yarn --cwd packages/repco-core cli"
   },
   "devDependencies": {
     "@types/node": "^18.0.0",
+    "npm-run-all": "^4.1.5",
     "typedoc": "^0.22.17",
     "typescript": "^4.7.4"
-  }
+  },
+  "dependencies": {}
 }

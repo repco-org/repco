@@ -15,8 +15,7 @@ Note: These are priliminary docs for how to run Repco in a developer's setup. Do
 First clone this repo. Then, from within the repo folder, you can run the following commands:
 ```
 # install dependencies and build project
-yarn
-yarn build
+yarn && yarn build
 # copy the env file. the defaults are fine for a local setup.
 cp env.sample .env
 # start the database server via docker compose
