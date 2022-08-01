@@ -9,7 +9,8 @@
     "node": ">=16"
   },
   "scripts": {
-    "build": "run-s build:prisma build:core build:server",
+    "build": "run-s build:generator build:prisma build:core build:server",
+    "build:generator": "yarn --cwd packages/prisma-generate build",
     "build:prisma": "yarn --cwd packages/repco-prisma build",
     "build:core": "yarn --cwd packages/repco-core build",
     "build:server": "yarn --cwd packages/repco-server build",
@@ -23,9 +24,10 @@
     "lint:fix": "eslint packages --fix"
   },
   "devDependencies": {
+    "@mattinton/prettier-plugin-tidy-imports": "^1.1.12",
+    "@types/node": "^18.0.0",
     "@typescript-eslint/eslint-plugin": "^5.31.0",
     "@typescript-eslint/parser": "^5.31.0",
-    "@types/node": "^18.0.0",
     "eslint": "^8.21.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
