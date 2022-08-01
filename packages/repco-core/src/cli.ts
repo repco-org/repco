@@ -1,5 +1,6 @@
 import { CbaDataSource } from "./datasources/cba.js";
 import { PrismaClient } from "./prisma.js"
+import type { Prisma } from "./prisma.js"
 import * as dotenv from "dotenv"
 import { ingestUpdatesFromDataSource, saveCursor } from "./datasource.js";
 
@@ -25,7 +26,7 @@ async function main () {
     ],
   });
 
-  prisma.$on("query", async (e) => {
+  prisma.$on("query", async (e: Prisma.QueryEvent) => {
       console.log(`${e.query} ${e.params}`)
   });
   const ds = new CbaDataSource()
