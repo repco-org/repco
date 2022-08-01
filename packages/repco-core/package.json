@@ -2,18 +2,25 @@
   "name": "repco-core",
   "version": "0.1.0",
   "license": "Apache-2.0/MIT",
-  "maintainers": ["repco contributors"],
+  "maintainers": [
+    "repco contributors"
+  ],
+  "main": "dist/index.js",
   "type": "module",
   "scripts": {
-    "example": "node dist/example.js",
+    "cli": "node dist/cli.js",
     "build": "tsc",
     "watch": "tsc -w",
-    "docs": "typedoc src/mod.ts --out ./docs"
+    "docs": "typedoc src/mod.ts --out ./docs",
+    "test": "yarn build && brittle dist/test/*.js"
   },
   "dependencies": {
-    "repco-prisma": "*",
+    "brittle": "^2.4.0",
     "dotenv": "^16.0.1",
-    "fetch-undici": "^3.0.1"
+    "fetch-undici": "^3.0.1",
+    "multiformats": "^9.7.0",
+    "repco-prisma": "*",
+    "undici": "^5.8.0"
   },
   "devDependencies": {
     "@types/node": "^18.0.0",

@@ -1,4 +1,19 @@
 {
   "private": true,
-  "workspaces": ["packages/**"]
+  "workspaces": {
+    "packages": ["packages/*"]
+  },
+   "engines": {
+    "node": ">=16"
+  },
+  "scripts": {
+    "migrate": "cd packages/repco-prisma && yarn prisma migrate deploy",
+    "server": "cd packages/repco-server && yarn start",
+    "cli": "cd packages/repco-core && yarn cli"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "typedoc": "^0.22.17",
+    "typescript": "^4.7.4"
+  }
 }

@@ -1,6 +1,6 @@
 import { UID } from "./shared.js";
 import { EntityBatch } from "./entity.js";
-import type { PrismaClient } from "./prisma.js"
+import { PrismaClient } from "./prisma.js"
 import { storeEntityBatchFromDataSource } from "./store.js"
 
 export type DataSourceDefinition = {
@@ -70,7 +70,7 @@ async function fetchCursor (prisma: PrismaClient, datasource: DataSource): Promi
   return cursor
 }
 
-async function saveCursor (prisma: PrismaClient, datasource: DataSource, cursor: string) {
+export async function saveCursor (prisma: PrismaClient, datasource: DataSource, cursor: string) {
   await prisma.dataSource.upsert({
     where: { uid: datasource.definition.uid },
     update: { cursor },
