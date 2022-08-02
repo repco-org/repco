@@ -1,7 +1,6 @@
 import * as dotenv from 'dotenv'
 import { ingestUpdatesFromDataSource, saveCursor } from './datasource.js'
 import { CbaDataSource } from './datasources/cba.js'
-import type { Prisma } from './prisma.js'
 import { PrismaClient } from './prisma.js'
 
 const USAGE = `Usage: node example.js <COMMAND>
@@ -26,9 +25,9 @@ async function main() {
     ],
   })
 
-  prisma.$on('query', async (e: Prisma.QueryEvent) => {
-    console.log(`${e.query} ${e.params}`)
-  })
+  // prisma.$on('query', async (e: Prisma.QueryEvent) => {
+  //   console.log(`${e.query} ${e.params}`)
+  // })
   const ds = new CbaDataSource()
   if (command === 'ingest') {
     console.log(
@@ -86,5 +85,5 @@ async function loadAndlogAllContentItems(prisma: PrismaClient) {
       revision,
     },
   })
-  // console.log(JSON.stringify(entities, null, 2))
+  console.log(JSON.stringify(entities, null, 2))
 }

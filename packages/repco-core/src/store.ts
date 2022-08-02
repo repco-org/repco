@@ -1,12 +1,14 @@
 import {
+  EntityInput,
+  extractRelations,
+  Relation,
   upsertEntity,
   validateEntity,
 } from 'repco-prisma/dist/generated/repco/index.js'
-import { z } from 'zod'
 import type { DataSource } from './datasource.js'
-import { Entity, EntityBatch, EntityForm } from './entity.js'
+import { AnyEntityContent, Entity, EntityBatch, EntityForm } from './entity.js'
 import { createRevisionId } from './helpers/id.js'
-import { Prisma, PrismaClient, zod } from './prisma.js'
+import { Prisma, PrismaClient, Revision } from './prisma.js'
 
 export async function storeEntityBatchFromDataSource(
   prisma: PrismaClient,
@@ -14,16 +16,43 @@ export async function storeEntityBatchFromDataSource(
   batch: EntityBatch,
 ) {
   for (const entity of batch.entities) {
+    if (!entity.revision) entity.revision = {}
+    entity.revision.datasource = datasource.definition.uid
     try {
-      if (!entity.revision) entity.revision = {}
-      entity.revision.datasource = datasource.definition.uid
-      const _res = await storeEntity(prisma, entity)
+      await storeEntity(prisma, entity)
       // console.log(`stored entity ${res.type} ${res.content.uid} @ ${res.revision.id}`)
     } catch (err) {
-      // TODO: What to do on errors?
-      console.error(`error saving ${entity.content.uid}: ${err}`)
-      console.error(err)
-      throw err
+      if (err instanceof MissingRelationsError) {
+        await fetchAndStoreMissingRelations(
+          prisma,
+          datasource,
+          err.missingRelations,
+        )
+        await storeEntity(prisma, entity)
+      } else {
+        // TODO: What to do on errors?
+        // console.error(`error saving ${entity.content.uid}: ${err}`)
+        // console.error(err)
+        throw err
+      }
+    }
+  }
+}
+
+async function fetchAndStoreMissingRelations(
+  prisma: PrismaClient,
+  datasource: DataSource,
+  missingRelations: Relation[],
+): Promise<void> {
+  for (const missingRelation of missingRelations) {
+    if (!missingRelation.values) continue
+    for (const uid of missingRelation.values) {
+      const entities = await datasource.fetchByUID(uid)
+      if (entities) {
+        for (const entity of entities) {
+          await storeEntity(prisma, entity)
+        }
+      }
     }
   }
 }
@@ -32,14 +61,19 @@ export async function storeEntity(
   prisma: PrismaClient,
   input: EntityForm,
 ): Promise<Entity> {
-  if (
-    (await findRevisionByAlternativeIds(
-      prisma,
-      input.revision?.alternativeIds,
-    )) !== null
-  ) {
-    throw new Error('Revision exists')
+  // check for an existing revision for the alternative ids provided
+  const existingRevision = await findRevisionByAlternativeIds(
+    prisma,
+    input.revision?.alternativeIds,
+  )
+  if (existingRevision !== null) {
+    return {
+      revision: existingRevision,
+      type: existingRevision.type,
+      content: existingRevision.content as unknown as AnyEntityContent,
+    }
   }
+
   const now = new Date()
   const previousRevisionId = await findLatestRevisionId(
     prisma,
@@ -54,7 +88,7 @@ export async function storeEntity(
     created: now,
     alternativeIds: input.revision?.alternativeIds || [],
     previousRevisionId,
-    content: input.content,
+    content: input.content as any,
   }
   const { entity, revision } = await storeRevision(prisma, revisionInput)
   return {
@@ -79,15 +113,15 @@ async function findLatestRevisionId(
 async function findRevisionByAlternativeIds(
   prisma: PrismaClient,
   alternativeIds?: string[] | null,
-): Promise<string | null> {
+): Promise<Revision | null> {
   if (!alternativeIds) return null
   const existing = await prisma.revision.findFirst({
-    select: { id: true },
+    // select: { id: true },
     where: {
       alternativeIds: { hasSome: alternativeIds },
     },
   })
-  return existing?.id || null
+  return existing || null
 }
 
 export async function ingestRevisions(
@@ -101,45 +135,111 @@ export async function ingestRevisions(
   return storedRevisions
 }
 
-export type RevisionCreateInput = Omit<
-  Prisma.RevisionCreateInput,
-  'content'
-> & {
-  content:
-    | Prisma.JsonValue
-    | null
-    | z.infer<typeof zod.RevisionModel>['content']
+export type RevisionCreateInput = Prisma.RevisionCreateInput
+
+// export type RevisionCreateInput = Omit<
+//   Prisma.RevisionCreateInput,
+//   'content'
+// > & {
+//   content:
+//     | Prisma.JsonValue
+//     | null
+//     | z.infer<typeof zod.RevisionModel>['content']
+// }
+
+export async function storeRevision(
+  prisma: PrismaClient,
+  revisionInput: Prisma.RevisionCreateInput,
+) {
+  // const validatedRevisionInput = zod.RevisionModel.parse(revisionInput)
+  // return await storeRevisionUnchecked(prisma, validatedRevisionInput)
+  return await storeRevisionUnchecked(prisma, revisionInput)
 }
 
-export async function storeRevision(prisma: PrismaClient, revisionInput: any) {
-  const validatedRevisionInput = zod.RevisionModel.parse(revisionInput)
-  return await storeRevisionUnchecked(prisma, validatedRevisionInput)
+export class MissingRelationsError extends Error {
+  constructor(public missingRelations: Relation[]) {
+    super(
+      `Missing relations: ${missingRelations.map(
+        (r) =>
+          `${r.fieldName} -> ${r.targetType} ${r.values
+            ?.map((v) => `"${v}"`)
+            .join(', ')}`,
+      )}`,
+    )
+  }
 }
 
 export async function storeRevisionUnchecked(
   prisma: PrismaClient,
   revisionInput: RevisionCreateInput,
 ) {
-  // store revision
-  const revision = await prisma.revision.create({
-    data: {
-      ...revisionInput,
-      content: revisionInput.content || Prisma.JsonNull,
-    },
-  })
   // validate entity input
   const entityInput = {
     type: revisionInput.type,
     content: revisionInput.content,
   }
+  // const validatedInput = entityInput as EntityInput
+  // TODO: Fix validation for relation fields.
   const validatedInput = validateEntity(
     entityInput.type,
     entityInput.content,
-    revision.id,
+    revisionInput.id,
   )
+  // check relations
+  const missingRelations = await findMissingRelations(prisma, validatedInput)
+  if (missingRelations) {
+    throw new MissingRelationsError(missingRelations)
+  }
+  // prisma.$transaction.
   // upsert entity
-  const entity = await upsertEntity(prisma, validatedInput, revision.id)
+  const revisionData = {
+    ...revisionInput,
+    content: revisionInput.content || Prisma.JsonNull,
+  }
+  const entity = await upsertEntity(prisma, validatedInput, revisionData)
+  const revision = await prisma.revision.findUnique({
+    where: { id: revisionInput.id },
+  })
+  if (!revision) throw new Error('Failed to create revision')
+  // store revision
+  // const revision = await prisma.revision.create({
+  //   data: {
+  //     ...revisionInput,
+  //     content: revisionInput.content || Prisma.JsonNull,
+  //   },
+  // })
   return { revision, entity }
+  // return entity
+}
+
+async function findMissingRelations(prisma: PrismaClient, input: EntityInput) {
+  const missing = []
+  const relations = extractRelations(input)
+  for (const relation of relations) {
+    if (!relation.values || !relation.values.length) continue
+    const existing = await prisma.revision.findMany({
+      select: { id: true, uid: true, type: true },
+      where: {
+        type: relation.targetType,
+        uid: {
+          in: relation.values,
+        },
+      },
+    })
+    const missingValues = []
+    const values = existing.map((row) => row.uid)
+    for (const value of relation.values) {
+      if (!values.includes(value)) missingValues.push(value)
+    }
+    if (missingValues.length) {
+      missing.push({
+        ...relation,
+        values: missingValues,
+      })
+    }
+  }
+  if (missing.length) return missing
+  else return null
 }
 
 export type FetchRevisionOpts = {

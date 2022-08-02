@@ -1,8 +1,15 @@
 #!/usr/bin/env node
 
 import { generatorHandler } from '@prisma/generator-helper'
-import { Project } from 'ts-morph'
+import { FormatCodeSettings, Project } from 'ts-morph'
 import { generateTypes } from './generate.js'
+import { generateZodInputs } from './zod.js'
+
+const FMT_SETTINGS: FormatCodeSettings = {
+  indentSize: 2,
+  convertTabsToSpaces: true,
+  indentMultiLineObjectLiteralBeginningOnBlankLine: true,
+}
 
 generatorHandler({
   onManifest() {
@@ -25,11 +32,15 @@ generatorHandler({
 
     generateTypes(options.dmmf, indexFile)
 
-    indexFile.formatText({
-      indentSize: 2,
-      convertTabsToSpaces: true,
-      indentMultiLineObjectLiteralBeginningOnBlankLine: true,
-    })
+    indexFile.formatText(FMT_SETTINGS)
+
+    const zodFile = project.createSourceFile(
+      `${outputPath}/zod.ts`,
+      {},
+      { overwrite: true },
+    )
+    generateZodInputs(options.dmmf.datamodel, zodFile)
+    zodFile.formatText(FMT_SETTINGS)
 
     await project.save()
 

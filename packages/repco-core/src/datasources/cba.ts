@@ -20,6 +20,22 @@ import { HttpError } from '../helpers/error.js'
 // posts:
 // https://cba.fro.at/wp-json/wp/v2/posts
 
+export type FormsWithUid = {
+  uid: string
+  entities: EntityForm[]
+}
+
+function parseUrn(urn: string) {
+  const parts = urn.split(':')
+  if (parts[0] === 'urn') parts.shift()
+  if (parts[0] !== 'repco') throw new Error('Invalid repco URN')
+  return {
+    datasource: parts[1],
+    type: parts[2],
+    path: parts.slice(3).join(':'),
+  }
+}
+
 export class CbaDataSource implements DataSource {
   endpoint: string
   constructor() {
@@ -31,6 +47,23 @@ export class CbaDataSource implements DataSource {
       name: 'Cultural Broacasting Archive',
       uid: 'repco:datasource:cba.media',
     }
+  }
+
+  async fetchByUID(uid: string): Promise<EntityForm[]> {
+    const parsed = parseUrn(uid)
+    if (parsed.datasource !== 'cba.media') throw new Error('Not a CBA URN')
+    switch (parsed.type) {
+      case 'post': {
+        const post = await this._fetch<CbaPost>(`/post/${parsed.path}`)
+        const entities = this._mapPost(post)
+        return entities
+      }
+      case 'media': {
+        const media = await this._fetchMedia(parsed.path)
+        return media.entities
+      }
+    }
+    return []
   }
 
   async fetchUpdates(cursorString: string | null): Promise<EntityBatch> {
@@ -87,14 +120,14 @@ export class CbaDataSource implements DataSource {
     const perPage = 2
     const url = `/posts?page=1&per_page=${perPage}&_embed&orderby=modified&order=asc&modified_after=${cursor}`
     const posts = await this._fetch<CbaPost[]>(url)
-    const otherEntities = []
+    const otherEntities: EntityForm[] = []
     if (!posts.length) return null
     for (const post of posts) {
       if (!post._links['wp:attachment'].length) continue
       const mediaUids = []
       for (const attachement of post._links['wp:attachment']) {
         const { href } = attachement
-        const { uid, entities } = await this._fetchMedia(href)
+        const { uid, entities } = await this._fetchMedias(href)
         otherEntities.push(...entities)
         mediaUids.push(uid)
       }
@@ -109,13 +142,20 @@ export class CbaDataSource implements DataSource {
     return mappedPosts
   }
 
-  private async _fetchMedia(
-    url: string,
-  ): Promise<{ uid: string; entities: EntityForm[] }> {
+  private async _fetchMedias(url: string): Promise<FormsWithUid> {
     url = url.replace(this.endpoint, '')
     const medias = await this._fetch(url)
     if (!medias.length) throw new Error('Media not found')
     const media = medias[0]
+    return this._mapMedia(media)
+  }
+
+  private async _fetchMedia(id: string): Promise<FormsWithUid> {
+    const media = await this._fetch(`/media/${id}`)
+    return this._mapMedia(media)
+  }
+
+  private _mapMedia(media: any): FormsWithUid {
     if (!media.source_url) throw new Error('Missing media source URL')
     const fileId = this._urn('file', media.id)
     const mediaId = this._urn('media', media.id)
@@ -134,13 +174,11 @@ export class CbaDataSource implements DataSource {
     }
     const asset: MediaAssetInput = {
       uid: mediaId,
-      fileUid: fileId,
+      file: fileId,
       title: media.title.rendered,
       duration: file.duration,
       description: media.description?.rendered || null,
-      licenseUid: null,
       mediaType: 'audio',
-      teaserImageUid: null,
     }
     const fileEntity: EntityForm = { type: 'File', content: file }
     const mediaEntity: EntityForm = { type: 'MediaAsset', content: asset }
@@ -155,7 +193,6 @@ export class CbaDataSource implements DataSource {
       uid: this._urn('series', series.id),
       title: series.title.rendered,
       description: series.content.rendered,
-      licenseUid: null,
       groupingType: 'show',
       subtitle: null,
       summary: null,
@@ -181,8 +218,8 @@ export class CbaDataSource implements DataSource {
       content: post.content.rendered,
       contentFormat: 'text/html',
       title: post.title.rendered,
-      licenseUid: null,
-      primaryGroupingUid: null,
+      // licenseUid: null,
+      // primaryGroupingUid: null,
       subtitle: 'missing',
       summary: post.excerpt.rendered,
       mediaAssets: post.mediaAssets,

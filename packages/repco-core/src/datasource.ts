@@ -1,4 +1,4 @@
-import { EntityBatch } from './entity.js'
+import { EntityBatch, EntityForm } from './entity.js'
 import { PrismaClient } from './prisma.js'
 import { UID } from './shared.js'
 import { storeEntityBatchFromDataSource } from './store.js'
@@ -29,7 +29,7 @@ export interface DataSourceStatic {
 export interface DataSource {
   get definition(): DataSourceDefinition
   fetchUpdates(cursor: string | null): Promise<EntityBatch>
-  // fetchByUID(uid: string): Promise<Entity>;
+  fetchByUID(uid: string): Promise<EntityForm[] | null>
 }
 
 /**
