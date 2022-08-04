@@ -9,24 +9,30 @@
     "repco contributors"
   ],
   "scripts": {
-    "build": "yarn prisma generate && tsc",
+    "build": "prisma generate && tsc",
+    "watch": "run-p watch:*",
+    "watch:prisma": "prisma generate --watch",
+    "watch:tsc": "tsc --watch",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prisma": "prisma"
+    "prisma": "dotenv -e ../../.env -- prisma"
   },
   "keywords": [],
   "author": "",
   "dependencies": {
     "@prisma/client": "^3.14.0",
+    "dotenv-cli": "^6.0.0",
     "zod": "^3.17.3"
   },
   "devDependencies": {
-    "@frando/zod-prisma": "^0.5.5",
+    "@frando/zod-prisma": "^0.5.7",
     "@pothos/plugin-prisma": "^3.10.0",
     "@prisma-korea/graphql-schema-generator": "^0.3.0",
     "@types/node": "^17.0.34",
+    "npm-run-all": "^4.1.5",
     "prisma": "^3.14.0",
     "prisma-class-validator-generator": "^0.1.0",
     "prisma-dbml-generator": "^0.9.1",
+    "repco-prisma-generate": "*",
     "ts-node": "^10.7.0",
     "typedoc": "^0.22.17",
     "typescript": "^4.7.4"

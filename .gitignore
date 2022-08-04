@@ -1,5 +1,7 @@
 dist
 node_modules
-yarn*
+yarn-error*
 package-lock.json
 .env
+docs
+SANDBOX

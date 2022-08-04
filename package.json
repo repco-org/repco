@@ -1,4 +1,39 @@
 {
   "private": true,
-  "workspaces": ["packages/**"]
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "scripts": {
+    "build": "run-s build:prisma-generate build:prisma build:core build:server",
+    "build:prisma-generate": "yarn --cwd packages/repco-prisma-generate build",
+    "build:prisma": "yarn --cwd packages/repco-prisma build",
+    "build:core": "yarn --cwd packages/repco-core build",
+    "build:server": "yarn --cwd packages/repco-server build",
+    "build-and-test": "yarn --frozen-lockfile && run-s build test",
+    "test": "run-s test:*",
+    "test:core": "yarn --cwd packages/repco-core test",
+    "migrate": "yarn --cwd packages/repco-prisma prisma migrate deploy",
+    "server": "yarn --cwd packages/repco-server start",
+    "cli": "yarn --cwd packages/repco-core cli",
+    "lint": "eslint packages",
+    "lint:fix": "eslint packages --fix"
+  },
+  "devDependencies": {
+    "@mattinton/prettier-plugin-tidy-imports": "^1.1.12",
+    "@types/node": "^18.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.31.0",
+    "@typescript-eslint/parser": "^5.31.0",
+    "eslint": "^8.21.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.7.1",
+    "typedoc": "^0.22.17",
+    "typescript": "^4.7.4"
+  }
 }

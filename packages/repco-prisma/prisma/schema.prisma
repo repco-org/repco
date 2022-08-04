@@ -29,6 +29,11 @@ generator graphql {
   output     = "../generated/graphql"
 }
 
+generator repco {
+  provider   = "repco-prisma-generate"
+  output     = "../generated/repco"
+}
+
 generator zod {
   provider                 = "zod-prisma"
   output                   = "../generated/zod"
@@ -36,7 +41,7 @@ generator zod {
   modelSuffix              = "Model"
   useDecimalJs             = true
   imports                  = "../src/zod-schemas.js"
-  prismaJsonNullability    = true
+  prismaJsonNullability    = false
   includeJSExtension       = true
 }
 
@@ -55,11 +60,15 @@ model Revision {
   type               String
   uid                String
   created            DateTime
+  datasource         String
+
+  content            Json
+
+  alternativeIds    String[]
+
   previousRevisionId String?   @unique
   previousRevision   Revision? @relation("RevisionHistory", fields: [previousRevisionId], references: [id])
   nextRevision       Revision? @relation("RevisionHistory")
-  datasource         String
-
 
   contentGrouping  ContentGrouping?
   contentItem      ContentItem?
@@ -146,10 +155,10 @@ model MediaAsset {
   transcripts    Transcript[]
   chapters       Chapter[]
   teaserImage    File?         @relation("thumbnail", fields: [teaserImageUid], references: [uid])
-  teaserImageUid String
+  teaserImageUid String?
 
-  license    License @relation(fields: [licenseUid], references: [uid])
-  licenseUid String
+  license    License? @relation(fields: [licenseUid], references: [uid])
+  licenseUid String?
 
   contributions Contribution[]
   concepts      Concept[]
@@ -228,14 +237,14 @@ model File {
   revisionId         String       @unique
   revision           Revision     @relation(fields: [revisionId], references: [id])
   contentUrl         String
-  mimeType           String
-  contentSize        Int // size in bytes
-  multihash          String // hash encoded as multihash (IPFS spec)
-  duration           Float
-  codec              String
-  bitrate            Int
-  resolution         String
-  additionalMetadata String
+  mimeType           String?
+  // contentSize        Int?  // size in bytes
+  multihash          String? // hash encoded as multihash (IPFS spec)
+  duration           Float?
+  codec              String?
+  bitrate            Int?
+  resolution         String?
+  additionalMetadata String?
   asMediaAssets      MediaAsset[] @relation("file")
   asThumbnail        MediaAsset[] @relation("thumbnail")
   actors             Actor[]

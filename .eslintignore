@@ -1,0 +1,9 @@
+*/**.js
+*/**.d.ts
+*/**.json
+node_modules
+packages/*/dist
+packages/*/build
+packages/*/generated
+packages/*/docs
+packages/*/node_modules
