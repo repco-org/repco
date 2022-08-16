@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv'
-import { ingestUpdatesFromDataSource, saveCursor } from './datasource.js'
+import { DataSources, ingestUpdatesFromDataSource, ingestUpdatesFromDataSources, saveCursor } from './datasource.js'
 import { CbaDataSource } from './datasources/cba.js'
 import { PrismaClient } from './prisma.js'
 
@@ -28,19 +28,26 @@ async function main() {
   // prisma.$on('query', async (e: Prisma.QueryEvent) => {
   //   console.log(`${e.query} ${e.params}`)
   // })
-  const ds = new CbaDataSource()
+  const dsr = new DataSources()
+  dsr.register(new CbaDataSource())
   if (command === 'ingest') {
-    console.log(
-      `Ingest updates from \`${ds.definition.uid}\` ("${ds.definition.name}")`,
-    )
-    const { count, cursor } = await ingestUpdatesFromDataSource(prisma, ds)
+    for (const ds of dsr.all()) {
+      console.log(
+        `Ingest updates from \`${ds.definition.uid}\` ("${ds.definition.name}")`,
+      )
+    }
+    const { count, cursor } = await ingestUpdatesFromDataSources(prisma, dsr)
     console.log(`Ingested ${count} new revisions. New cursor: ${cursor}`)
   } else if (command === 'log-content-items') {
     await loadAndlogAllContentItems(prisma)
   } else if (command === 'log-revisions') {
     await loadAndLogAllEntities(prisma)
   } else if (command === 'store-cursor') {
-    const cursor = process.argv[3]
+    const dsUid = process.argv[3]
+    const ds = dsr.get(dsUid)
+    if (!ds) throw new Error(`Datasource ${dsUid} not registered.`)
+    const cursor = process.argv[4]
+    if (!cursor) throw new Error('Cursor is required')
     console.log(
       `Storing cursor for datasource ${ds.definition.uid}: \`${cursor}\``,
     )

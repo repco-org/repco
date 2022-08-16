@@ -5,14 +5,14 @@ import {
   upsertEntity,
   validateEntity,
 } from 'repco-prisma/dist/generated/repco/index.js'
-import type { DataSource } from './datasource.js'
+import type { DataSource, DataSources } from './datasource.js'
 import { AnyEntityContent, Entity, EntityBatch, EntityForm } from './entity.js'
 import { createRevisionId } from './helpers/id.js'
 import { Prisma, PrismaClient, Revision } from './prisma.js'
 
 export async function storeEntityWithDataSourceFallback(
   prisma: PrismaClient,
-  datasource: DataSource,
+  datasources: DataSources,
   input: EntityForm,
 ): Promise<Entity> {
   try {
@@ -21,7 +21,7 @@ export async function storeEntityWithDataSourceFallback(
     if (err instanceof MissingRelationsError) {
       await fetchAndStoreMissingRelations(
         prisma,
-        datasource,
+        datasources,
         err.missingRelations,
       )
       return await storeEntity(prisma, input)
@@ -31,30 +31,25 @@ export async function storeEntityWithDataSourceFallback(
   }
 }
 
-export async function storeEntityBatchFromDataSource(
-  prisma: PrismaClient,
-  datasource: DataSource,
-  batch: EntityBatch,
-) {
-  for (const entity of batch.entities) {
-    if (!entity.revision) entity.revision = {}
-    entity.revision.datasource = datasource.definition.uid
-    await storeEntityWithDataSourceFallback(prisma, datasource, entity)
-  }
-}
-
 async function fetchAndStoreMissingRelations(
   prisma: PrismaClient,
-  datasource: DataSource,
+  datasources: DataSources,
   missingRelations: Relation[],
 ): Promise<void> {
   for (const missingRelation of missingRelations) {
     if (!missingRelation.values) continue
     for (const uid of missingRelation.values) {
-      const entities = await datasource.fetchByUID(uid)
-      if (entities) {
-        for (const entity of entities) {
-          await storeEntityWithDataSourceFallback(prisma, datasource, entity)
+      const matchingSources = datasources.getForUID(uid)
+      if (!matchingSources.length) {
+        throw new Error(`No datasource registered that can fetch ${uid}`)
+      }
+      for (const datasource of matchingSources) {
+        const entities = await datasource.fetchByUID(uid)
+        if (entities && entities.length) {
+          for (const entity of entities) {
+            await storeEntityWithDataSourceFallback(prisma, datasources, entity)
+          }
+          break
         }
       }
     }

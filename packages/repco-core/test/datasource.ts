@@ -8,14 +8,19 @@ import {
   DataSource
 } from '../index.js'
 import { EntityBatch } from '../src/entity.js'
-import { DataSourceDefinition, ingestUpdatesFromDataSource } from '../src/datasource.js'
+import { DataSourceDefinition, ingestUpdatesFromDataSource, BaseDataSource, DataSources, ingestUpdatesFromDataSources } from '../src/datasource.js'
 
-class TestDataSource implements DataSource {
+class TestDataSource extends BaseDataSource implements DataSource {
   get definition(): DataSourceDefinition {
     return {
       name: 'TestDataSource',
       uid: 'repco:datasource:test'
     }
+  }
+
+  canFetchUID(uid: string): boolean {
+    if (uid.startsWith('test:')) return true
+    return false
   }
 
   async fetchUpdates(cursor: string | null): Promise<EntityBatch> {
@@ -40,7 +45,6 @@ class TestDataSource implements DataSource {
     }
   }
   async fetchByUID(uid: string): Promise<EntityForm[] | null> {
-    console.log('TestDataSource.fetchByUID', uid)
     if (uid === 'test:file:1') {
       return [
         {
@@ -73,7 +77,9 @@ test('datasource', async (assert) => {
   await setup(assert.teardown)
   const prisma = new PrismaClient()
   const datasource = new TestDataSource()
-  await ingestUpdatesFromDataSource(prisma, datasource)
+  const dsr = new DataSources()
+  dsr.register(datasource)
+  await ingestUpdatesFromDataSources(prisma, dsr)
   const entities = await prisma.contentItem.findMany({
     where: {
       uid: 'test:content:1'

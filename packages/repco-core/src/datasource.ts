@@ -1,7 +1,7 @@
 import { EntityBatch, EntityForm } from './entity.js'
 import { PrismaClient } from './prisma.js'
 import { UID } from './shared.js'
-import { storeEntityBatchFromDataSource } from './store.js'
+import { storeEntityWithDataSourceFallback } from './store.js'
 
 export type DataSourceDefinition = {
   // The unique ID for this data source instance.
@@ -30,6 +30,65 @@ export interface DataSource {
   get definition(): DataSourceDefinition
   fetchUpdates(cursor: string | null): Promise<EntityBatch>
   fetchByUID(uid: string): Promise<EntityForm[] | null>
+  canFetchUID(uid: string): boolean
+}
+
+export abstract class BaseDataSource {
+  canFetchUID(_uid: string): boolean {
+    return false
+  }
+}
+
+export class DataSources {
+  map: Map<string, DataSource> = new Map()
+
+  get(uid: string): DataSource | null {
+    return this.map.get(uid) || null
+  }
+
+  all (): DataSource[] {
+    return [...this.map.values()]
+  }
+
+  register(datasource: DataSource) {
+    const uid = datasource.definition.uid
+    this.map.set(uid, datasource)
+  }
+
+  getByUID(uid: string): DataSource | null {
+    return this.map.get(uid) || null
+  }
+
+  getForUID(uid: string): DataSource[] {
+    const matching = []
+    for (const ds of this.map.values()) {
+      if (ds.canFetchUID(uid)) {
+        matching.push(ds)
+      }
+    }
+    return matching
+  }
+}
+
+export type IngestResult = Record<
+  string,
+  {
+    count: number
+    cursor: string | null
+  }
+>
+
+export async function ingestUpdatesFromDataSources(
+  prisma: PrismaClient,
+  datasources: DataSources,
+  maxIterations = 1,
+): Promise<IngestResult> {
+  const res: IngestResult = {}
+  for (const ds of datasources.all()) {
+    const ret = await ingestUpdatesFromDataSource(prisma, datasources, ds, maxIterations)
+    res[ds.definition.uid] = ret
+  }
+  return res
 }
 
 /**
@@ -42,6 +101,7 @@ export interface DataSource {
  */
 export async function ingestUpdatesFromDataSource(
   prisma: PrismaClient,
+  datasources: DataSources,
   datasource: DataSource,
   maxIterations = 1,
 ) {
@@ -54,7 +114,7 @@ export async function ingestUpdatesFromDataSource(
     count += batch.entities.length
     // console.log('fetched entities from datasource', batch.entities)
     cursor = batch.cursor
-    await storeEntityBatchFromDataSource(prisma, datasource, batch)
+    await storeEntityBatchFromDataSource(prisma, datasources, datasource, batch)
     await saveCursor(prisma, datasource, cursor)
   }
   return {
@@ -62,6 +122,20 @@ export async function ingestUpdatesFromDataSource(
     cursor,
   }
 }
+
+export async function storeEntityBatchFromDataSource(
+  prisma: PrismaClient,
+  datasources: DataSources,
+  datasource: DataSource,
+  batch: EntityBatch,
+) {
+  for (const entity of batch.entities) {
+    if (!entity.revision) entity.revision = {}
+    entity.revision.datasource = datasource.definition.uid
+    await storeEntityWithDataSourceFallback(prisma, datasources, entity)
+  }
+}
+
 
 async function fetchCursor(
   prisma: PrismaClient,
