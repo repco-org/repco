@@ -19,8 +19,9 @@
   "keywords": [],
   "author": "",
   "dependencies": {
-    "@prisma/client": "^3.14.0",
+    "@prisma/client": "^4.2.0",
     "dotenv-cli": "^6.0.0",
+    "typegraphql-prisma": "^0.21.3",
     "zod": "^3.17.3"
   },
   "devDependencies": {
@@ -29,7 +30,7 @@
     "@prisma-korea/graphql-schema-generator": "^0.3.0",
     "@types/node": "^17.0.34",
     "npm-run-all": "^4.1.5",
-    "prisma": "^3.14.0",
+    "prisma": "^4.2.0",
     "prisma-class-validator-generator": "^0.1.0",
     "prisma-dbml-generator": "^0.9.1",
     "repco-prisma-generate": "*",

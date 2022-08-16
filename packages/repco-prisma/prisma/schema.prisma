@@ -30,19 +30,23 @@ generator graphql {
 }
 
 generator repco {
-  provider   = "repco-prisma-generate"
-  output     = "../generated/repco"
+  provider = "repco-prisma-generate"
+  output   = "../generated/repco"
 }
 
 generator zod {
-  provider                 = "zod-prisma"
-  output                   = "../generated/zod"
-  modelCase                = "PascalCase"
-  modelSuffix              = "Model"
-  useDecimalJs             = true
-  imports                  = "../src/zod-schemas.js"
-  prismaJsonNullability    = false
-  includeJSExtension       = true
+  provider              = "zod-prisma"
+  output                = "../generated/zod"
+  modelCase             = "PascalCase"
+  modelSuffix           = "Model"
+  useDecimalJs          = true
+  imports               = "../src/zod-schemas.js"
+  prismaJsonNullability = false
+  includeJSExtension    = true
+}
+
+generator typegraphql {
+  provider = "typegraphql-prisma"
 }
 
 enum ContentGroupingVariant {
@@ -51,20 +55,20 @@ enum ContentGroupingVariant {
 }
 
 model DataSource {
-  uid String @id @unique
+  uid    String @id @unique
   cursor String
 }
 
 model Revision {
-  id                 String    @id @unique
-  type               String
-  uid                String
-  created            DateTime
-  datasource         String
+  id         String   @id @unique
+  type       String
+  uid        String
+  created    DateTime
+  datasource String
 
-  content            Json
+  content Json
 
-  alternativeIds    String[]
+  alternativeIds String[]
 
   previousRevisionId String?   @unique
   previousRevision   Revision? @relation("RevisionHistory", fields: [previousRevisionId], references: [id])
@@ -117,10 +121,10 @@ model ContentItem {
   summary             String
   content             String
   contentFormat       String
-  primaryGrouping     ContentGrouping?   @relation("primaryGrouping", fields: [primaryGroupingUid], references: [uid])
+  primaryGrouping     ContentGrouping?  @relation("primaryGrouping", fields: [primaryGroupingUid], references: [uid])
   primaryGroupingUid  String?
   additionalGroupings ContentGrouping[]
-  license             License?           @relation(fields: [licenseUid], references: [uid])
+  license             License?          @relation(fields: [licenseUid], references: [uid])
   licenseUid          String?
   mediaAssets         MediaAsset[]
   contributions       Contribution[]
