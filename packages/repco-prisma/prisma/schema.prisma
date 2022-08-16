@@ -113,8 +113,8 @@ model ContentItem {
   revisionId          String            @unique
   revision            Revision          @relation(fields: [revisionId], references: [id])
   title               String
-  subtitle            String
-  summary             String
+  subtitle            String?
+  summary             String?
   content             String
   contentFormat       String
   primaryGrouping     ContentGrouping?   @relation("primaryGrouping", fields: [primaryGroupingUid], references: [uid])

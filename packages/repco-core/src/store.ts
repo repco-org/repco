@@ -10,6 +10,27 @@ import { AnyEntityContent, Entity, EntityBatch, EntityForm } from './entity.js'
 import { createRevisionId } from './helpers/id.js'
 import { Prisma, PrismaClient, Revision } from './prisma.js'
 
+export async function storeEntityWithDataSourceFallback(
+  prisma: PrismaClient,
+  datasource: DataSource,
+  input: EntityForm,
+): Promise<Entity> {
+  try {
+    return await storeEntity(prisma, input)
+  } catch (err) {
+    if (err instanceof MissingRelationsError) {
+      await fetchAndStoreMissingRelations(
+        prisma,
+        datasource,
+        err.missingRelations,
+      )
+      return await storeEntity(prisma, input)
+    } else {
+      throw err
+    }
+  }
+}
+
 export async function storeEntityBatchFromDataSource(
   prisma: PrismaClient,
   datasource: DataSource,
@@ -18,24 +39,7 @@ export async function storeEntityBatchFromDataSource(
   for (const entity of batch.entities) {
     if (!entity.revision) entity.revision = {}
     entity.revision.datasource = datasource.definition.uid
-    try {
-      await storeEntity(prisma, entity)
-      // console.log(`stored entity ${res.type} ${res.content.uid} @ ${res.revision.id}`)
-    } catch (err) {
-      if (err instanceof MissingRelationsError) {
-        await fetchAndStoreMissingRelations(
-          prisma,
-          datasource,
-          err.missingRelations,
-        )
-        await storeEntity(prisma, entity)
-      } else {
-        // TODO: What to do on errors?
-        // console.error(`error saving ${entity.content.uid}: ${err}`)
-        // console.error(err)
-        throw err
-      }
-    }
+    await storeEntityWithDataSourceFallback(prisma, datasource, entity)
   }
 }
 
@@ -50,7 +54,7 @@ async function fetchAndStoreMissingRelations(
       const entities = await datasource.fetchByUID(uid)
       if (entities) {
         for (const entity of entities) {
-          await storeEntity(prisma, entity)
+          await storeEntityWithDataSourceFallback(prisma, datasource, entity)
         }
       }
     }
