@@ -46,15 +46,15 @@ Most and most important functions, types, interfaces etc. are provided with appr
 Project Tree - rough overview
 
 REPCO
-
+```
 |
 |-REPCO
 | |-packages
-| | |-repco-core //this packege ingest data from a datasource and persist to a local postgress
-| | |-repco-prisma //defines the repco datamodel
+| | |-repco-core            //this packege ingest data from a datasource and persist to a local postgress
+| | |-repco-prisma          //defines the repco datamodel
 | | |-repco-prisma-generate //a custom prisma generator for validation and upsert function of the datamodel
-| | |-repco-server //simple http-server for replication between the repco-nodes
-
+| | |-repco-server          //simple http-server for replication between the repco-nodes
+```
 ---
 
 # repco-specs
