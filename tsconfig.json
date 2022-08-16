@@ -16,7 +16,7 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
-    "target": "es2020",
+    "target": "esnext",
     "typeRoots": [ "./types", "../node_modules/@types"],
     "types": ["node"]
   }
