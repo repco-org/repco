@@ -1,3 +1,6 @@
+/**
+ * Helper function for generating, encoding and decoding IDs
+ */
 import { createHash, randomBytes } from 'crypto'
 import { base32 } from 'multiformats/bases/base32'
 import { base64 } from 'multiformats/bases/base64'

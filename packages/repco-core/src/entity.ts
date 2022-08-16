@@ -10,6 +10,13 @@ import {
   Revision,
 } from './prisma.js'
 
+/**
+ * We work with entities. An entity has a type, content and a revision.
+ * An EntityBatch is retrieved from the datasource and persisted locally,
+ * it can contain multiple entities and their associated revisions.
+ * Furthermore the EntityBatch has a cursor which is usually a timestamp of the last retrieval of the entity.
+ */
+
 export type { ContentItem, MediaAsset, ContentGrouping, Revision }
 export { ContentGroupingVariant }
 export type AnyEntityContent = EntityOutput['content']
