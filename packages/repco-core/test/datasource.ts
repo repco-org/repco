@@ -1,20 +1,19 @@
 import test from 'brittle'
 import { setup } from './util/setup.js'
+import { DataSource, EntityForm, PrismaClient } from '../index.js'
 import {
-  EntityForm,
-  fetchRevisions,
-  PrismaClient,
-  storeEntity,
-  DataSource
-} from '../index.js'
+  BaseDataSource,
+  DataSourceDefinition,
+  DataSources,
+  ingestUpdatesFromDataSources,
+} from '../src/datasource.js'
 import { EntityBatch } from '../src/entity.js'
-import { DataSourceDefinition, ingestUpdatesFromDataSource, BaseDataSource, DataSources, ingestUpdatesFromDataSources } from '../src/datasource.js'
 
 class TestDataSource extends BaseDataSource implements DataSource {
   get definition(): DataSourceDefinition {
     return {
       name: 'TestDataSource',
-      uid: 'repco:datasource:test'
+      uid: 'repco:datasource:test',
     }
   }
 
@@ -64,9 +63,9 @@ class TestDataSource extends BaseDataSource implements DataSource {
             uid: 'test:media:1',
             title: 'Media1',
             mediaType: 'audio/mp3',
-            file: 'test:file:1'
-          }
-        }
+            file: 'test:file:1',
+          },
+        },
       ]
     }
     return null
@@ -82,19 +81,22 @@ test('datasource', async (assert) => {
   await ingestUpdatesFromDataSources(prisma, dsr)
   const entities = await prisma.contentItem.findMany({
     where: {
-      uid: 'test:content:1'
+      uid: 'test:content:1',
     },
     include: {
       mediaAssets: {
-        include: { file: true }
-      }
-    }
+        include: { file: true },
+      },
+    },
   })
   assert.is(entities.length, 1)
   const entity = entities[0]
   assert.is(entity.uid, 'test:content:1')
   assert.is(entity.mediaAssets.length, 1)
   assert.is(entity.mediaAssets[0].uid, 'test:media:1'),
-  assert.is(entity.mediaAssets[0].file.uid, 'test:file:1')
-  assert.is(entity.mediaAssets[0].file.contentUrl, 'http://example.org/file1.mp3')
+    assert.is(entity.mediaAssets[0].file.uid, 'test:file:1')
+  assert.is(
+    entity.mediaAssets[0].file.contentUrl,
+    'http://example.org/file1.mp3',
+  )
 })

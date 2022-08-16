@@ -5,8 +5,8 @@ import {
   upsertEntity,
   validateEntity,
 } from 'repco-prisma/dist/generated/repco/index.js'
-import type { DataSource, DataSources } from './datasource.js'
-import { AnyEntityContent, Entity, EntityBatch, EntityForm } from './entity.js'
+import type { DataSources } from './datasource.js'
+import { AnyEntityContent, Entity, EntityForm } from './entity.js'
 import { createRevisionId } from './helpers/id.js'
 import { Prisma, PrismaClient, Revision } from './prisma.js'
 

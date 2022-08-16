@@ -2,6 +2,7 @@
 */**.d.ts
 */**.json
 node_modules
+packages/*/data
 packages/*/dist
 packages/*/build
 packages/*/generated

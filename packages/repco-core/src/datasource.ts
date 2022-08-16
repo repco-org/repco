@@ -46,7 +46,7 @@ export class DataSources {
     return this.map.get(uid) || null
   }
 
-  all (): DataSource[] {
+  all(): DataSource[] {
     return [...this.map.values()]
   }
 
@@ -85,7 +85,12 @@ export async function ingestUpdatesFromDataSources(
 ): Promise<IngestResult> {
   const res: IngestResult = {}
   for (const ds of datasources.all()) {
-    const ret = await ingestUpdatesFromDataSource(prisma, datasources, ds, maxIterations)
+    const ret = await ingestUpdatesFromDataSource(
+      prisma,
+      datasources,
+      ds,
+      maxIterations,
+    )
     res[ds.definition.uid] = ret
   }
   return res
@@ -135,7 +140,6 @@ export async function storeEntityBatchFromDataSource(
     await storeEntityWithDataSourceFallback(prisma, datasources, entity)
   }
 }
-
 
 async function fetchCursor(
   prisma: PrismaClient,

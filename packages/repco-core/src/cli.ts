@@ -1,5 +1,9 @@
 import * as dotenv from 'dotenv'
-import { DataSources, ingestUpdatesFromDataSource, ingestUpdatesFromDataSources, saveCursor } from './datasource.js'
+import {
+  DataSources,
+  ingestUpdatesFromDataSources,
+  saveCursor,
+} from './datasource.js'
 import { CbaDataSource } from './datasources/cba.js'
 import { PrismaClient } from './prisma.js'
 
