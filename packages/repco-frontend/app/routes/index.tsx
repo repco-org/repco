@@ -1,32 +1,26 @@
+import { json, LoaderFunction } from '@remix-run/node'
+import { useLoaderData } from '@remix-run/react'
+import { gql } from 'graphql-request'
+import { client } from '~/lib/graphql-client'
+
+const getAllContentItems = gql`
+  {
+    allContentItems {
+      uid
+    }
+  }
+`
+export const loader: LoaderFunction = async () => {
+  const items = await client.request(getAllContentItems)
+  return json(items)
+}
+
 export default function Index() {
+  let data = useLoaderData()
+
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.4" }}>
-      <h1>Welcome to Remix</h1>
-      <ul>
-        <li>
-          <a
-            target="_blank"
-            href="https://remix.run/tutorials/blog"
-            rel="noreferrer"
-          >
-            15m Quickstart Blog Tutorial
-          </a>
-        </li>
-        <li>
-          <a
-            target="_blank"
-            href="https://remix.run/tutorials/jokes"
-            rel="noreferrer"
-          >
-            Deep Dive Jokes App Tutorial
-          </a>
-        </li>
-        <li>
-          <a target="_blank" href="https://remix.run/docs" rel="noreferrer">
-            Remix Docs
-          </a>
-        </li>
-      </ul>
+    <div>
+      <pre>{JSON.stringify(data, null, 2)}</pre>
     </div>
-  );
+  )
 }

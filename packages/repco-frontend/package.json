@@ -18,7 +18,10 @@
     "@remix-run/react": "^1.6.8",
     "@remix-run/serve": "^1.6.8",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "graphql": "^14.7.0",
+    "graphql-request": "^4.3.0"
+
   },
   "devDependencies": {
     "@remix-run/dev": "^1.6.8",
