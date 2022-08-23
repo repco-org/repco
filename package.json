@@ -14,11 +14,13 @@
     "build:prisma": "yarn --cwd packages/repco-prisma build",
     "build:core": "yarn --cwd packages/repco-core build",
     "build:server": "yarn --cwd packages/repco-server build",
+    "build:frontend": "yarn --cwd packages/repco-frontend build",
     "build-and-test": "yarn --frozen-lockfile && run-s build test",
     "test": "run-s test:*",
     "test:core": "yarn --cwd packages/repco-core test",
     "migrate": "yarn --cwd packages/repco-prisma prisma migrate deploy",
     "server": "yarn --cwd packages/repco-server start",
+    "frontend": "yarn --cwd packages/repco-frontend dev",
     "cli": "yarn --cwd packages/repco-core cli",
     "lint": "eslint packages",
     "lint:fix": "eslint packages --fix"
