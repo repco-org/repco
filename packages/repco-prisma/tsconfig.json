@@ -3,6 +3,7 @@
   "extends": "../../tsconfig.json",
   "include": ["*.ts", "./generated/zod/*.ts"],
   "compilerOptions": {
+    "emitDeclarationOnly": true,
     "outDir": "dist",
   }
 }

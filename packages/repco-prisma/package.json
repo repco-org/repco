@@ -9,7 +9,9 @@
     "repco contributors"
   ],
   "scripts": {
-    "build": "prisma generate && tsc",
+    "build": "run-s build:prisma build:tsc",
+    "build:prisma": "prisma generate",
+    "build:tsc": "node build.cjs && tsc",
     "watch": "run-p watch:*",
     "watch:prisma": "prisma generate --watch",
     "watch:tsc": "tsc --watch",
@@ -21,6 +23,7 @@
   "dependencies": {
     "@prisma/client": "^4.2.0",
     "dotenv-cli": "^6.0.0",
+    "reflect-metadata": "^0.1.13",
     "typegraphql-prisma": "^0.21.3",
     "zod": "^3.17.3"
   },
@@ -29,6 +32,7 @@
     "@pothos/plugin-prisma": "^3.10.0",
     "@prisma-korea/graphql-schema-generator": "^0.3.0",
     "@types/node": "^17.0.34",
+    "esbuild": "^0.15.5",
     "npm-run-all": "^4.1.5",
     "prisma": "^4.2.0",
     "prisma-class-validator-generator": "^0.1.0",

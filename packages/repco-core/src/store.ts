@@ -2,15 +2,14 @@
  * Saving an EntityBatch from a Datasource
  * ![diagram](packages/repco-core/diagrams/store.png)
  */
-import {
-  upsertEntity,
-  validateEntity,
-} from 'repco-prisma/dist/generated/repco/index.js'
+import { repco } from 'repco-prisma'
 import { z } from 'zod'
 import type { DataSource } from './datasource.js'
 import { Entity, EntityBatch, EntityForm } from './entity.js'
 import { createRevisionId } from './helpers/id.js'
 import { Prisma, PrismaClient, zod } from './prisma.js'
+
+const { upsertEntity, validateEntity } = repco
 
 export async function storeEntityBatchFromDataSource(
   prisma: PrismaClient,
