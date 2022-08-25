@@ -47,6 +47,7 @@ generator zod {
 
 generator typegraphql {
   provider = "typegraphql-prisma"
+  output   = "../generated/type-graphql"
 }
 
 enum ContentGroupingVariant {
