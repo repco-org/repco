@@ -1,3 +1,7 @@
+/**
+ * Helper function for error handling of a fetch request
+ */
+
 import { Response } from 'undici'
 
 type ErrorJson = {

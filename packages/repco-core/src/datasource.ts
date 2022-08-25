@@ -141,6 +141,10 @@ export async function storeEntityBatchFromDataSource(
   }
 }
 
+/**
+ * Returns a string which serves as a marker for the last fetch.
+ * Usually this is a timestamp or something similar
+ */
 async function fetchCursor(
   prisma: PrismaClient,
   datasource: DataSource,
@@ -155,6 +159,11 @@ async function fetchCursor(
   return cursor
 }
 
+/**
+ * The cursor contains the information about the last fetch
+ * from a datasource. You can take any marker but it makes
+ * sense to take the last modified date or something similar.
+ */
 export async function saveCursor(
   prisma: PrismaClient,
   datasource: DataSource,
