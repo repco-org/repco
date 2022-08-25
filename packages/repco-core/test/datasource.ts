@@ -80,9 +80,7 @@ test('datasource', async (assert) => {
   dsr.register(datasource)
   await ingestUpdatesFromDataSources(prisma, dsr)
   const entities = await prisma.contentItem.findMany({
-    where: {
-      uid: 'test:content:1',
-    },
+    where: { uid: 'test:content:1' },
     include: {
       mediaAssets: {
         include: { file: true },
