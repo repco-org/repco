@@ -1,3 +1,7 @@
+/**
+ * Helper function for error handling of a fetch request
+ */
+
 import { Response } from 'undici'
 
 type ErrorJson = {
@@ -14,7 +18,11 @@ export class HttpError extends Error {
     try {
       const errorJson = await response.json()
       if (typeof errorJson === 'object' && errorJson) {
-        return HttpError.fromResponse(response, (errorJson as ErrorJson).message, errorJson)
+        return HttpError.fromResponse(
+          response,
+          (errorJson as ErrorJson).message,
+          errorJson,
+        )
       }
     } catch (_err) {}
     return HttpError.fromResponse(response)

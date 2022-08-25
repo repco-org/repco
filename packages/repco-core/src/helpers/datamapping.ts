@@ -1,3 +1,7 @@
+/**
+ * Helper function to map the data
+ */
+
 import { RequestInit } from 'undici'
 import { EntityBatch, EntityForm } from '../entity.js'
 

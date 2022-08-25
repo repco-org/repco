@@ -1,3 +1,8 @@
+/**
+ * Saving an EntityBatch from a Datasource
+ * ![diagram](packages/repco-core/diagrams/store.png)
+ */
+
 import {
   upsertEntity,
   validateEntity,
