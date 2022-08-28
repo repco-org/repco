@@ -12,38 +12,10 @@ generator dbml {
   output   = "../generated/dbml"
 }
 
-// generator pothos {
-//   provider     = "prisma-pothos-types"
-//   clientOutput = "@prisma/client"
-//   output       = "../generated/pothos/pothos-types.ts"
-// }
-
-// generator class_validator {
-//   provider = "prisma-class-validator-generator"
-//   output   = "../generated/models"
-// }
-
-// generator graphql {
-//   provider   = "graphql-schema-generator"
-//   createCRUD = "true"
-//   output     = "../generated/graphql"
-// }
-
 generator repco {
   provider   = "repco-prisma-generate"
   output     = "../generated/repco"
 }
-
-// generator zod {
-//   provider                 = "zod-prisma"
-//   output                   = "../generated/zod"
-//   modelCase                = "PascalCase"
-//   modelSuffix              = "Model"
-//   useDecimalJs             = true
-//   imports                  = "../src/zod-schemas.js"
-//   prismaJsonNullability    = false
-//   includeJSExtension       = true
-// }
 
 enum ContentGroupingVariant {
   EPISODIC

@@ -13,12 +13,12 @@ class TestDataSource extends BaseDataSource implements DataSource {
   get definition(): DataSourceDefinition {
     return {
       name: 'TestDataSource',
-      uid: 'repco:datasource:test',
+      uid: 'urn:repco:datasource:test',
     }
   }
 
   canFetchUID(uid: string): boolean {
-    if (uid.startsWith('test:')) return true
+    if (uid.startsWith('urn:test:')) return true
     return false
   }
 
@@ -31,9 +31,9 @@ class TestDataSource extends BaseDataSource implements DataSource {
     entities.push({
       type: 'ContentItem',
       content: {
-        uid: 'test:content:1',
+        uid: 'urn:test:content:1',
         title: 'Test1',
-        mediaAssets: ['test:media:1'],
+        mediaAssets: ['urn:test:media:1'],
         content: 'helloworld',
         contentFormat: 'text/plain',
       },
@@ -44,26 +44,26 @@ class TestDataSource extends BaseDataSource implements DataSource {
     }
   }
   async fetchByUID(uid: string): Promise<EntityForm[] | null> {
-    if (uid === 'test:file:1') {
+    if (uid === 'urn:test:file:1') {
       return [
         {
           type: 'File',
           content: {
-            uid: 'test:file:1',
+            uid: 'urn:test:file:1',
             contentUrl: 'http://example.org/file1.mp3',
           },
         },
       ]
     }
-    if (uid === 'test:media:1') {
+    if (uid === 'urn:test:media:1') {
       return [
         {
           type: 'MediaAsset',
           content: {
-            uid: 'test:media:1',
+            uid: 'urn:test:media:1',
             title: 'Media1',
             mediaType: 'audio/mp3',
-            file: 'test:file:1',
+            file: 'urn:test:file:1',
           },
         },
       ]
@@ -80,7 +80,7 @@ test('datasource', async (assert) => {
   dsr.register(datasource)
   await ingestUpdatesFromDataSources(prisma, dsr)
   const entities = await prisma.contentItem.findMany({
-    where: { uid: 'test:content:1' },
+    where: { uid: 'urn:test:content:1' },
     include: {
       mediaAssets: {
         include: { file: true },
@@ -89,10 +89,10 @@ test('datasource', async (assert) => {
   })
   assert.is(entities.length, 1)
   const entity = entities[0]
-  assert.is(entity.uid, 'test:content:1')
+  assert.is(entity.uid, 'urn:test:content:1')
   assert.is(entity.mediaAssets.length, 1)
-  assert.is(entity.mediaAssets[0].uid, 'test:media:1'),
-    assert.is(entity.mediaAssets[0].file.uid, 'test:file:1')
+  assert.is(entity.mediaAssets[0].uid, 'urn:test:media:1'),
+    assert.is(entity.mediaAssets[0].file.uid, 'urn:test:file:1')
   assert.is(
     entity.mediaAssets[0].file.contentUrl,
     'http://example.org/file1.mp3',

@@ -24,6 +24,7 @@ function writeHelpers(sourceFile: SourceFile) {
       'type Json = Literal | { [key: string]: Json } | Json[]',
       `const literalSchema = z.union([z.string(), z.number(), z.boolean()])`,
       'const jsonSchema: z.ZodSchema<Json> = z.lazy(() => z.union([literalSchema, z.array(jsonSchema), z.record(jsonSchema)]))',
+      `const uid = z.string().regex(/^urn:[a-z0-9][a-z0-9-]{0,31}:[a-z0-9()+,\\-.:=@;$_!*'%/?#]+$/)`,
     ])
   })
   // sourceFile.addStatements((writer) => {
@@ -120,7 +121,11 @@ export function getZodConstructor(field: DMMF.Field) {
   if (field.kind === 'scalar') {
     switch (field.type) {
       case 'String':
-        zodType = 'z.string()'
+        if (field.isId) {
+          zodType = 'uid'
+        } else {
+          zodType = 'z.string()'
+        }
         break
       case 'Int':
         zodType = 'z.number()'
@@ -152,7 +157,7 @@ export function getZodConstructor(field: DMMF.Field) {
   } else if (field.kind === 'enum') {
     zodType = `z.nativeEnum(${field.type})`
   } else if (field.kind === 'object') {
-    zodType = `z.string()`
+    zodType = `uid`
     // zodType = getRelatedModelName(field.type)
   }
 

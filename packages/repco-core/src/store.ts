@@ -4,16 +4,18 @@
  */
 
 import {
-  EntityInput,
   extractRelations,
-  Relation,
+  repco,
   upsertEntity,
   validateEntity,
-} from 'repco-prisma/dist/generated/repco/index.js'
+} from 'repco-prisma'
 import type { DataSources } from './datasource.js'
 import { AnyEntityContent, Entity, EntityForm } from './entity.js'
 import { createRevisionId } from './helpers/id.js'
 import { Prisma, PrismaClient, Revision } from './prisma.js'
+
+export type Relation = repco.Relation
+export type EntityInput = repco.EntityInput
 
 export async function storeEntityWithDataSourceFallback(
   prisma: PrismaClient,
@@ -141,22 +143,10 @@ export async function ingestRevisions(
 
 export type RevisionCreateInput = Prisma.RevisionCreateInput
 
-// export type RevisionCreateInput = Omit<
-//   Prisma.RevisionCreateInput,
-//   'content'
-// > & {
-//   content:
-//     | Prisma.JsonValue
-//     | null
-//     | z.infer<typeof zod.RevisionModel>['content']
-// }
-
 export async function storeRevision(
   prisma: PrismaClient,
   revisionInput: Prisma.RevisionCreateInput,
 ) {
-  // const validatedRevisionInput = zod.RevisionModel.parse(revisionInput)
-  // return await storeRevisionUnchecked(prisma, validatedRevisionInput)
   return await storeRevisionUnchecked(prisma, revisionInput)
 }
 
@@ -194,7 +184,6 @@ export async function storeRevisionUnchecked(
   if (missingRelations) {
     throw new MissingRelationsError(missingRelations)
   }
-  // prisma.$transaction.
   // upsert entity
   const revisionData = {
     ...revisionInput,
@@ -205,15 +194,7 @@ export async function storeRevisionUnchecked(
     where: { id: revisionInput.id },
   })
   if (!revision) throw new Error('Failed to create revision')
-  // store revision
-  // const revision = await prisma.revision.create({
-  //   data: {
-  //     ...revisionInput,
-  //     content: revisionInput.content || Prisma.JsonNull,
-  //   },
-  // })
   return { revision, entity }
-  // return entity
 }
 
 async function findMissingRelations(prisma: PrismaClient, input: EntityInput) {
