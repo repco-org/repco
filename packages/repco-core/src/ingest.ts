@@ -37,7 +37,7 @@ export class Ingester extends Worker<void> {
   async start(): Promise<void> {
     const savedDataSources = await this.state.prisma.dataSource.findMany()
     for (const model of savedDataSources) {
-      if (!this.state.dataSourcePluginRegistry.has(model.uid)) {
+      if (!model.pluginUid || !this.state.dataSourcePluginRegistry.has(model.pluginUid)) {
         console.error(
           `Skip init of data source ${model.uid}: Unknown plugin ${model.pluginUid}`,
         )
