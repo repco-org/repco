@@ -1,7 +1,7 @@
 {
   "name": "repco-core",
   "version": "0.1.0",
-  "license": "Apache-2.0/MIT",
+  "license": "MIT OR Apache-2.0",
   "maintainers": [
     "repco contributors"
   ],
