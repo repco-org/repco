@@ -5,10 +5,7 @@
  * Furthermore the EntityBatch has a cursor which is usually a timestamp of the last retrieval of the entity.
  */
 
-import {
-  EntityInput,
-  EntityOutput,
-} from 'repco-prisma/dist/generated/repco/index.js'
+import { repco } from 'repco-prisma'
 import {
   ContentGrouping,
   ContentGroupingVariant,
@@ -19,7 +16,7 @@ import {
 
 export type { ContentItem, MediaAsset, ContentGrouping, Revision }
 export { ContentGroupingVariant }
-export type AnyEntityContent = EntityOutput['content']
+export type AnyEntityContent = repco.EntityOutput['content']
 
 export type EntityBatch = {
   cursor: string
@@ -34,7 +31,7 @@ export type Entity = {
 
 export type EntityFormContent = Omit<AnyEntityContent, 'revisionId'>
 
-export type EntityForm = EntityInput & {
+export type EntityForm = repco.EntityInput & {
   revision?: RevisionForm
 }
 
@@ -44,4 +41,8 @@ export type RevisionForm = {
   datasource?: string
   created?: Date
   alternativeIds?: string[]
+}
+
+export type EntityRevision = repco.EntityOutput & {
+  revision: Omit<Revision, 'content'>
 }

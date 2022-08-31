@@ -24,6 +24,8 @@ enum ContentGroupingVariant {
 
 model DataSource {
   uid String @id @unique
+  pluginUid String
+  config Json?
   cursor String
 }
 

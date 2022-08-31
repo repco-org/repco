@@ -14,6 +14,7 @@ class TestDataSource extends BaseDataSource implements DataSource {
     return {
       name: 'TestDataSource',
       uid: 'urn:repco:datasource:test',
+      pluginUid: 'urn:repco:datasource:test'
     }
   }
 
