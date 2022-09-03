@@ -1,9 +1,19 @@
 import { EntityBatch, EntityForm } from './entity.js'
-import { PrismaClient } from './prisma.js'
+import { PrismaClient, Prisma } from './prisma.js'
 import { UID } from './shared.js'
 import { storeEntityWithDataSourceFallback } from './store.js'
 
 export type DataSourceDefinition = {
+  // The unique ID for this data source instance.
+  uid: UID
+  // The human-readable name of the data source instance (e.g. "CBA")
+  name: string
+  // A primary endpoint URL for this data source.
+  // url: string
+  pluginUid: UID
+}
+
+export type DataSourcePluginDefinition = {
   // The unique ID for this data source instance.
   uid: UID
   // The human-readable name of the data source instance (e.g. "CBA")
@@ -15,9 +25,28 @@ export type DataSourceDefinition = {
 /**
  * Static methods on a DataSource class.
  */
-export interface DataSourceStatic {
-  createInstance(url: string): Promise<DataSource>
+export interface DataSourcePlugin {
+  createInstance(config: any): DataSource
+  get definition(): DataSourcePluginDefinition
 }
+
+export class DataSourcePluginRegistry {
+  private plugins: Record<string, DataSourcePlugin> = {}
+  register(plugin: DataSourcePlugin) {
+    this.plugins[plugin.definition.uid] = plugin
+  }
+  createInstance(uid: string, config: any): DataSource {
+    if (!this.plugins[uid]) {
+      throw new Error(`Unknown data source plugin: ${uid}`)
+    }
+    return this.plugins[uid].createInstance(config)
+  }
+  has(uid: string): boolean {
+    return !!this.plugins[uid]
+  }
+}
+
+export type DataSourceConstructor = (config: any) => DataSource
 
 /**
  * A DataSource is an external provider for repco data.
@@ -172,6 +201,10 @@ export async function saveCursor(
   await prisma.dataSource.upsert({
     where: { uid: datasource.definition.uid },
     update: { cursor },
-    create: { uid: datasource.definition.uid, cursor },
+    create: {
+      uid: datasource.definition.uid,
+      pluginUid: datasource.definition.pluginUid,
+      cursor,
+    },
   })
 }

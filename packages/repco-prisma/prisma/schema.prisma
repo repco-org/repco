@@ -24,6 +24,9 @@ enum ContentGroupingVariant {
 
 model DataSource {
   uid String @id @unique
+  // TODO: Make required once we reset the schema.
+  pluginUid String?
+  config Json?
   cursor String
 }
 

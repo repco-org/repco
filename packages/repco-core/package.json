@@ -18,7 +18,7 @@
     "dotenv": "^16.0.1",
     "multiformats": "^9.7.0",
     "repco-prisma": "*",
-    "undici": "^5.8.0"
+    "undici": "^5.10.0"
   },
   "devDependencies": {
     "@types/node": "^18.0.0",

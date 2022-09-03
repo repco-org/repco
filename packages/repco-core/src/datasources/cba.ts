@@ -4,7 +4,7 @@ import {
 } from 'repco-prisma/dist/generated/repco/index.js'
 import { fetch } from 'undici'
 import { CbaPost, CbaSeries } from './cba/types.js'
-import { DataSource, DataSourceDefinition } from '../datasource.js'
+import { DataSource, DataSourceDefinition, DataSourcePlugin } from '../datasource.js'
 import { ContentGroupingVariant, EntityBatch, EntityForm } from '../entity.js'
 import { extractCursorAndMap, FetchOpts } from '../helpers/datamapping.js'
 import { HttpError } from '../helpers/error.js'
@@ -36,6 +36,18 @@ function parseUrn(urn: string) {
   }
 }
 
+export class CbaDataSourcePlugin implements DataSourcePlugin {
+  createInstance(config: any) {
+    return new CbaDataSource()
+  }
+  get definition() {
+    return {
+      uid: 'urn:repco:datasource:cba',
+      name: 'CBA',
+    }
+  }
+}
+
 export class CbaDataSource implements DataSource {
   endpoint: string
   constructor() {
@@ -46,6 +58,7 @@ export class CbaDataSource implements DataSource {
     return {
       name: 'Cultural Broacasting Archive',
       uid: 'repco:datasource:cba.media',
+      pluginUid: 'urn:repco:datasource:cba',
     }
   }
 
