@@ -4,8 +4,8 @@ import * as error from './error.js'
 import cors from 'cors'
 import express from 'express'
 import { PrismaClient } from 'repco-core'
-import Routes from './routes.js'
 import { createGraphqlHandler } from 'repco-graphql'
+import Routes from './routes.js'
 
 export function runServer(prisma: PrismaClient, port: number) {
   if (!process.env.DATABASE_URL) {

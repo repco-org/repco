@@ -1,3 +1,3 @@
 #!/usr/bin/env node
 
-import './dist/main.js'
+import './dist/src/main.js'
