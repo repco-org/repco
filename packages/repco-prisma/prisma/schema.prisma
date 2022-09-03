@@ -89,6 +89,7 @@ model ContentItem {
   revision            Revision          @relation(fields: [revisionId], references: [id])
   title               String
   subtitle            String?
+  pubDate             DateTime? // TODO: Review this
   summary             String?
   content             String
   contentFormat       String
