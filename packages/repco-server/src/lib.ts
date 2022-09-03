@@ -5,11 +5,16 @@ import cors from 'cors'
 import express from 'express'
 import { PrismaClient } from 'repco-core'
 import Routes from './routes.js'
+import { createGraphqlHandler } from 'repco-graphql'
 
 export function runServer(prisma: PrismaClient, port: number) {
+  if (!process.env.DATABASE_URL) {
+    throw new Error('DATABASE_URL environment variable is required.')
+  }
   const app = express()
   app.use(express.json({ limit: '100mb' }))
   app.use(cors())
+  app.use(createGraphqlHandler(process.env.DATABASE_URL))
   app.use((req, res, next) => {
     res.locals.prisma = prisma
     next()
