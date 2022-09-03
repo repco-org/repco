@@ -7,9 +7,10 @@
     "node": ">=16"
   },
   "scripts": {
-    "build": "run-s build:prisma-generate build:prisma build:core build:server",
+    "build": "run-s build:prisma-generate build:prisma build:core build:graphql build:server",
     "build:prisma-generate": "yarn --cwd packages/repco-prisma-generate build",
     "build:prisma": "yarn --cwd packages/repco-prisma build",
+    "build:graphql": "yarn --cwd packages/repco-graphql build",
     "build:core": "yarn --cwd packages/repco-core build",
     "build:server": "yarn --cwd packages/repco-server build",
     "build-and-test": "yarn --frozen-lockfile && run-s build test",
