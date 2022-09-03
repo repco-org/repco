@@ -5,20 +5,22 @@
   "maintainers": [
     "repco contributors"
   ],
-  "main": "dist/index.js",
+  "main": "dist/lib.js",
   "type": "module",
   "scripts": {
-    "cli": "node dist/cli.js",
+    "cli": "node dist/bin.js",
     "build": "tsc",
     "watch": "tsc -w",
-    "docs": "typedoc src/mod.ts --out ./docs",
+    "docs": "typedoc lib.ts --out ./docs",
     "test": "brittle dist/test/*.js"
   },
   "dependencies": {
     "dotenv": "^16.0.1",
     "multiformats": "^9.7.0",
     "repco-prisma": "*",
-    "undici": "^5.10.0"
+    "rss-parser": "^3.12.0",
+    "undici": "^5.10.0",
+    "zod": "^3.18.0"
   },
   "devDependencies": {
     "@types/node": "^18.0.0",

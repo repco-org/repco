@@ -1,6 +1,10 @@
-import { DataSource as DataSourceModel, PrismaClient } from "repco-prisma";
-import { DataSourceConstructor, DataSourcePluginRegistry, DataSources, ingestUpdatesFromDataSource } from "./datasource.js";
-import { Entity, EntityBatch, EntityRevision } from "./entity.js";
+import { PrismaClient } from 'repco-prisma'
+import {
+  DataSourcePluginRegistry,
+  DataSourceRegistry,
+  ingestUpdatesFromDataSource,
+} from './datasource.js'
+import { EntityRevision } from './entity.js'
 
 // export type WorkerConstructor
 export enum WorkerStatus {
@@ -9,7 +13,7 @@ export enum WorkerStatus {
 }
 
 export type SharedState = {
-  prisma: PrismaClient,
+  prisma: PrismaClient
   dataSourcePluginRegistry: DataSourcePluginRegistry
 }
 
@@ -28,16 +32,19 @@ export abstract class Indexer<Conf = void> extends Worker<Conf> {
 }
 
 export class Ingester extends Worker<void> {
-  public datasources: DataSources
+  public datasources: DataSourceRegistry
   constructor(config: void, state: SharedState) {
     super(config, state)
-    this.datasources = new DataSources()
+    this.datasources = new DataSourceRegistry()
   }
 
   async start(): Promise<void> {
     const savedDataSources = await this.state.prisma.dataSource.findMany()
     for (const model of savedDataSources) {
-      if (!model.pluginUid || !this.state.dataSourcePluginRegistry.has(model.pluginUid)) {
+      if (
+        !model.pluginUid ||
+        !this.state.dataSourcePluginRegistry.has(model.pluginUid)
+      ) {
         console.error(
           `Skip init of data source ${model.uid}: Unknown plugin ${model.pluginUid}`,
         )
