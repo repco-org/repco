@@ -42,9 +42,15 @@ async function main() {
     }
     const countAndCursor = await ingestUpdatesFromDataSources(prisma, dsr)
 
-    console.log(
-      `Ingested ${countAndCursor['repco:datasource:cba.media'].count} new revisions. New cursor: ${countAndCursor['repco:datasource:cba.media'].cursor}`,
-    )
+    for (const ds of dsr.all()) {
+      console.log(
+        `Ingested ${
+          countAndCursor[ds.definition.uid].count
+        } new revisions. New cursor: ${
+          countAndCursor['repco:datasource:cba.media'].cursor
+        }. Datasource ("${ds.definition.name}")`,
+      )
+    }
   } else if (command === 'log-content-items') {
     await loadAndlogAllContentItems(prisma)
   } else if (command === 'log-revisions') {
