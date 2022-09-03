@@ -10,6 +10,8 @@ import CustomInflector from './plugins/inflector.js'
 import CustomTags from './plugins/tags.js'
 // Add a resolver wrapper to add default pagination args
 import WrapResolversPlugin from './plugins/wrap-resolver.js'
+import ExportSchemaPlugin from './plugins/export-schema.js'
+export { getSDL } from './plugins/export-schema.js'
 
 // Create an GraphQL express middleware with Postgraphile
 // for a repco database.
@@ -27,6 +29,7 @@ export function createGraphqlHandler(databaseUrl: string) {
       SimplifyInflectorPlugin,
       CustomInflector,
       WrapResolversPlugin,
+      ExportSchemaPlugin
     ],
     dynamicJson: true,
     graphileBuildOptions: {

@@ -2,7 +2,7 @@
 
 import Dotenv from 'dotenv'
 import express from 'express'
-import { createGraphqlHandler } from './src/lib.js'
+import { createGraphqlHandler, getSDL } from './src/lib.js'
 
 Dotenv.config({ path: '../../.env' })
 if (!process.env.DATABASE_URL) {
@@ -11,6 +11,13 @@ if (!process.env.DATABASE_URL) {
 
 const app = express()
 app.use(createGraphqlHandler(process.env.DATABASE_URL))
+app.get('/schema.gql', (req, res) => {
+  const sdl = getSDL()
+  if (!sdl) {
+    return res.status(500).end('Schema cannot be loaded')
+  }
+  res.contentType('text/plain').end(sdl)
+})
 
 const port = process.env.PORT || 5001
 app.listen(port, () => {
