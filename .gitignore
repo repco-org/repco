@@ -6,3 +6,4 @@ package-lock.json
 docs
 SANDBOX
 data*
+yarn.lock
