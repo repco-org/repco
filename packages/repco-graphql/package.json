@@ -12,7 +12,8 @@
     "watch": "tsc --build -w",
     "start": "node dist/bin.js",
     "start:watch": "nodemon dist/bin.js",
-    "dev": "run-p watch start:watch"
+    "dev": "run-p watch start:watch",
+    "export-schema": "node dist/scripts/export-schema.js"
   },
   "dependencies": {
     "@graphile-contrib/pg-many-to-many": "^1.0.1",

@@ -19,6 +19,7 @@
     "test": "run-s test:*",
     "test:core": "yarn --cwd packages/repco-core test",
     "migrate": "yarn --cwd packages/repco-prisma prisma migrate deploy",
+    "migrate:dev": "yarn --cwd packages/repco-prisma prisma migrate dev && yarn --cwd packages/repco-graphql export-schema && yarn --cwd packages/repco-graphql-types codegen",
     "server": "yarn --cwd packages/repco-server start",
     "cli": "yarn --cwd packages/repco-core cli",
     "lint": "eslint packages",

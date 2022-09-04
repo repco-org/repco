@@ -36,11 +36,23 @@ curl http://localhost:8765/changes
 
 ## Development notes
 
+### Package and repo structure 
+
 This project is structured as a monorepo of multiple TypeScript packages. We use Yarn workspaces to enable inter-project depencencies. To speed up build times, we also use [TypeScript project references](https://www.typescriptlang.org/docs/handbook/project-references.html). This is all readily setup, so you can just use `yarn build` or `yarn watch` in any of the packages and workspace dependencies will automatically be rebuilt if needed. 
 
 When adding new workspace dependencies to projects, the dependency has to be added to the references section in the `tsconfig.json` as well. A script is included to automate this process, so whenever adding new workspace packages or adding a workspace dependency to an existing package, run `yarn update-ts-references` from the workspace root.
 
 When adding a new package, use one of the `tsconfig.json` files in any of the projects as a start. 
+
+### Codegen and migrations
+
+We use both Prisma and Postgraphile, therefore a database instance is needed for development. Run `docker-compose up -d` in the root of this repo to run a local Postgres server. Also copy the sample env to `.env`.
+
+After an initial `yarn build`, there is a one-stop command to create migration files and re-run all codegen for Prisma and GraphQL database schema changes:
+
+`yarn migrate:dev`
+
+Run this command whenever you make changes to the database schema in `schema.prisma`.
 
 # Documentation
 
