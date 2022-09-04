@@ -9,10 +9,10 @@
     "repco contributors"
   ],
   "scripts": {
-    "build": "prisma generate && tsc",
+    "build": "prisma generate && tsc --build",
     "watch": "run-p watch:*",
     "watch:prisma": "prisma generate --watch",
-    "watch:tsc": "tsc --watch",
+    "watch:tsc": "tsc --build --watch",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prisma": "dotenv -e ../../.env -- prisma"
   },

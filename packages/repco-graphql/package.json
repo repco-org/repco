@@ -8,8 +8,8 @@
   "main": "./dist/src/lib.js",
   "type": "module",
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w",
+    "build": "tsc --build",
+    "watch": "tsc --build -w",
     "start": "node dist/bin.js",
     "start:watch": "nodemon dist/bin.js",
     "dev": "run-p watch start:watch"

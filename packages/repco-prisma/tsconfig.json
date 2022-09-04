@@ -3,6 +3,6 @@
   "extends": "../../tsconfig.json",
   "include": ["*.ts", "./generated/repco/*.ts"],
   "compilerOptions": {
-    "outDir": "dist",
+    "outDir": "dist"
   }
 }

@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "type": "module",
   "bin": {
-    "repco-prisma-generate": "main.js"
+    "repco-prisma-generate": "bin.js"
   },
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w"
+    "build": "tsc --build",
+    "watch": "tsc --build -w"
   },
   "dependencies": {
     "@prisma/generator-helper": "~3.8.1",

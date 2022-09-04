@@ -6,13 +6,15 @@
   "engines": {
     "node": ">=16"
   },
+  "type": "module",
   "scripts": {
-    "build": "run-s build:prisma-generate build:prisma build:core build:graphql build:server",
+    "build": "run-s build:prisma-generate build:prisma build:server",
     "build:prisma-generate": "yarn --cwd packages/repco-prisma-generate build",
     "build:prisma": "yarn --cwd packages/repco-prisma build",
     "build:graphql": "yarn --cwd packages/repco-graphql build",
     "build:core": "yarn --cwd packages/repco-core build",
     "build:server": "yarn --cwd packages/repco-server build",
+    "watch": "yarn --cwd packages/repco-server watch",
     "build-and-test": "yarn --frozen-lockfile && run-s build test",
     "test": "run-s test:*",
     "test:core": "yarn --cwd packages/repco-core test",
@@ -20,7 +22,8 @@
     "server": "yarn --cwd packages/repco-server start",
     "cli": "yarn --cwd packages/repco-core cli",
     "lint": "eslint packages",
-    "lint:fix": "eslint packages --fix"
+    "lint:fix": "eslint packages --fix",
+    "update-ts-references": "node scripts/update-ts-references.js"
   },
   "devDependencies": {
     "@mattinton/prettier-plugin-tidy-imports": "^1.1.12",

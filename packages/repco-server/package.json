@@ -8,8 +8,8 @@
   "main": "./dist/src/lib.js",
   "type": "module",
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w",
+    "build": "tsc --build",
+    "watch": "tsc --build -w",
     "docs": "typedoc src/mod.ts --out ./docs",
     "start": "node dist/bin.js"
   },
