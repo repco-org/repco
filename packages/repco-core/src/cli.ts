@@ -47,7 +47,7 @@ async function main() {
         `Ingested ${
           countAndCursor[ds.definition.uid].count
         } new revisions. New cursor: ${
-          countAndCursor['repco:datasource:cba.media'].cursor
+          countAndCursor[ds.definition.uid].cursor
         }. Datasource ("${ds.definition.name}")`,
       )
     }
