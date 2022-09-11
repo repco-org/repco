@@ -50,7 +50,7 @@ We use both Prisma and Postgraphile, therefore a database instance is needed for
 
 After an initial `yarn build`, there is a one-stop command to create migration files and re-run all codegen for Prisma and GraphQL database schema changes:
 
-`yarn migrate:dev`
+`yarn codegen`
 
 Run this command whenever you make changes to the database schema in `schema.prisma`.
 

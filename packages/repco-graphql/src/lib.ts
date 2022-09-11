@@ -42,6 +42,7 @@ export function getPostGraphileOptions() {
     enhanceGraphiql: true,
     disableDefaultMutations: true,
     classicIds: true,
+    setofFunctionsContainNulls: false,
     skipPlugins: [NodePlugin],
     appendPlugins: [
       CustomTags,
