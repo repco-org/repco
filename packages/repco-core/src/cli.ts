@@ -40,8 +40,17 @@ async function main() {
         `Ingest updates from \`${ds.definition.uid}\` ("${ds.definition.name}")`,
       )
     }
-    const { count, cursor } = await ingestUpdatesFromDataSources(prisma, dsr)
-    console.log(`Ingested ${count} new revisions. New cursor: ${cursor}`)
+    const countAndCursor = await ingestUpdatesFromDataSources(prisma, dsr)
+
+    for (const ds of dsr.all()) {
+      console.log(
+        `Ingested ${
+          countAndCursor[ds.definition.uid].count
+        } new revisions. New cursor: ${
+          countAndCursor[ds.definition.uid].cursor
+        }. Datasource ("${ds.definition.name}")`,
+      )
+    }
   } else if (command === 'log-content-items') {
     await loadAndlogAllContentItems(prisma)
   } else if (command === 'log-revisions') {
