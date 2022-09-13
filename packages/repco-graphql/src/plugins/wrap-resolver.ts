@@ -35,7 +35,7 @@ const WrapResolversPlugin = makeWrapResolversPlugin(
           args.before === undefined &&
           args.after === undefined
         ) {
-          args.first = 10
+          args.first = 99
           // Alternative: Throw an error if neither first nor last arguments are set.
           // throw new Error('Either `first` or `last` argument is required.')
         } else if (args.first === undefined && args.last === undefined) {

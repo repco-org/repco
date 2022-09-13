@@ -37,8 +37,8 @@ export function parsePagination(url: URL): LoadContentItemsQueryVariables {
   const after = url.searchParams.get('after')
   const before = url.searchParams.get('before')
   if (after && before) throw new Error('Invalid query arguments.')
-  const last = before ? 10 : null
-  const first = last ? null : 10
+  const last = before ? 25 : null
+  const first = last ? null : 25
   const variables = {
     first,
     last,

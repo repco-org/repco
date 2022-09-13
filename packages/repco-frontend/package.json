@@ -21,6 +21,7 @@
     "graphql": "^15.8.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-virtual": "^2.10.4",
     "sanitize-html": "^2.7.1",
     "urql": "^3.0.3"
   },
