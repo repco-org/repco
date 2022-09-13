@@ -45,6 +45,7 @@ export const loader: LoaderFunction = ({ request }) => {
 
 export default function IndexRoute() {
   const { data } = useLoaderData<LoaderData>()
+  console.log(data)
   if (!data) {
     return 'Ooops, something went wrong :('
   }
@@ -60,7 +61,7 @@ export default function IndexRoute() {
             <h2>
               <Link to={`/item/${node.uid}`}>{node.title}</Link>
             </h2>
-            <SanitizedHTML allowedTags={['a', 'p']} html={node.summary} />
+            <SanitizedHTML allowedTags={['a', 'p']} html={node.summary || ''} />
           </li>
         ))}
       </ul>

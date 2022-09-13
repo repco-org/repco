@@ -4,14 +4,24 @@ import type {
   OperationResult,
   TypedDocumentNode,
 } from '@urql/core'
-import { createClient } from '@urql/core'
 import type { DocumentNode } from 'graphql'
+import { createClient } from 'urql'
 import { LoadContentItemsQueryVariables } from '~/graphql/types.js'
 
 export const graphqlClient = createClient({
   url: process.env.REPCO_URL || 'http://localhost:8765/graphql',
+  // exchanges: [
+  //   dedupExchange,
+  //   cacheExchange({
+  //     resolvers: {
+  //       Query: {
+  //         search: relayPagination(),
+  //       },
+  //     },
+  //   }),
+  //   fetchExchange,
+  // ],
 })
-
 export function graphqlQuery<
   Data = any,
   Variables extends AnyVariables = AnyVariables,

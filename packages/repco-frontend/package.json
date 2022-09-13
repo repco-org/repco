@@ -17,10 +17,12 @@
     "@remix-run/react": "^1.4.3",
     "@remix-run/serve": "^1.4.3",
     "@urql/core": "^3.0.3",
+    "@urql/exchange-graphcache": "^5.0.1",
     "graphql": "^15.8.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "sanitize-html": "^2.7.1"
+    "sanitize-html": "^2.7.1",
+    "urql": "^3.0.3"
   },
   "devDependencies": {
     "@graphql-codegen/add": "^3.2.1",
