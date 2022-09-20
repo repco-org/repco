@@ -4469,6 +4469,16 @@ export enum _ContributionToMediaAssetsOrderBy {
   Natural = 'NATURAL'
 }
 
+export type LoadContentItems1QueryVariables = Exact<{
+  first: InputMaybe<Scalars['Int']>;
+  last: InputMaybe<Scalars['Int']>;
+  after: InputMaybe<Scalars['Cursor']>;
+  before: InputMaybe<Scalars['Cursor']>;
+}>;
+
+
+export type LoadContentItems1Query = { contentItems: { totalCount: number, pageInfo: { startCursor: string | null, endCursor: string | null, hasNextPage: boolean, hasPreviousPage: boolean }, nodes: Array<{ title: string, uid: string, summary: string | null }> } | null };
+
 export type LoadContentItemQueryVariables = Exact<{
   uid: Scalars['String'];
 }>;
@@ -4484,4 +4494,4 @@ export type LoadContentItemsQueryVariables = Exact<{
 }>;
 
 
-export type LoadContentItemsQuery = { contentItems: { totalCount: number, pageInfo: { startCursor: string | null, endCursor: string | null, hasNextPage: boolean, hasPreviousPage: boolean }, nodes: Array<{ title: string, uid: string, summary: string | null }> } | null };
+export type LoadContentItemsQuery = { contentItems: { totalCount: number, pageInfo: { startCursor: string | null, endCursor: string | null, hasNextPage: boolean, hasPreviousPage: boolean }, edges: Array<{ cursor: string | null, node: { uid: string } }>, nodes: Array<{ title: string, uid: string, summary: string | null }> } | null };
