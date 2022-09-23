@@ -7,10 +7,9 @@ import {
   LoadContentItemsQuery,
   LoadContentItemsQueryVariables,
 } from '~/graphql/types'
-//import { getItems } from "~/utils/backend.server";
 import { graphqlQuery, parsePagination } from '~/lib/graphql.server'
 
-const NPM_SEARCH = gql`
+const QUERY = gql`
   query LoadContentItems1(
     $first: Int
     $last: Int
@@ -45,7 +44,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     content: await graphqlQuery<
       LoadContentItemsQuery,
       LoadContentItemsQueryVariables
-    >(NPM_SEARCH, pagination),
+    >(QUERY, pagination),
   }
 
   return json(data, {
@@ -55,21 +54,19 @@ export const loader: LoaderFunction = async ({ request }) => {
   })
 }
 
-const PaginatedNpmSearch = () => {
+export default function Infinite() {
   const result = useLoaderData()
 
   const [after, setAfter] = useState('')
   const [start, setStart] = useState('')
   const [items, setItems] = useState(result.content.data.contentItems.nodes)
   const fetcher = useFetcher()
-  //const { data, fetching, error } = result
-  //console.log(result.content.data.contentItems)
+
   const searchResults = result.content.data.contentItems
-  //setItems(searchResults.nodes)
+
   useEffect(() => {
     if (after !== '') {
       fetcher.load(`/infinite?after=${after}`)
-      // setItems(fetcher.data?.content.data.contentItems.nodes)
       setAfter('')
     }
   }, [after, items, fetcher])
@@ -83,7 +80,6 @@ const PaginatedNpmSearch = () => {
     }
   }, fetcher.data)
 
-  //console.log(fetcher.data)
   return (
     <div>
       {items && (
@@ -103,5 +99,3 @@ const PaginatedNpmSearch = () => {
     </div>
   )
 }
-
-export default PaginatedNpmSearch
