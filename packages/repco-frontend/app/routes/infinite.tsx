@@ -62,14 +62,15 @@ export default function Infinite() {
   const [items, setItems] = useState(result.content.data.contentItems.nodes)
   const fetcher = useFetcher()
 
-  const searchResults = result.content.data.contentItems
+  let searchResults = result.content.data.contentItems
 
   useEffect(() => {
     if (after !== '') {
       fetcher.load(`/infinite?after=${after}`)
       setAfter('')
+      searchResults = fetcher.data?.content.data.contentItems
     }
-  }, [after, items, fetcher])
+  })
 
   useEffect(() => {
     if (fetcher.data) {
@@ -78,7 +79,7 @@ export default function Infinite() {
         ...fetcher.data?.content.data.contentItems.nodes,
       ])
     }
-  }, fetcher.data)
+  }, [fetcher.data])
 
   return (
     <div>
