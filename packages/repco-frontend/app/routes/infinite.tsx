@@ -69,10 +69,21 @@ const PaginatedNpmSearch = () => {
   useEffect(() => {
     if (after !== '') {
       fetcher.load(`/infinite?after=${after}`)
-      setItems(fetcher.data?.content.data.contentItems.nodes)
+      // setItems(fetcher.data?.content.data.contentItems.nodes)
       setAfter('')
     }
-  })
+  }, [after, items, fetcher])
+
+  useEffect(() => {
+    if (fetcher.data) {
+      setItems((prevItems: any) => [
+        ...prevItems,
+        ...fetcher.data?.content.data.contentItems.nodes,
+      ])
+    }
+  }, fetcher.data)
+
+  //console.log(fetcher.data)
   return (
     <div>
       {items && (
