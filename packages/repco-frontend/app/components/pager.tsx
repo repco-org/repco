@@ -1,6 +1,6 @@
 import type { PageInfo } from '~/graphql/types.js'
 
-export function Pager({ pageInfo, url }: { pageInfo: PageInfo, url: string }) {
+export function Pager({ pageInfo, url }: { pageInfo: PageInfo; url: string }) {
   if (!pageInfo) return null
   const pager = {
     next: pageInfo.hasNextPage && `${url}?after=${pageInfo.endCursor}`,

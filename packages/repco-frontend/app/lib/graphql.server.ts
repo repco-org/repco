@@ -6,7 +6,7 @@ import type {
 } from '@urql/core'
 import { createClient } from '@urql/core'
 import type { DocumentNode } from 'graphql'
-import { LoadContentItemsQueryVariables } from '~/graphql/types.js'
+import type { LoadContentItemsQueryVariables } from '~/graphql/types.js'
 
 export const graphqlClient = createClient({
   url: process.env.REPCO_URL || 'http://localhost:8765/graphql',

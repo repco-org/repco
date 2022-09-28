@@ -31,7 +31,7 @@ export async function setup(test: Test) {
 
 process.on('beforeExit', () => {
   if (dockerDown) return
-  spawn('docker-compose', ['-f', COMPOSE_FILE, 'down'])
+  spawn('docker-compose', ['-f', COMPOSE_FILE, 'down', '--rm'])
     .catch(() => console.error('>> Failed to teardown docker container.'))
     .finally(() => (dockerDown = true))
 })
