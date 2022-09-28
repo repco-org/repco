@@ -8,7 +8,7 @@ import {
 } from '../lib.js'
 
 test('smoke', async (assert) => {
-  await setup(assert.teardown)
+  await setup(assert)
   const prisma = new PrismaClient()
   const input: EntityForm = {
     type: 'ContentItem',

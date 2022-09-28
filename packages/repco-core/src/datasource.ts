@@ -107,7 +107,6 @@ export async function ingestUpdatesFromDataSources(
 ): Promise<IngestResult> {
   const res: IngestResult = {}
   for (const ds of datasources.all()) {
-    console.log('ingest', ds.definition)
     const ret = await ingestUpdatesFromDataSource(
       prisma,
       datasources,
@@ -115,7 +114,6 @@ export async function ingestUpdatesFromDataSources(
       maxIterations,
     )
     res[ds.definition.uid] = ret
-    console.log('ret', ret)
   }
   return res
 }
@@ -139,7 +137,6 @@ export async function ingestUpdatesFromDataSource(
   while (--maxIterations >= 0) {
     // console.log('fetch updates for cursor', cursor)
     const batch: EntityBatch = await datasource.fetchUpdates(cursor)
-    console.log('batch len', batch.entities.length)
     if (!batch.entities.length) break
     count += batch.entities.length
     // console.log('fetched entities from datasource', batch.entities)

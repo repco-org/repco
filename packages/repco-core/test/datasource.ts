@@ -74,7 +74,7 @@ class TestDataSource extends BaseDataSource implements DataSource {
 }
 
 test('datasource', async (assert) => {
-  await setup(assert.teardown)
+  await setup(assert)
   const prisma = new PrismaClient()
   const datasource = new TestDataSource()
   const dsr = new DataSourceRegistry()
