@@ -46,6 +46,7 @@ export const loader: LoaderFunction = async ({ request }) => {
       LoadContentItemsQueryVariables
     >(QUERY, pagination),
   }
+  console.log('PAGINATION', pagination)
 
   return json(data, {
     headers: {
@@ -57,21 +58,23 @@ export const loader: LoaderFunction = async ({ request }) => {
 export default function Infinite() {
   const result = useLoaderData()
 
-  const [after, setAfter] = useState('')
-  const [start, setStart] = useState('')
+  const [after, setAfter] = useState(
+    result.content.data.contentItems.pageInfo.endCursor,
+  )
   const [items, setItems] = useState(result.content.data.contentItems.nodes)
   const fetcher = useFetcher()
 
   let searchResults = result.content.data.contentItems
-
+  console.log('AFTER', after)
+  console.log('SEARCH', searchResults.pageInfo.endCursor)
   useEffect(() => {
     if (after !== '') {
       fetcher.load(`/infinite?after=${after}`)
-      setAfter('')
       searchResults = fetcher.data?.content.data.contentItems
+      setAfter('')
     }
   })
-
+  console.log(searchResults.pageInfo.endCursor)
   useEffect(() => {
     if (fetcher.data) {
       setItems((prevItems: any) => [
