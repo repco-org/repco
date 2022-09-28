@@ -3,6 +3,9 @@ overwrite: true
 schema: "../repco-graphql/generated/schema.graphql"
 # A glob that matches all files that contain operation definitions
 documents: "app/routes/**/*.{ts,tsx}"
+hooks:
+  afterAllFileWrite:
+    - yarn eslint app/graphql/types.ts --fix
 config:
   skipDocumentsValidation: true
   flattenGeneratedTypes: true
