@@ -5,7 +5,7 @@ import {
   fetchRevisions,
   PrismaClient,
   storeEntity,
-} from '../index.js'
+} from '../lib.js'
 
 test('smoke', async (assert) => {
   await setup(assert.teardown)

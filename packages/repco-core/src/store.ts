@@ -9,7 +9,7 @@ import {
   upsertEntity,
   validateEntity,
 } from 'repco-prisma'
-import type { DataSources } from './datasource.js'
+import type { DataSourceRegistry } from './datasource.js'
 import { AnyEntityContent, Entity, EntityForm } from './entity.js'
 import { createRevisionId } from './helpers/id.js'
 import { Prisma, PrismaClient, Revision } from './prisma.js'
@@ -19,11 +19,12 @@ export type EntityInput = repco.EntityInput
 
 export async function storeEntityWithDataSourceFallback(
   prisma: PrismaClient,
-  datasources: DataSources,
+  datasources: DataSourceRegistry,
   input: EntityForm,
 ): Promise<Entity> {
   try {
-    return await storeEntity(prisma, input)
+    const out = await storeEntity(prisma, input)
+    return out
   } catch (err) {
     if (err instanceof MissingRelationsError) {
       await fetchAndStoreMissingRelations(
@@ -40,7 +41,7 @@ export async function storeEntityWithDataSourceFallback(
 
 async function fetchAndStoreMissingRelations(
   prisma: PrismaClient,
-  datasources: DataSources,
+  datasources: DataSourceRegistry,
   missingRelations: Relation[],
 ): Promise<void> {
   for (const missingRelation of missingRelations) {
@@ -85,6 +86,7 @@ export async function storeEntity(
     prisma,
     input.content.uid,
   )
+
   const revisionId = createRevisionId(now)
   const revisionInput = {
     type: input.type,

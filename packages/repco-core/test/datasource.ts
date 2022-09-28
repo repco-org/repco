@@ -1,10 +1,10 @@
 import test from 'brittle'
 import { setup } from './util/setup.js'
-import { DataSource, EntityForm, PrismaClient } from '../index.js'
+import { DataSource, EntityForm, PrismaClient } from '../lib.js'
 import {
   BaseDataSource,
   DataSourceDefinition,
-  DataSources,
+  DataSourceRegistry,
   ingestUpdatesFromDataSources,
 } from '../src/datasource.js'
 import { EntityBatch } from '../src/entity.js'
@@ -14,7 +14,7 @@ class TestDataSource extends BaseDataSource implements DataSource {
     return {
       name: 'TestDataSource',
       uid: 'urn:repco:datasource:test',
-      pluginUid: 'urn:repco:datasource:test'
+      pluginUid: 'urn:repco:datasource:test',
     }
   }
 
@@ -77,7 +77,7 @@ test('datasource', async (assert) => {
   await setup(assert.teardown)
   const prisma = new PrismaClient()
   const datasource = new TestDataSource()
-  const dsr = new DataSources()
+  const dsr = new DataSourceRegistry()
   dsr.register(datasource)
   await ingestUpdatesFromDataSources(prisma, dsr)
   const entities = await prisma.contentItem.findMany({
