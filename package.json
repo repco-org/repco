@@ -14,7 +14,7 @@
     "build:graphql": "yarn --cwd packages/repco-graphql build",
     "build:core": "yarn --cwd packages/repco-core build",
     "build:server": "yarn --cwd packages/repco-server build",
-    "watch": "yarn --cwd packages/repco-server watch",
+    "watch": "yarn --build --watch",
     "build-and-test": "yarn --frozen-lockfile && run-s build test",
     "test": "run-s test:*",
     "test:core": "yarn --cwd packages/repco-core test",
