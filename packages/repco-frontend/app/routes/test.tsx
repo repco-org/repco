@@ -1,7 +1,8 @@
 import stylesUrl from '~/styles/index.css'
 import type { LinksFunction, LoaderFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
+import { useFetcher, useLoaderData } from '@remix-run/react'
+import { useEffect, useState } from 'react'
 import { gql } from 'urql'
 import { graphqlQuery } from '~/lib/graphql.server'
 
@@ -46,6 +47,7 @@ const getEndCourser = (searchParams: URLSearchParams) => ({
 
 export const loader: LoaderFunction = async ({ request }) => {
   const courser = getEndCourser(new URL(request.url).searchParams)
+  console.log('CURSOR', courser)
   const data = await graphqlQuery(QUERY, {
     first: 10,
     last: null,
@@ -60,9 +62,21 @@ export const loader: LoaderFunction = async ({ request }) => {
 export default function Index() {
   const { data } = useLoaderData()
   console.log('DATA', data)
-  //   const [items, setItems] = useState(data.items)
+  const [items, setItems] = useState(data.contentItems.nodes)
+  const fetcher = useFetcher()
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      const lastItem = entries[0]
+      if (!lastItem.isIntersecting) return
+      //Load new Items
+      fetcher.load('/')
+      observer.unobserve(lastItem.target)
+      observer.observe(document.querySelector('.items:last-child')!)
+    }, {})
+    // const repcoItems = document.querySelectorAll('.items:last-child')
 
-  //   const fetcher = useFetcher()
+    //observer.observe(repcoItems[0])
+  })
 
   //   const page = useRef(0)
   //   const parentRef = useRef<HTMLDivElement>(null)
@@ -242,8 +256,8 @@ export default function Index() {
     <div>
       {data && (
         <>
-          {data.contentItems.nodes.map((node: any) => (
-            <div key={node.uid}>
+          {items.map((node: any) => (
+            <div className="items" key={node.uid}>
               {node.uid}: {node.title}
             </div>
           ))}
