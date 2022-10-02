@@ -9,6 +9,7 @@ h1 {
     display: flex;
     align-items: center;
     gap: 1rem;
+    width: 600px;
   }
   
   .list-item--odd {
@@ -18,3 +19,18 @@ h1 {
   .list-item--even {
     background: #cbd5ff;
   }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+  
+    th,
+    td {
+      text-align: left;
+      padding: 8px;
+    }
+  
+    tr:nth-child(even) {
+      background-color: #D6EEEE;
+    }
