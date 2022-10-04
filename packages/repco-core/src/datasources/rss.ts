@@ -27,10 +27,12 @@ const configSchema = zod.object({
 type ConfigSchema = zod.infer<typeof configSchema>
 
 type CursorNewest = {
-  newestDate?: Date
-  latestKnownDate?: Date
+  lastCompletionDate?: Date
+  mostRecentPubDate?: Date
+  leastRecentPubDate?: Date
   pageNumber?: number
   isFinished: boolean
+  maxPageNumber: number
 }
 type CursorOldest = {
   page: number
@@ -40,6 +42,38 @@ type CursorOldest = {
 type Cursor = {
   newest: CursorNewest
   oldest: CursorOldest
+}
+
+function parseCursor(input?: string | null): Cursor {
+  const cursor = input
+    ? JSON.parse(input)
+    : {
+        newest: {},
+        oldest: {},
+      }
+  const dateFields = [
+    'lastCompletionDate',
+    'mostRecentPubDate',
+    'leastRecentPubDate',
+  ]
+  for (const field of dateFields) {
+    if (cursor.newest[field])
+      cursor.newest[field] = new Date(cursor.newest[field])
+  }
+  return cursor as Cursor
+}
+
+function getDateRangeFromFeed(feed: RssParser.Output<any>): [Date, Date] {
+  let newest = new Date()
+  let oldest = new Date()
+  if (feed.items[0] && feed.items[0].pubDate) {
+    newest = new Date(feed.items[0].pubDate)
+  }
+  const last = feed.items[feed.items.length - 1]
+  if (last && last.pubDate) {
+    oldest = new Date(last.pubDate)
+  }
+  return [newest, oldest]
 }
 
 export class RssDataSource implements DataSource {
@@ -68,6 +102,8 @@ export class RssDataSource implements DataSource {
     return []
   }
 
+  // The algorithm works as follows:
+  // 1. Fetch most recent page
   async _crawlNewestUntil(
     cursor: CursorNewest,
   ): Promise<{ entities: EntityForm[]; cursor: CursorNewest }> {
@@ -76,77 +112,93 @@ export class RssDataSource implements DataSource {
     // TODO: Make configurable
     const pagination = {
       offsetParam: 'start',
-      pageSizeParam: 'anzahl',
-      pageSize: 20,
+      limitParam: 'anzahl',
+      limit: 5,
     }
 
-    if (!cursor.newestDate) {
-      const { feed, entities } = await this.fetchPage(url)
-      if (!feed.items.length) return { entities: [], cursor }
-      // TODO: Iterate and find latest.
-      // TODO: What if date is not set
-      const newestPubDate = new Date(feed.items[0].pubDate!)
-      const nextCursor = {
-        newestDate: newestPubDate,
+    const page = cursor.pageNumber || 0
+    url.searchParams.set(pagination.limitParam, pagination.limit.toString())
+    url.searchParams.set(
+      pagination.offsetParam,
+      (page * pagination.limit).toString(),
+    )
+
+    const { feed, entities } = await this.fetchPage(url)
+    if (!feed.items.length) return { entities: [], cursor }
+
+    const [newestPubDate, oldestPubDate] = getDateRangeFromFeed(feed)
+
+    const previousMostRecentPubDate = cursor.mostRecentPubDate || new Date(0)
+    const mostRecentPubDate =
+      newestPubDate > previousMostRecentPubDate
+        ? newestPubDate
+        : previousMostRecentPubDate
+
+    const lastLeastRecentPubDate = cursor.leastRecentPubDate || new Date(0)
+    const leastRecentPubDate =
+      lastLeastRecentPubDate < oldestPubDate
+        ? lastLeastRecentPubDate
+        : oldestPubDate
+
+    const maxPageNumber = Math.max(page, cursor.pageNumber || 0)
+    let nextCursor: CursorNewest
+    // Case A: Oldest date from page is older than the most recent date of last fetch.
+    // This means we caught up the new items.
+    // We reset to page 0. We are finished if this fetch already was on page 0.
+    if (
+      cursor.lastCompletionDate &&
+      oldestPubDate < cursor.lastCompletionDate
+    ) {
+      nextCursor = {
+        lastCompletionDate: mostRecentPubDate,
         pageNumber: 0,
-        isFinished: false,
+        mostRecentPubDate,
+        leastRecentPubDate,
+        isFinished: page === 0,
+        maxPageNumber,
       }
-      return {
-        entities,
-        cursor: nextCursor,
-      }
+      // Case B: Oldest date from this page is still newer than the most recent date from the last complete fetch.
+      // This means: Increase page number to keep fetching untilwe reach the most recent pub date.
     } else {
-      const page = cursor.pageNumber || 0
-      url.searchParams.set(
-        pagination.offsetParam,
-        (page * pagination.pageSize).toString(),
-      )
-      url.searchParams.set(
-        pagination.pageSizeParam,
-        pagination.pageSize.toString(),
-      )
-
-      const { feed, entities } = await this.fetchPage(url)
-      if (!feed.items.length) return { entities: [], cursor }
-      // TODO: Iterate and find latest.
-      // TODO: What if date is not set
-      const oldestPubDate = new Date(feed.items[feed.items.length - 1].pubDate!)
-      const newestPubDate = new Date(feed.items[0].pubDate!)
-      let latestKnownDate = cursor.latestKnownDate
-      if (!latestKnownDate || newestPubDate > new Date(latestKnownDate)) {
-        latestKnownDate = newestPubDate
+      nextCursor = {
+        lastCompletionDate: cursor.lastCompletionDate,
+        pageNumber: page + 1,
+        mostRecentPubDate,
+        leastRecentPubDate,
+        isFinished: false,
+        maxPageNumber,
       }
+    }
 
-      // console.log('oldestPubDate', new Date(oldestPubDate))
-      // console.log('cursorDate', new Date(cursor.newestDate))
-      if (oldestPubDate < new Date(cursor.newestDate)) {
-        const nextCursor = {
-          newestDate: latestKnownDate || newestPubDate,
-          pageNumber: 0,
-          latestKnownDate,
-          isFinished: new Date(latestKnownDate) <= newestPubDate,
-        }
-        return {
-          entities,
-          cursor: nextCursor,
-        }
-      } else {
-        const nextCursor = {
-          newestDate: cursor.newestDate,
-          pageNumber: page + 1,
-          latestKnownDate,
-          isFinished: false,
-        }
-        return {
-          entities,
-          cursor: nextCursor,
-        }
-      }
+    return {
+      entities,
+      cursor: nextCursor,
     }
   }
 
   // TODO: Implement
-  async _crawlBackwardsFrom(offset: number) {}
+  async _crawlBackwardsFrom(cursor: Cursor) {
+    // const lastLeastRecentPubDate = cursor.newest.leastRecentPubDate || new Date()
+    // const maxPageNumber = cursor.newest.maxPageNumber || 0
+
+    // // TODO: Make configurable
+    // const pagination = {
+    //   offsetParam: 'start',
+    //   limitParam: 'anzahl',
+    //   limit: 5,
+    // }
+
+    // const url = new URL(this.endpoint)
+    // const page = maxPageNumber + 1
+    // url.searchParams.set(pagination.limitParam, pagination.limit.toString())
+    // url.searchParams.set(
+    //   pagination.offsetParam,
+    //   (page * pagination.limit).toString(),
+    // )
+    // const { feed, entities } = await this.fetchPage(url)
+    // const [newestPubDate, oldestPubDate] = getDateRangeFromFeed(feed)
+    // const nextCursor = { ...cursor }
+  }
 
   async fetchPage(
     url: URL,
@@ -160,16 +212,7 @@ export class RssDataSource implements DataSource {
   }
 
   async fetchUpdates(cursorInput: string | null): Promise<EntityBatch> {
-    // if (cursor) cursor = JSON.parse(cursor)
-    // else cursor =
-    const cursor = (
-      cursorInput
-        ? JSON.parse(cursorInput)
-        : {
-            newest: {},
-            oldest: {},
-          }
-    ) as Cursor
+    const cursor = parseCursor(cursorInput)
     const entities = []
     const nextCursor = cursor
     const res = await this._crawlNewestUntil(cursor.newest)
