@@ -6,7 +6,7 @@
 import stylesUrl from '~/styles/index.css'
 import type { LinksFunction } from '@remix-run/node'
 import { json, LoaderFunction } from '@remix-run/node'
-import { useFetcher, useLoaderData } from '@remix-run/react'
+import { Link, useFetcher, useLoaderData } from '@remix-run/react'
 import { useCallback, useEffect, useState } from 'react'
 import { gql } from 'urql'
 import { SanitizedHTML } from '~/components/sanitized-html'
@@ -45,22 +45,21 @@ const getPage = (searchParams: URLSearchParams) => ({
 
 export const loader: LoaderFunction = async ({ request }) => {
   const courser = getPage(new URL(request.url).searchParams)
-  console.log('COURSER', courser.after)
   const data = await graphqlQuery(QUERY, {
     first: 10,
     last: null,
     after: courser.after,
     before: null,
   })
-  //console.log(data)
   return json(data)
 }
 
-export default function Photos() {
+export default function Items() {
   const { data } = useLoaderData()
   const [pageInfo, setPageInfo] = useState(data.contentItems.pageInfo)
-  const [photos, setPhotos] = useState(data.contentItems.nodes)
+  const [nodes, setNodes] = useState(data.contentItems.nodes)
   const fetcher = useFetcher()
+  const [showAddModal, setShowAddModal] = useState(false)
 
   const [scrollPosition, setScrollPosition] = useState(0)
   const [clientHeight, setClientHeight] = useState(0)
@@ -76,7 +75,7 @@ export default function Photos() {
         setHeight(node.getBoundingClientRect().height)
       }
     },
-    [photos.length],
+    [nodes.length],
   )
 
   // Add Listeners to scroll and client resize
@@ -103,12 +102,11 @@ export default function Photos() {
   useEffect(() => {
     if (!shouldFetch || !height) return
     if (clientHeight + scrollPosition < height) return
-    console.log('Start Fetching', pageInfo.endCursor)
     fetcher.load(`/items?page=${pageInfo.endCursor}`)
     setShouldFetch(false)
   }, [clientHeight, scrollPosition, fetcher])
 
-  // Merge photos, increment page, and allow fetching again
+  // Merge nodes, increment page, and allow fetching again
   useEffect(() => {
     // Discontinue API calls if the last page has been reached
     if (fetcher.data && fetcher.data.length === 0) {
@@ -116,11 +114,11 @@ export default function Photos() {
       return
     }
 
-    // Photos contain data, merge them and allow the possiblity of another fetch
+    // Nodes contain data, merge them and allow the possiblity of another fetch
     if (fetcher.data) {
       console.log(fetcher.data)
-      setPhotos((prevPhotos: any) => [
-        ...prevPhotos,
+      setNodes((prevNodes: any) => [
+        ...prevNodes,
         ...fetcher.data.data.contentItems.nodes,
       ])
       setPageInfo(fetcher.data.data.contentItems.pageInfo)
@@ -130,28 +128,29 @@ export default function Photos() {
       }
     }
   }, [fetcher.data])
-  let x = 0
   return (
-    <div
-      ref={divHeight}
-      className="container mx-auto space-y-2 md:space-y-0 md:gap-2 md:grid md:grid-cols-2 py-4"
-    >
+    <div ref={divHeight}>
       <table className="table">
         <tr>
           <th>Nr</th>
+          <th>UID</th>
           <th>Title</th>
-          <th>uid</th>
-          <th>zusammenfassung</th>
+          <th>Summary</th>
         </tr>
-        {photos.map((photo: any, index: any) => {
+        {nodes.map((node: any, index: any) => {
           return (
-            <tr key={photo.uid}>
+            <tr
+              key={node.uid}
+              //onClick={() => {window.open(`/item/${node.uid}`)}}
+            >
               <td>{index + 1}</td>
-              <td>{photo.title}</td>
-              <td>{photo.uid}</td>
+              <td>
+                <Link to={`/items/item/${node.uid}`}>{node.uid}</Link>
+              </td>
+              <td>{node.title}</td>
               <td>
                 {' '}
-                <SanitizedHTML allowedTags={['a', 'p']} html={photo.summary} />
+                <SanitizedHTML allowedTags={['a', 'p']} html={node.summary} />
               </td>
             </tr>
           )

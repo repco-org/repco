@@ -31,6 +31,11 @@ h1 {
       padding: 8px;
     }
   
+    tr:hover {background-color: #d8d8d8a4;}
+
     tr:nth-child(even) {
       background-color: #D6EEEE;
     }
+
+    tr:nth-child(even):hover {background-color: #d8d8d8a4;}
+    
