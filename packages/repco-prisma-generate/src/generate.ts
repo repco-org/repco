@@ -1,7 +1,7 @@
 import { DMMF } from '@prisma/generator-helper'
 import { SourceFile } from 'ts-morph'
 
-const SKIP_LIST = ['Revision']
+const SKIP_LIST = ['Revision', 'Repo']
 
 export function generateTypes(dmmf: DMMF.Document, file: SourceFile) {
   const models = dmmf.datamodel.models

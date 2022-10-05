@@ -23,7 +23,7 @@ test('smoke', async (assert) => {
       summary: 'yoo',
     },
   }
-  await storeEntity(prisma, input)
+  await storeEntity(prisma, 'primary', input)
   const revisions = await fetchRevisions(prisma, {})
   assert.is(revisions.length, 1)
   const revision = revisions[0]

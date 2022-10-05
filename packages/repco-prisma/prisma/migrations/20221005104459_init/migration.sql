@@ -2,13 +2,34 @@
 CREATE TYPE "ContentGroupingVariant" AS ENUM ('EPISODIC', 'SERIAL');
 
 -- CreateTable
+CREATE TABLE "Repo" (
+    "uid" TEXT NOT NULL,
+    "name" TEXT,
+
+    CONSTRAINT "Repo_pkey" PRIMARY KEY ("uid")
+);
+
+-- CreateTable
+CREATE TABLE "DataSource" (
+    "uid" TEXT NOT NULL,
+    "pluginUid" TEXT,
+    "config" JSONB,
+    "cursor" TEXT NOT NULL,
+
+    CONSTRAINT "DataSource_pkey" PRIMARY KEY ("uid")
+);
+
+-- CreateTable
 CREATE TABLE "Revision" (
     "id" TEXT NOT NULL,
     "type" TEXT NOT NULL,
     "uid" TEXT NOT NULL,
     "created" TIMESTAMP(3) NOT NULL,
-    "previousRevisionId" TEXT,
     "datasource" TEXT NOT NULL,
+    "repoUid" TEXT NOT NULL,
+    "content" JSONB NOT NULL,
+    "alternativeIds" TEXT[],
+    "previousRevisionId" TEXT,
 
     CONSTRAINT "Revision_pkey" PRIMARY KEY ("id")
 );
@@ -36,12 +57,13 @@ CREATE TABLE "ContentItem" (
     "uid" TEXT NOT NULL,
     "revisionId" TEXT NOT NULL,
     "title" TEXT NOT NULL,
-    "subtitle" TEXT NOT NULL,
-    "summary" TEXT NOT NULL,
+    "subtitle" TEXT,
+    "pubDate" TIMESTAMP(3),
+    "summary" TEXT,
     "content" TEXT NOT NULL,
     "contentFormat" TEXT NOT NULL,
-    "primaryGroupingUid" TEXT NOT NULL,
-    "licenseUid" TEXT NOT NULL,
+    "primaryGroupingUid" TEXT,
+    "licenseUid" TEXT,
 
     CONSTRAINT "ContentItem_pkey" PRIMARY KEY ("uid")
 );
@@ -64,8 +86,8 @@ CREATE TABLE "MediaAsset" (
     "fileUid" TEXT NOT NULL,
     "duration" DOUBLE PRECISION,
     "mediaType" TEXT NOT NULL,
-    "teaserImageUid" TEXT NOT NULL,
-    "licenseUid" TEXT NOT NULL,
+    "teaserImageUid" TEXT,
+    "licenseUid" TEXT,
 
     CONSTRAINT "MediaAsset_pkey" PRIMARY KEY ("uid")
 );
@@ -144,14 +166,13 @@ CREATE TABLE "File" (
     "uid" TEXT NOT NULL,
     "revisionId" TEXT NOT NULL,
     "contentUrl" TEXT NOT NULL,
-    "mimeType" TEXT NOT NULL,
-    "contentSize" INTEGER NOT NULL,
-    "multihash" TEXT NOT NULL,
-    "duration" DOUBLE PRECISION NOT NULL,
-    "codec" TEXT NOT NULL,
-    "bitrate" INTEGER NOT NULL,
-    "resolution" TEXT NOT NULL,
-    "additionalMetadata" TEXT NOT NULL,
+    "mimeType" TEXT,
+    "multihash" TEXT,
+    "duration" DOUBLE PRECISION,
+    "codec" TEXT,
+    "bitrate" INTEGER,
+    "resolution" TEXT,
+    "additionalMetadata" TEXT,
 
     CONSTRAINT "File_pkey" PRIMARY KEY ("uid")
 );
@@ -210,6 +231,12 @@ CREATE TABLE "_ConceptToMediaAsset" (
     "A" TEXT NOT NULL,
     "B" TEXT NOT NULL
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Repo_uid_key" ON "Repo"("uid");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "DataSource_uid_key" ON "DataSource"("uid");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Revision_id_key" ON "Revision"("id");
@@ -329,6 +356,9 @@ CREATE UNIQUE INDEX "_ConceptToMediaAsset_AB_unique" ON "_ConceptToMediaAsset"("
 CREATE INDEX "_ConceptToMediaAsset_B_index" ON "_ConceptToMediaAsset"("B");
 
 -- AddForeignKey
+ALTER TABLE "Revision" ADD CONSTRAINT "Revision_repoUid_fkey" FOREIGN KEY ("repoUid") REFERENCES "Repo"("uid") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Revision" ADD CONSTRAINT "Revision_previousRevisionId_fkey" FOREIGN KEY ("previousRevisionId") REFERENCES "Revision"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -341,10 +371,10 @@ ALTER TABLE "ContentGrouping" ADD CONSTRAINT "ContentGrouping_licenseUid_fkey" F
 ALTER TABLE "ContentItem" ADD CONSTRAINT "ContentItem_revisionId_fkey" FOREIGN KEY ("revisionId") REFERENCES "Revision"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ContentItem" ADD CONSTRAINT "ContentItem_primaryGroupingUid_fkey" FOREIGN KEY ("primaryGroupingUid") REFERENCES "ContentGrouping"("uid") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "ContentItem" ADD CONSTRAINT "ContentItem_primaryGroupingUid_fkey" FOREIGN KEY ("primaryGroupingUid") REFERENCES "ContentGrouping"("uid") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ContentItem" ADD CONSTRAINT "ContentItem_licenseUid_fkey" FOREIGN KEY ("licenseUid") REFERENCES "License"("uid") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "ContentItem" ADD CONSTRAINT "ContentItem_licenseUid_fkey" FOREIGN KEY ("licenseUid") REFERENCES "License"("uid") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "License" ADD CONSTRAINT "License_revisionId_fkey" FOREIGN KEY ("revisionId") REFERENCES "Revision"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -353,13 +383,13 @@ ALTER TABLE "License" ADD CONSTRAINT "License_revisionId_fkey" FOREIGN KEY ("rev
 ALTER TABLE "MediaAsset" ADD CONSTRAINT "MediaAsset_revisionId_fkey" FOREIGN KEY ("revisionId") REFERENCES "Revision"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "MediaAsset" ADD CONSTRAINT "MediaAsset_licenseUid_fkey" FOREIGN KEY ("licenseUid") REFERENCES "License"("uid") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "MediaAsset" ADD CONSTRAINT "MediaAsset_licenseUid_fkey" FOREIGN KEY ("licenseUid") REFERENCES "License"("uid") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "MediaAsset" ADD CONSTRAINT "MediaAsset_fileUid_fkey" FOREIGN KEY ("fileUid") REFERENCES "File"("uid") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "MediaAsset" ADD CONSTRAINT "MediaAsset_teaserImageUid_fkey" FOREIGN KEY ("teaserImageUid") REFERENCES "File"("uid") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "MediaAsset" ADD CONSTRAINT "MediaAsset_teaserImageUid_fkey" FOREIGN KEY ("teaserImageUid") REFERENCES "File"("uid") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Contribution" ADD CONSTRAINT "Contribution_revisionId_fkey" FOREIGN KEY ("revisionId") REFERENCES "Revision"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

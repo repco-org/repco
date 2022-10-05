@@ -4,6 +4,7 @@ import {
   ingestUpdatesFromDataSources,
   saveCursor,
 } from './datasource.js'
+import { CbaDataSource } from './datasources/cba.js'
 import { RssDataSource } from './datasources/rss.js'
 import { PrismaClient } from './prisma.js'
 
@@ -39,6 +40,9 @@ async function main() {
       endpoint:
         'https://www.freie-radios.net/portal/podcast.php?rss&anzahl=3&start=20',
     }),
+  )
+  dsr.register(
+    new CbaDataSource()
   )
   if (command === 'ingest') {
     for (const ds of dsr.all()) {
