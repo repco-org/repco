@@ -19,6 +19,9 @@ export default function CustomTagsPlugin(builder: SchemaBuilder) {
         if (table.name === '_prisma_migrations') {
           table.tags.omit = true
         }
+        if (table.name.startsWith('directus')) {
+          table.tags.omit = true
+        }
       })
     return build
   })

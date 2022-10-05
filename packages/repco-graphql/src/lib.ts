@@ -14,7 +14,7 @@ import WrapResolversPlugin from './plugins/wrap-resolver.js'
 
 export { getSDL } from './plugins/export-schema.js'
 
-const PG_SCHEMA = 'repco'
+const PG_SCHEMA = 'public'
 
 // Create an GraphQL express middleware with Postgraphile
 // for a repco database.
@@ -37,7 +37,7 @@ export function getPostGraphileOptions() {
     graphiql: true,
     enhanceGraphiql: true,
     disableDefaultMutations: true,
-    classicIds: true,
+    // classicIds: true,
     setofFunctionsContainNulls: false,
     skipPlugins: [NodePlugin],
     appendPlugins: [
@@ -55,7 +55,7 @@ export function getPostGraphileOptions() {
       connectionFilterComputedColumns: false,
       connectionFilterSetofFunctions: false,
       connectionFilterLists: false,
-      // connectionFilterRelations: true,
+      connectionFilterRelations: true,
     },
     watchPg: true,
     disableQueryLog: process.env.NODE_ENV !== 'development',
