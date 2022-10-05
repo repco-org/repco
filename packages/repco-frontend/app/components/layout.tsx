@@ -1,12 +1,12 @@
 import type { PropsWithChildren } from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, Outlet } from 'react-router-dom'
 
 export function Layout(props: PropsWithChildren) {
   return (
     <div>
       <Nav />
       <h1>repco</h1>
-      {props.children}
+      <Outlet></Outlet>
     </div>
   )
 }

@@ -64,18 +64,16 @@ export default function IndexRoute() {
     return 'Not found'
   }
   return (
-    <main>
+    <div>
       <h2>{node.title}</h2>
       <p>
-        <em>
-          UID: <code>{node.uid}</code>
-        </em>
+        UID: <code>{node.uid}</code>
         <br />
-        <em>
-          Revision: <code>{node.revisionId}</code>
-        </em>
+        Revision: <code>{node.revisionId}</code>
       </p>
-      <SanitizedHTML html={node.content} />
+      <div>
+        <SanitizedHTML html={node.content} />
+      </div>
       <ul>
         {node.mediaAssets.nodes.map((node) => (
           <li key={node.uid}>
@@ -85,6 +83,6 @@ export default function IndexRoute() {
           </li>
         ))}
       </ul>
-    </main>
+    </div>
   )
 }

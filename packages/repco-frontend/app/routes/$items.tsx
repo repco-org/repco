@@ -6,7 +6,7 @@
 import stylesUrl from '~/styles/index.css'
 import type { LinksFunction } from '@remix-run/node'
 import { json, LoaderFunction } from '@remix-run/node'
-import { Link, useFetcher, useLoaderData } from '@remix-run/react'
+import { Link, Outlet, useFetcher, useLoaderData } from '@remix-run/react'
 import { useCallback, useEffect, useState } from 'react'
 import { gql } from 'urql'
 import { SanitizedHTML } from '~/components/sanitized-html'
@@ -129,33 +129,37 @@ export default function Items() {
     }
   }, [fetcher.data])
   return (
-    <div ref={divHeight}>
-      <table className="table">
-        <tr>
-          <th>Nr</th>
-          <th>UID</th>
-          <th>Title</th>
-          <th>Summary</th>
-        </tr>
-        {nodes.map((node: any, index: any) => {
-          return (
-            <tr
-              key={node.uid}
-              //onClick={() => {window.open(`/item/${node.uid}`)}}
-            >
-              <td>{index + 1}</td>
-              <td>
-                <Link to={`/items/item/${node.uid}`}>{node.uid}</Link>
-              </td>
-              <td>{node.title}</td>
-              <td>
-                {' '}
-                <SanitizedHTML allowedTags={['a', 'p']} html={node.summary} />
-              </td>
-            </tr>
-          )
-        })}
-      </table>
+    <div className="container">
+      <div className="fixed" ref={divHeight}>
+        <table className="table">
+          <tr>
+            <th>Nr</th>
+            <th>UID</th>
+            <th>Title</th>
+            <th>Summary</th>
+          </tr>
+          {nodes.map((node: any, index: any) => {
+            return (
+              <tr
+                key={node.uid}
+                //onClick={() => {window.open(`/item/${node.uid}`)}}
+              >
+                <td>{index + 1}</td>
+                <td>
+                  <Link to={`/items/item/${node.uid}`}>{node.uid}</Link>
+                </td>
+                <td>{node.title}</td>
+                <td>
+                  <SanitizedHTML allowedTags={['a', 'p']} html={node.summary} />
+                </td>
+              </tr>
+            )
+          })}
+        </table>
+      </div>
+      <div className="flex-item">
+        <Outlet></Outlet>
+      </div>
     </div>
   )
 }
