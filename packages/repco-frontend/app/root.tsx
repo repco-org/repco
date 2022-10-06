@@ -7,7 +7,6 @@ import {
   Scripts,
   ScrollRestoration,
 } from '@remix-run/react'
-import { Layout } from './components/layout.js'
 
 export const meta: MetaFunction = () => ({
   charset: 'utf-8',
@@ -23,9 +22,8 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <Layout>
-          <Outlet />
-        </Layout>
+        <Outlet />
+
         <ScrollRestoration />
         <Scripts />
         <LiveReload />

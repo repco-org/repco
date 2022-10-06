@@ -3,7 +3,7 @@
  * Based on client-side Scroll position
  * Full Article here: https://dev.to/ptenteromano/infinite-scroll-with-remix-run-1g7
  */
-import stylesUrl from '~/styles/index.css'
+import stylesUrl from '~/styles/routes.css'
 import type { LinksFunction } from '@remix-run/node'
 import { json, LoaderFunction } from '@remix-run/node'
 import { Link, Outlet, useFetcher, useLoaderData } from '@remix-run/react'
@@ -129,36 +129,44 @@ export default function Items() {
     }
   }, [fetcher.data])
   return (
-    <div className="container">
-      <div className="fixed" ref={divHeight}>
-        <table className="table">
-          <tr>
-            <th>Nr</th>
-            <th>UID</th>
-            <th>Title</th>
-            <th>Summary</th>
-          </tr>
-          {nodes.map((node: any, index: any) => {
-            return (
-              <tr
-                key={node.uid}
-                //onClick={() => {window.open(`/item/${node.uid}`)}}
-              >
-                <td>{index + 1}</td>
-                <td>
-                  <Link to={`/items/item/${node.uid}`}>{node.uid}</Link>
-                </td>
-                <td>{node.title}</td>
-                <td>
-                  <SanitizedHTML allowedTags={['a', 'p']} html={node.summary} />
-                </td>
-              </tr>
-            )
-          })}
-        </table>
+    <div>
+      <div>
+        <Link to="/">Home</Link>
       </div>
-      <div className="flex-item">
-        <Outlet></Outlet>
+      <div className="container">
+        <div className="fixed" ref={divHeight}>
+          <table className="table">
+            <tr>
+              <th>Nr</th>
+              <th>UID</th>
+              <th>Title</th>
+              <th>Summary</th>
+            </tr>
+            {nodes.map((node: any, index: any) => {
+              return (
+                <tr
+                  key={node.uid}
+                  //onClick={() => {window.open(`/item/${node.uid}`)}}
+                >
+                  <td>{index + 1}</td>
+                  <td>
+                    <Link to={`/items/item/${node.uid}`}>{node.uid}</Link>
+                  </td>
+                  <td>{node.title}</td>
+                  <td>
+                    <SanitizedHTML
+                      allowedTags={['a', 'p']}
+                      html={node.summary}
+                    />
+                  </td>
+                </tr>
+              )
+            })}
+          </table>
+        </div>
+        <div className="flex-item">
+          <Outlet></Outlet>
+        </div>
       </div>
     </div>
   )
