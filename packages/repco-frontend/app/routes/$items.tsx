@@ -6,10 +6,20 @@
 import stylesUrl from '~/styles/routes.css'
 import type { LinksFunction } from '@remix-run/node'
 import { json, LoaderFunction } from '@remix-run/node'
-import { Link, Outlet, useFetcher, useLoaderData } from '@remix-run/react'
+import {
+  Link,
+  NavLink,
+  Outlet,
+  useFetcher,
+  useLoaderData,
+} from '@remix-run/react'
 import { useCallback, useEffect, useState } from 'react'
 import { gql } from 'urql'
 import { SanitizedHTML } from '~/components/sanitized-html'
+import type {
+  LoadContentItemsQuery,
+  LoadContentItemsQueryVariables,
+} from '~/graphql/types.js'
 import { graphqlQuery } from '~/lib/graphql.server'
 
 export const links: LinksFunction = () => {
@@ -43,9 +53,14 @@ const getPage = (searchParams: URLSearchParams) => ({
   after: searchParams.get('page'),
 })
 
+type LoaderData = { data: LoadContentItemsQuery }
+
 export const loader: LoaderFunction = async ({ request }) => {
   const courser = getPage(new URL(request.url).searchParams)
-  const data = await graphqlQuery(QUERY, {
+  const data = await graphqlQuery<
+    LoadContentItemsQuery,
+    LoadContentItemsQueryVariables
+  >(QUERY, {
     first: 10,
     last: null,
     after: courser.after,
@@ -53,13 +68,12 @@ export const loader: LoaderFunction = async ({ request }) => {
   })
   return json(data)
 }
-
+//TODO: TYPING, Scroll behavior, Pagination
 export default function Items() {
   const { data } = useLoaderData()
   const [pageInfo, setPageInfo] = useState(data.contentItems.pageInfo)
   const [nodes, setNodes] = useState(data.contentItems.nodes)
   const fetcher = useFetcher()
-  const [showAddModal, setShowAddModal] = useState(false)
 
   const [scrollPosition, setScrollPosition] = useState(0)
   const [clientHeight, setClientHeight] = useState(0)
@@ -146,11 +160,14 @@ export default function Items() {
               return (
                 <tr
                   key={node.uid}
+                  //TODO: my a better UX
                   //onClick={() => {window.open(`/item/${node.uid}`)}}
                 >
                   <td>{index + 1}</td>
                   <td>
-                    <Link to={`/items/item/${node.uid}`}>{node.uid}</Link>
+                    <NavLink prefetch="render" to={`/items/item/${node.uid}`}>
+                      {node.uid}
+                    </NavLink>
                   </td>
                   <td>{node.title}</td>
                   <td>
@@ -165,7 +182,7 @@ export default function Items() {
           </table>
         </div>
         <div className="flex-item">
-          <Outlet></Outlet>
+          <Outlet />
         </div>
       </div>
     </div>

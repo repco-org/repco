@@ -31,6 +31,9 @@ export default function Index() {
             <s>Playlists</s>
           </td>
         </tr>
+        <tr>
+          <td className="login">sign in</td>
+        </tr>
       </table>
     </div>
   )
