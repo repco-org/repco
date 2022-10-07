@@ -1,8 +1,3 @@
-/*
- * Infinite Scroll using Remix Run
- * Based on client-side Scroll position
- * Full Article here: https://dev.to/ptenteromano/infinite-scroll-with-remix-run-1g7
- */
 import stylesUrl from '~/styles/routes.css'
 import type { LinksFunction } from '@remix-run/node'
 import { json, LoaderFunction } from '@remix-run/node'
@@ -66,13 +61,13 @@ export const loader: LoaderFunction = async ({ request }) => {
     after: courser.after,
     before: null,
   })
-  return json(data)
+  return json({ contentItems: data.data?.contentItems })
 }
 //TODO: TYPING, Scroll behavior, Pagination
 export default function Items() {
-  const { data } = useLoaderData()
-  const [pageInfo, setPageInfo] = useState(data.contentItems.pageInfo)
-  const [nodes, setNodes] = useState(data.contentItems.nodes)
+  const { contentItems } = useLoaderData()
+  const [pageInfo, setPageInfo] = useState(contentItems.pageInfo)
+  const [nodes, setNodes] = useState(contentItems.nodes)
   const fetcher = useFetcher()
 
   const [scrollPosition, setScrollPosition] = useState(0)
@@ -133,9 +128,9 @@ export default function Items() {
       console.log(fetcher.data)
       setNodes((prevNodes: any) => [
         ...prevNodes,
-        ...fetcher.data.data.contentItems.nodes,
+        ...fetcher.data.contentItems.nodes,
       ])
-      setPageInfo(fetcher.data.data.contentItems.pageInfo)
+      setPageInfo(fetcher.data.contentItems.pageInfo)
       setPage(pageInfo.endCursor)
       if (pageInfo.hasNextPage) {
         setShouldFetch(true)

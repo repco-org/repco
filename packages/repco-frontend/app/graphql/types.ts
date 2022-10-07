@@ -4485,3 +4485,10 @@ export type LoadContentItemQueryVariables = Exact<{
 
 
 export type LoadContentItemQuery = { contentItem: { title: string, uid: string, content: string, revisionId: string, mediaAssets: { nodes: Array<{ uid: string, mediaType: string, file: { uid: string, contentUrl: string } | null }> } } | null };
+
+export type LoadContentItemsByOffsetQueryVariables = Exact<{
+  offset: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type LoadContentItemsByOffsetQuery = { contentItems: { totalCount: number, pageInfo: { startCursor: string | null, endCursor: string | null, hasNextPage: boolean, hasPreviousPage: boolean }, nodes: Array<{ title: string, uid: string, summary: string | null }> } | null };

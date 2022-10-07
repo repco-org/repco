@@ -14,14 +14,14 @@ export default function Index() {
         </th>
         <tr
           onClick={() => {
-            window.open(`/item`)
+            window.open(`/items`)
           }}
         >
           <td>ContentItems</td>
         </tr>
         <tr
           onClick={() => {
-            window.open(`/search`)
+            window.open(`/contentItems`)
           }}
         >
           <td>Search by UID</td>
