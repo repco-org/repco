@@ -2,6 +2,7 @@ import { json, LoaderFunction } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { gql } from 'urql'
 import { graphqlQuery } from '~/lib/graphql.server'
+import { RemixPagination } from '~/lib/remix-pagination'
 
 const QUERY = gql`
   query LoadContentItemsByOffset($offset: Int) {
@@ -51,9 +52,9 @@ export default function () {
         ))}
       </div>
 
-      {/* <div className="flex items-center justify-center">
-        <RemixPagination total={count || 0} size={20} classPrefix="pokemon" />
-      </div> */}
+      <div>
+        <RemixPagination total={count || 0} size={10} />
+      </div>
     </div>
   )
 }
