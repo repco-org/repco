@@ -13,11 +13,17 @@
     "start": "remix-serve build"
   },
   "dependencies": {
+    "@chakra-ui/react": "^2.3.5",
+    "@emotion/react": "^11",
+    "@emotion/server": "^11",
+    "@emotion/styled": "^11",
     "@remix-run/node": "^1.4.3",
     "@remix-run/react": "^1.4.3",
     "@remix-run/serve": "^1.4.3",
     "@urql/core": "^3.0.3",
     "@urql/exchange-graphcache": "^5.0.1",
+    "chakra-react-select": "^4.2.5",
+    "framer-motion": "^6",
     "graphql": "^15.8.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

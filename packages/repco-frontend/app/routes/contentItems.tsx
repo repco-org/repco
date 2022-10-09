@@ -1,8 +1,8 @@
 import { json, LoaderFunction } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { gql } from 'urql'
+import { Pagination, usePagination } from '~/components/utils/pagination'
 import { graphqlQuery } from '~/lib/graphql.server'
-import { RemixPagination } from '~/lib/remix-pagination'
 
 const QUERY = gql`
   query LoadContentItemsByOffset($offset: Int) {
@@ -41,7 +41,9 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export default function () {
   const { nodes, count } = useLoaderData<typeof loader>()
-  console.log(nodes)
+  const { page, setPage, take, setTake, numberOfPages } = usePagination({
+    count,
+  })
   return (
     <div>
       <div>
@@ -53,7 +55,13 @@ export default function () {
       </div>
 
       <div>
-        <RemixPagination total={count || 0} size={10} />
+        <Pagination
+          numberOfPages={numberOfPages}
+          take={take}
+          page={page}
+          setPage={setPage}
+          setTake={setTake}
+        />{' '}
       </div>
     </div>
   )
