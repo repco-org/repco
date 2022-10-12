@@ -15,15 +15,20 @@
     "test": "brittle dist/test/*.js"
   },
   "dependencies": {
+    "@ipld/dag-cbor": "^7.0.3",
+    "@multiformats/blake2": "^1.0.11",
     "dotenv": "^16.0.1",
     "multiformats": "^9.7.0",
     "repco-prisma": "*",
     "rss-parser": "^3.12.0",
+    "streamx": "^2.12.5",
     "undici": "^5.10.0",
+    "vscode-uri": "^3.0.6",
     "zod": "^3.18.0"
   },
   "devDependencies": {
     "@types/node": "^18.0.0",
+    "@types/streamx": "^2.9.1",
     "brittle": "^2.4.0",
     "typedoc": "^0.22.17",
     "typescript": "^4.7.4"

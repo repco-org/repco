@@ -13,8 +13,8 @@ generator dbml {
 }
 
 generator repco {
-  provider   = "repco-prisma-generate"
-  output     = "../generated/repco"
+  provider = "repco-prisma-generate"
+  output   = "../generated/repco"
 }
 
 enum ContentGroupingVariant {
@@ -22,51 +22,118 @@ enum ContentGroupingVariant {
   SERIAL
 }
 
+enum AgentType {
+  DATASOURCE
+  USER
+}
+
+// Core data model
+
 model Repo {
-  uid String @id @unique
-  name String?
+  uid       String     @id @unique
+  name      String?
   revisions Revision[]
 }
 
+model Agent {
+  uid        String      @id @unique
+  type       AgentType
+  DataSource DataSource?
+  User       User?
+  Revisions  Revision[]
+}
+
+model User {
+  uid   String @id @unique
+  name  String
+  agent Agent  @relation(fields: [uid], references: [uid])
+}
+
 model DataSource {
-  uid String @id @unique
+  uid       String  @id @unique
   // TODO: Make required once we reset the schema.
   pluginUid String?
-  config Json?
-  cursor String
+  config    Json?
+  cursor    String
+
+  agent Agent @relation(fields: [uid], references: [uid])
 }
+
+model Block {
+  cid        String    @id @unique
+  // len        Int
+  bytes      Bytes
+  // links      String[]
+  IsRevision Revision? @relation("RevisionBlock")
+  IsContent  Revision? @relation("ContentBlock")
+}
+
+model Entity {
+  uid        String @id @unique
+  revisionId String @unique
+  type       String
+
+  // uris String[]
+  // deleted boolean
+
+  Revision Revision   @relation(fields: [revisionId], references: [id])
+  Metadata Metadata[]
+}
+
+// model Uri {
+//   uri String @unique
+//   IsRevision Revision @relation("RevisionUri", fields: [uri]
+//   scopes String[]
+// }
 
 model Revision {
-  id                 String    @id @unique
-  type               String
-  uid                String
-  created            DateTime
-  datasource         String
+  id String @id @unique
 
-  repoUid     String
-  repo       Repo @relation(fields: [repoUid], references: [uid])
+  // core relation scalars
+  prevRevisionId String? @unique
+  entityUid      String
+  repoUid        String
+  agentUid       String // uid of writing agent (datasource or user)
 
-  content            Json
+  // core headers
+  entityType   String
+  dateModified DateTime
+  dateCreated  DateTime
+  isDeleted    Boolean  @default(false) // todo: better have publication status
+  entityUris   String[]
+  revisionUris String[]
 
-  alternativeIds    String[]
+  // core derived fields
+  revisionCid String @unique // cid of revision block
+  contentCid  String @unique // cid of content block
 
-  previousRevisionId String?   @unique
-  previousRevision   Revision? @relation("RevisionHistory", fields: [previousRevisionId], references: [id])
-  nextRevision       Revision? @relation("RevisionHistory")
+  // core relations
+  Repo          Repo      @relation(fields: [repoUid], references: [uid])
+  Agent         Agent     @relation(fields: [agentUid], references: [uid])
+  ContentBlock  Block     @relation("ContentBlock", fields: [contentCid], references: [cid])
+  RevisionBlock Block     @relation("RevisionBlock", fields: [revisionCid], references: [cid])
+  PrevRevision  Revision? @relation("RevisionHistory", fields: [prevRevisionId], references: [id])
+  NextRevision  Revision? @relation("RevisionHistory")
+  Entity        Entity?
 
-  contentGrouping  ContentGrouping?
-  contentItem      ContentItem?
-  license          License?
-  mediaAsset       MediaAsset?
-  file             File?
-  concept          Concept?
-  actor            Actor?
-  broadcastEvent   BroadcastEvent?
-  broadcastService BroadcastService?
-  chapter          Chapter?
-  contribution     Contribution?
+  // entity relations
+  ContentGrouping  ContentGrouping?
+  ContentItem      ContentItem?
+  License          License?
+  MediaAsset       MediaAsset?
+  File             File?
+  Concept          Concept?
+  Actor            Actor?
+  BroadcastEvent   BroadcastEvent?
+  BroadcastService BroadcastService?
+  Chapter          Chapter?
+  Contribution     Contribution?
+  Metadata         Metadata?
 }
 
+// Domain data model
+
+/// @repco(Entity)
 model ContentGrouping {
   uid String @id @unique
 
@@ -92,6 +159,7 @@ model ContentGrouping {
   contentItemsAdditional ContentItem[]
 }
 
+/// @repco(Entity)
 model ContentItem {
   uid                 String            @id @unique /// @zod.refine(imports.isValidUID)
   revisionId          String            @unique
@@ -102,10 +170,10 @@ model ContentItem {
   summary             String?
   content             String
   contentFormat       String
-  primaryGrouping     ContentGrouping?   @relation("primaryGrouping", fields: [primaryGroupingUid], references: [uid])
+  primaryGrouping     ContentGrouping?  @relation("primaryGrouping", fields: [primaryGroupingUid], references: [uid])
   primaryGroupingUid  String?
   additionalGroupings ContentGrouping[]
-  license             License?           @relation(fields: [licenseUid], references: [uid])
+  license             License?          @relation(fields: [licenseUid], references: [uid])
   licenseUid          String?
   mediaAssets         MediaAsset[]
   contributions       Contribution[]
@@ -113,6 +181,7 @@ model ContentItem {
   broadcastEvents     BroadcastEvent[]
 }
 
+/// @repco(Entity)
 model License {
   uid              String            @id @unique
   revisionId       String            @unique
@@ -123,6 +192,7 @@ model License {
   contentGroupings ContentGrouping[]
 }
 
+/// @repco(Entity)
 model MediaAsset {
   uid         String   @id @unique
   revisionId  String   @unique
@@ -149,6 +219,7 @@ model MediaAsset {
   concepts      Concept[]
 }
 
+/// @repco(Entity)
 model Contribution {
   uid          String        @id @unique
   revisionId   String        @unique
@@ -159,6 +230,7 @@ model Contribution {
   contentItems ContentItem[]
 }
 
+/// @repco(Entity)
 model Actor {
   uid                  String             @id @unique
   revisionId           String             @unique
@@ -172,6 +244,7 @@ model Actor {
   broadcastService     BroadcastService[]
 }
 
+/// @repco(Entity)
 model Chapter {
   uid           String     @id @unique
   revisionId    String     @unique
@@ -184,6 +257,7 @@ model Chapter {
   mediaAssetUid String
 }
 
+/// @repco(Entity)
 model BroadcastEvent {
   uid                 String           @id @unique
   revisionId          String           @unique
@@ -196,6 +270,7 @@ model BroadcastEvent {
   broadcastServiceUid String
 }
 
+/// @repco(Entity)
 model BroadcastService {
   uid             String           @id @unique
   revisionId      String           @unique
@@ -208,6 +283,7 @@ model BroadcastService {
   address         String
 }
 
+/// @repco(Entity)
 model Transcript {
   uid           String     @id @unique
   language      String
@@ -217,6 +293,7 @@ model Transcript {
   mediaAssetUid String
 }
 
+/// @repco(Entity)
 model File {
   uid                String       @id @unique
   revisionId         String       @unique
@@ -235,15 +312,34 @@ model File {
   actors             Actor[]
 }
 
+/// @repco(Entity)
 model Concept {
-  uid             String        @id @unique
-  revisionId      String        @unique
-  revision        Revision      @relation(fields: [revisionId], references: [id])
-  originNamespace String
+  uid        String   @id @unique
+  revisionId String   @unique
+  revision   Revision @relation(fields: [revisionId], references: [id])
+
+  originNamespace String?
   name            String
-  summary         String
-  description     String
-  wikidataID      String
-  contentItems    ContentItem[]
-  mediaAssets     MediaAsset[]
+  summary         String?
+  description     String?
+  wikidataID      String?
+  sameAsUid       String? @unique
+
+  sameAs        Concept? @relation("isSameAs", fields: [sameAsUid], references: [uid])
+  sameAsReverse Concept? @relation("isSameAs")
+
+  contentItems ContentItem[]
+  mediaAssets  MediaAsset[]
+}
+
+model Metadata {
+  uid        String   @unique
+  revisionId String   @unique
+  revision   Revision @relation(fields: [revisionId], references: [id])
+
+  targetUid String
+  namespace String
+  content   Json
+
+  targetEntity Entity @relation(fields: [targetUid], references: [uid])
 }
