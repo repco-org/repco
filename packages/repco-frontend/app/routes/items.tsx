@@ -6,7 +6,7 @@ import {
   useSearchParams,
 } from '@remix-run/react'
 import { gql } from '@urql/core'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { SanitizedHTML } from '~/components/sanitized-html'
 import type {
   LoadContentItemsQuery,
@@ -51,22 +51,6 @@ export const loader: LoaderFunction = ({ request }) => {
 
 export default function IndexRoute() {
   const { data } = useLoaderData<LoaderData>()
-  const [searchParams, setSearchParams] = useSearchParams()
-
-  const [page, setPage] = useState<string | null>()
-  const [order, setOrder] = useState('')
-
-  useEffect(() => {
-    setSearchParams({
-      page: page || '',
-      order: order,
-    })
-  }, [order, page])
-  const fetcher = useFetcher()
-
-  useEffect(() => {
-    fetcher.load(`/items?page=${page}&order=${order}`)
-  }, [searchParams])
 
   if (!data) {
     return 'Ooops, something went wrong :('
@@ -78,27 +62,119 @@ export default function IndexRoute() {
     return 'Whats going on?'
   }
 
+  const [pageInfo, setPageInfo] = useState(data.contentItems.pageInfo)
+  const [nodes, setNodes] = useState(data.contentItems.nodes)
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  const [page, setPage] = useState<string | null>()
+  const [order, setOrder] = useState('')
+  const [shouldFetch, setShouldFetch] = useState(false)
+
+  const [scrollPosition, setScrollPosition] = useState(0)
+  const [clientHeight, setClientHeight] = useState(0)
+  const [height, setHeight] = useState(null)
+  const [fetchOrder, setFetchOrder] = useState(false)
+  const fetcher = useFetcher()
+
+  // Set the height of the parent container
+  const divHeight = useCallback(
+    (node: any) => {
+      if (node !== null) {
+        setHeight(node.getBoundingClientRect().height)
+      }
+    },
+    [nodes.length],
+  )
+
+  // Add Listeners to scroll and client resize
+  useEffect(() => {
+    const scrollListener = () => {
+      setClientHeight(window.innerHeight)
+      setScrollPosition(window.scrollY)
+    }
+
+    // Avoid running during SSR
+    if (typeof window !== 'undefined') {
+      window.addEventListener('scroll', scrollListener)
+    }
+
+    // Clean up
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('scroll', scrollListener)
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    setSearchParams({
+      page: page || '',
+      order: order,
+    })
+    setShouldFetch(true)
+  }, [order, page])
+
+  useEffect(() => {
+    console.log('order 1')
+    if (fetchOrder) {
+      console.log('order 2')
+      setFetchOrder(false)
+      fetcher.load(`/items?page=${null}&order=${order}`)
+    }
+    //   // setNodes(fetcher.data.data.contentItems.nodes)
+    //   setFetchOrder(false)
+  }, [searchParams, fetchOrder])
+
+  useEffect(() => {
+    if (!shouldFetch || !height) return
+    if (clientHeight + scrollPosition < height) return
+    if (!pageInfo.hasNextPage) return
+    setOrder(order)
+    setPage(pageInfo.endCursor)
+    fetcher.load(`/items?page=${page}&order=${order}`)
+    console.log(fetcher)
+    setShouldFetch(false)
+  }, [searchParams, clientHeight, scrollPosition, fetcher])
+
+  useEffect(() => {
+    if (fetcher.data && fetcher.data.length === 0) {
+      setShouldFetch(false)
+      return
+    }
+    if (fetcher.data) {
+      if (!fetcher.data.data.contentItems) return
+      setPageInfo(fetcher.data.data.contentItems.pageInfo)
+      setNodes((prevNodes: any) => [
+        ...prevNodes,
+        ...fetcher.data.data.contentItems.nodes,
+      ])
+
+      setShouldFetch(true)
+    }
+  }, [fetcher.data])
+
   return (
     <main>
       <button onClick={() => setOrder('TITLE_DESC')}>OrderBy</button>
       <button
         onClick={() => {
-          setOrder(order), setPage(data.contentItems?.pageInfo.endCursor)
+          setOrder(order), setPage(pageInfo.endCursor), setFetchOrder(true)
         }}
       >
         both
       </button>
-
-      <ul>
-        {data.contentItems.nodes.map((node, i) => (
-          <li key={i}>
-            <h2>
-              <Link to={`/item/${node.uid}`}>{node.title}</Link>
-            </h2>
-            <SanitizedHTML allowedTags={['a', 'p']} html={node.summary} />
-          </li>
-        ))}
-      </ul>
+      <div ref={divHeight}>
+        <ul>
+          {nodes.map((node, i) => (
+            <li key={i}>
+              <h2>
+                <Link to={`/item/${node.uid}`}>{node.title}</Link>
+              </h2>
+              <SanitizedHTML allowedTags={['a', 'p']} html={node.summary} />
+            </li>
+          ))}
+        </ul>
+      </div>
     </main>
   )
 }
