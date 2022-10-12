@@ -68,12 +68,12 @@ export default function IndexRoute() {
 
   const [page, setPage] = useState<string | null>()
   const [order, setOrder] = useState('')
+  const [fetchOrder, setFetchOrder] = useState('')
   const [shouldFetch, setShouldFetch] = useState(false)
-
+  const [orderFetcher, setOrderFetcher] = useState(false)
   const [scrollPosition, setScrollPosition] = useState(0)
   const [clientHeight, setClientHeight] = useState(0)
   const [height, setHeight] = useState(null)
-  const [fetchOrder, setFetchOrder] = useState(false)
   const fetcher = useFetcher()
 
   // Set the height of the parent container
@@ -115,15 +115,11 @@ export default function IndexRoute() {
   }, [order, page])
 
   useEffect(() => {
-    console.log('order 1')
-    if (fetchOrder) {
-      console.log('order 2')
-      setFetchOrder(false)
-      fetcher.load(`/items?page=${null}&order=${order}`)
-    }
+    console.log(order)
+    fetcher.load(`/items?order=${order}`)
     //   // setNodes(fetcher.data.data.contentItems.nodes)
     //   setFetchOrder(false)
-  }, [searchParams, fetchOrder])
+  }, [order])
 
   useEffect(() => {
     if (!shouldFetch || !height) return
@@ -137,17 +133,25 @@ export default function IndexRoute() {
   }, [searchParams, clientHeight, scrollPosition, fetcher])
 
   useEffect(() => {
+    console.log('FETCHER', fetcher.data)
     if (fetcher.data && fetcher.data.length === 0) {
       setShouldFetch(false)
       return
     }
+
     if (fetcher.data) {
       if (!fetcher.data.data.contentItems) return
       setPageInfo(fetcher.data.data.contentItems.pageInfo)
-      setNodes((prevNodes: any) => [
-        ...prevNodes,
-        ...fetcher.data.data.contentItems.nodes,
-      ])
+      console.log('ORDERFETCHER', orderFetcher)
+      if (orderFetcher) {
+        setNodes(fetcher.data.data.contentItems.nodes)
+        setOrderFetcher(false)
+      } else {
+        setNodes((prevNodes: any) => [
+          ...prevNodes,
+          ...fetcher.data.data.contentItems.nodes,
+        ])
+      }
 
       setShouldFetch(true)
     }
@@ -155,10 +159,16 @@ export default function IndexRoute() {
 
   return (
     <main>
-      <button onClick={() => setOrder('TITLE_DESC')}>OrderBy</button>
       <button
         onClick={() => {
-          setOrder(order), setPage(pageInfo.endCursor), setFetchOrder(true)
+          setOrder('TITLE_DESC'), setOrderFetcher(true)
+        }}
+      >
+        OrderBy
+      </button>
+      <button
+        onClick={() => {
+          setOrder(order), setPage(pageInfo.endCursor)
         }}
       >
         both
