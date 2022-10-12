@@ -81,13 +81,9 @@ export default function IndexRoute() {
   return (
     <main>
       <button onClick={() => setOrder('TITLE_DESC')}>OrderBy</button>
-      <button onClick={() => setPage(data.contentItems?.pageInfo.endCursor)}>
-        {' '}
-        NEXT
-      </button>
       <button
         onClick={() => {
-          setOrder('TITLE_ASC'), setPage(data.contentItems?.pageInfo.endCursor)
+          setOrder(order), setPage(data.contentItems?.pageInfo.endCursor)
         }}
       >
         both
