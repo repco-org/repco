@@ -16,7 +16,9 @@ import {
 
 export type { ContentItem, MediaAsset, ContentGrouping, Revision }
 export { ContentGroupingVariant }
-export type AnyEntityContent = repco.EntityOutput['content']
+// export type AnyEntityContent = repco.EntityOutput['content']
+export type AnyEntityContent = { uid: string }
+export type AnyEntityType = repco.EntityOutput['type']
 
 export type EntityBatch = {
   cursor: string
@@ -24,9 +26,30 @@ export type EntityBatch = {
 }
 
 export type Entity = {
-  type: string
+  type: string,
   content: AnyEntityContent
   revision: Revision
+}
+
+export type EntityMaybeContent<T extends boolean = true> = 
+  T extends true ? Entity : 
+  T extends false ? Omit<Entity, 'content'> :
+  never
+
+export type TypedEntity<T extends AnyEntityType> = {
+  type: T,
+  content: Extract<repco.EntityOutput, { type: T }>["content"]
+  revision: Revision
+}
+
+export type MaybeTypedEntity<T = any> = {
+  type: T extends AnyEntityType ? T : string,
+  content: T extends AnyEntityType ? Extract<repco.EntityOutput, { type: T }>["content"] : AnyEntityContent
+  revision: Revision
+}
+
+export function assumeType<T extends AnyEntityType>(entity: Entity): TypedEntity<T> {
+  return entity as TypedEntity<T>
 }
 
 export type EntityFormContent = Omit<AnyEntityContent, 'revisionId'>

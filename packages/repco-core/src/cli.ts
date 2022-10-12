@@ -80,8 +80,8 @@ async function main() {
 async function loadAndLogAllEntities(prisma: PrismaClient) {
   const revisions = await prisma.revision.findMany({
     include: {
-      contentItem: true,
-      contentGrouping: true,
+      ContentItem: true,
+      ContentGrouping: true,
     },
   })
   console.log(JSON.stringify(revisions, null, 2))

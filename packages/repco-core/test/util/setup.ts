@@ -26,6 +26,7 @@ export async function setup(test: Test) {
   await spawn('yarn', ['prisma', 'migrate', 'reset', '-f', '--skip-generate'], {
     cwd: '../repco-prisma',
     log: test.comment,
+    stdio: 'inherit'
   })
 }
 
@@ -59,7 +60,9 @@ function spawn(
             `Command \`${command}\` exited with code ${code}. Command output:\n${log}`,
           ),
         )
-      } else resolve()
+      } else {
+        resolve()
+      }
     })
   }) as ReturnType<typeof spawn>
   promise.child = child

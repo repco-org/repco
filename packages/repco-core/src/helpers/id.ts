@@ -10,7 +10,11 @@ let ID_COUNTER = 0
 const COUNTER_MAX = 1000
 
 export function createRevisionId(timestamp?: Date | number): string {
-  return MultiID.createTimeAndRandom(timestamp).toString()
+  return 'r.' + MultiID.createTimeAndRandom(timestamp).toString()
+}
+
+export function createEntityId(timestamp?: Date | number): string {
+  return 'e.' + MultiID.createTimeAndRandom(timestamp).toString()
 }
 
 export enum IDFormats {

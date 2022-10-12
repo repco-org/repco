@@ -1,13 +1,23 @@
 import { DMMF } from '@prisma/generator-helper'
 import { SourceFile } from 'ts-morph'
 
-const SKIP_LIST = ['Revision', 'Repo']
+function hasEntityAnnotation(docstring?: string) {
+  if (!docstring) return false
+  const lines = docstring.split('\n')
+  for (const line of lines) {
+    if (line.match(/\s*@repco\(Entity\)\s*/g)) return true
+  }
+  return false
+}
+
+function isRepcoEntity(model: DMMF.Model) {
+  return hasEntityAnnotation(model.documentation)
+}
 
 export function generateTypes(dmmf: DMMF.Document, file: SourceFile) {
-  const models = dmmf.datamodel.models
-  const imports = ['PrismaClient', 'Prisma']
-  for (const model of models) {
-    if (SKIP_LIST.includes(model.name)) continue
+  const imports = ['PrismaClient', 'PrismaPromise', 'Prisma']
+  const entityModels = dmmf.datamodel.models.filter(isRepcoEntity)
+  for (const model of entityModels) {
     generateModelTypes(model, file)
     imports.push(model.name)
   }
@@ -20,17 +30,18 @@ export function generateTypes(dmmf: DMMF.Document, file: SourceFile) {
     moduleSpecifier: './zod.js',
     defaultImport: '* as zod',
   })
-  generateEntityTypes(dmmf, file)
-  generateValidateFunction(dmmf, file)
-  generateUpsertFunction(dmmf, file)
-  generateExtractRelationsFunction(dmmf, file)
+  generateEntityTypes(entityModels, file)
+  generateValidateFunction(entityModels, file)
+  generateUpsertFunction(entityModels, file)
+  generateUpsertFunction2(entityModels, file)
+  generateExtractRelationsFunction(entityModels, file)
 }
 
-function generateEntityTypes(dmmf: DMMF.Document, file: SourceFile) {
+function generateEntityTypes(models: DMMF.Model[], file: SourceFile) {
   const inputTys = []
   const outputTys = []
-  for (const model of dmmf.datamodel.models) {
-    if (SKIP_LIST.includes(model.name)) continue
+  for (const model of models) {
+    if (!isRepcoEntity(model)) continue
     inputTys.push(`{
 			type: "${model.name}",
 			content: ${model.name}Input
@@ -85,13 +96,10 @@ function generateModelTypes(model: DMMF.Model, file: SourceFile) {
   })
 }
 
-function generateValidateFunction(dmmf: DMMF.Document, file: SourceFile) {
-  const models = dmmf.datamodel.models
-
+function generateValidateFunction(models: DMMF.Model[], file: SourceFile) {
   let code = `input.revisionId = revisionId
 		switch (type) {`
   for (const model of models) {
-    if (SKIP_LIST.includes(model.name)) continue
     code += `
 			case '${model.name}': {
 				zod.${model.name}Model.parse(input)
@@ -119,7 +127,7 @@ function generateValidateFunction(dmmf: DMMF.Document, file: SourceFile) {
 }
 
 function generateExtractRelationsFunction(
-  dmmf: DMMF.Document,
+  models: DMMF.Model[],
   file: SourceFile,
 ) {
   let code = `
@@ -127,12 +135,12 @@ function generateExtractRelationsFunction(
     const uid = input.content.uid
     switch (type) {
   `
-  for (const model of filterModels(dmmf.datamodel.models)) {
+  for (const model of models) {
     const uidFields = findUidFields(model)
     let inner = ``
     if (uidFields.length) {
       for (const field of uidFields) {
-        const path = `input.content.${field.name}`
+        const path = `content.${field.name}`
         const values = field.isList
           ? `${path}.filter(x => x !== null)`
           : `[${path}]`
@@ -151,6 +159,7 @@ function generateExtractRelationsFunction(
     code += `
 			case '${model.name}': {
         const relations: Relation[] = []
+        const content = input.content as ${model.name}Input
         ${inner}
         return relations
       }
@@ -170,33 +179,37 @@ function generateExtractRelationsFunction(
     }`,
     isExported: true,
   })
+  file.addTypeAlias({
+    name: `EntityLike`,
+    type: `{
+      type: string,
+      content: {
+        uid: string
+      },
+    }`,
+    isExported: true,
+  })
   file.addFunction({
     isExported: true,
     isAsync: false,
     name: 'extractRelations',
-    parameters: [{ name: 'input', type: 'EntityInput' }],
+    parameters: [{ name: 'input', type: 'EntityLike' }],
     returnType: 'Relation[]',
     statements: code,
   })
-}
-
-function filterModels(models: DMMF.Model[]): DMMF.Model[] {
-  return models.filter((model) => !SKIP_LIST.includes(model.name))
 }
 
 function lowerName(model: DMMF.Model): string {
   return model.name[0].toLowerCase() + model.name.substring(1)
 }
 
-function generateUpsertFunction(dmmf: DMMF.Document, file: SourceFile) {
-  const models = dmmf.datamodel.models
-
+function generateUpsertFunction(models: DMMF.Model[], file: SourceFile) {
   let code = `
 	const type = input.type
 	const uid = input.content.uid
 	let entity: EntityOutput
 	switch (type) {`
-  for (const model of filterModels(models)) {
+  for (const model of models) {
     const uidFields = findUidFields(model)
     let transform = ``
     if (uidFields.length) {
@@ -252,6 +265,69 @@ function generateUpsertFunction(dmmf: DMMF.Document, file: SourceFile) {
       { name: 'revision', type: 'Prisma.RevisionCreateInput' },
     ],
     returnType: 'Promise<EntityOutput>',
+    statements: code,
+  })
+}
+
+function generateUpsertFunction2(models: DMMF.Model[], file: SourceFile) {
+  let code = `
+	const type = input.type
+	const uid = input.content.uid
+	switch (type) {`
+  for (const model of models) {
+    const uidFields = findUidFields(model)
+    let transform = ``
+    if (uidFields.length) {
+      for (const field of uidFields) {
+        // if (field.relationFromFields) {
+        //   for (const uidFieldName of field.relationFromFields) {
+        //     transform += `${uidFieldName}: undefined,`
+        //   }
+        // }
+        const path = `input.content.${field.name}`
+        let inner
+        if (field.isList) {
+          inner = `${path}?.map(uid => ({ uid }))`
+        } else {
+          inner = `{ uid: ${path}! }`
+        }
+        transform += `
+					${field.name}: ${path} ? {
+						connect: ${inner}
+          } : {},`
+      }
+    }
+    code += `
+			case '${model.name}': {
+        const data = {
+          ...input.content,
+          revision: { connect: { id: revisionId }},
+          ${transform}
+        }
+				return prisma.${lowerName(model)}.upsert({
+					where: { uid },
+					create: data,
+          update: data,
+          select: {}
+				})
+			}
+			`
+  }
+  code += `
+		  default:
+				throw new Error('Unsupported entity type: ' + type)
+		}
+		`
+  file.addFunction({
+    isExported: true,
+    // isAsync: true,
+    name: 'upsertEntity2',
+    parameters: [
+      { name: 'prisma', type: 'PrismaClient' },
+      { name: 'input', type: 'EntityInput' },
+      { name: 'revisionId', type: 'string' },
+    ],
+    returnType: 'PrismaPromise<any>',
     statements: code,
   })
 }
