@@ -56,6 +56,7 @@ export const meta: MetaFunction = ({ data }) => {
 
 export default function IndexRoute() {
   const { data } = useLoaderData<LoaderData>()
+
   if (!data) {
     return 'Ooops, something went wrong :('
   }

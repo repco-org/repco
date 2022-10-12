@@ -4469,13 +4469,13 @@ export type LoadContentItemQuery = {
 
 export type LoadContentItemsQueryVariables = Exact<{
   first: InputMaybe<Scalars['Int']>
-  last: InputMaybe<Scalars['Int']>
   after: InputMaybe<Scalars['Cursor']>
-  before: InputMaybe<Scalars['Cursor']>
+  orderBy: InputMaybe<Array<ContentItemsOrderBy> | ContentItemsOrderBy>
 }>
 
 export type LoadContentItemsQuery = {
   contentItems: {
+    totalCount: number
     pageInfo: {
       startCursor: string | null
       endCursor: string | null

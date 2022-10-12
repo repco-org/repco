@@ -8,8 +8,8 @@ export function Pager({ pageInfo, url }: { pageInfo: PageInfo; url: string }) {
   }
   return (
     <div>
-      {pager.next && <a href={pager.next}>Next page</a>}
-      {pager.prev && <a href={pager.prev}>Previous page</a>}
+      {pager.next && <a href={pager.next}>Load More</a>}
+      {pager.prev && <a href={pager.prev}>Back</a>}
     </div>
   )
 }
