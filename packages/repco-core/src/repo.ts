@@ -11,9 +11,8 @@ import {
 } from 'repco-prisma'
 import { Readable } from 'streamx'
 import { DataSourceRegistry } from './datasource.js'
-import { Entity, EntityMaybeContent } from './entity.js'
-import { createEntityId } from './helpers/id.js'
-import { createRevisionId } from './mod.js'
+import { FullEntity, EntityMaybeContent } from './entity.js'
+import { createEntityId, createRevisionId } from './helpers/id.js'
 import { IpldBlockStore, PrimsaIpldBlockStore } from './repo/blockstore.js'
 import { URI } from './repo/uri.js'
 
@@ -126,7 +125,7 @@ export class Repo {
 
   async fetchRevisionsWithContent(
     filter: RevisionFilter = {},
-  ): Promise<Entity[]> {
+  ): Promise<FullEntity[]> {
     const where: Prisma.RevisionWhereInput = {
       repoUid: this.uid,
     }
@@ -157,24 +156,19 @@ export class Repo {
     agentUid: string,
     input: unknown,
     headers: Headers = {},
-  ): Promise<Entity> {
-    const entity = await this.checkAndPrepareEntity(agentUid, input, headers)
-    await this.saveEntityUnchecked(entity.revision, entity.content)
+  ): Promise<FullEntity> {
+    const parsed = entityForm.parse(input)
+    const entityInput = parseEntity(parsed.type, parsed.content)
+    const entity = await this.checkAndPrepareEntity(agentUid, entityInput, headers)
+    await this.saveEntityUnchecked(entity)
     return entity
   }
 
   async checkAndPrepareEntity(
     agentUid: string,
-    input: unknown,
+    entity: repco.EntityInput,
     headers: Headers = {},
-  ): Promise<Entity> {
-    const parsed = entityForm.parse(input)
-    console.log('input', input)
-    console.log('headers', headers)
-    console.log('parsed', parsed)
-    // set temp uid
-    ;(parsed.content as any).uid = '_'
-    const entity = parseEntity(parsed.type, parsed.content)
+  ): Promise<FullEntity> {
     // if (entity.content.uid) {
     //   throw new Error('Setting the uid manually is not supported.')
     // }
@@ -231,15 +225,15 @@ export class Repo {
       uid = createEntityId()
     }
 
-    // entity.content.uid = uid
+    setUid(entity, uid)
 
     // check relations
     const { missing } = await this.checkRelations(uid, entity, false)
     if (missing.length) {
-      const { fetched } = await this.dsr.fetchEntities(missing)
+      const { fetched, notFound } = await this.dsr.fetchEntities(missing)
       // TODO: circular..
       for (const entity of fetched) {
-        await this.saveEntity(agentUid, entity)
+        await this.saveEntity(agentUid, entity, entity)
       }
     }
 
@@ -275,24 +269,17 @@ export class Repo {
       revisionCid: revisionCid.toString(),
     }
     return {
+      ...entity,
       revision,
-      content: entity.content,
-      type: revision.entityType,
-      uid: revision.uid,
-    } as Entity
+    }
   }
 
   // TODO: We do unchecked type mangling here.
   private async saveEntityUnchecked(
-    revision: Revision,
-    content: any,
+    entity: FullEntity
   ): Promise<void> {
-    const input = {
-      type: revision.entityType,
-      content,
-    } as repco.EntityInput
-    await this.saveRevision(revision)
-    await this.updateDomainView(revision.uid, revision.id, input)
+    await this.saveRevision(entity.revision)
+    await this.updateDomainView(entity)
   }
 
   async ensureAgent(uid: string) {
@@ -328,15 +315,12 @@ export class Repo {
     ])
   }
   async updateDomainView(
-    uid: string,
-    revisionId: string,
-    entity: repco.EntityInput,
+    entity: FullEntity
   ) {
-    // const entity = (await this.blockstore.get(CID.parse(revision.contentCid))) as repco.EntityInput
     const domainUpsertPromise = repco.upsertEntity(
       this.prisma,
-      uid,
-      revisionId,
+      entity.content.uid,
+      entity.revision.id,
       entity,
     )
     await domainUpsertPromise
@@ -456,7 +440,7 @@ export class Repo {
       return this.resolveContent(revision, bytes) as EntityMaybeContent<T>
     } else {
       return {
-        type: revision.entityType as Entity['type'],
+        type: revision.entityType as FullEntity['type'],
         revision,
       } as EntityMaybeContent<T>
     }
@@ -465,12 +449,12 @@ export class Repo {
   resolveContent(
     revision: Revision,
     contentBytes: Buffer | Uint8Array,
-  ): Entity {
-    const content = this.blockstore.parse(contentBytes)
+  ): FullEntity {
+    const rawContent = this.blockstore.parse(contentBytes)
+    const entity = parseEntity(revision.entityType, rawContent)
+    setUid(entity, revision.uid)
     return {
-      type: revision.entityType,
-      uid: revision.uid,
-      content,
+      ...entity,
       revision,
     }
   }
@@ -506,6 +490,24 @@ const entityForm = z.object({
 })
 
 export type RevisionWithoutCid = Omit<Revision, 'revisionCid'>
+
+function setUid(input: repco.EntityInput, uid: string): asserts input is repco.EntityInputWithUid {
+  input.content.uid = uid
+}
+
+class BatchState {
+  counter = 0
+  visited: Set<string> = new Set()
+  unvisited: Set<string> = new Set()
+  missing: Set<string> = new Set()
+
+  uriUid: Map<string, string> = new Map()
+  uidUris: Map<string, string[]> = new Map()
+
+  // pending: string[] = []
+  // notFound: string[] = []
+  // found: string[] = []
+}
 
 // const headerModelWithDefaults = headerModel.default({
 //   dateModified: null,

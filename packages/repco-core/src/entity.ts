@@ -28,21 +28,25 @@ export type EntityBatch = {
 
 export type EntityForm = repco.EntityInput & Headers
 
-export type Entity = {
-  type: string
-  uid: string
-  content: Record<string, unknown>
+export type FullEntity = repco.EntityInputWithUid & {
   revision: Revision
 }
 
+// export type Entity = {
+//   type: string
+//   uid: string
+//   content: Record<string, unknown>
+//   revision: Revision
+// }
+
 export type EntityMaybeContent<T extends boolean = true> = T extends true
-  ? Entity
+  ? FullEntity
   : T extends false
-  ? Omit<Entity, 'content'>
+  ? Omit<FullEntity, 'content'>
   : never
 
 export type EntityRevision = repco.EntityOutput & {
-  revision: Omit<Revision, 'content'>
+  revision: Revision
 }
 
 // export type RevisionForm = {
