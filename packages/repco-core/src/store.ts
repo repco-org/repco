@@ -38,6 +38,7 @@ export async function storeEntityWithDataSourceFallback(
 ) {
   const repo = new Repo(prisma, repoUid)
   repo.dsr = datasources
+  await repo.ensureCreated()
   return await repo.saveEntity('me', input, input)
 }
 
