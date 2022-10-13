@@ -7054,7 +7054,7 @@ type Revision {
     orderBy: [EntitiesOrderBy!] = [PRIMARY_KEY_ASC]
   ): RevisionEntitiesByMetadatumRevisionIdAndTargetUidManyToManyConnection!
   entityType: String!
-  entityUid: String!
+  uid: String!
   entityUris: [String]
 
   """Reads and enables pagination through a set of `File`."""
@@ -7686,8 +7686,8 @@ input RevisionCondition {
   """Checks for equality with the object’s `entityType` field."""
   entityType: String
 
-  """Checks for equality with the object’s `entityUid` field."""
-  entityUid: String
+  """Checks for equality with the object’s `uid` field."""
+  uid: String
 
   """Checks for equality with the object’s `entityUris` field."""
   entityUris: [String]
@@ -8166,8 +8166,8 @@ input RevisionFilter {
   """Filter by the object’s `entityType` field."""
   entityType: StringFilter
 
-  """Filter by the object’s `entityUid` field."""
-  entityUid: StringFilter
+  """Filter by the object’s `uid` field."""
+  uid: StringFilter
 
   """Filter by the object’s `entityUris` field."""
   entityUris: StringListFilter

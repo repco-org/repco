@@ -41,9 +41,7 @@ async function main() {
         'https://www.freie-radios.net/portal/podcast.php?rss&anzahl=3&start=20',
     }),
   )
-  dsr.register(
-    new CbaDataSource()
-  )
+  dsr.register(new CbaDataSource())
   if (command === 'ingest') {
     for (const ds of dsr.all()) {
       console.log(
@@ -88,7 +86,7 @@ async function loadAndLogAllEntities(prisma: PrismaClient) {
 }
 
 async function loadAndlogAllContentItems(prisma: PrismaClient) {
-  const revision = {
+  const Revision = {
     select: {
       id: true,
       created: true,
@@ -97,17 +95,17 @@ async function loadAndlogAllContentItems(prisma: PrismaClient) {
   }
   const entities = await prisma.contentItem.findMany({
     include: {
-      mediaAssets: {
+      MediaAssets: {
         include: {
-          file: {
+          File: {
             include: {
-              revision,
+              Revision,
             },
           },
-          revision,
+          Revision,
         },
       },
-      revision,
+      Revision,
     },
   })
   console.log(JSON.stringify(entities, null, 2))

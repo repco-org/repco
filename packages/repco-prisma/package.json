@@ -21,7 +21,8 @@
   "dependencies": {
     "@prisma/client": "^3.14.0",
     "dotenv-cli": "^6.0.0",
-    "zod": "^3.17.3"
+    "zod": "^3.19",
+    "repco-common": "*"
   },
   "devDependencies": {
     "@types/node": "^17.0.34",

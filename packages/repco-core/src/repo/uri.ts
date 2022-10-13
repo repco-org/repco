@@ -1,12 +1,17 @@
-export type URIComponentsRepco = { entityUid: string }
-// export type URIComponentsRepco = { entityUid: string } | { revisionId: string }
 export type URIComponentsBase = { uri: string; scheme: URI }
+export type URIComponentsRepco = { uid: string }
+import * as common from 'repco-common/zod'
+
+// export type URIComponentsDns = { authority: string, path: string }
+// export type URIComponentsIpfs = { cid: string, path: string }
+// export type URIScheme = 'repco' | 'dns' | 'ipfs'
 export type URIScheme = 'repco' | 'uri'
 
 export type URIComponents = {
-  scheme: URIScheme
   uri: string
+  scheme: URIScheme
   repco?: URIComponentsRepco
+  // dns?: URIComponentsDns
 }
 
 export class URI {
@@ -16,12 +21,10 @@ export class URI {
 
   static parse(uri: string): URI {
     if (uri.startsWith('repco:e:')) {
-      const entityUid = uri.substring(8)
-      return new URI({ uri, scheme: 'repco', repco: { entityUid } })
+      const uid = uri.substring(8)
+      return new URI({ uri, scheme: 'repco', repco: { uid } })
     }
-    // if (uri.startsWith('repco:r:')) {
-    //   const revisionId = uri.substring(8)
-    //   return { uri, scheme: 'repco', repco: { revisionId } }
+    // if (uri.startsWith('dns:')) {
     // }
     return new URI({ uri, scheme: 'uri' })
   }
@@ -30,10 +33,20 @@ export class URI {
     const uri = 'repco:e:' + uid
     return new URI(uri)
   }
-  
-  static fromURL(url: string | URL) {
-    return new URI(url.toString())
+
+  static fromURI(uri: string | URL) {
+    return new URI(uri.toString())
   }
+
+  static fromLink(link: common.Link) {
+    if (link.uid) return URI.fromEntity(link.uid)
+    if (link.uri) return URI.fromURI(link.uri)
+    throw new Error('Link is empty.')
+  }
+
+  // static fromDNS(authority: string, path: string) {
+  //   return new URI({ scheme: 'dns', authority, path })
+  // }
 
   static fromUUID(uuid: string) {
     return new URI('uuid:' + uuid)

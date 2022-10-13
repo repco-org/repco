@@ -1,12 +1,13 @@
+import * as common from 'repco-common/zod'
 import * as z from 'zod'
 import {
   Block,
   extractRelations,
+  parseEntity,
   Prisma,
   PrismaClient,
   repco,
   Revision,
-  validateEntity,
 } from 'repco-prisma'
 import { Readable } from 'streamx'
 import { DataSourceRegistry } from './datasource.js'
@@ -20,10 +21,11 @@ const REVISION_SELECT = {
   id: true,
   entityType: true,
   dateCreated: true,
-  entityUid: true,
+  uid: true,
 }
 
 type RevisionFilter = {
+  from?: string
   type?: string[]
 }
 
@@ -105,12 +107,40 @@ export class Repo {
     this.blockstore = new PrimsaIpldBlockStore(prisma)
   }
 
+  async ensureCreated() {
+    const data = { uid: this.uid }
+    await this.prisma.repo.upsert({
+      where: { uid: this.uid },
+      create: data,
+      update: data,
+    })
+  }
+
   createRevisionStream(from = '0', filter: RevisionFilter) {
     return new RevisionStream(this, false, from, filter)
   }
 
   createRevisionBatchStream(from = '0', filter: RevisionFilter) {
     return new RevisionStream(this, true, from, filter)
+  }
+
+  async fetchRevisionsWithContent(
+    filter: RevisionFilter = {},
+  ): Promise<Entity[]> {
+    const where: Prisma.RevisionWhereInput = {
+      repoUid: this.uid,
+    }
+    if (filter.from) {
+      where.id = { gt: filter.from }
+    }
+    if (filter.type) {
+      where.entityType = { in: filter.type }
+    }
+    const revisions = await this.prisma.revision.findMany({
+      where,
+      include: { ContentBlock: true },
+    })
+    return revisions.map((r) => this.maybeResolveContent(r, true))
   }
 
   async updateEntity(
@@ -128,15 +158,9 @@ export class Repo {
     input: unknown,
     headers: Headers = {},
   ): Promise<Entity> {
-    const { type, revision, content } = await this.checkAndPrepareEntity(
-      agentUid,
-      input,
-      headers,
-    )
-    return await this.saveEntityUnchecked(revision, {
-      type,
-      content,
-    } as repco.EntityInput)
+    const entity = await this.checkAndPrepareEntity(agentUid, input, headers)
+    await this.saveEntityUnchecked(entity.revision, entity.content)
+    return entity
   }
 
   async checkAndPrepareEntity(
@@ -145,10 +169,15 @@ export class Repo {
     headers: Headers = {},
   ): Promise<Entity> {
     const parsed = entityForm.parse(input)
-    const entity = validateEntity(parsed.type, parsed.content)
-    if (entity.content.uid) {
-      throw new Error('Setting the uid manually is not supported.')
-    }
+    console.log('input', input)
+    console.log('headers', headers)
+    console.log('parsed', parsed)
+    // set temp uid
+    ;(parsed.content as any).uid = '_'
+    const entity = parseEntity(parsed.type, parsed.content)
+    // if (entity.content.uid) {
+    //   throw new Error('Setting the uid manually is not supported.')
+    // }
 
     // check for existing revision by revision uri
     if (headers.revisionUris?.length) {
@@ -161,11 +190,9 @@ export class Repo {
       if (existing) return existing
     }
 
-    // check relations
-    await this.checkRelations(entity, true)
-
     // check for previous revision
     let prevRevision
+    let uid = entity.content.uid
     if (headers.prevRevisionId) {
       prevRevision = await this.prisma.revision.findUnique({
         where: { id: headers.prevRevisionId },
@@ -190,21 +217,33 @@ export class Repo {
           `Type mismatch: Previous revision has type ${prevRevision.entityType} and input has type ${entity.type}`,
         )
       }
-      if (entity.content.uid && entity.content.uid !== prevRevision.entityUid) {
+      if (uid && uid !== prevRevision.uid) {
         throw new Error(
-          `Uid mismatch: Previous revision has uid ${prevRevision.entityUid} and input has type ${entity.content.uid}`,
+          `Uid mismatch: Previous revision has uid ${prevRevision.uid} and input has type ${entity.content.uid}`,
         )
       }
 
       headers.dateCreated = prevRevision.dateCreated
       headers.prevRevisionId = prevRevision.id
-      entity.content.uid = prevRevision.entityUid
+      uid = prevRevision.uid
     } else {
       headers.prevRevisionId = null
-      entity.content.uid = createEntityId()
+      uid = createEntityId()
     }
 
-    const contentCid = await this.blockstore.put(entity)
+    // entity.content.uid = uid
+
+    // check relations
+    const { missing } = await this.checkRelations(uid, entity, false)
+    if (missing.length) {
+      const { fetched } = await this.dsr.fetchEntities(missing)
+      // TODO: circular..
+      for (const entity of fetched) {
+        await this.saveEntity(agentUid, entity)
+      }
+    }
+
+    const contentCid = await this.blockstore.put(entity.content)
     // check for existing revision by encoded content cid
     const existing = await this.getUnique(
       { contentCid: contentCid.toString() },
@@ -221,7 +260,7 @@ export class Repo {
       prevRevisionId: headers.prevRevisionId || null,
       contentCid: contentCid.toString(),
       entityType: entity.type,
-      entityUid: entity.content.uid,
+      uid,
       repoUid: this.uid,
       agentUid,
       revisionUris: headers.revisionUris || [],
@@ -230,128 +269,162 @@ export class Repo {
       dateModified: headers.dateModified || new Date(),
       dateCreated: headers.dateCreated || new Date(),
     }
-    const revisionCid = this.blockstore.put(revisionWithoutCid)
+    const revisionCid = await this.blockstore.put(revisionWithoutCid)
     const revision: Revision = {
       ...revisionWithoutCid,
       revisionCid: revisionCid.toString(),
     }
-    return { revision, content: entity.content, type: revision.entityType } as Entity
-  }
-
-  async saveEntityUnchecked(revision: Revision, entity: repco.EntityInput) {
-    await this.saveRevision(revision)
-    await this.updateDomainView(revision.id, entity)
-
-    const ret = {
-      type: revision.entityType,
+    return {
       revision,
       content: entity.content,
-    }
-    return ret
+      type: revision.entityType,
+      uid: revision.uid,
+    } as Entity
+  }
+
+  // TODO: We do unchecked type mangling here.
+  private async saveEntityUnchecked(
+    revision: Revision,
+    content: any,
+  ): Promise<void> {
+    const input = {
+      type: revision.entityType,
+      content,
+    } as repco.EntityInput
+    await this.saveRevision(revision)
+    await this.updateDomainView(revision.uid, revision.id, input)
+  }
+
+  async ensureAgent(uid: string) {
+    await this.prisma.agent.upsert({
+      where: { uid },
+      create: { uid },
+      update: { uid },
+    })
   }
 
   async saveRevision(revision: Revision): Promise<void> {
+    await this.ensureAgent(revision.agentUid)
     const entityUpsert = {
-      uid: revision.entityUid,
+      uid: revision.uid,
       revisionId: revision.id,
       type: revision.entityType,
     }
+    console.log('blocks', await this.prisma.block.findMany())
+    console.log('save', revision)
     await this.prisma.$transaction([
       this.prisma.revision.create({
-        data: revision,
-        select: {},
+        data: {
+          ...revision,
+        },
+        select: { id: true },
       }),
       this.prisma.entity.upsert({
-        where: { uid: revision.entityUid },
+        where: { uid: revision.uid },
         create: entityUpsert,
         update: entityUpsert,
-        select: {},
+        select: { uid: true },
       }),
     ])
   }
-  async updateDomainView(revisionId: string, entity: repco.EntityInput) {
+  async updateDomainView(
+    uid: string,
+    revisionId: string,
+    entity: repco.EntityInput,
+  ) {
     // const entity = (await this.blockstore.get(CID.parse(revision.contentCid))) as repco.EntityInput
-    const domainUpsertPromise = repco.upsertEntity2(
+    const domainUpsertPromise = repco.upsertEntity(
       this.prisma,
-      entity,
+      uid,
       revisionId,
+      entity,
     )
     await domainUpsertPromise
   }
 
+  async fetchMissingRelations(missing: string[]) {}
+
   async checkRelations(
+    uid: string,
     entity: repco.EntityInput,
     strict: boolean,
-  ): Promise<repco.EntityInput> {
+  ): Promise<{ entity: repco.EntityInput; missing: string[] }> {
     // check relations
-    const relations = extractRelations(entity).filter((x) => x.values)
-    const values = relations.reduce(
-      (list, cur) => [...list, ...(cur.values || [])],
-      [] as string[],
+    const relations = extractRelations({ uid, ...entity }).filter(
+      (x) => x.values,
     )
-    const entityUids = []
-    const entityUris = []
-    for (const value of values) {
-      const uri = URI.parse(value)
-      if (uri.repco) {
-        entityUids.push(uri.repco.entityUid)
-      } else {
-        entityUris.push(uri.uri)
+    const links = relations.reduce(
+      (list, cur) => [...list, ...(cur.values || [])],
+      [] as common.Link[],
+    )
+    const uids: string[] = []
+    const uris: string[] = []
+    for (const link of links) {
+      if (link.uid) {
+        uids.push(link.uid)
+      } else if (link.uri) {
+        uris.push(link.uri)
       }
     }
     const map: Record<string, string> = {}
-    if (entityUris.length) {
+    if (uris.length) {
       const res = await this.prisma.revision.findMany({
-        where: { entityUris: { hasSome: entityUris } },
-        select: { entityUid: true, entityUris: true },
+        where: { entityUris: { hasSome: uris } },
+        select: { uid: true, entityUris: true },
       })
       for (const row of res) {
         for (const uri of row.entityUris) {
-          map[uri] = row.entityUid
+          map[uri] = row.uid
         }
       }
     }
-    if (entityUids.length) {
+    if (uids.length) {
       const res = await this.prisma.revision.findMany({
-        where: { entityUid: { in: entityUids } },
-        select: { entityUid: true },
+        where: { uid: { in: uids } },
+        select: { uid: true },
       })
       for (const row of res) {
-        map[URI.fromEntity(row.entityUid).toString()] = row.entityUid
+        const uri = URI.fromEntity(row.uid).toString()
+        map[uri] = row.uid
       }
     }
 
+    const missing = []
     for (const relation of relations) {
       if (!relation.values) continue
       for (const [i, value] of relation.values.entries()) {
-        if (!map[value]) {
+        // try {
+        const uri = URI.fromLink(value).toString()
+        const uid = map[uri]
+        if (!uid) {
           if (strict) {
-            throw new RelationNotFoundError(value, relation)
+            throw new RelationNotFoundError(uri, relation)
           } else {
             // in non-strict mode allow references to repco entities
             // others are skipped
             // TODO: record missing uris in database
-            const uri = URI.parse(value)
-            if (uri.repco) {
-              map[value] = uri.toString()
-            }
+            // const uri = URI.parse(value)
+            // if (uri.repco) {
+            //   map[value] = uri.toString()
+            // }
+            missing.push(uri)
           }
         }
         if (relation.isList) {
-          ;(entity as any).content[relation.fieldName][i] = map[value]
+          ;(entity as any).content[relation.fieldName][i] = { uid }
         } else {
-          ;(entity as any).content[relation.fieldName] = map[value]
+          ;(entity as any).content[relation.fieldName] = { uid }
         }
       }
     }
-    return entity
+    return { entity, missing }
   }
 
   async getUnique<T extends boolean>(
     where: Prisma.RevisionWhereUniqueInput,
     includeContent: T,
   ): Promise<EntityMaybeContent<T> | null> {
-    const include = includeContent ? { RevisionBlock: true } : null
+    const include = includeContent ? { ContentBlock: true } : null
     const revision = await this.prisma.revision.findUnique({
       where,
       include,
@@ -364,7 +437,7 @@ export class Repo {
     where: Prisma.RevisionWhereInput,
     includeContent: T,
   ): Promise<EntityMaybeContent<T> | null> {
-    const include = includeContent ? { RevisionBlock: true } : null
+    const include = includeContent ? { ContentBlock: true } : null
     const revision = await this.prisma.revision.findFirst({
       where,
       include,
@@ -374,12 +447,12 @@ export class Repo {
   }
 
   maybeResolveContent<T extends boolean>(
-    revision: Revision & { RevisionBlock?: Block },
+    revision: Revision & { ContentBlock?: Block },
     includeContent: T,
   ): EntityMaybeContent<T> {
-    if (includeContent && revision.RevisionBlock) {
-      const bytes = revision.RevisionBlock.bytes
-      revision.RevisionBlock = undefined
+    if (includeContent && revision.ContentBlock) {
+      const bytes = revision.ContentBlock.bytes
+      revision.ContentBlock = undefined
       return this.resolveContent(revision, bytes) as EntityMaybeContent<T>
     } else {
       return {
@@ -395,9 +468,10 @@ export class Repo {
   ): Entity {
     const content = this.blockstore.parse(contentBytes)
     return {
-      type: revision.entityType as Entity['type'],
-      content: content as Entity['content'],
-      revision: revision,
+      type: revision.entityType,
+      uid: revision.uid,
+      content,
+      revision,
     }
   }
 
@@ -408,12 +482,14 @@ export class Repo {
 }
 
 export class RelationNotFoundError extends Error {
-  constructor(public value: string, public relation: repco.Relation) {
+  constructor(public value: string, public relation: common.Relation) {
     super(`Related entity not found: ${value} on ${relation.fieldName}`)
   }
 }
 
 const headerModel = z.object({
+  // TODO: uid / did
+  agent: z.string().nullish(),
   dateModified: z.date().nullish(),
   dateCreated: z.date().nullish(),
   revisionUris: z.array(z.string()).optional(),
@@ -421,6 +497,16 @@ const headerModel = z.object({
   prevRevisionId: z.string().nullish(),
   isDeleted: z.string().nullish(),
 })
+export interface Headers extends z.infer<typeof headerModel> {}
+
+const entityForm = z.object({
+  type: z.string(),
+  content: z.object({}).passthrough(),
+  headers: headerModel.nullish(),
+})
+
+export type RevisionWithoutCid = Omit<Revision, 'revisionCid'>
+
 // const headerModelWithDefaults = headerModel.default({
 //   dateModified: null,
 //   dateCreated: null,
@@ -429,8 +515,6 @@ const headerModel = z.object({
 //   prevRevisionId: null,
 //   isDeleted: null,
 // })
-export interface Headers extends z.infer<typeof headerModel> {}
-
 // const headerModel = z.object({
 //   dateModified: z.date().nullish().default(null),
 //   dateCreated: z.date().nullish().default(null),
@@ -440,26 +524,17 @@ export interface Headers extends z.infer<typeof headerModel> {}
 //   isDeleted: z.string().nullish().default(null),
 // })
 
-const entityForm = z.object({
-  type: z.string(),
-  content: z.object({}),
-  headers: headerModel.nullish(),
-})
+// interface EntityForm extends z.infer<typeof entityForm> {}
+// type IncludeArg<T> = T extends true
+//   ? Prisma.RevisionInclude
+//   : T extends false
+//   ? null
+//   : never
 
-interface EntityForm extends z.infer<typeof entityForm> {}
-
-type IncludeArg<T> = T extends true
-  ? Prisma.RevisionInclude
-  : T extends false
-  ? null
-  : never
-
-function includeArg<U extends boolean>(includeContent: U): IncludeArg<U> {
-  if (includeContent) {
-    return { RevisionBlock: true } as IncludeArg<U>
-  } else {
-    return null as IncludeArg<U>
-  }
-}
-
-export type RevisionWithoutCid = Omit<Revision, 'revisionCid'>
+// function includeArg<U extends boolean>(includeContent: U): IncludeArg<U> {
+//   if (includeContent) {
+//     return { ContentBlock: true } as IncludeArg<U>
+//   } else {
+//     return null as IncludeArg<U>
+//   }
+// }
