@@ -32,12 +32,12 @@ class TestDataSource extends BaseDataSource implements DataSource {
     entities.push({
       type: 'ContentItem',
       content: {
-        uid: 'urn:test:content:1',
         title: 'Test1',
-        mediaAssets: ['urn:test:media:1'],
+        MediaAssets: [{ uri: 'urn:test:media:1' }],
         content: 'helloworld',
         contentFormat: 'text/plain',
       },
+      entityUris: ['urn:test:content:1'],
     })
     return {
       cursor: nextCursor,
@@ -50,9 +50,9 @@ class TestDataSource extends BaseDataSource implements DataSource {
         {
           type: 'File',
           content: {
-            uid: 'urn:test:file:1',
             contentUrl: 'http://example.org/file1.mp3',
           },
+          entityUris: ['urn:test:file:1'],
         },
       ]
     }
@@ -61,11 +61,11 @@ class TestDataSource extends BaseDataSource implements DataSource {
         {
           type: 'MediaAsset',
           content: {
-            uid: 'urn:test:media:1',
             title: 'Media1',
             mediaType: 'audio/mp3',
-            file: 'urn:test:file:1',
+            File: { uri: 'urn:test:file:1' },
           },
+          entityUris: ['urn:test:media:1'],
         },
       ]
     }
@@ -83,19 +83,19 @@ test('datasource', async (assert) => {
   const entities = await prisma.contentItem.findMany({
     where: { uid: 'urn:test:content:1' },
     include: {
-      mediaAssets: {
-        include: { file: true },
+      MediaAssets: {
+        include: { File: true },
       },
     },
   })
   assert.is(entities.length, 1)
   const entity = entities[0]
   assert.is(entity.uid, 'urn:test:content:1')
-  assert.is(entity.mediaAssets.length, 1)
-  assert.is(entity.mediaAssets[0].uid, 'urn:test:media:1'),
-    assert.is(entity.mediaAssets[0].file.uid, 'urn:test:file:1')
+  assert.is(entity.MediaAssets.length, 1)
+  assert.is(entity.MediaAssets[0].uid, 'urn:test:media:1'),
+    assert.is(entity.MediaAssets[0].File.uid, 'urn:test:file:1')
   assert.is(
-    entity.mediaAssets[0].file.contentUrl,
+    entity.MediaAssets[0].File.contentUrl,
     'http://example.org/file1.mp3',
   )
 })

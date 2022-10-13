@@ -1,11 +1,6 @@
 import test from 'brittle'
 import { setup } from './util/setup.js'
-import {
-  EntityForm,
-  fetchRevisions,
-  PrismaClient,
-  storeEntity,
-} from '../lib.js'
+import { EntityForm, PrismaClient } from '../lib.js'
 import {
   BaseDataSource,
   DataSource,
@@ -28,24 +23,24 @@ class TestDataSource extends BaseDataSource implements DataSource {
     return false
   }
 
-  get DATA (): Record<string, EntityForm> {
-    return { 
+  get DATA(): Record<string, EntityForm> {
+    return {
       'urn:repco:concept:1': {
         type: 'Concept',
         content: {
-          uid: 'urn:repco:concept:1',
           name: 'concept1',
-          sameAs: 'urn:repco:concept:2'
+          SameAs: { uri: 'urn:repco:concept:2' },
         },
+        entityUris: ['urn:repco:concept:1'],
       },
       'urn:repco:concept:2': {
         type: 'Concept',
         content: {
-          uid: 'urn:repco:concept:2',
           name: 'concept2',
-          sameAs: 'urn:repco:concept:1'
+          SameAs: { uri: 'urn:repco:concept:1' },
         },
-      }
+        entityUris: ['urn:repco:concept:1'],
+      },
     }
   }
 
@@ -57,7 +52,7 @@ class TestDataSource extends BaseDataSource implements DataSource {
       const nextCursor = '1'
       res = {
         cursor: nextCursor,
-        entities: [this.DATA['urn:repco:concept:1']]
+        entities: [this.DATA['urn:repco:concept:1']],
       }
     }
     console.log('fetchUpdates', cursor, res)
@@ -65,7 +60,7 @@ class TestDataSource extends BaseDataSource implements DataSource {
   }
 
   async fetchByUID(uid: string): Promise<EntityForm[] | null> {
-    const res = [this.DATA[uid]].filter(x => x)
+    const res = [this.DATA[uid]].filter((x) => x)
     console.log('fetchByUid', uid, res)
     return res
   }

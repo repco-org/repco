@@ -6,27 +6,17 @@ import {
   StructureKind,
   VariableDeclarationKind,
 } from 'ts-morph'
+import { firstLower } from './util.js'
 
-// export function generateZodTypes (model: DMMF.Datamodel, sourceFile: SourceFile) {
-//
 export const writeArray = (
   writer: CodeBlockWriter,
   array: string[],
   newLine = true,
 ) => array.forEach((line) => writer.write(line).conditionalNewLine(newLine))
 
+const SKIP_FIELDS = new Set(['revisionId', 'Revision'])
+
 function writeHelpers(sourceFile: SourceFile) {
-  sourceFile.addStatements((writer) => {
-    writer.newLine()
-    writeArray(writer, [
-      '// Helper schema for JSON fields',
-      `type Literal = boolean | number | string`,
-      'type Json = Literal | { [key: string]: Json } | Json[]',
-      `const literalSchema = z.union([z.string(), z.number(), z.boolean()])`,
-      'const jsonSchema: z.ZodSchema<Json> = z.lazy(() => z.union([literalSchema, z.array(jsonSchema), z.record(jsonSchema)]))',
-      `const uid = z.string().regex(/^urn:[a-z0-9][a-z0-9-]{0,31}:[a-z0-9()+,\\-.:=@;$_!*'%/?#]+$/)`,
-    ])
-  })
   // sourceFile.addStatements((writer) => {
   //   writer.newLine()
   //   writeArray(writer, [
@@ -57,6 +47,11 @@ export function generateZodInputs(
       namespaceImport: 'z',
       moduleSpecifier: 'zod',
     },
+    {
+      kind: StructureKind.ImportDeclaration,
+      namespaceImport: 'common',
+      moduleSpecifier: 'repco-common/zod',
+    },
   ]
   const enumFields = datamodel.models
     .map((x) => x.fields)
@@ -72,13 +67,14 @@ export function generateZodInputs(
   writeHelpers(sourceFile)
 
   for (const model of datamodel.models) {
+    const parserName = firstLower(model.name)
     sourceFile.addVariableStatement({
       declarationKind: VariableDeclarationKind.Const,
       isExported: true,
       leadingTrivia: (writer) => writer.blankLineIfLastNot(),
       declarations: [
         {
-          name: model.name + 'Model',
+          name: parserName,
           initializer(writer) {
             writer
               .write('z.object(')
@@ -86,10 +82,14 @@ export function generateZodInputs(
                 model.fields
                   // .filter((f) => f.kind !== 'object')
                   .filter((f) => !f.isReadOnly)
-                  .filter((f) => f.name !== 'revisionId')
-                  .filter((f) => f.name !== 'revision')
+                  // remove fields that are explicitly skipped
+                  .filter((f) => !SKIP_FIELDS.has(f.name))
+                  // remove Uid fields, because we add the references themselves
+                  // .filter((f) => !f.name.endsWith('Uid'))
                   .forEach((field) => {
-                    writeArray(writer, getJSDocs(field.documentation))
+                    writeArray(writer, intoJsDoc(field.documentation))
+                    // lowercase (for references)
+                    // const name = firstLower(field.name)
                     writer
                       .write(`${field.name}: ${getZodConstructor(field)}`)
                       .write(',')
@@ -105,12 +105,7 @@ export function generateZodInputs(
     sourceFile.addInterface({
       name: `${model.name}Input`,
       isExported: true,
-      extends: [`z.infer<typeof ${model.name}Model>`],
-      // properties: relationFields.map((f) => ({
-      //   hasQuestionToken: !f.isRequired,
-      //   name: f.name,
-      //   type: `Complete${f.type}${f.isList ? '[]' : ''}${!f.isRequired ? ' | null' : ''}`,
-      // })),
+      extends: [`z.infer<typeof ${firstLower(model.name)}>`],
     })
   }
 }
@@ -122,7 +117,7 @@ export function getZodConstructor(field: DMMF.Field) {
     switch (field.type) {
       case 'String':
         if (field.isId) {
-          zodType = 'uid'
+          zodType = 'common.uid.nullish()'
         } else {
           zodType = 'z.string()'
         }
@@ -144,40 +139,41 @@ export function getZodConstructor(field: DMMF.Field) {
         zodType = 'z.number()'
         break
       case 'Json':
-        zodType = 'jsonSchema'
+        zodType = 'common.json'
         break
       case 'Boolean':
         zodType = 'z.boolean()'
         break
       // TODO: Proper type for bytes fields
       case 'Bytes':
-        zodType = 'z.unknown()'
+        zodType = 'common.bytes'
         break
     }
   } else if (field.kind === 'enum') {
     zodType = `z.nativeEnum(${field.type})`
   } else if (field.kind === 'object') {
-    zodType = `uid`
+    zodType = `common.link`
     // zodType = getRelatedModelName(field.type)
   }
 
   if (field.isList) extraModifiers.push('array()')
-  // if (field.documentation) {
-  //   zodType = computeCustomSchema(field.documentation) ?? zodType
-  //   extraModifiers.push(...computeModifiers(field.documentation))
-  // }
   if (
     (!field.isRequired && field.type !== 'Json') ||
     (field.kind === 'object' && field.isList)
   ) {
     extraModifiers.push('nullish()')
   }
+
   // if (field.hasDefaultValue) extraModifiers.push('optional()')
+  // if (field.documentation) {
+  //   zodType = computeCustomSchema(field.documentation) ?? zodType
+  //   extraModifiers.push(...computeModifiers(field.documentation))
+  // }
 
   return `${zodType}${extraModifiers.join('.')}`
 }
 
-export const getJSDocs = (docString?: string) => {
+export const intoJsDoc = (docString?: string) => {
   const lines: string[] = []
 
   if (docString) {

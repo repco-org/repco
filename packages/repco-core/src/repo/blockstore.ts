@@ -1,7 +1,7 @@
 import * as codec from '@ipld/dag-cbor'
-import * as Block from 'multiformats/block.js'
+import * as Block from 'multiformats/block'
 import { blake2b256 as hasher } from '@multiformats/blake2/blake2b'
-import { CID } from 'multiformats/cid.js'
+import { CID } from 'multiformats/cid'
 // import { sha256 as hasher } from 'multiformats/hashes/sha2'
 import { PrismaClient } from 'repco-prisma'
 
@@ -76,7 +76,7 @@ export class PrimsaIpldBlockStore
   }
 
   async putBytes(cid: CID, bytes: Uint8Array): Promise<void> {
-    this.prisma.block.create({
+    await this.prisma.block.create({
       data: {
         cid: cid.toString(),
         bytes: Buffer.from(bytes),

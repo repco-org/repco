@@ -1,7 +1,4 @@
-import {
-  FileInput,
-  MediaAssetInput,
-} from 'repco-prisma/dist/generated/repco/index.js'
+import { form } from 'repco-prisma'
 import { fetch } from 'undici'
 import { CbaPost, CbaSeries } from './cba/types.js'
 import {
@@ -182,28 +179,36 @@ export class CbaDataSource implements DataSource {
     const fileId = this._urn('file', media.id)
     const mediaId = this._urn('media', media.id)
     const details = media.media_details
-    const file: FileInput = {
-      uid: fileId,
+    const file: form.FileInput = {
+      // uid: fileId,
       contentUrl: media.source_url,
       bitrate: details?.bitrate || null,
-      additionalMetadata: null,
+      // additionalMetadata: null,
       codec: null,
       // contentSize: null,
       duration: details?.duration || null,
       mimeType: media.mime_type,
-      multihash: null,
+      cid: null,
       resolution: null,
     }
-    const asset: MediaAssetInput = {
-      uid: mediaId,
-      file: fileId,
+    const asset: form.MediaAssetInput = {
+      // uid: mediaId,
       title: media.title.rendered,
       duration: file.duration,
       description: media.description?.rendered || null,
       mediaType: 'audio',
+      File: { uri: fileId },
     }
-    const fileEntity: EntityForm = { type: 'File', content: file }
-    const mediaEntity: EntityForm = { type: 'MediaAsset', content: asset }
+    const fileEntity: EntityForm = {
+      type: 'File',
+      content: file,
+      entityUris: [fileId],
+    }
+    const mediaEntity: EntityForm = {
+      type: 'MediaAsset',
+      content: asset,
+      entityUris: [mediaId],
+    }
     return {
       uid: mediaId,
       entities: [fileEntity, mediaEntity],
@@ -212,7 +217,6 @@ export class CbaDataSource implements DataSource {
 
   private _mapSeries(series: CbaSeries): EntityForm[] {
     const content = {
-      uid: this._urn('series', series.id),
       title: series.title.rendered,
       description: series.content.rendered,
       groupingType: 'show',
@@ -228,15 +232,16 @@ export class CbaDataSource implements DataSource {
       series.id,
       new Date(series.modified).getTime(),
     )
-    const revision = {
-      alternativeIds: [revisionId],
+    const uri = this._urn('series', series.id)
+    const headers = {
+      revisionUris: [revisionId],
+      entityUris: [uri],
     }
-    return [{ type: 'ContentGrouping', content, revision }]
+    return [{ type: 'ContentGrouping', content, ...headers }]
   }
 
   private _mapPost(post: CbaPost): EntityForm[] {
     const content = {
-      uid: this._urn('post', post.id),
       content: post.content.rendered,
       contentFormat: 'text/html',
       title: post.title.rendered,
@@ -251,10 +256,12 @@ export class CbaDataSource implements DataSource {
       post.id,
       new Date(post.modified).getTime(),
     )
-    const revision = {
-      alternativeIds: [revisionId],
+    const entityUri = this._urn('post', post.id)
+    const headers = {
+      revisionUris: [revisionId],
+      entityUris: [entityUri],
     }
-    return [{ type: 'ContentItem', content, revision }]
+    return [{ type: 'ContentItem', content, ...headers }]
   }
 
   private async _fetch<T = any>(

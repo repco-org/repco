@@ -17,23 +17,31 @@ function isRepcoEntity(model: DMMF.Model) {
 export function generateTypes(dmmf: DMMF.Document, file: SourceFile) {
   const imports = ['PrismaClient', 'PrismaPromise', 'Prisma']
   const entityModels = dmmf.datamodel.models.filter(isRepcoEntity)
-  for (const model of entityModels) {
-    generateModelTypes(model, file)
-    imports.push(model.name)
-  }
+  // for (const model of entityModels) {
+  //   // generateModelTypes(model, file)
+  //   imports.push(model.name)
+  // }
   file.addImportDeclaration({
     moduleSpecifier: '@prisma/client',
     namedImports: imports,
   })
   file.addImportDeclaration({
+    moduleSpecifier: '@prisma/client',
+    // namedImports: imports,
+    defaultImport: '* as prisma',
+  })
+  file.addImportDeclaration({
+    moduleSpecifier: 'repco-common/zod',
+    defaultImport: '* as common',
+  })
+  file.addImportDeclaration({
     // moduleSpecifier: '../zod/index.js',
     moduleSpecifier: './zod.js',
-    defaultImport: '* as zod',
+    defaultImport: '* as form',
   })
   generateEntityTypes(entityModels, file)
-  generateValidateFunction(entityModels, file)
+  generateParseFunction(entityModels, file)
   generateUpsertFunction(entityModels, file)
-  generateUpsertFunction2(entityModels, file)
   generateExtractRelationsFunction(entityModels, file)
 }
 
@@ -44,16 +52,21 @@ function generateEntityTypes(models: DMMF.Model[], file: SourceFile) {
     if (!isRepcoEntity(model)) continue
     inputTys.push(`{
 			type: "${model.name}",
-			content: ${model.name}Input
+			content: form.${model.name}Input
     }`)
     outputTys.push(`{
 			type: "${model.name}",
-			content: ${model.name}Output
+			content: prisma.${model.name}
     }`)
   }
   file.addTypeAlias({
     name: `EntityInput`,
     type: inputTys.join(' | '),
+    isExported: true,
+  })
+  file.addTypeAlias({
+    name: `EntityInputWithUid`,
+    type: `EntityInput & { uid: common.Uid }`,
     isExported: true,
   })
   file.addTypeAlias({
@@ -63,47 +76,46 @@ function generateEntityTypes(models: DMMF.Model[], file: SourceFile) {
   })
 }
 
-function generateModelTypes(model: DMMF.Model, file: SourceFile) {
-  const name = model.name
-  const uidFields = findUidFields(model)
-  const uidType = (field: DMMF.Field) => (field.isList ? 'string[]' : 'string')
-  const uidFieldTypes = uidFields.map(
-    (field) => `${field.name}?: ${uidType(field)};`,
-  )
+// function generateModelTypes(model: DMMF.Model, file: SourceFile) {
+//   const name = model.name
+//   const uidFields = findReferences(model)
+//   const uidType = (field: DMMF.Field) => (field.isList ? 'string[]' : 'string')
+//   const uidFieldTypes = uidFields.map(
+//   //   (field) => `${field.name}?: ${uidType(field)};`,
+//   // )
 
-  const inputDecl = `zod.${model.name}Input`
-  // let inputDecl
-  // if (hasRevisionId(model)) {
-  //   inputDecl = `Omit<Prisma.${name}CreateInput, "revision">`
-  // } else {
-  //   inputDecl = `Prisma.${name}CreateInput`
-  // }
-  // if (uidFieldTypes.length) inputDecl += ` & {\n${uidFieldTypes.join('\n')}\n}`
+//   // const inputDecl = `zod.${model.name}Input`
+//   // let inputDecl
+//   // if (hasRevisionId(model)) {
+//   //   inputDecl = `Omit<Prisma.${name}CreateInput, "revision">`
+//   // } else {
+//   //   inputDecl = `Prisma.${name}CreateInput`
+//   // }
+//   // if (uidFieldTypes.length) inputDecl += ` & {\n${uidFieldTypes.join('\n')}\n}`
 
-  let outputDecl = name
-  if (uidFieldTypes.length) outputDecl += ` & {\n${uidFieldTypes.join('\n')}\n}`
+//   // let outputDecl = name
+//   // if (uidFieldTypes.length) outputDecl += ` & {\n${uidFieldTypes.join('\n')}\n}`
+//   // file.addTypeAlias({
+//   //   name: `${model.name}Input`,
+//   //   type: inputDecl,
+//   //   isExported: true,
+//   // })
 
-  file.addTypeAlias({
-    name: `${model.name}Input`,
-    type: inputDecl,
-    isExported: true,
-  })
+//   // file.addTypeAlias({
+//   //   name: `${model.name}Output`,
+//   //   type: outputDecl,
+//   //   isExported: true,
+//   // })
+// }
 
-  file.addTypeAlias({
-    name: `${model.name}Output`,
-    type: outputDecl,
-    isExported: true,
-  })
-}
-
-function generateValidateFunction(models: DMMF.Model[], file: SourceFile) {
-  let code = `input.revisionId = revisionId
-		switch (type) {`
+function generateParseFunction (models: DMMF.Model[], file: SourceFile) {
+  let code = `switch (type) {`
   for (const model of models) {
+    const parser = lowerName(model)
     code += `
 			case '${model.name}': {
-				zod.${model.name}Model.parse(input)
-				return { type, content: input } as EntityInput
+				const content = form.${parser}.parse(input)
+				return { type, content } as EntityInput
 			}`
   }
   code += `
@@ -115,11 +127,11 @@ function generateValidateFunction(models: DMMF.Model[], file: SourceFile) {
 
   file.addFunction({
     isExported: true,
-    name: 'validateEntity',
+    name: 'parseEntity',
     parameters: [
       { name: 'type', type: 'string' },
-      { name: 'input', type: 'any' },
-      { name: 'revisionId', type: 'string', hasQuestionToken: true },
+      { name: 'input', type: 'unknown' },
+      // { name: 'revisionId', type: 'string', hasQuestionToken: true },
     ],
     returnType: 'EntityInput',
     statements: code,
@@ -131,12 +143,10 @@ function generateExtractRelationsFunction(
   file: SourceFile,
 ) {
   let code = `
-    const type = input.type
-    const uid = input.content.uid
-    switch (type) {
+    switch (input.type) {
   `
   for (const model of models) {
-    const uidFields = findUidFields(model)
+    const uidFields = findReferences(model)
     let inner = ``
     if (uidFields.length) {
       for (const field of uidFields) {
@@ -147,8 +157,10 @@ function generateExtractRelationsFunction(
         inner += `
           if (${path} !== undefined && ${path} !== null) {
             relations.push({
+              fromType: input.type,
+              fromUid: input.uid,
               fieldName: '${field.name}',
-              targetType: '${field.type}',
+              toType: '${field.type}',
               isList: ${JSON.stringify(field.isList)},
               values: ${values}
             })
@@ -158,8 +170,8 @@ function generateExtractRelationsFunction(
     }
     code += `
 			case '${model.name}': {
-        const relations: Relation[] = []
-        const content = input.content as ${model.name}Input
+        const relations: common.Relation[] = []
+        const content = input.content as form.${model.name}Input
         ${inner}
         return relations
       }
@@ -167,25 +179,14 @@ function generateExtractRelationsFunction(
   }
   code += `
 		  default:
-				throw new Error('Unsupported entity type: ' + type)
+				throw new Error('Unsupported entity type: ' + input.type)
 		}`
-  file.addTypeAlias({
-    name: `Relation`,
-    type: `{
-      fieldName: string,
-      targetType: string,
-      values?: string[],
-      isList: boolean
-    }`,
-    isExported: true,
-  })
   file.addTypeAlias({
     name: `EntityLike`,
     type: `{
       type: string,
-      content: {
-        uid: string
-      },
+      uid: string,
+      content: any,
     }`,
     isExported: true,
   })
@@ -194,7 +195,7 @@ function generateExtractRelationsFunction(
     isAsync: false,
     name: 'extractRelations',
     parameters: [{ name: 'input', type: 'EntityLike' }],
-    returnType: 'Relation[]',
+    returnType: 'common.Relation[]',
     statements: code,
   })
 }
@@ -206,109 +207,45 @@ function lowerName(model: DMMF.Model): string {
 function generateUpsertFunction(models: DMMF.Model[], file: SourceFile) {
   let code = `
 	const type = input.type
-	const uid = input.content.uid
-	let entity: EntityOutput
-	switch (type) {`
-  for (const model of models) {
-    const uidFields = findUidFields(model)
-    let transform = ``
-    if (uidFields.length) {
-      for (const field of uidFields) {
-        // if (field.relationFromFields) {
-        //   for (const uidFieldName of field.relationFromFields) {
-        //     transform += `${uidFieldName}: undefined,`
-        //   }
-        // }
-        const path = `input.content.${field.name}`
-        let inner
-        if (field.isList) {
-          inner = `${path}?.map(uid => ({ uid }))`
-        } else {
-          inner = `{ uid: ${path}! }`
-        }
-        transform += `
-					${field.name}: ${path} ? {
-						connect: ${inner}
-          } : {},`
-      }
-    }
-    code += `
-			case '${model.name}': {
-        const data = {
-          ...input.content,
-          revisionId: undefined,
-          revision: { create: revision },
-          ${transform}
-        }
-				const content = await prisma.${lowerName(model)}.upsert({
-					where: { uid },
-					create: data,
-					update: data
-				})
-				entity = { type, content }
-				break;
-			}
-			`
-  }
-  code += `
-		  default:
-				throw new Error('Unsupported entity type: ' + type)
-		}
-		return entity`
-  file.addFunction({
-    isExported: true,
-    isAsync: true,
-    name: 'upsertEntity',
-    parameters: [
-      { name: 'prisma', type: 'PrismaClient' },
-      { name: 'input', type: 'EntityInput' },
-      { name: 'revision', type: 'Prisma.RevisionCreateInput' },
-    ],
-    returnType: 'Promise<EntityOutput>',
-    statements: code,
-  })
-}
+  switch (type) {
+    `
 
-function generateUpsertFunction2(models: DMMF.Model[], file: SourceFile) {
-  let code = `
-	const type = input.type
-	const uid = input.content.uid
-	switch (type) {`
   for (const model of models) {
-    const uidFields = findUidFields(model)
-    let transform = ``
+    const uidFields = findReferences(model)
+    let transform = ''
+    // This code enables a transformation that would change the input data model to accept
+    // ids on the field names without `Uid` suffix. This also changes the prisma data type
+    // to the XORed Unchecked input.
     if (uidFields.length) {
       for (const field of uidFields) {
-        // if (field.relationFromFields) {
-        //   for (const uidFieldName of field.relationFromFields) {
-        //     transform += `${uidFieldName}: undefined,`
-        //   }
-        // }
         const path = `input.content.${field.name}`
+        // transform += `
+        // ${field.name}: undefined,
+        // `
         let inner
         if (field.isList) {
-          inner = `${path}?.map(uid => ({ uid }))`
+          inner = `${path}.filter(link => link.uid).map(link => ({ uid: link.uid }))`
         } else {
-          inner = `{ uid: ${path}! }`
+          inner = `{ uid: ${path}.uid }`
         }
         transform += `
-					${field.name}: ${path} ? {
-						connect: ${inner}
-          } : {},`
+          ${field.name}: ${path} ? { connect: ${inner} } : {},`
       }
     }
     code += `
+          // Revision: { connect: { id: revisionId }},
 			case '${model.name}': {
         const data = {
           ...input.content,
-          revision: { connect: { id: revisionId }},
+          uid,
+          Revision: { connect: { id: revisionId }},
           ${transform}
         }
 				return prisma.${lowerName(model)}.upsert({
 					where: { uid },
 					create: data,
           update: data,
-          select: {}
+          select: { uid: true }
 				})
 			}
 			`
@@ -321,11 +258,12 @@ function generateUpsertFunction2(models: DMMF.Model[], file: SourceFile) {
   file.addFunction({
     isExported: true,
     // isAsync: true,
-    name: 'upsertEntity2',
+    name: 'upsertEntity',
     parameters: [
       { name: 'prisma', type: 'PrismaClient' },
-      { name: 'input', type: 'EntityInput' },
+      { name: 'uid', type: 'string' },
       { name: 'revisionId', type: 'string' },
+      { name: 'input', type: 'EntityInput' },
     ],
     returnType: 'PrismaPromise<any>',
     statements: code,
@@ -336,7 +274,7 @@ function generateUpsertFunction2(models: DMMF.Model[], file: SourceFile) {
 //   return !!model.fields.find((field) => field.name === 'revisionId')
 // }
 
-function findUidFields(model: DMMF.Model): DMMF.Field[] {
+function findReferences(model: DMMF.Model): DMMF.Field[] {
   const res = []
   for (const field of model.fields) {
     if (
@@ -351,3 +289,73 @@ function findUidFields(model: DMMF.Model): DMMF.Field[] {
   }
   return res
 }
+
+// function generateUpsertFunction(models: DMMF.Model[], file: SourceFile) {
+//   let code = `
+//   const type = input.type
+//   const uid = input.content.uid
+//   switch (type) {`
+//   for (const model of models) {
+//     const uidFields = findReferences(model)
+//     let transform = ``
+//     // This code enables a transformation that would change the input data model to accept
+//     // ids on the field names without `Uid` suffix. This also changes the prisma data type
+//     // to the XORed Unchecked input.
+//     if (uidFields.length) {
+//       for (const field of uidFields) {
+//     //     // if (field.relationFromFields) {
+//     //     //   for (const uidFieldName of field.relationFromFields) {
+//     //     //     transform += `${uidFieldName}: undefined,`
+//     //     //   }
+//     //     // }
+//         const path = `input.content.${field.name}`
+//         transform += `
+//         ${field.name}: undefined
+//         `
+//     //     let inner
+//     //     if (field.isList) {
+//     //       inner = `${path}?.map(uid => ({ uid }))`
+//     //     } else {
+//     //       inner = `{ uid: ${path}! }`
+//     //     }
+//     //     transform += `
+//     //       ${field.name}: ${path} ? {
+//     //         connect: ${inner}
+//     //       } : {},`
+//     //   }
+//     }
+//     code += `
+//           // Revision: { connect: { id: revisionId }},
+//       case '${model.name}': {
+//         const data = {
+//           ...input.content,
+//           revisionId,
+//           ${transform}
+//         }
+//         return prisma.${lowerName(model)}.upsert({
+//           where: { uid },
+//           create: data,
+//           update: data,
+//           select: { uid: true }
+//         })
+//       }
+//       `
+//   }
+//   code += `
+//       default:
+//         throw new Error('Unsupported entity type: ' + type)
+//     }
+//     `
+//   file.addFunction({
+//     isExported: true,
+//     // isAsync: true,
+//     name: 'upsertEntity',
+//     parameters: [
+//       { name: 'prisma', type: 'PrismaClient' },
+//       { name: 'input', type: 'EntityInput' },
+//       { name: 'revisionId', type: 'string' },
+//     ],
+//     returnType: 'PrismaPromise<any>',
+//     statements: code,
+//   })
+// }

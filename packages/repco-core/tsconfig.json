@@ -12,6 +12,9 @@
   "references": [
     {
       "path": "../repco-prisma"
+    },
+    {
+      "path": "../repco-common"
     }
   ]
 }

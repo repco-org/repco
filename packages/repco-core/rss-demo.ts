@@ -23,17 +23,17 @@ async function main() {
 
   const next = async (cursor: string | null) => {
     const batch = await ds.fetchUpdates(cursor)
-    console.log(
-      'entities',
-      batch.entities
-        .filter((x) => x.type === 'ContentItem')
-        .map(
-          (e) =>
-            `${e.content.uid} ${
-              e.type === 'ContentItem' ? e.content.pubDate : ''
-            }`,
-        ),
-    )
+    // console.log(
+    //   'entities',
+    //   batch.entities
+    //     .filter((x) => x.type === 'ContentItem')
+    //     .map(
+    //       (e) =>
+    //         `${e.content.uid} ${
+    //           e.type === 'ContentItem' ? e.content.pubDate : ''
+    //         }`,
+    //     ),
+    // )
     console.log('nextCursor', batch.cursor)
     return batch.cursor
   }

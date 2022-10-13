@@ -90,6 +90,25 @@ export class DataSourceRegistry {
     }
     return matching
   }
+
+  async fetchEntities(uris: string[]) {
+    const fetched: EntityForm[] = []
+    const missing = uris
+    for (const uri of uris) {
+      const matchingSources = this.getForUID(uri)
+      let found = false
+      for (const datasource of matchingSources) {
+        const entities = await datasource.fetchByUID(uri)
+        if (entities && entities.length) {
+          fetched.push(...entities)
+          found = true
+          break
+        }
+      }
+      if (!found) missing.push(uri)
+    }
+    return { fetched, missing }
+  }
 }
 
 export type IngestResult = Record<
@@ -157,8 +176,7 @@ export async function storeEntityBatchFromDataSource(
   batch: EntityBatch,
 ) {
   for (const entity of batch.entities) {
-    if (!entity.revision) entity.revision = {}
-    entity.revision.datasource = datasource.definition.uid
+    entity.agent = datasource.definition.uid
     // console.log('IN', entity)
     const stored = await storeEntityWithDataSourceFallback(
       prisma,

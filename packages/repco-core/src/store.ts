@@ -3,20 +3,13 @@
  * ![diagram](packages/repco-core/diagrams/store.png)
  */
 
-import {
-  extractRelations,
-  repco,
-  upsertEntity,
-  validateEntity,
-} from 'repco-prisma'
 import type { DataSourceRegistry } from './datasource.js'
+import { EntityForm } from './entity.js'
+import { Prisma, PrismaClient } from './prisma.js'
 import { Repo } from './repo.js'
-import { AnyEntityContent, Entity, EntityForm } from './entity.js'
-import { createRevisionId } from './helpers/id.js'
-import { Prisma, PrismaClient, Revision } from './prisma.js'
 
-export type Relation = repco.Relation
-export type EntityInput = repco.EntityInput
+// export type Relation = repco.Relation
+// export type EntityInput = repco.EntityInput
 
 export type FetchRevisionOpts = {
   from?: string
@@ -37,7 +30,6 @@ export async function fetchRevisions(
   return revisions
 }
 
-
 export async function storeEntityWithDataSourceFallback(
   prisma: PrismaClient,
   datasources: DataSourceRegistry,
@@ -46,9 +38,8 @@ export async function storeEntityWithDataSourceFallback(
 ) {
   const repo = new Repo(prisma, repoUid)
   repo.dsr = datasources
-  return await repo.saveEntity('me', input)
+  return await repo.saveEntity('me', input, input)
 }
-
 
 // export async function storeEntityWithDataSourceFallback(
 //   prisma: PrismaClient,

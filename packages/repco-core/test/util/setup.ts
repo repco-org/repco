@@ -26,7 +26,7 @@ export async function setup(test: Test) {
   await spawn('yarn', ['prisma', 'migrate', 'reset', '-f', '--skip-generate'], {
     cwd: '../repco-prisma',
     log: test.comment,
-    stdio: 'inherit'
+    stdio: 'inherit',
   })
 }
 
