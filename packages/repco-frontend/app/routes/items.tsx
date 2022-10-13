@@ -45,6 +45,7 @@ export const loader: LoaderFunction = ({ request }) => {
   const order = url.searchParams.get('order') || 'TITLE_ASC'
   return graphqlQuery<LoadContentItemsQuery, LoadContentItemsQueryVariables>(
     QUERY,
+    //TODO: fix type-error
     { first: 10, after: cursor, orderBy: order },
   )
 }
@@ -68,12 +69,13 @@ export default function IndexRoute() {
 
   const [page, setPage] = useState<string | null>()
   const [order, setOrder] = useState('')
-  const [fetchOrder, setFetchOrder] = useState('')
+  const [shouldFetchOrder, setShouldFetchOrder] = useState(false)
+
   const [shouldFetch, setShouldFetch] = useState(false)
-  const [orderFetcher, setOrderFetcher] = useState(false)
   const [scrollPosition, setScrollPosition] = useState(0)
   const [clientHeight, setClientHeight] = useState(0)
   const [height, setHeight] = useState(null)
+
   const fetcher = useFetcher()
 
   // Set the height of the parent container
@@ -113,14 +115,11 @@ export default function IndexRoute() {
     })
     setShouldFetch(true)
   }, [order, page])
-
+  //fetch if order changes
   useEffect(() => {
-    console.log(order)
     fetcher.load(`/items?order=${order}`)
-    //   // setNodes(fetcher.data.data.contentItems.nodes)
-    //   setFetchOrder(false)
-  }, [order])
-
+  }, [shouldFetchOrder])
+  // loads next page
   useEffect(() => {
     if (!shouldFetch || !height) return
     if (clientHeight + scrollPosition < height) return
@@ -131,7 +130,7 @@ export default function IndexRoute() {
     console.log(fetcher)
     setShouldFetch(false)
   }, [searchParams, clientHeight, scrollPosition, fetcher])
-
+  //merge data
   useEffect(() => {
     console.log('FETCHER', fetcher.data)
     if (fetcher.data && fetcher.data.length === 0) {
@@ -142,10 +141,9 @@ export default function IndexRoute() {
     if (fetcher.data) {
       if (!fetcher.data.data.contentItems) return
       setPageInfo(fetcher.data.data.contentItems.pageInfo)
-      console.log('ORDERFETCHER', orderFetcher)
-      if (orderFetcher) {
+      if (shouldFetchOrder) {
         setNodes(fetcher.data.data.contentItems.nodes)
-        setOrderFetcher(false)
+        setShouldFetchOrder(false)
       } else {
         setNodes((prevNodes: any) => [
           ...prevNodes,
@@ -161,7 +159,7 @@ export default function IndexRoute() {
     <main>
       <button
         onClick={() => {
-          setOrder('TITLE_DESC'), setOrderFetcher(true)
+          setOrder('TITLE_DESC'), setShouldFetchOrder(true)
         }}
       >
         OrderBy
