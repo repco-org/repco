@@ -1,9 +1,10 @@
 import type { LoaderFunction } from '@remix-run/node'
 import {
   Link,
+  NavLink,
+  Outlet,
   useFetcher,
   useLoaderData,
-  useSearchParams,
 } from '@remix-run/react'
 import { gql } from '@urql/core'
 import { useCallback, useEffect, useState } from 'react'
@@ -42,50 +43,38 @@ type LoaderData = { data: LoadContentItemsQuery }
 export const loader: LoaderFunction = ({ request }) => {
   const url = new URL(request.url)
   const cursor = url.searchParams.get('page') || null
-  const order = url.searchParams.get('order') || 'TITLE_ASC'
+  const orderBy = url.searchParams.get('orderBy') || 'TITLE_DESC'
   return graphqlQuery<LoadContentItemsQuery, LoadContentItemsQueryVariables>(
     QUERY,
     //TODO: fix type-error
-    { first: 10, after: cursor, orderBy: order },
+    { first: 10, after: cursor, orderBy: orderBy },
   )
 }
 
-export default function IndexRoute() {
+export default function Items() {
   const { data } = useLoaderData<LoaderData>()
+  const [pageInfo, setPageInfo] = useState(data.contentItems?.pageInfo)
+  const [nodes, setNodes] = useState(data.contentItems?.nodes)
+  const fetcher = useFetcher()
 
-  if (!data) {
-    return 'Ooops, something went wrong :('
-  }
-  if (!data.contentItems) {
-    return 'No content items'
-  }
-  if (!data.contentItems.pageInfo) {
-    return 'Whats going on?'
-  }
-
-  const [pageInfo, setPageInfo] = useState(data.contentItems.pageInfo)
-  const [nodes, setNodes] = useState(data.contentItems.nodes)
-  const [searchParams, setSearchParams] = useSearchParams()
-
-  const [page, setPage] = useState<string | null>()
-  const [order, setOrder] = useState('')
-  const [shouldFetchOrder, setShouldFetchOrder] = useState(false)
-
-  const [shouldFetch, setShouldFetch] = useState(false)
+  const [orderBy, setOrderBy] = useState('')
+  const [shouldfetchOrderBy, setShouldFetchOrderBy] = useState(false)
+  const [initFetch, setInitFetch] = useState(false)
   const [scrollPosition, setScrollPosition] = useState(0)
   const [clientHeight, setClientHeight] = useState(0)
   const [height, setHeight] = useState(null)
 
-  const fetcher = useFetcher()
+  const [shouldFetch, setShouldFetch] = useState(true)
+  const [page, setPage] = useState('')
 
-  // Set the height of the parent container
+  // Set the height of the parent container whenever photos are loaded
   const divHeight = useCallback(
     (node: any) => {
       if (node !== null) {
         setHeight(node.getBoundingClientRect().height)
       }
     },
-    [nodes.length],
+    [nodes?.length],
   )
 
   // Add Listeners to scroll and client resize
@@ -108,42 +97,41 @@ export default function IndexRoute() {
     }
   }, [])
 
+  // Listen on scrolls. Fire on some self-described breakpoint
   useEffect(() => {
-    setSearchParams({
-      page: page || '',
-      order: order,
-    })
-    setShouldFetch(true)
-  }, [order, page])
-  //fetch if order changes
-  useEffect(() => {
-    fetcher.load(`/items?order=${order}`)
-  }, [shouldFetchOrder])
-  // loads next page
-  useEffect(() => {
+    if (shouldfetchOrderBy && initFetch) {
+      setPage('')
+      fetcher.load(`/items?page=&orderBy=${orderBy}`)
+
+      setShouldFetchOrderBy(false)
+    }
     if (!shouldFetch || !height) return
     if (clientHeight + scrollPosition < height) return
-    if (!pageInfo.hasNextPage) return
-    setOrder(order)
-    setPage(pageInfo.endCursor)
-    fetcher.load(`/items?page=${page}&order=${order}`)
-    console.log(fetcher)
+    if (shouldfetchOrderBy) {
+      fetcher.load(`/items?page=${pageInfo?.endCursor}&orderBy=${orderBy}`)
+    } else {
+      fetcher.load(`/items?page=${pageInfo?.endCursor}`)
+    }
+    setShouldFetchOrderBy(false)
+
     setShouldFetch(false)
-  }, [searchParams, clientHeight, scrollPosition, fetcher])
-  //merge data
+  }, [clientHeight, scrollPosition, fetcher, orderBy])
+
+  // Merge nodes, increment page, and allow fetching again
   useEffect(() => {
-    console.log('FETCHER', fetcher.data)
+    // Discontinue API calls if the last page has been reached
     if (fetcher.data && fetcher.data.length === 0) {
       setShouldFetch(false)
+      setShouldFetchOrderBy(false)
       return
     }
 
+    // Nodes contain data, merge them and allow the possiblity of another fetch
     if (fetcher.data) {
-      if (!fetcher.data.data.contentItems) return
-      setPageInfo(fetcher.data.data.contentItems.pageInfo)
-      if (shouldFetchOrder) {
+      if (initFetch) {
         setNodes(fetcher.data.data.contentItems.nodes)
-        setShouldFetchOrder(false)
+        setInitFetch(false)
+        setShouldFetchOrderBy(true)
       } else {
         setNodes((prevNodes: any) => [
           ...prevNodes,
@@ -151,38 +139,76 @@ export default function IndexRoute() {
         ])
       }
 
-      setShouldFetch(true)
+      setPageInfo(fetcher.data.data.contentItems.pageInfo)
+      setPage(pageInfo?.endCursor || '')
+      console.log(
+        pageInfo?.hasNextPage,
+        fetcher.data.data.contentItems.pageInfo.hasNextPage,
+      )
+      if (
+        pageInfo?.hasNextPage ||
+        fetcher.data.data.contentItems.pageInfo.hasNextPage
+      ) {
+        setShouldFetch(true)
+      }
     }
   }, [fetcher.data])
-
   return (
-    <main>
-      <button
-        onClick={() => {
-          setOrder('TITLE_DESC'), setShouldFetchOrder(true)
-        }}
-      >
-        OrderBy
-      </button>
-      <button
-        onClick={() => {
-          setOrder(order), setPage(pageInfo.endCursor)
-        }}
-      >
-        both
-      </button>
-      <div ref={divHeight}>
-        <ul>
-          {nodes.map((node, i) => (
-            <li key={i}>
-              <h2>
-                <Link to={`/item/${node.uid}`}>{node.title}</Link>
-              </h2>
-              <SanitizedHTML allowedTags={['a', 'p']} html={node.summary} />
-            </li>
-          ))}
-        </ul>
+    <div>
+      <div>
+        <Link to="/">Home</Link>
+        <button
+          onClick={() => {
+            setShouldFetchOrderBy(true)
+            if (orderBy === 'TITLE_ASC') {
+              setOrderBy('TITLE_DESC')
+            } else {
+              setOrderBy('TITLE_ASC')
+            }
+            setInitFetch(true)
+          }}
+        >
+          OrderBy
+        </button>
       </div>
-    </main>
+      <div className="container">
+        <div className="fixed" ref={divHeight}>
+          <table className="table">
+            <tr>
+              <th>Nr</th>
+              <th>UID</th>
+              <th>Title</th>
+              <th>Summary</th>
+            </tr>
+            {nodes.map((node: any, index: any) => {
+              return (
+                <tr
+                  key={node.uid}
+                  //TODO: my a better UX
+                  //onClick={() => {window.open(`/item/${node.uid}`)}}
+                >
+                  <td>{index + 1}</td>
+                  <td>
+                    <NavLink prefetch="render" to={`/items/item/${node.uid}`}>
+                      {node.uid}
+                    </NavLink>
+                  </td>
+                  <td>{node.title}</td>
+                  <td>
+                    <SanitizedHTML
+                      allowedTags={['a', 'p']}
+                      html={node.summary}
+                    />
+                  </td>
+                </tr>
+              )
+            })}
+          </table>
+        </div>
+        <div className="flex-item">
+          <Outlet />
+        </div>
+      </div>
+    </div>
   )
 }
