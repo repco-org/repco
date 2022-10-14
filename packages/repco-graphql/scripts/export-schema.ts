@@ -1,6 +1,5 @@
-import fs from 'fs/promises'
-import p from 'path'
 import Dotenv from 'dotenv'
+import fs from 'fs/promises'
 import { printSchema } from 'graphql'
 import { createGraphQlSchema } from '../src/lib.js'
 

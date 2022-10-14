@@ -1,10 +1,11 @@
 import * as dotenv from 'dotenv'
 import {
-  DataSources,
+  DataSourceRegistry,
   ingestUpdatesFromDataSources,
   saveCursor,
 } from './datasource.js'
 import { CbaDataSource } from './datasources/cba.js'
+import { RssDataSource } from './datasources/rss.js'
 import { PrismaClient } from './prisma.js'
 
 const USAGE = `Usage: node example.js <COMMAND>
@@ -32,7 +33,14 @@ async function main() {
   // prisma.$on('query', async (e: Prisma.QueryEvent) => {
   //   console.log(`${e.query} ${e.params}`)
   // })
-  const dsr = new DataSources()
+  const dsr = new DataSourceRegistry()
+  // dsr.register(new CbaDataSource())
+  dsr.register(
+    new RssDataSource({
+      endpoint:
+        'https://www.freie-radios.net/portal/podcast.php?rss&anzahl=3&start=20',
+    }),
+  )
   dsr.register(new CbaDataSource())
   if (command === 'ingest') {
     for (const ds of dsr.all()) {
@@ -40,15 +48,10 @@ async function main() {
         `Ingest updates from \`${ds.definition.uid}\` ("${ds.definition.name}")`,
       )
     }
-    const countAndCursor = await ingestUpdatesFromDataSources(prisma, dsr)
-
-    for (const ds of dsr.all()) {
+    const allResults = await ingestUpdatesFromDataSources(prisma, dsr)
+    for (const [uid, res] of Object.entries(allResults)) {
       console.log(
-        `Ingested ${
-          countAndCursor[ds.definition.uid].count
-        } new revisions. New cursor: ${
-          countAndCursor[ds.definition.uid].cursor
-        }. Datasource ("${ds.definition.name}")`,
+        `${uid}: Ingested ${res.count} new revisions. New cursor: ${res.cursor}`,
       )
     }
   } else if (command === 'log-content-items') {

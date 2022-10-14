@@ -1,32 +1,17 @@
 import { EntityBatch, EntityForm } from './entity.js'
-import { PrismaClient, Prisma } from './prisma.js'
+import { PrismaClient } from './prisma.js'
 import { UID } from './shared.js'
 import { storeEntityWithDataSourceFallback } from './store.js'
-
-export type DataSourceDefinition = {
-  // The unique ID for this data source instance.
-  uid: UID
-  // The human-readable name of the data source instance (e.g. "CBA")
-  name: string
-  // A primary endpoint URL for this data source.
-  // url: string
-  pluginUid: UID
-}
 
 export type DataSourcePluginDefinition = {
   // The unique ID for this data source instance.
   uid: UID
   // The human-readable name of the data source instance (e.g. "CBA")
   name: string
-  // A primary endpoint URL for this data source.
-  // url: string
 }
 
-/**
- * Static methods on a DataSource class.
- */
-export interface DataSourcePlugin {
-  createInstance(config: any): DataSource
+export interface DataSourcePlugin<C = any> {
+  createInstance(config: C): DataSource
   get definition(): DataSourcePluginDefinition
 }
 
@@ -46,7 +31,15 @@ export class DataSourcePluginRegistry {
   }
 }
 
-export type DataSourceConstructor = (config: any) => DataSource
+export type DataSourceDefinition = {
+  // The unique ID for this data source instance.
+  uid: UID
+  // The human-readable name of the data source instance (e.g. "CBA")
+  name: string
+  // A primary endpoint URL for this data source.
+  // url: string
+  pluginUid: UID
+}
 
 /**
  * A DataSource is an external provider for repco data.
@@ -68,7 +61,7 @@ export abstract class BaseDataSource {
   }
 }
 
-export class DataSources {
+export class DataSourceRegistry {
   map: Map<string, DataSource> = new Map()
 
   get(uid: string): DataSource | null {
@@ -109,7 +102,7 @@ export type IngestResult = Record<
 
 export async function ingestUpdatesFromDataSources(
   prisma: PrismaClient,
-  datasources: DataSources,
+  datasources: DataSourceRegistry,
   maxIterations = 1,
 ): Promise<IngestResult> {
   const res: IngestResult = {}
@@ -135,7 +128,7 @@ export async function ingestUpdatesFromDataSources(
  */
 export async function ingestUpdatesFromDataSource(
   prisma: PrismaClient,
-  datasources: DataSources,
+  datasources: DataSourceRegistry,
   datasource: DataSource,
   maxIterations = 1,
 ) {
@@ -159,14 +152,21 @@ export async function ingestUpdatesFromDataSource(
 
 export async function storeEntityBatchFromDataSource(
   prisma: PrismaClient,
-  datasources: DataSources,
+  datasources: DataSourceRegistry,
   datasource: DataSource,
   batch: EntityBatch,
 ) {
   for (const entity of batch.entities) {
     if (!entity.revision) entity.revision = {}
     entity.revision.datasource = datasource.definition.uid
-    await storeEntityWithDataSourceFallback(prisma, datasources, entity)
+    // console.log('IN', entity)
+    const stored = await storeEntityWithDataSourceFallback(
+      prisma,
+      datasources,
+      entity,
+    )
+    // console.log('rid', stored.revision.id)
+    // console.log('OUT', stored)
   }
 }
 

@@ -1,6 +1,6 @@
 import type { PageInfo } from '~/graphql/types.js'
 
-export function Pager({ pageInfo, url }: { pageInfo: PageInfo, url: string }) {
+export function Pager({ pageInfo, url }: { pageInfo: PageInfo; url: string }) {
   if (!pageInfo) return null
   const pager = {
     next: pageInfo.hasNextPage && `${url}?after=${pageInfo.endCursor}`,
@@ -8,8 +8,8 @@ export function Pager({ pageInfo, url }: { pageInfo: PageInfo, url: string }) {
   }
   return (
     <div>
-      {pager.next && <a href={pager.next}>Next page</a>}
-      {pager.prev && <a href={pager.prev}>Previous page</a>}
+      {pager.next && <a href={pager.next}>Load More</a>}
+      {pager.prev && <a href={pager.prev}>Back</a>}
     </div>
   )
 }

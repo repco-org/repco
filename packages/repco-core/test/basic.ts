@@ -5,10 +5,10 @@ import {
   fetchRevisions,
   PrismaClient,
   storeEntity,
-} from '../index.js'
+} from '../lib.js'
 
 test('smoke', async (assert) => {
-  await setup(assert.teardown)
+  await setup(assert)
   const prisma = new PrismaClient()
   const input: EntityForm = {
     type: 'ContentItem',
@@ -23,7 +23,7 @@ test('smoke', async (assert) => {
       summary: 'yoo',
     },
   }
-  await storeEntity(prisma, input)
+  await storeEntity(prisma, 'primary', input)
   const revisions = await fetchRevisions(prisma, {})
   assert.is(revisions.length, 1)
   const revision = revisions[0]

@@ -2,7 +2,8 @@ import PgManyToManyPlugin from '@graphile-contrib/pg-many-to-many'
 import SimplifyInflectorPlugin from '@graphile-contrib/pg-simplify-inflector'
 import ConnectionFilterPlugin from 'postgraphile-plugin-connection-filter'
 import { NodePlugin } from 'graphile-build'
-import { postgraphile, createPostGraphileSchema } from 'postgraphile'
+import { lexicographicSortSchema } from 'graphql'
+import { createPostGraphileSchema, postgraphile } from 'postgraphile'
 import ExportSchemaPlugin from './plugins/export-schema.js'
 // Change some inflection rules to better match our schema.
 import CustomInflector from './plugins/inflector.js'
@@ -10,20 +11,15 @@ import CustomInflector from './plugins/inflector.js'
 import CustomTags from './plugins/tags.js'
 // Add a resolver wrapper to add default pagination args
 import WrapResolversPlugin from './plugins/wrap-resolver.js'
-import { lexicographicSortSchema } from 'graphql'
 
 export { getSDL } from './plugins/export-schema.js'
 
-const PG_SCHEMA = 'repco'
+const PG_SCHEMA = 'public'
 
 // Create an GraphQL express middleware with Postgraphile
 // for a repco database.
 export function createGraphqlHandler(databaseUrl: string) {
-  return postgraphile(
-    databaseUrl,
-    PG_SCHEMA,
-    getPostGraphileOptions()
-  )
+  return postgraphile(databaseUrl, PG_SCHEMA, getPostGraphileOptions())
 }
 
 export async function createGraphQlSchema(databaseUrl: string) {
@@ -41,7 +37,7 @@ export function getPostGraphileOptions() {
     graphiql: true,
     enhanceGraphiql: true,
     disableDefaultMutations: true,
-    classicIds: true,
+    // classicIds: true,
     setofFunctionsContainNulls: false,
     skipPlugins: [NodePlugin],
     appendPlugins: [
@@ -59,7 +55,7 @@ export function getPostGraphileOptions() {
       connectionFilterComputedColumns: false,
       connectionFilterSetofFunctions: false,
       connectionFilterLists: false,
-      // connectionFilterRelations: true,
+      connectionFilterRelations: true,
     },
     watchPg: true,
     disableQueryLog: process.env.NODE_ENV !== 'development',

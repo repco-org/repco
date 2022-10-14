@@ -9,7 +9,7 @@ import {
   upsertEntity,
   validateEntity,
 } from 'repco-prisma'
-import type { DataSources } from './datasource.js'
+import type { DataSourceRegistry } from './datasource.js'
 import { AnyEntityContent, Entity, EntityForm } from './entity.js'
 import { createRevisionId } from './helpers/id.js'
 import { Prisma, PrismaClient, Revision } from './prisma.js'
@@ -19,11 +19,13 @@ export type EntityInput = repco.EntityInput
 
 export async function storeEntityWithDataSourceFallback(
   prisma: PrismaClient,
-  datasources: DataSources,
+  datasources: DataSourceRegistry,
   input: EntityForm,
+  repoUid = 'default',
 ): Promise<Entity> {
   try {
-    return await storeEntity(prisma, input)
+    const out = await storeEntity(prisma, repoUid, input)
+    return out
   } catch (err) {
     if (err instanceof MissingRelationsError) {
       await fetchAndStoreMissingRelations(
@@ -31,7 +33,7 @@ export async function storeEntityWithDataSourceFallback(
         datasources,
         err.missingRelations,
       )
-      return await storeEntity(prisma, input)
+      return await storeEntity(prisma, repoUid, input)
     } else {
       throw err
     }
@@ -40,7 +42,7 @@ export async function storeEntityWithDataSourceFallback(
 
 async function fetchAndStoreMissingRelations(
   prisma: PrismaClient,
-  datasources: DataSources,
+  datasources: DataSourceRegistry,
   missingRelations: Relation[],
 ): Promise<void> {
   for (const missingRelation of missingRelations) {
@@ -65,6 +67,7 @@ async function fetchAndStoreMissingRelations(
 
 export async function storeEntity(
   prisma: PrismaClient,
+  repoUid: string,
   input: EntityForm,
 ): Promise<Entity> {
   // check for an existing revision for the alternative ids provided
@@ -85,6 +88,7 @@ export async function storeEntity(
     prisma,
     input.content.uid,
   )
+
   const revisionId = createRevisionId(now)
   const revisionInput = {
     type: input.type,
@@ -93,8 +97,11 @@ export async function storeEntity(
     datasource: input.revision?.datasource || 'unknown',
     created: now,
     alternativeIds: input.revision?.alternativeIds || [],
-    previousRevisionId,
+    previousRevisionId: previousRevisionId || undefined,
     content: input.content as any,
+    repo: {
+      connectOrCreate: { where: { uid: repoUid }, create: { uid: repoUid } },
+    },
   }
   const { entity, revision } = await storeRevision(prisma, revisionInput)
   return {
