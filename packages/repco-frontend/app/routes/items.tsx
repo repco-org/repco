@@ -76,14 +76,16 @@ export default function Items() {
   const [orderBy, setOrderBy] = useState('')
   const [includes, setIncludes] = useState('')
   const [initFetch, setInitFetch] = useState(false)
+  //May there is a better way to do - with out this the search bugs
   const [searchField, setSearchField] = useState('')
+
   const [scrollPosition, setScrollPosition] = useState(0)
   const [clientHeight, setClientHeight] = useState(0)
   const [height, setHeight] = useState(null)
 
   const [shouldFetch, setShouldFetch] = useState(true)
-  const [page, setPage] = useState('')
 
+  //Following functions handle the click events for the buttons
   function orderByAscDesc(asc: string, desc: string) {
     setShouldFetch(true)
     orderBy.includes(asc) ? setOrderBy(desc) : setOrderBy(asc)
@@ -129,7 +131,6 @@ export default function Items() {
   // Listen on scrolls. Fire on some self-described breakpoint
   useEffect(() => {
     if ((shouldFetch || shouldFetch) && initFetch) {
-      setPage('')
       fetcher.load(`/items?page=&orderBy=${orderBy}&includes=${includes}`)
       setShouldFetch(false)
       return
@@ -172,7 +173,6 @@ export default function Items() {
       }
 
       setPageInfo(fetcher.data.data.contentItems.pageInfo)
-      setPage(pageInfo?.endCursor || '')
 
       if (
         pageInfo?.hasNextPage ||
