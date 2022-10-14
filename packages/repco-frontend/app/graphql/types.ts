@@ -4447,26 +4447,6 @@ export enum _ContributionToMediaAssetsOrderBy {
   Natural = 'NATURAL',
 }
 
-export type LoadContentItemsQueryVariables = Exact<{
-  first: InputMaybe<Scalars['Int']>
-  last: InputMaybe<Scalars['Int']>
-  after: InputMaybe<Scalars['Cursor']>
-  before: InputMaybe<Scalars['Cursor']>
-}>
-
-export type LoadContentItemsQuery = {
-  contentItems: {
-    totalCount: number
-    pageInfo: {
-      startCursor: string | null
-      endCursor: string | null
-      hasNextPage: boolean
-      hasPreviousPage: boolean
-    }
-    nodes: Array<{ title: string; uid: string; summary: string | null }>
-  } | null
-}
-
 export type LoadContentItemQueryVariables = Exact<{
   uid: Scalars['String']
 }>
@@ -4489,13 +4469,14 @@ export type LoadContentItemQuery = {
 
 export type LoadContentItemsQueryVariables = Exact<{
   first: InputMaybe<Scalars['Int']>
-  last: InputMaybe<Scalars['Int']>
   after: InputMaybe<Scalars['Cursor']>
-  before: InputMaybe<Scalars['Cursor']>
+  orderBy: InputMaybe<Array<ContentItemsOrderBy> | ContentItemsOrderBy>
+  includes: InputMaybe<Scalars['String']>
 }>
 
 export type LoadContentItemsQuery = {
   contentItems: {
+    totalCount: number
     pageInfo: {
       startCursor: string | null
       endCursor: string | null

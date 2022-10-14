@@ -51,7 +51,6 @@ export const loader: LoaderFunction = ({ request }) => {
   const cursor = url.searchParams.get('page') || null
   const orderBy = url.searchParams.get('orderBy') || 'TITLE_DESC'
   const includes = url.searchParams.get('includes') || ''
-  console.log(cursor, orderBy, includes)
   return graphqlQuery<LoadContentItemsQuery, LoadContentItemsQueryVariables>(
     QUERY,
     //TODO: fix type-error
@@ -61,39 +60,43 @@ export const loader: LoaderFunction = ({ request }) => {
 
 export default function Items() {
   const { data } = useLoaderData<LoaderData>()
-  const [pageInfo, setPageInfo] = useState(data.contentItems?.pageInfo)
-  const [nodes, setNodes] = useState(data.contentItems?.nodes)
+
+  if (!data) {
+    return 'Ooops, something went wrong :('
+  }
+  if (!data.contentItems) {
+    return 'No content items'
+  }
+
+  const [pageInfo, setPageInfo] = useState(data.contentItems.pageInfo)
+  const [nodes, setNodes] = useState(data.contentItems.nodes)
+
   const fetcher = useFetcher()
 
   const [orderBy, setOrderBy] = useState('')
-  const [shouldfetchOrderBy, setShouldFetchOrderBy] = useState(false)
+  const [includes, setIncludes] = useState('')
   const [initFetch, setInitFetch] = useState(false)
+
   const [scrollPosition, setScrollPosition] = useState(0)
   const [clientHeight, setClientHeight] = useState(0)
   const [height, setHeight] = useState(null)
 
-  const [includes, setIncludes] = useState('')
-  const [shouldFetchIncludes, setShouldFetchIncludes] = useState(false)
-
   const [shouldFetch, setShouldFetch] = useState(true)
   const [page, setPage] = useState('')
 
-  function orderByTitle() {
-    setShouldFetchOrderBy(true)
-    if (orderBy === 'TITLE_ASC') {
-      setOrderBy('TITLE_DESC')
-    } else {
-      setOrderBy('TITLE_ASC')
-    }
+  function orderByAscDesc(asc: string, desc: string) {
+    setShouldFetch(true)
+    orderBy.includes(asc) ? setOrderBy(desc) : setOrderBy(asc)
     setInitFetch(true)
   }
 
-  function includesSomething() {
-    setShouldFetchIncludes(true)
-    setIncludes('u')
+  function includesSearch() {
+    setShouldFetch(true)
+    setIncludes(includes)
     setInitFetch(true)
   }
-  // Set the height of the parent container whenever photos are loaded
+
+  // Set the height of the parent container whenever a container are loaded
   const divHeight = useCallback(
     (node: any) => {
       if (node !== null) {
@@ -125,30 +128,25 @@ export default function Items() {
 
   // Listen on scrolls. Fire on some self-described breakpoint
   useEffect(() => {
-    if ((shouldfetchOrderBy || shouldFetchIncludes) && initFetch) {
+    if ((shouldFetch || shouldFetch) && initFetch) {
       setPage('')
       fetcher.load(`/items?page=&orderBy=${orderBy}&includes=${includes}`)
-      setShouldFetchOrderBy(false)
-      setShouldFetchIncludes(false)
+      setShouldFetch(false)
       return
     }
 
     if (!shouldFetch || !height) return
-
     if (clientHeight + scrollPosition < height) return
-    console.log('WHAT IS TRUE ', shouldFetchIncludes, shouldfetchOrderBy)
 
-    if (shouldFetchIncludes || shouldfetchOrderBy) {
+    if (shouldFetch || shouldFetch) {
       fetcher.load(
         `/items?page=${pageInfo?.endCursor}&orderBy=${orderBy}&includes=${includes}`,
       )
-      setShouldFetchIncludes(false)
       setShouldFetch(false)
       return
     }
 
     fetcher.load(`/items?page=${pageInfo?.endCursor}`)
-    setShouldFetchOrderBy(false)
     setShouldFetch(false)
   }, [clientHeight, scrollPosition, fetcher, orderBy, includes])
 
@@ -157,8 +155,6 @@ export default function Items() {
     // Discontinue API calls if the last page has been reached
     if (fetcher.data && fetcher.data.length === 0) {
       setShouldFetch(false)
-      setShouldFetchOrderBy(false)
-      setShouldFetchIncludes(false)
       return
     }
 
@@ -167,9 +163,7 @@ export default function Items() {
       if (initFetch) {
         setNodes(fetcher.data.data.contentItems.nodes)
         setInitFetch(false)
-        //WHAT TO DO?
-        setShouldFetchIncludes(true)
-        setShouldFetchOrderBy(true)
+        setShouldFetch(true)
       } else {
         setNodes((prevNodes: any) => [
           ...prevNodes,
@@ -179,10 +173,7 @@ export default function Items() {
 
       setPageInfo(fetcher.data.data.contentItems.pageInfo)
       setPage(pageInfo?.endCursor || '')
-      // console.log(
-      //   pageInfo?.hasNextPage,
-      //   fetcher.data.data.contentItems.pageInfo.hasNextPage,
-      // )
+
       if (
         pageInfo?.hasNextPage ||
         fetcher.data.data.contentItems.pageInfo.hasNextPage
@@ -191,12 +182,21 @@ export default function Items() {
       }
     }
   }, [fetcher.data])
+
   return (
     <div>
       <div>
         <Link to="/">Home</Link>
-        <button onClick={() => orderByTitle()}>OrderBy</button>
-        <button onClick={() => includesSomething()}>Includes</button>
+        <button onClick={() => orderByAscDesc('TITLE_ASC', 'TITLE_DESC')}>
+          OrderBy
+        </button>
+        <input
+          type="text"
+          name="search"
+          placeholder="search"
+          onChange={(e) => setIncludes(e.target.value)}
+        />
+        <button onClick={() => includesSearch()}>Includes</button>
       </div>
       <div className="container">
         <div className="fixed" ref={divHeight}>

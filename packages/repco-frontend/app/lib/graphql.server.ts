@@ -4,23 +4,14 @@ import type {
   OperationResult,
   TypedDocumentNode,
 } from '@urql/core'
+import { createClient } from '@urql/core'
 import type { DocumentNode } from 'graphql'
-import type { LoadContentItemsQueryVariables } from '~/graphql/types.js'
+import { LoadContentItemsQueryVariables } from '~/graphql/types.js'
 
 export const graphqlClient = createClient({
   url: process.env.REPCO_URL || 'http://localhost:8765/graphql',
-  // exchanges: [
-  //   dedupExchange,
-  //   cacheExchange({
-  //     resolvers: {
-  //       Query: {
-  //         search: relayPagination(),
-  //       },
-  //     },
-  //   }),
-  //   fetchExchange,
-  // ],
 })
+
 export function graphqlQuery<
   Data = any,
   Variables extends AnyVariables = AnyVariables,
@@ -36,8 +27,8 @@ export function parsePagination(url: URL): LoadContentItemsQueryVariables {
   const after = url.searchParams.get('after')
   const before = url.searchParams.get('before')
   if (after && before) throw new Error('Invalid query arguments.')
-  const last = before ? 2 : null
-  const first = last ? null : 2
+  const last = before ? 10 : null
+  const first = last ? null : 10
   const variables = {
     first,
     last,
