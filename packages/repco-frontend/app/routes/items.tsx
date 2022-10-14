@@ -1,13 +1,12 @@
 import type { LoaderFunction } from '@remix-run/node'
-import {
-  Link,
-  NavLink,
-  Outlet,
-  useFetcher,
-  useLoaderData,
-} from '@remix-run/react'
+import { NavLink, useFetcher, useLoaderData } from '@remix-run/react'
 import { gql } from '@urql/core'
 import { useCallback, useEffect, useState } from 'react'
+import {
+  TiArrowSortedDown,
+  TiArrowSortedUp,
+  TiArrowUnsorted,
+} from 'react-icons/ti'
 import { SanitizedHTML } from '~/components/sanitized-html'
 import type {
   LoadContentItemsQuery,
@@ -87,6 +86,7 @@ export default function Items() {
 
   //Following functions handle the click events for the buttons
   function orderByAscDesc(asc: string, desc: string) {
+    setOrderBy('')
     setShouldFetch(true)
     orderBy.includes(asc) ? setOrderBy(desc) : setOrderBy(asc)
     setInitFetch(true)
@@ -185,56 +185,148 @@ export default function Items() {
 
   return (
     <div>
-      <div>
-        <Link to="/">Home</Link>
-        <button onClick={() => orderByAscDesc('TITLE_ASC', 'TITLE_DESC')}>
-          OrderBy
-        </button>
+      <div className="relative">
+        <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
+          <svg
+            aria-hidden="true"
+            className="w-5 h-5 text-gray-500 dark:text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            ></path>
+          </svg>
+        </div>
         <input
-          type="text"
-          name="search"
-          placeholder="search"
+          type="search"
+          id="default-search"
+          className="block p-4 pl-10 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          placeholder="Search Titles..."
           onChange={(e) => setSearchField(e.target.value)}
         />
-        <button onClick={() => includesSearch()}>Includes</button>
+        <button
+          className="text-white absolute right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          onClick={() => includesSearch()}
+        >
+          Search
+        </button>
       </div>
-      <div className="container">
-        <div className="fixed" ref={divHeight}>
-          <table className="table">
-            <tr>
-              <th>Nr</th>
-              <th>UID</th>
-              <th>Title</th>
-              <th>Summary</th>
-            </tr>
-            {nodes &&
-              nodes.map((node: any, index: any) => {
-                return (
-                  <tr
-                    key={node.uid}
-                    //TODO: my a better UX
-                    //onClick={() => {window.open(`/item/${node.uid}`)}}
-                  >
-                    <td>{index + 1}</td>
-                    <td>
-                      <NavLink prefetch="render" to={`/items/item/${node.uid}`}>
-                        {node.uid}
-                      </NavLink>
-                    </td>
-                    <td>{node.title}</td>
-                    <td>
-                      <SanitizedHTML
-                        allowedTags={['a', 'p']}
-                        html={node.summary}
-                      />
-                    </td>
+      <div className="flex flex-col" ref={divHeight}>
+        <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
+          <div className="py-2 inline-block min-w-full sm:px-6 lg:px-8">
+            <div className="overflow-hidden">
+              <table className="min-w-full">
+                <thead className="bg-white border-b">
+                  <tr>
+                    <th
+                      scope="col"
+                      className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                    >
+                      Nr
+                    </th>
+                    <th
+                      scope="col"
+                      className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                      onClick={() => orderByAscDesc('UID_ASC', 'UID_DESC')}
+                    >
+                      {
+                        <div className="flex items-stretch">
+                          UID
+                          {!orderBy.includes('UID') ? (
+                            <TiArrowUnsorted />
+                          ) : orderBy.includes('ASC') ? (
+                            <TiArrowSortedUp />
+                          ) : (
+                            <TiArrowSortedDown />
+                          )}
+                        </div>
+                      }
+                    </th>
+                    <th
+                      scope="col"
+                      className="cursor-pointer text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                      onClick={() => orderByAscDesc('TITLE_ASC', 'TITLE_DESC')}
+                    >
+                      {
+                        <div className="flex items-stretch">
+                          Title
+                          {!orderBy.includes('TITLE') ? (
+                            <TiArrowUnsorted />
+                          ) : orderBy.includes('ASC') ? (
+                            <TiArrowSortedUp />
+                          ) : (
+                            <TiArrowSortedDown />
+                          )}
+                        </div>
+                      }
+                    </th>
+                    <th
+                      scope="col"
+                      className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                      onClick={() =>
+                        orderByAscDesc('SUMMARY_ASC', 'SUMMARY_DESC')
+                      }
+                    >
+                      {
+                        <div className="flex items-stretch">
+                          SUMMARY
+                          {!orderBy.includes('SUMMARY') ? (
+                            <TiArrowUnsorted />
+                          ) : orderBy.includes('ASC') ? (
+                            <TiArrowSortedUp />
+                          ) : (
+                            <TiArrowSortedDown />
+                          )}
+                        </div>
+                      }
+                    </th>
                   </tr>
-                )
-              })}
-          </table>
-        </div>
-        <div className="flex-item">
-          <Outlet />
+                </thead>
+                <tbody>
+                  {nodes &&
+                    nodes.map((node: any, index: any) => {
+                      return (
+                        <tr
+                          className="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100"
+                          key={node.uid}
+                          //TODO: my a better UX
+                          onClick={() => {
+                            window.open(`/items/item/${node.uid}`, '_self')
+                          }}
+                        >
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {index + 1}
+                          </td>
+                          <td className="py-4 px-6">
+                            <NavLink
+                              className=" text-sm px-0 py-4 font-light text-blue-600 dark:text-blue-500 hover:underline"
+                              prefetch="render"
+                              to={`/items/item/${node.uid}`}
+                            >
+                              {node.uid.substring(0, 20)}...
+                            </NavLink>
+                          </td>
+                          <td className="text-sm whitespace-nowrap text-gray-900 font-medium px-6 py-4 ">
+                            {node.title.substring(0, 100)}...
+                          </td>
+                          <td className="text-sm text-gray-900 font-light px-6 py-4 ">
+                            <SanitizedHTML
+                              allowedTags={['a', 'p']}
+                              html={node.summary}
+                            />
+                          </td>
+                        </tr>
+                      )
+                    })}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>
