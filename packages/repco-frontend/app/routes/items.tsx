@@ -20,8 +20,14 @@ const QUERY = gql`
     $first: Int
     $after: Cursor
     $orderBy: [ContentItemsOrderBy!]
+    $includes: String = ""
   ) {
-    contentItems(first: $first, after: $after, orderBy: $orderBy) {
+    contentItems(
+      first: $first
+      after: $after
+      orderBy: $orderBy
+      filter: { title: { includes: $includes } }
+    ) {
       pageInfo {
         startCursor
         endCursor
@@ -44,10 +50,12 @@ export const loader: LoaderFunction = ({ request }) => {
   const url = new URL(request.url)
   const cursor = url.searchParams.get('page') || null
   const orderBy = url.searchParams.get('orderBy') || 'TITLE_DESC'
+  const includes = url.searchParams.get('includes') || ''
+  console.log(cursor, orderBy, includes)
   return graphqlQuery<LoadContentItemsQuery, LoadContentItemsQueryVariables>(
     QUERY,
     //TODO: fix type-error
-    { first: 10, after: cursor, orderBy: orderBy },
+    { first: 10, after: cursor, orderBy: orderBy, includes: includes },
   )
 }
 
@@ -63,6 +71,8 @@ export default function Items() {
   const [scrollPosition, setScrollPosition] = useState(0)
   const [clientHeight, setClientHeight] = useState(0)
   const [height, setHeight] = useState(null)
+
+  const [includes, setIncludes] = useState('')
 
   const [shouldFetch, setShouldFetch] = useState(true)
   const [page, setPage] = useState('')
