@@ -76,7 +76,7 @@ export default function Items() {
   const [orderBy, setOrderBy] = useState('')
   const [includes, setIncludes] = useState('')
   const [initFetch, setInitFetch] = useState(false)
-
+  const [searchField, setSearchField] = useState('')
   const [scrollPosition, setScrollPosition] = useState(0)
   const [clientHeight, setClientHeight] = useState(0)
   const [height, setHeight] = useState(null)
@@ -92,7 +92,7 @@ export default function Items() {
 
   function includesSearch() {
     setShouldFetch(true)
-    setIncludes(includes)
+    setIncludes(searchField)
     setInitFetch(true)
   }
 
@@ -194,7 +194,7 @@ export default function Items() {
           type="text"
           name="search"
           placeholder="search"
-          onChange={(e) => setIncludes(e.target.value)}
+          onChange={(e) => setSearchField(e.target.value)}
         />
         <button onClick={() => includesSearch()}>Includes</button>
       </div>
