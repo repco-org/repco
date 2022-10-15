@@ -1,6 +1,6 @@
 //TODO: fix typing, add some more Content, style for mobile,
 //improve filters and search, improve infinite scroll or us more efficient pagination
-//add modal rout for details for better ux
+//add modal rout for details for better ux, use cache for queries
 import type { LoaderFunction } from '@remix-run/node'
 import { Form, NavLink, useFetcher, useLoaderData } from '@remix-run/react'
 import { gql } from '@urql/core'
@@ -333,7 +333,7 @@ export default function Items() {
                             />
                           </td>
                           <td className="text-sm whitespace-nowrap text-gray-900 font-medium px-6 py-4 ">
-                            <Form>
+                            <Form method="post" action="/playlists/add">
                               <button className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                                 add
                               </button>
