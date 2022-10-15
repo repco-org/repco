@@ -2,7 +2,7 @@
 //improve filters and search, improve infinite scroll or us more efficient pagination
 //add modal rout for details for better ux
 import type { LoaderFunction } from '@remix-run/node'
-import { NavLink, useFetcher, useLoaderData } from '@remix-run/react'
+import { Form, NavLink, useFetcher, useLoaderData } from '@remix-run/react'
 import { gql } from '@urql/core'
 import { useCallback, useEffect, useState } from 'react'
 import {
@@ -234,7 +234,7 @@ export default function Items() {
                     </th>
                     <th
                       scope="col"
-                      className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                      className="cursor-pointer text-sm font-medium text-gray-900 px-6 py-4 text-left"
                       onClick={() => orderByAscDesc('UID_ASC', 'UID_DESC')}
                     >
                       {
@@ -270,7 +270,7 @@ export default function Items() {
                     </th>
                     <th
                       scope="col"
-                      className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                      className="cursor-pointer text-sm font-medium text-gray-900 px-6 py-4 text-left"
                       onClick={() =>
                         orderByAscDesc('SUMMARY_ASC', 'SUMMARY_DESC')
                       }
@@ -288,6 +288,12 @@ export default function Items() {
                         </div>
                       }
                     </th>
+                    <th
+                      scope="col"
+                      className=" text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                    >
+                      add to Playlist
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -298,15 +304,18 @@ export default function Items() {
                           className="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100"
                           key={node.uid}
                           //TODO: my a better UX
-                          onClick={() => {
-                            window.open(`/items/item/${node.uid}`, '_self')
-                          }}
+                          // onClick={() => {
+                          //   window.open(`/items/item/${node.uid}`, '_self')
+                          // }}
                         >
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                             {index + 1}
                           </td>
                           <td className="py-4 px-6">
                             <NavLink
+                              data-bs-toggle="tooltip"
+                              title={node.uid}
+                              data-bs-placement="top"
                               className=" text-sm px-0 py-4 font-light text-blue-600 dark:text-blue-500 hover:underline"
                               prefetch="render"
                               to={`/items/item/${node.uid}`}
@@ -322,6 +331,13 @@ export default function Items() {
                               allowedTags={['a', 'p']}
                               html={node.summary}
                             />
+                          </td>
+                          <td className="text-sm whitespace-nowrap text-gray-900 font-medium px-6 py-4 ">
+                            <Form>
+                              <button className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                add
+                              </button>
+                            </Form>
                           </td>
                         </tr>
                       )
