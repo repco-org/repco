@@ -2,10 +2,11 @@ import { ActionFunction } from '@remix-run/node'
 import { useActionData } from '@remix-run/react'
 
 export const action: ActionFunction = async ({ request }) => {
-  let formData = await request.formData()
-  console.log('FORMDATA', formData)
+  const formData = await request.formData()
+  const data = formData.get('add-item')
+  console.log('FORMDATA', data)
 
-  return 'add'
+  return data
 }
 
 export default function Playlists() {

@@ -8,7 +8,6 @@ export default function Playlists() {
           Create new Playlist
         </button>
       </Form>
-      <div></div>
     </div>
   )
 }

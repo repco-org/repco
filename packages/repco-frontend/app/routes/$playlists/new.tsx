@@ -1,6 +1,7 @@
 import { ActionFunction } from '@remix-run/node'
 import { Form, useActionData } from '@remix-run/react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { addToLocalStorageArray, localStorageItemToArray } from '~/lib/helpers'
 
 export const action: ActionFunction = async ({ request }) => {
   let formData = await request.formData()
@@ -13,33 +14,15 @@ export const action: ActionFunction = async ({ request }) => {
  * @param {String} name  The localStorage() key
  * @param {String} value The localStorage() value
  */
-var addToLocalStorageArray = function (name: string, value: string) {
-  // Get the existing data
-  var existing: any = localStorage.getItem(name)
-
-  // If no existing data, create an array
-  // Otherwise, convert the localStorage string to an array
-  existing = existing ? existing.split(',') : []
-
-  // Add new data to localStorage Array
-  existing.push(value)
-
-  // Save back to localStorage
-  localStorage.setItem(name, existing.toString())
-}
 
 export default function New() {
   const data = useActionData()
-  console.log(data)
-  // useEffect(() => {
-  //   if (typeof window !== 'undefined') {
-  //     if (localStorage.getItem('playlists')) return
-  //     addToLocalStorageArray('playlists', '')
-  //   }
-  // })
+  const [playlists, setPlaylists] = useState([])
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       addToLocalStorageArray('playlists', data)
+      setPlaylists(localStorageItemToArray('playlists'))
     }
   }, [data])
   return (
@@ -58,6 +41,21 @@ export default function New() {
           </button>
         </div>
       </Form>
+      <div className="px-6">
+        {playlists.map((e: string, index: number) => (
+          <ul>
+            {playlists.length === index + 1 ? (
+              <li>
+                <h1 className="font-medium leading-tight text-2xl mt-0 mb-2 text-green-600">
+                  {e}
+                </h1>
+              </li>
+            ) : (
+              <li>{e}</li>
+            )}
+          </ul>
+        ))}
+      </div>
     </div>
   )
 }
