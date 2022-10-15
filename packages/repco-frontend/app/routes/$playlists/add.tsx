@@ -1,5 +1,5 @@
 import { ActionFunction, LoaderFunction } from '@remix-run/node'
-import { useActionData } from '@remix-run/react'
+import { Form, useActionData } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 import { localStorageItemToArray } from '~/lib/helpers'
 
@@ -11,7 +11,10 @@ export const loader: LoaderFunction = async ({ request }) => {
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
   const data = formData.get('add-item')
-  console.log('FORMDATA', data)
+  const add = formData.get('add-item')
+
+  console.log('DATA', data)
+  console.log('ADD', data)
 
   return data
 }
@@ -33,9 +36,16 @@ export default function Playlists() {
           <ul>
             <li className="font-medium">
               {e}
-              <button className="mx-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full w-5 h- text-sm dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                +
-              </button>
+              <Form method="post">
+                <button
+                  className="mx-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full w-5 h- text-sm dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                  value={[e, data]}
+                  name="add-to-playlist"
+                  type="submit"
+                >
+                  +
+                </button>
+              </Form>
             </li>
           </ul>
         ))
