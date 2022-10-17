@@ -1,5 +1,5 @@
 import { LoaderFunction } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
+import { NavLink, useLoaderData } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 import { localStorageItemToArray } from '~/lib/helpers'
 
@@ -21,9 +21,25 @@ export default function Playlist() {
   console.log(data)
   return (
     <div className="px-6">
-      {playlists.map((e: string, index: number) => (
-        <ul>{playlists.length === index + 1 ? <li>{e}</li> : <li>{e}</li>}</ul>
-      ))}
+      {playlists.length > 0 ? (
+        playlists.map((e: string, index: number) => (
+          <li>
+            <NavLink
+              data-bs-toggle="tooltip"
+              data-bs-placement="top"
+              className=" text-sm px-0 py-4 font-light text-blue-600 dark:text-blue-500 hover:underline"
+              prefetch="render"
+              to={`/items/item/${e}`}
+            >
+              {e}
+            </NavLink>
+          </li>
+        ))
+      ) : (
+        <h1 className="font-medium leading-tight text-2xl mt-2 mb-2 text-red-600">
+          No items - go and add some :P
+        </h1>
+      )}
     </div>
   )
 }
