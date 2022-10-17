@@ -1,5 +1,5 @@
 import { ActionFunction, json, LoaderFunction } from '@remix-run/node'
-import { Form, Link, useActionData } from '@remix-run/react'
+import { Form, Link, NavLink, useActionData } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 import { addToLocalStorageArray, localStorageItemToArray } from '~/lib/helpers'
 
@@ -43,15 +43,26 @@ export default function Playlists() {
         playlists.map((e: any) => (
           <Form key={e} method="post">
             <li className="font-medium">
-              {e}
+              <NavLink
+                className=" text-sm px-0 py-4 font-light text-blue-600 dark:text-blue-500 hover:underline"
+                prefetch="render"
+                to={`/playlists/playlist/${e}`}
+              >
+                {e}
+              </NavLink>
               <button
-                className="text-white mx-6 my-2
-                     bottom-1.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                className="inline-flex items-center justify-center w-6 h-6 ml-2 text-white transition-colors duration-150 bg-blue-700 rounded-lg focus:shadow-outline hover:bg-blue-800"
                 value={[e, uid]}
                 name="add-to-playlist"
                 type="submit"
               >
-                +
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                  <path
+                    d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                    clip-rule="evenodd"
+                    fill-rule="evenodd"
+                  ></path>
+                </svg>
               </button>
             </li>
           </Form>

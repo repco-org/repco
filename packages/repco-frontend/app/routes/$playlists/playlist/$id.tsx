@@ -25,8 +25,6 @@ export default function Playlist() {
         playlists.map((e: string, index: number) => (
           <li>
             <NavLink
-              data-bs-toggle="tooltip"
-              data-bs-placement="top"
               className=" text-sm px-0 py-4 font-light text-blue-600 dark:text-blue-500 hover:underline"
               prefetch="render"
               to={`/items/item/${e}`}
