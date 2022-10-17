@@ -1,5 +1,5 @@
 import { LoaderFunction } from '@remix-run/node'
-import { Form, useLoaderData } from '@remix-run/react'
+import { Form, Link, useLoaderData } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 import { localStorageItemToArray } from '~/lib/helpers'
 
@@ -39,9 +39,9 @@ export default function Playlists() {
       <div className="px-6 py-6">
         {playlists.length !== 0 ? (
           playlists.map((e: any) => (
-            <ul>
-              <li className="font-medium">{e}</li>
-            </ul>
+            <li key={e} className="font-medium">
+              {<Link to={`/playlists/playlist/${e}`}>{e}</Link>}
+            </li>
           ))
         ) : (
           <div className="px-6 py-6">
