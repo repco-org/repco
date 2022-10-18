@@ -1,5 +1,5 @@
 import { json, LoaderFunction } from '@remix-run/node'
-import { Form, useLoaderData, useSearchParams } from '@remix-run/react'
+import { useLoaderData, useSearchParams } from '@remix-run/react'
 import { gql } from 'urql'
 import { Pagination, usePagination } from '../components/utils/pagination'
 import { graphqlQuery } from '../lib/graphql.server'
@@ -73,16 +73,6 @@ export default function paginatedItems() {
 
   return (
     <div>
-      <Form>
-        <input
-          type="text"
-          name="includes"
-          placeholder="Search tweets..."
-          defaultValue={searchParams.get('includes') || ''}
-        />
-        <button type="submit">Search</button>
-      </Form>
-
       <div>
         {nodes?.map((p: any, index: number) => (
           <div key={p?.uid} data-contentItem-id={p?.uid}>
