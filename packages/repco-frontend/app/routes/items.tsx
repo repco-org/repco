@@ -1,3 +1,6 @@
+//TODO: fix typing, add some more Content, style for mobile,
+//improve filters and search, improve infinite scroll or us more efficient pagination
+//add modal rout for details for better ux, use cache for queries
 import type { LoaderFunction } from '@remix-run/node'
 import { Form, NavLink, useFetcher, useLoaderData } from '@remix-run/react'
 import { gql } from '@urql/core'
@@ -128,36 +131,9 @@ export default function Items() {
     }
   }, [])
 
-  // Listen on scrolls. Fire on some self-described breakpoint
-  useEffect(() => {
-    if ((shouldFetch || shouldFetch) && initFetch) {
-      fetcher.load(`/items?page=&orderBy=${orderBy}&includes=${includes}`)
-      setShouldFetch(false)
-      return
-    }
-
-    if (!shouldFetch || !height) return
-    if (clientHeight + scrollPosition < height) return
-
-    if (shouldFetch || shouldFetch) {
-      fetcher.load(
-        `/items?page=${pageInfo?.endCursor}&orderBy=${orderBy}&includes=${includes}`,
-      )
-      setShouldFetch(false)
-      return
-    }
-
-    fetcher.load(`/items?page=${pageInfo?.endCursor}`)
-    setShouldFetch(false)
-  }, [clientHeight, scrollPosition, fetcher, orderBy, includes])
-
   // Merge nodes, increment page, and allow fetching again
   useEffect(() => {
     // Discontinue API calls if the last page has been reached
-    if (fetcher.data && fetcher.data.length === 0) {
-      setShouldFetch(false)
-      return
-    }
 
     // Nodes contain data, merge them and allow the possiblity of another fetch
     if (fetcher.data) {
@@ -182,6 +158,29 @@ export default function Items() {
       }
     }
   }, [fetcher.data])
+
+  // Listen on scrolls. Fire on some self-described breakpoint
+  useEffect(() => {
+    if ((shouldFetch || shouldFetch) && initFetch) {
+      fetcher.load(`/items?page=&orderBy=${orderBy}&includes=${includes}`)
+      setShouldFetch(false)
+      return
+    }
+
+    if (!shouldFetch || !height) return
+    if (clientHeight + scrollPosition < height) return
+
+    if (shouldFetch || shouldFetch) {
+      fetcher.load(
+        `/items?page=${pageInfo?.endCursor}&orderBy=${orderBy}&includes=${includes}`,
+      )
+      setShouldFetch(false)
+      return
+    }
+
+    fetcher.load(`/items?page=${pageInfo?.endCursor}`)
+    setShouldFetch(false)
+  }, [clientHeight, scrollPosition, fetcher, orderBy, includes])
 
   return (
     <div>

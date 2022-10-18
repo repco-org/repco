@@ -1,0 +1,34 @@
+version: "3.9"
+services:
+  db:
+    image: postgres
+    # restart: always
+    volumes:
+      - "./data/postgres:/var/lib/postgresql/data"
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: repco
+      POSTGRES_USER: repco
+      POSTGRES_DB: logto
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    depends_on:
+      db:
+        condition: service_healthy
+    image: ghcr.io/logto-io/logto:prerelease
+    ports:
+      - 3001:3001
+    environment:
+      - ALL_YES=1
+      - NO_INQUIRY=0
+      - TRUST_PROXY_HEADER=1
+      - DB_URL_DEFAULT=postgresql://repco:repco@localhost:5432
+      - ENDPOINT
+
+
