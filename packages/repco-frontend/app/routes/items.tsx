@@ -1,6 +1,3 @@
-//TODO: fix typing, add some more Content, style for mobile,
-//improve filters and search, improve infinite scroll or us more efficient pagination
-//add modal rout for details for better ux, use cache for queries
 import type { LoaderFunction } from '@remix-run/node'
 import { Form, NavLink, useFetcher, useLoaderData } from '@remix-run/react'
 import { gql } from '@urql/core'

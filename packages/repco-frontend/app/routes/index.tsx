@@ -30,6 +30,19 @@ export default function Index() {
       <p>
         <b>We wish a lot of fun trying it out :P</b>
       </p>
+      <br />
+      <p>
+        <b>TO DOES:</b>
+      </p>
+      <p>
+        <li>fix typing</li>
+        <li>add some more Content</li>
+        <li>style for mobile / add modal rout for details</li>
+        <li>improve filters and search</li>
+        <li>improve infinite scroll or use (endless)pagination</li>
+        <li>use cache for queries</li>
+        <li>add login add mutations to set playlists</li>
+      </p>
     </div>
   )
 }
