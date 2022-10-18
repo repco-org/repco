@@ -83,18 +83,6 @@ export default function paginatedItems() {
         <button type="submit">Search</button>
       </Form>
 
-      <button
-        onClick={() =>
-          setSearchParams({
-            order: 'TITLE_DESC',
-            page: searchParams.get('page') || '1',
-            take: searchParams.get('take') || '10',
-            includes: searchParams.get('includes') || '',
-          })
-        }
-      >
-        TITEL_DESC
-      </button>
       <div>
         {nodes?.map((p: any, index: number) => (
           <div key={p?.uid} data-contentItem-id={p?.uid}>
