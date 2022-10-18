@@ -1,11 +1,5 @@
 import { json, LoaderFunction } from '@remix-run/node'
-import {
-  Form,
-  useFetcher,
-  useLoaderData,
-  useSearchParams,
-} from '@remix-run/react'
-import { useEffect, useState } from 'react'
+import { Form, useLoaderData, useSearchParams } from '@remix-run/react'
 import { gql } from 'urql'
 import { Pagination, usePagination } from '../components/utils/pagination'
 import { graphqlQuery } from '../lib/graphql.server'
@@ -73,21 +67,9 @@ export const loader: LoaderFunction = async ({ request }) => {
 export default function paginatedItems() {
   const { nodes, count } = useLoaderData<typeof loader>()
   const [searchParams, setSearchParams] = useSearchParams()
-  const [shouldFetch, setshouldFetch] = useState(true)
-  const order = searchParams.get('order')
-  const includes = searchParams.get('includes')
-  const fetcher = useFetcher()
   const { page, setPage, take, setTake, numberOfPages } = usePagination({
     count,
   })
-  useEffect(() => {
-    // if (shouldFetch) return
-    // else {
-    fetcher.load('/paginatedItems')
-    //  console.log(page, take, order, includes)
-    //  }
-    setshouldFetch(false)
-  }, [searchParams])
 
   return (
     <div>
@@ -114,7 +96,7 @@ export default function paginatedItems() {
         TITEL_DESC
       </button>
       <div>
-        {nodes?.map((p: any) => (
+        {nodes?.map((p: any, index: number) => (
           <div key={p?.uid} data-contentItem-id={p?.uid}>
             <h1>{p?.title}</h1>
           </div>
