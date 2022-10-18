@@ -5,9 +5,17 @@ import { Outlet } from 'react-router-dom'
 export function Layout(props: PropsWithChildren) {
   return (
     <div>
-      <h1 className="font-medium leading-tight text-5xl mt-0 mb-2 text-blue-600">
-        repco
-      </h1>
+      <div className="flex justify-between">
+        <h1 className="font-medium leading-tight text-5xl mt-0 mb-2 text-blue-600">
+          repco
+        </h1>
+        <button
+          className="my-2 mx-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          name="signIn"
+        >
+          sign in
+        </button>
+      </div>
       <Nav />
       <Outlet></Outlet>
     </div>

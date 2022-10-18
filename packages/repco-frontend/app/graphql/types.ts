@@ -4486,3 +4486,23 @@ export type LoadContentItemsQuery = {
     nodes: Array<{ title: string; uid: string; summary: string | null }>
   } | null
 }
+
+export type LoadContentItemsByOffsetQueryVariables = Exact<{
+  offset: InputMaybe<Scalars['Int']>
+  first: InputMaybe<Scalars['Int']>
+  orderBy: InputMaybe<Array<ContentItemsOrderBy> | ContentItemsOrderBy>
+  includes: InputMaybe<Scalars['String']>
+}>
+
+export type LoadContentItemsByOffsetQuery = {
+  contentItems: {
+    totalCount: number
+    pageInfo: {
+      startCursor: string | null
+      endCursor: string | null
+      hasNextPage: boolean
+      hasPreviousPage: boolean
+    }
+    nodes: Array<{ title: string; uid: string; summary: string | null }>
+  } | null
+}

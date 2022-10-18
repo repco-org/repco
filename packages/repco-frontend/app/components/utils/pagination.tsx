@@ -1,6 +1,5 @@
-import { Box, Flex, Text } from '@chakra-ui/react'
+import Select from 'react-select'
 import { Link, useSearchParams } from '@remix-run/react'
-import { Select } from 'chakra-react-select'
 import { useEffect, useState } from 'react'
 
 interface parseNumberParams {
@@ -108,13 +107,13 @@ export const Pagination = ({
     return []
   }
   return (
-    <Box>
-      <Flex justify="space-between" alignItems={'center'} gap={4}>
-        <Flex gap={2} alignItems="center">
+    <div>
+      <div className="justify-between items-center gap-4">
+        <div className="flex gap-2 items-center">
           <label htmlFor="take">Show</label>
           <Select
+            className="w-40"
             id="take"
-            size="sm"
             name="take"
             onChange={(e: any) => {
               setTake(e?.value as number)
@@ -126,12 +125,12 @@ export const Pagination = ({
               { value: 50, label: '50' },
             ]}
           />
-        </Flex>
+        </div>
 
-        <Flex gap={2}>
+        <div className="gap-2">
           {pageArray(numberOfPages, page).map((el, index) => {
             if (typeof el === 'string') {
-              return <Text key={index}>{el}</Text>
+              return <p key={index}>{el}</p>
             }
             return (
               <Link
@@ -146,9 +145,9 @@ export const Pagination = ({
               </Link>
             )
           })}
-        </Flex>
-        <Text>{`Page ${page} from ${numberOfPages} `}</Text>
-      </Flex>
-    </Box>
+        </div>
+        <p>{`Page ${page} from ${numberOfPages} `}</p>
+      </div>
+    </div>
   )
 }
