@@ -64,7 +64,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   })
 }
 
-export default function paginatedItems() {
+export default function PaginatedItems() {
   const { nodes, count } = useLoaderData<typeof loader>()
   const [searchParams, setSearchParams] = useSearchParams()
   const { page, setPage, take, setTake, numberOfPages } = usePagination({
