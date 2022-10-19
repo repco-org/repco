@@ -661,6 +661,10 @@ video {
   width: 100%;
 }
 
+.w-40 {
+  width: 10rem;
+}
+
 .w-6 {
   width: 1.5rem;
 }
@@ -671,10 +675,6 @@ video {
 
 .w-1\/2 {
   width: 50%;
-}
-
-.w-40 {
-  width: 10rem;
 }
 
 .min-w-full {

@@ -110,9 +110,7 @@ export default function Items() {
     },
     [nodes?.length],
   )
-
-  // Add Listeners to scroll and client resize
-  useEffect(() => {
+  function scrolEventListener() {
     const scrollListener = () => {
       setClientHeight(window.innerHeight)
       setScrollPosition(window.scrollY)
@@ -129,7 +127,32 @@ export default function Items() {
         window.removeEventListener('scroll', scrollListener)
       }
     }
-  }, [])
+  }
+
+  function scrollEventHandler() {
+    if ((shouldFetch || shouldFetch) && initFetch) {
+      fetcher.load(`/items?page=&orderBy=${orderBy}&includes=${includes}`)
+      setShouldFetch(false)
+      return
+    }
+
+    if (!shouldFetch || !height) return
+    if (clientHeight + scrollPosition < height) return
+
+    if (shouldFetch || shouldFetch) {
+      fetcher.load(
+        `/items?page=${pageInfo?.endCursor}&orderBy=${orderBy}&includes=${includes}`,
+      )
+      setShouldFetch(false)
+      return
+    }
+
+    fetcher.load(`/items?page=${pageInfo?.endCursor}`)
+    setShouldFetch(false)
+  }
+
+  // Add Listeners to scroll and client resize
+  useEffect(scrolEventListener(), [])
 
   // Merge nodes, increment page, and allow fetching again
   useEffect(() => {
@@ -160,27 +183,13 @@ export default function Items() {
   }, [fetcher.data])
 
   // Listen on scrolls. Fire on some self-described breakpoint
-  useEffect(() => {
-    if ((shouldFetch || shouldFetch) && initFetch) {
-      fetcher.load(`/items?page=&orderBy=${orderBy}&includes=${includes}`)
-      setShouldFetch(false)
-      return
-    }
-
-    if (!shouldFetch || !height) return
-    if (clientHeight + scrollPosition < height) return
-
-    if (shouldFetch || shouldFetch) {
-      fetcher.load(
-        `/items?page=${pageInfo?.endCursor}&orderBy=${orderBy}&includes=${includes}`,
-      )
-      setShouldFetch(false)
-      return
-    }
-
-    fetcher.load(`/items?page=${pageInfo?.endCursor}`)
-    setShouldFetch(false)
-  }, [clientHeight, scrollPosition, fetcher, orderBy, includes])
+  useEffect(scrollEventHandler, [
+    clientHeight,
+    scrollPosition,
+    fetcher,
+    orderBy,
+    includes,
+  ])
 
   return (
     <div>
