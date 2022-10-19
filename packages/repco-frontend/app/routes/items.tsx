@@ -107,6 +107,7 @@ export default function Items() {
       if (node !== null) {
         setHeight(node.getBoundingClientRect().height)
       }
+      return
     },
     [nodes?.length],
   )
@@ -130,62 +131,67 @@ export default function Items() {
   }
   // Listen on scrolls. Fire on some self-described breakpoint
   function scrollEventHandler() {
-    if ((shouldFetch || shouldFetch) && initFetch) {
-      fetcher.load(`/items?page=&orderBy=${orderBy}&includes=${includes}`)
+    return () => {
+      if ((shouldFetch || shouldFetch) && initFetch) {
+        fetcher.load(`/items?page=&orderBy=${orderBy}&includes=${includes}`)
+        setShouldFetch(false)
+        return
+      }
+
+      if (!shouldFetch || !height) return
+      if (clientHeight + scrollPosition < height) return
+
+      if (shouldFetch || shouldFetch) {
+        fetcher.load(
+          `/items?page=${pageInfo?.endCursor}&orderBy=${orderBy}&includes=${includes}`,
+        )
+        setShouldFetch(false)
+        return
+      }
+
+      fetcher.load(`/items?page=${pageInfo?.endCursor}`)
       setShouldFetch(false)
-      return
     }
-
-    if (!shouldFetch || !height) return
-    if (clientHeight + scrollPosition < height) return
-
-    if (shouldFetch || shouldFetch) {
-      fetcher.load(
-        `/items?page=${pageInfo?.endCursor}&orderBy=${orderBy}&includes=${includes}`,
-      )
-      setShouldFetch(false)
-      return
-    }
-
-    fetcher.load(`/items?page=${pageInfo?.endCursor}`)
-    setShouldFetch(false)
   }
 
   function mergeData() {
     // Nodes contain data, merge them and allow the possiblity of another fetch
-    if (fetcher.data) {
-      if (initFetch) {
-        setNodes(fetcher.data.data.contentItems.nodes)
-        setInitFetch(false)
-        setShouldFetch(true)
-      } else {
-        setNodes((prevNodes: any) => [
-          ...prevNodes,
-          ...fetcher.data.data.contentItems.nodes,
-        ])
+    return () => {
+      if (fetcher.data) {
+        if (initFetch) {
+          setNodes(fetcher.data.data.contentItems.nodes)
+          setInitFetch(false)
+          setShouldFetch(true)
+        } else {
+          setNodes((prevNodes: any) => [
+            ...prevNodes,
+            ...fetcher.data.data.contentItems.nodes,
+          ])
+          return
+        }
+
+        setPageInfo(fetcher.data.data.contentItems.pageInfo)
+
+        if (
+          pageInfo?.hasNextPage ||
+          fetcher.data.data.contentItems.pageInfo.hasNextPage
+        ) {
+          setShouldFetch(true)
+        }
         return
-      }
-
-      setPageInfo(fetcher.data.data.contentItems.pageInfo)
-
-      if (
-        pageInfo?.hasNextPage ||
-        fetcher.data.data.contentItems.pageInfo.hasNextPage
-      ) {
-        setShouldFetch(true)
       }
       return
     }
-    return
   }
-  // Add Listeners to scroll and client resize
-  useEffect(() => scrolEventListener(), [])
-  useEffect(
-    () => scrollEventHandler,
-    [clientHeight, scrollPosition, fetcher, orderBy, includes],
-  )
 
-  // Merge nodes, increment page, and allow fetching again
+  useEffect(() => scrolEventListener(), [])
+  useEffect(scrollEventHandler, [
+    clientHeight,
+    scrollPosition,
+    fetcher,
+    orderBy,
+    includes,
+  ])
   useEffect(() => mergeData(), [fetcher.data])
 
   return (
