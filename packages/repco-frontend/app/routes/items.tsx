@@ -128,7 +128,7 @@ export default function Items() {
       }
     }
   }
-
+  // Listen on scrolls. Fire on some self-described breakpoint
   function scrollEventHandler() {
     if ((shouldFetch || shouldFetch) && initFetch) {
       fetcher.load(`/items?page=&orderBy=${orderBy}&includes=${includes}`)
@@ -151,13 +151,7 @@ export default function Items() {
     setShouldFetch(false)
   }
 
-  // Add Listeners to scroll and client resize
-  useEffect(scrolEventListener(), [])
-
-  // Merge nodes, increment page, and allow fetching again
-  useEffect(() => {
-    // Discontinue API calls if the last page has been reached
-
+  function mergeData() {
     // Nodes contain data, merge them and allow the possiblity of another fetch
     if (fetcher.data) {
       if (initFetch) {
@@ -180,9 +174,13 @@ export default function Items() {
         setShouldFetch(true)
       }
     }
-  }, [fetcher.data])
+  }
+  // Add Listeners to scroll and client resize
+  useEffect(scrolEventListener(), [])
 
-  // Listen on scrolls. Fire on some self-described breakpoint
+  // Merge nodes, increment page, and allow fetching again
+  useEffect(mergeData(), [fetcher.data])
+
   useEffect(scrollEventHandler, [
     clientHeight,
     scrollPosition,

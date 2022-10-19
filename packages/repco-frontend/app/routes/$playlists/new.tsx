@@ -5,7 +5,7 @@ import { addToLocalStorageArray, localStorageItemToArray } from '~/lib/helpers'
 
 //TODO mutation query to repco db, some better ui maybe with sorting
 export const action: ActionFunction = async ({ request }) => {
-  let formData = await request.formData()
+  const formData = await request.formData()
   const data = (formData.get('create-playlist') || '').toString()
   const timestamp = Date.now()
   const date = new Date(timestamp)
