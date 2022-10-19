@@ -77,14 +77,11 @@ export default function Items() {
   const [height, setHeight] = useState(null)
 
   const [shouldFetch, setShouldFetch] = useState(true)
-  const divHeight = useCallback(
-    (node: any) => {
-      if (node !== null) {
-        setHeight(node.getBoundingClientRect().height)
-      }
-    },
-    [nodes?.length],
-  )
+  const divHeight = useCallback((node: any) => {
+    if (node !== null) {
+      setHeight(node.getBoundingClientRect().height)
+    }
+  }, [])
 
   const fetcher = useFetcher()
 
@@ -150,7 +147,7 @@ export default function Items() {
         setShouldFetch(true)
       }
     }
-  }, [fetcher.data])
+  }, [fetcher.data, initFetch, pageInfo?.hasNextPage])
 
   // Listen on scrolls. Fire on some self-described breakpoint
   useEffect(() => {
@@ -173,7 +170,17 @@ export default function Items() {
 
     fetcher.load(`/items?page=${pageInfo?.endCursor}`)
     setShouldFetch(false)
-  }, [clientHeight, scrollPosition, fetcher, orderBy, includes])
+  }, [
+    clientHeight,
+    scrollPosition,
+    fetcher,
+    orderBy,
+    includes,
+    shouldFetch,
+    initFetch,
+    height,
+    pageInfo?.endCursor,
+  ])
   if (!data) {
     return 'Ooops, something went wrong :('
   }

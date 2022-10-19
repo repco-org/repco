@@ -35,7 +35,7 @@ export const usePagination = ({ count }: { count: number }) => {
   }, [currentTake])
   useEffect(() => {
     setSearchParams({ take: take.toString(), page: page.toString() })
-  }, [take, page])
+  }, [take, page, setSearchParams])
   return { page, take, numberOfPages, setPage, setTake }
 }
 
@@ -44,6 +44,7 @@ export const usePaginationLoader = async ({
   clientFunction,
 }: {
   searchParams: URLSearchParams
+  // eslint-disable-next-line @typescript-eslint/ban-types
   clientFunction: Function
 }) => {
   const page = parseInt(searchParams.get('page') || '1')

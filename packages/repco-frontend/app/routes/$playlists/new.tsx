@@ -1,4 +1,4 @@
-import { ActionFunction } from '@remix-run/node'
+import type { ActionFunction } from '@remix-run/node'
 import { Form, NavLink, useActionData } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 import { addToLocalStorageArray, localStorageItemToArray } from '~/lib/helpers'
@@ -58,9 +58,9 @@ export default function New() {
       </Form>
       <div className="px-6 py-6">
         {playlists.map((e: string, index: number) => (
-          <div>
+          <div key={e}>
             {playlists.length === index + 1 ? (
-              <li key={e} className="font-medium">
+              <li className="font-medium">
                 <NavLink
                   className=" text-sm px-0 py-4 font-medium text-green-600 dark:text-green-500 hover:underline"
                   prefetch="render"

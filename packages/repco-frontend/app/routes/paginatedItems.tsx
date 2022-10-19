@@ -1,16 +1,10 @@
-import { json, LoaderFunction } from '@remix-run/node'
-import { useLoaderData, useSearchParams } from '@remix-run/react'
+import type { LoaderFunction } from '@remix-run/node'
+import { json } from '@remix-run/node'
+import { useLoaderData } from '@remix-run/react'
 import { gql } from 'urql'
 import { Pagination, usePagination } from '../components/utils/pagination'
 import { graphqlQuery } from '../lib/graphql.server'
 
-interface parseNumberParams {
-  value: string | null
-  defaultValue: number
-}
-const parseNumber = ({ value, defaultValue }: parseNumberParams) => {
-  return typeof value === 'string' ? parseInt(value) : defaultValue
-}
 const QUERY = gql`
   query LoadContentItemsByOffset(
     $offset: Int
@@ -39,16 +33,12 @@ const QUERY = gql`
     }
   }
 `
-const getOrderBy = (searchParams: URLSearchParams) => ({
-  orderBy: searchParams.get('orderBy'),
-})
 export const loader: LoaderFunction = async ({ request }) => {
   console.log('PAGINATED')
   const url = new URL(request.url)
   const offset = (parseInt(url.searchParams.get('page') || '1') - 1) * 10
   const take = parseInt(url.searchParams.get('take') || '10')
 
-  const skip = (offset - 1) * take
   const orderBy = url.searchParams.get('order') || 'TITLE_ASC'
   const includes = url.searchParams.get('includes') || ''
 
@@ -66,7 +56,6 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export default function PaginatedItems() {
   const { nodes, count } = useLoaderData<typeof loader>()
-  const [searchParams, setSearchParams] = useSearchParams()
   const { page, setPage, take, setTake, numberOfPages } = usePagination({
     count,
   })
