@@ -163,6 +163,7 @@ export default function Items() {
           ...prevNodes,
           ...fetcher.data.data.contentItems.nodes,
         ])
+        return
       }
 
       setPageInfo(fetcher.data.data.contentItems.pageInfo)
@@ -173,21 +174,19 @@ export default function Items() {
       ) {
         setShouldFetch(true)
       }
+      return
     }
+    return
   }
   // Add Listeners to scroll and client resize
-  useEffect(scrolEventListener(), [])
+  useEffect(() => scrolEventListener(), [])
+  useEffect(
+    () => scrollEventHandler,
+    [clientHeight, scrollPosition, fetcher, orderBy, includes],
+  )
 
   // Merge nodes, increment page, and allow fetching again
-  useEffect(mergeData(), [fetcher.data])
-
-  useEffect(scrollEventHandler, [
-    clientHeight,
-    scrollPosition,
-    fetcher,
-    orderBy,
-    includes,
-  ])
+  useEffect(() => mergeData(), [fetcher.data])
 
   return (
     <div>
