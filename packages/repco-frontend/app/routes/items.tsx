@@ -73,8 +73,6 @@ export default function Items() {
   const [pageInfo, setPageInfo] = useState(data.contentItems.pageInfo)
   const [nodes, setNodes] = useState(data.contentItems.nodes)
 
-  const fetcher = useFetcher()
-
   const [orderBy, setOrderBy] = useState('')
   const [includes, setIncludes] = useState('')
   const [initFetch, setInitFetch] = useState(false)
@@ -86,6 +84,16 @@ export default function Items() {
   const [height, setHeight] = useState(null)
 
   const [shouldFetch, setShouldFetch] = useState(true)
+  const divHeight = useCallback(
+    (node: any) => {
+      if (node !== null) {
+        setHeight(node.getBoundingClientRect().height)
+      }
+    },
+    [nodes?.length],
+  )
+
+  const fetcher = useFetcher()
 
   //Following functions handle the click events for the buttons
   function orderByAscDesc(asc: string, desc: string) {
@@ -102,14 +110,6 @@ export default function Items() {
   }
 
   // Set the height of the parent container whenever a container are loaded
-  const divHeight = useCallback(
-    (node: any) => {
-      if (node !== null) {
-        setHeight(node.getBoundingClientRect().height)
-      }
-    },
-    [nodes?.length],
-  )
 
   // Add Listeners to scroll and client resize
   useEffect(() => {
