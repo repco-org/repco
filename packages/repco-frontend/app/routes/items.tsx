@@ -63,15 +63,8 @@ export const loader: LoaderFunction = ({ request }) => {
 export default function Items() {
   const { data } = useLoaderData<LoaderData>()
 
-  if (!data) {
-    return 'Ooops, something went wrong :('
-  }
-  if (!data.contentItems) {
-    return 'No content items'
-  }
-
-  const [pageInfo, setPageInfo] = useState(data.contentItems.pageInfo)
-  const [nodes, setNodes] = useState(data.contentItems.nodes)
+  const [pageInfo, setPageInfo] = useState(data.contentItems?.pageInfo)
+  const [nodes, setNodes] = useState(data.contentItems?.nodes)
 
   const [orderBy, setOrderBy] = useState('')
   const [includes, setIncludes] = useState('')
@@ -181,6 +174,12 @@ export default function Items() {
     fetcher.load(`/items?page=${pageInfo?.endCursor}`)
     setShouldFetch(false)
   }, [clientHeight, scrollPosition, fetcher, orderBy, includes])
+  if (!data) {
+    return 'Ooops, something went wrong :('
+  }
+  if (!data.contentItems) {
+    return 'No content items'
+  }
 
   return (
     <div>
