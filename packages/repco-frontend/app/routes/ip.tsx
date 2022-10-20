@@ -63,52 +63,64 @@ export default function Ip() {
   const { data } = useLoaderData<typeof loader>()
   const [pageInfo, setPageInfo] = useState(data.contentItems.pageInfo)
   const [itemsToRender, setItemsToRender] = useState(data.contentItems.nodes)
-  const [fetchMore, setFetchMore] = useState(true)
+  const [fetchMore, setFetchMore] = useState(false)
 
   const fetcher = useFetcher()
-  const parentRef = useRef<any>()
-  const startRef = useRef<any>()
+  const parentRef = useRef<any>(null)
+  const startRef = useRef<any>(null)
+
   useEffect(() => {
-    const observer = new IntersectionObserver((entries: any) => {
-      console.log(entries)
-      const entry = entries[0]
-      const start = entries[1]
-      if (entry.isIntersecting) {
+    console.log(pageInfo)
+    const observerEnd = new IntersectionObserver((entries: any) => {
+      const end = entries[0]
+
+      if (end.isIntersecting) {
         if (!pageInfo.hasNextPage) return
         if (pageInfo.hasNextPage) {
           fetcher.load(`/ip?page=${pageInfo.endCursor}`)
           if (fetcher.data) {
             setItemsToRender(fetcher.data.data.contentItems.nodes)
+            setPageInfo(fetcher.data.data.contentItems.pageInfo)
+            setFetchMore(true)
+            observerEnd.disconnect()
+            return
           }
-          setPageInfo(fetcher.data.data.contentItems.pageInfo)
-        }
-      }
-
-      if (start.isIntersecting) {
-        if (pageInfo.hasPreviousPage) return
-        if (pageInfo.hasPreviousPage) {
-          fetcher.load(`/ip?page=${pageInfo.startCursor}`)
-          if (fetcher.data) {
-            setItemsToRender(fetcher.data.data.contentItems.nodes)
-          }
-          setPageInfo(fetcher.data.data.contentItems.pageInfo)
         }
       }
     })
 
-    observer.observe(parentRef.current)
-    observer.observe(startRef.current)
-  })
+    const observerStart = new IntersectionObserver((entries: any) => {
+      const start = entries[0]
+
+      if (start.isIntersecting) {
+        if (!pageInfo.hasPreviousPage) return
+        if (pageInfo.hasPreviousPage && fetchMore) {
+          fetcher.load(`/ip?page=${pageInfo.startCursor}`)
+
+          if (fetcher.data) {
+            setItemsToRender(fetcher.data.data.contentItems.nodes)
+            setPageInfo(fetcher.data.data.contentItems.pageInfo)
+            setFetchMore(false)
+            observerStart.disconnect()
+            return
+          }
+        }
+      }
+    })
+
+    observerStart.observe(startRef.current)
+    observerEnd.observe(parentRef.current)
+  }, [fetcher, pageInfo.endCursor, pageInfo.hasNextPage, parentRef])
 
   return (
     <div>
-      <div className="start" ref={startRef}></div>
+      <div className="h-4 bg-black" ref={startRef}></div>
       {itemsToRender.map((e: any, index: any) => (
         <div className="h-10" key={e.uid}>
           {index}: {e.uid}
         </div>
       ))}
-      <div className="end" ref={parentRef}></div>
+      <div className="h-4 bg-red" ref={parentRef}></div>
     </div>
   )
 }
