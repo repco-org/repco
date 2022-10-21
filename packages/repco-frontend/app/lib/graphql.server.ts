@@ -26,6 +26,8 @@ export function graphqlQuery<
 export function parsePagination(url: URL): LoadContentItemsQueryVariables {
   const after = url.searchParams.get('after')
   const before = url.searchParams.get('before')
+  const orderBy = url.searchParams.get('orderBy') || 'TITLE_ASC'
+  const includes = url.searchParams.get('includes') || ''
   if (after && before) throw new Error('Invalid query arguments.')
   const last = before ? 10 : null
   const first = last ? null : 10
@@ -34,6 +36,8 @@ export function parsePagination(url: URL): LoadContentItemsQueryVariables {
     last,
     after,
     before,
+    orderBy,
+    includes,
   }
   return variables
 }

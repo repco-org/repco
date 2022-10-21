@@ -3,8 +3,12 @@ import type { PageInfo } from '~/graphql/types.js'
 export function Pager({ pageInfo, url }: { pageInfo: PageInfo; url: string }) {
   if (!pageInfo) return null
   const pager = {
-    next: pageInfo.hasNextPage && `${url}?after=${pageInfo.endCursor}`,
-    prev: pageInfo.hasPreviousPage && `${url}?before=${pageInfo.startCursor}`,
+    next:
+      pageInfo.hasNextPage &&
+      `${url}?after=${pageInfo.endCursor}&orderBy=&includes=`,
+    prev:
+      pageInfo.hasPreviousPage &&
+      `${url}?before=${pageInfo.startCursor}&orderBy=&includes=`,
   }
   return (
     <div>
