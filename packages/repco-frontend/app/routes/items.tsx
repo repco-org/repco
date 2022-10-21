@@ -151,7 +151,7 @@ export default function Items() {
 
   // Listen on scrolls. Fire on some self-described breakpoint
   useEffect(() => {
-    if ((shouldFetch || shouldFetch) && initFetch) {
+    if (shouldFetch && initFetch) {
       fetcher.load(`/items?page=&orderBy=${orderBy}&includes=${includes}`)
       setShouldFetch(false)
       return
@@ -160,7 +160,7 @@ export default function Items() {
     if (!shouldFetch || !height) return
     if (clientHeight + scrollPosition < height) return
 
-    if (shouldFetch || shouldFetch) {
+    if (shouldFetch) {
       fetcher.load(
         `/items?page=${pageInfo?.endCursor}&orderBy=${orderBy}&includes=${includes}`,
       )
@@ -200,9 +200,9 @@ export default function Items() {
             viewBox="0 0 24 24"
           >
             <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
               d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
             ></path>
           </svg>
