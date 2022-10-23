@@ -1,13 +1,12 @@
 import type { LoaderFunction } from '@remix-run/node'
-import { Link, useFetcher, useLoaderData } from '@remix-run/react'
+import { Link, NavLink, useFetcher, useLoaderData } from '@remix-run/react'
 import { gql } from '@urql/core'
-import { Pager } from '~/components/pager'
+import { useEffect, useState } from 'react'
 import type {
   LoadContentItemsQuery,
   LoadContentItemsQueryVariables,
 } from '~/graphql/types.js'
-import { graphqlQuery, parsePagination } from '~/lib/graphql.server'
-import { useEffect, useState } from 'react'
+import { graphqlQuery } from '~/lib/graphql.server'
 
 const QUERY = gql`
   query LoadContentItems(
@@ -45,44 +44,77 @@ type LoaderData = { data: LoadContentItemsQuery }
 
 export const loader: LoaderFunction = ({ request }) => {
   const url = new URL(request.url)
-  const pagination = parsePagination(url)
+
+  const after = url.searchParams.get('after')
+  const before = url.searchParams.get('before')
+  const orderBy = url.searchParams.get('orderBy') || 'TITLE_ASC'
+  const includes = url.searchParams.get('includes') || ''
+  if (after && before) throw new Error('Invalid query arguments.')
+  const last = before ? 10 : null
+  const first = last ? null : 10
+
   return graphqlQuery<LoadContentItemsQuery, LoadContentItemsQueryVariables>(
     QUERY,
-    pagination,
+    {
+      first: first,
+      last: last,
+      after: after,
+      before: before,
+      orderBy: orderBy,
+      includes: includes,
+    },
   )
 }
 
 export default function IndexRoute() {
   const { data } = useLoaderData<LoaderData>()
-  console.log(data)
-  const [includes, setIncludes] = useState('')
-  const [initFetch, setInitFetch] = useState(false)
-  //May there is a better way to do - with out this the search bugs
-  const [searchField, setSearchField] = useState('')
-  const [shouldFetch, setShouldFetch] = useState(true)
-const fetcher = useFetcher()
-  function includesSearch() {
-    setShouldFetch(true)
-    setIncludes(searchField)
-   
-  }
 
-  useEffect(()=> {
-    if (shouldFetch) {
-      fetcher.load(
-        `/items?page=${data.contentItems?.pageInfo?.endCursor}&orderBy=&includes=${includes}`,
-      )
-      setShouldFetch(false)
-      return
-    }
-
-  }, [data.contentItems?.pageInfo?.endCursor, fetcher, includes, shouldFetch])
   if (!data) {
     return 'Ooops, something went wrong :('
   }
   if (!data.contentItems) {
     return 'No content items'
   }
+  const [pageInfo, setPageInfo] = useState(data.contentItems?.pageInfo)
+  const [nodes, setNodes] = useState(data.contentItems?.nodes)
+
+  const [orderBy, setOrderBy] = useState('')
+  const [includes, setIncludes] = useState('')
+  const [before, setBefore] = useState('')
+  const [after, setAfter] = useState('')
+
+  //May there is a better way to do - with out this the search bugs
+  const [searchField, setSearchField] = useState('')
+
+  const [shouldFetch, setShouldFetch] = useState(false)
+  const [fetchURL, setFetchURL] = ''
+  const fetcher = useFetcher()
+
+  function includesSearch() {
+    setShouldFetch(true)
+    setIncludes(searchField)
+    setAfter('')
+  }
+
+  useEffect(() => {
+    if (shouldFetch) {
+      console.log(includes)
+      fetcher.load(
+        `/items2?after=${after}orderBy=${orderBy}&includes=${includes}`,
+      )
+      setShouldFetch(false)
+      return
+    }
+  }, [shouldFetch])
+
+  useEffect(() => {
+    if (fetcher.data) {
+      console.log('FETCH', fetcher.data.data.contentItems.nodes)
+      setNodes(fetcher.data.data.contentItems.nodes)
+      setPageInfo(fetcher.data.data.contentItems.pageInfo)
+    }
+  }, [fetcher.data])
+
   return (
     <main>
       <div className="relative">
@@ -116,16 +148,33 @@ const fetcher = useFetcher()
           Search
         </button>
       </div>
-       
-      <Pager url="/items" pageInfo={data.contentItems.pageInfo} />
-      {data.contentItems.nodes.map((node, i) => (
-        <li key={i}>
-          <h2>
-            <Link to={`/item/${node.uid}`}>{node.title}</Link>
-          </h2>
-          {/* <SanitizedHTML allowedTags={['a', 'p']} html={node.summary} /> */}
-        </li>
-      ))}
+      {pageInfo.hasNextPage && (
+        <button
+          className="text-white  bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          onClick={() => {
+            setShouldFetch(true), setAfter(pageInfo.endCursor || '')
+          }}
+        >
+          Next
+        </button>
+      )}
+      {pageInfo.hasPreviousPage && (
+        <NavLink
+          to={`?before=${pageInfo.startCursor}&orderBy${orderBy}=&includes=${includes}`}
+        >
+          Previous
+        </NavLink>
+      )}
+
+      {nodes &&
+        nodes.map((node, i) => (
+          <li key={i}>
+            <h2>
+              <Link to={`/item/${node.uid}`}>{node.uid}</Link>
+            </h2>
+            {/* <SanitizedHTML allowedTags={['a', 'p']} html={node.summary} /> */}
+          </li>
+        ))}
     </main>
   )
 }
