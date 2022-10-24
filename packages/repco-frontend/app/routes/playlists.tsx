@@ -1,5 +1,5 @@
-import { LoaderFunction } from '@remix-run/node'
-import { Form, NavLink, useLoaderData } from '@remix-run/react'
+import type { LoaderFunction } from '@remix-run/node'
+import { Form, NavLink } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 import { localStorageItemToArray } from '~/lib/helpers'
 
@@ -10,7 +10,6 @@ export const loader: LoaderFunction = ({ request }) => {
 }
 
 export default function Playlists() {
-  const data = useLoaderData()
   const [playlists, setPlaylists] = useState([])
   const [showData, setShowData] = useState(true)
   useEffect(() => {
@@ -19,7 +18,7 @@ export default function Playlists() {
       setPlaylists(localStorageItemToArray('playlists'))
       setShowData(false)
     }
-  })
+  }, [showData])
   return (
     <div>
       <Form method="post" action="/playlists/new">

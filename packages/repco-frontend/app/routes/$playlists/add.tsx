@@ -1,4 +1,5 @@
-import { ActionFunction, json, LoaderFunction } from '@remix-run/node'
+import type { ActionFunction, LoaderFunction } from '@remix-run/node'
+import { json } from '@remix-run/node'
 import { Form, Link, NavLink, useActionData } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 import { addToLocalStorageArray, localStorageItemToArray } from '~/lib/helpers'
