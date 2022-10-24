@@ -14,7 +14,7 @@ export const action: ActionFunction = async ({ request }) => {
   const data = formData.get('add-item') || ''
 
   const add = formData.get('add-to-playlist') || ''
-  console.log('SOME', data, add)
+
   return json({ uid: data, playlistAndUid: add })
 }
 
