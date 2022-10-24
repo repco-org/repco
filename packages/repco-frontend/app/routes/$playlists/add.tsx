@@ -40,32 +40,23 @@ export default function Playlists() {
 
   return (
     <div className="px-6 py-6">
-      {added && (
+      {added ? (
         <h1 className="font-medium leading-tight text-2xl mt-0 mb-2 text-green-600">
           Success <br /> {playlistAndUid}
         </h1>
-      )}
-      {playlists.length !== 0 ? (
+      ) : added || playlists.length !== 0 ? (
         playlists.map((e: any) => (
-          <Form
-            className="flex-col p-4 w-full justify-center text-center bg-white rounded-lg border shadow-md dark:bg-gray-800 dark:border-gray-700"
-            key={e}
-            method="post"
-          >
+          <Form className="card" key={e} method="post">
             <p>
               <NavLink
-                className=" text-sm px-0 py-4 font-light text-blue-600 dark:text-blue-500 hover:underline"
+                className="link"
                 prefetch="render"
                 to={`/playlists/playlist/${e}`}
               >
                 {e}
               </NavLink>
             </p>
-            <button
-              className=" text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-              value={[e, uid]}
-              name="add-to-playlist"
-            >
+            <button className="button" value={[e, uid]} name="add-to-playlist">
               add to playlist
             </button>
           </Form>

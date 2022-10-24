@@ -6,13 +6,13 @@ export function Layout(props: PropsWithChildren) {
   return (
     <div>
       <div className="flex justify-between">
-        <h1 className="font-medium leading-tight text-5xl mt-0 mb-2 text-blue-600">
-          repco
+        <h1 className="mb-4 text-3xl font-extrabold text-gray-900 dark:text-white md:text-5xl lg:text-6xl">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r to-blue-400 from-blue-800">
+            REPCO
+          </span>
         </h1>
-        <button
-          className="my-2 mx-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-          name="signIn"
-        >
+
+        <button className="button" name="signIn">
           sign in
         </button>
       </div>
@@ -27,21 +27,13 @@ export function Nav() {
     <ul className="flex border-b">
       <li className="-mb-px mr-1">
         <NavLink
-          className={({ isActive }) =>
-            isActive
-              ? 'bg-white inline-block border-l border-t border-r rounded-t py-2 px-4 text-blue-700 font-semibold'
-              : 'bg-white inline-block border-l border-t border-r rounded-t py-2 px-4 text-blue-200 font-semibold'
-          }
+          className={({ isActive }) => (isActive ? 'navActive' : 'navInactive')}
           to="/items"
         >
           Items
         </NavLink>
         <NavLink
-          className={({ isActive }) =>
-            isActive
-              ? 'bg-white inline-block border-l border-t border-r rounded-t py-2 px-4 text-blue-700 font-semibold'
-              : 'bg-white inline-block border-l border-t border-r rounded-t py-2 px-4 text-blue-200 font-semibold'
-          }
+          className={({ isActive }) => (isActive ? 'navActive' : 'navInactive')}
           to="/Playlists"
         >
           Playlists

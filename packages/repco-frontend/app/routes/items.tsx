@@ -122,7 +122,7 @@ export default function IndexRoute() {
   return (
     <main>
       <div className="relative">
-        <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
+        <div className="inlineSvg">
           <svg
             aria-hidden="true"
             className="w-5 h-5 text-gray-500 dark:text-gray-400"
@@ -141,12 +141,12 @@ export default function IndexRoute() {
         <input
           type="search"
           id="default-search"
-          className="block p-4 pl-10 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          className="input"
           placeholder="Search Titles..."
           onChange={(e) => setSearchField(e.target.value)}
         />
         <button
-          className="text-white absolute right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          className="inlineBtn"
           onClick={() => {
             setShouldFetch(true)
             setIncludes(searchField)
@@ -159,7 +159,7 @@ export default function IndexRoute() {
         <label className="sr-only">Order By</label>
         <select
           id="orderBy"
-          className="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer"
+          className="select"
           defaultValue="TITLE_ASC"
           onChange={(e) => {
             setShouldFetch(true)
@@ -172,17 +172,14 @@ export default function IndexRoute() {
       </div>
       {nodes &&
         nodes.map((node, i) => (
-          <div
-            key={node.uid}
-            className="p-4 w-full justify-center text-center bg-white rounded-lg border shadow-md dark:bg-gray-800 dark:border-gray-700"
-          >
-            <h5 className="mb-2 text-3xl font-bold text-gray-900 dark:text-white">
+          <div key={node.uid} className="card">
+            <h5 className="h5">
               <SanitizedHTML allowedTags={['a', 'p']} html={node.title} />
             </h5>
-            <p className="mb-5 text-base text-gray-500 sm:text-lg dark:text-gray-400">
+            <p className="text">
               <i>{node.uid}</i>
             </p>
-            <p className="mb-5 text-base text-gray-500 sm:text-lg dark:text-gray-400">
+            <p className="text">
               <SanitizedHTML
                 allowedTags={['a', 'p']}
                 html={node.summary || ''}
@@ -191,20 +188,12 @@ export default function IndexRoute() {
             <div className="justify-center items-center">
               <div className="flex flex-row justify-center">
                 <Form method="post" action="/playlists/add">
-                  <button
-                    className=" text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                    name="add-item"
-                    value={node.uid}
-                  >
+                  <button className="button" name="add-item" value={node.uid}>
                     add to playlist
                   </button>
                 </Form>
                 <div className="px-1"></div>
-                <button
-                  className=" text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                  name="add-item"
-                  value={node.uid}
-                >
+                <button className="button" name="add-item" value={node.uid}>
                   <NavLink
                     data-bs-toggle="tooltip"
                     title={node.uid}
@@ -224,7 +213,7 @@ export default function IndexRoute() {
           {pageInfo?.hasPreviousPage && (
             <button
               type="button"
-              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm p-2.5 text-center inline-flex items-center mr-1 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              className="button"
               onClick={() => {
                 setShouldFetch(true)
                 setBefore(true)
@@ -250,7 +239,7 @@ export default function IndexRoute() {
           {pageInfo?.hasNextPage && (
             <button
               type="button"
-              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm p-2.5 text-center inline-flex items-center mr-1 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              className="button"
               onClick={() => {
                 setShouldFetch(true)
                 setAfter(true)
