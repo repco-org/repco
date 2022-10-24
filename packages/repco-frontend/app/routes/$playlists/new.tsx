@@ -60,17 +60,23 @@ export default function New() {
         {playlists.map((e: string, index: number) => (
           <div key={e}>
             {playlists.length === index + 1 ? (
-              <li className="font-medium">
+              <div
+                key={e}
+                className='className="p-4 w-full justify-center text-center bg-white rounded-lg border shadow-md dark:bg-gray-800 dark:border-gray-700'
+              >
                 <NavLink
-                  className=" text-sm px-0 py-4 font-medium text-green-600 dark:text-green-500 hover:underline"
+                  className=" text-sm px-0 py-4 font-light text-green-600 dark:text-green-500 hover:underline"
                   prefetch="render"
                   to={`/playlists/playlist/${e}`}
                 >
                   {e}
                 </NavLink>
-              </li>
+              </div>
             ) : (
-              <li key={e} className="font-medium">
+              <div
+                key={e}
+                className='className="p-4 w-full justify-center text-center bg-white rounded-lg border shadow-md dark:bg-gray-800 dark:border-gray-700'
+              >
                 <NavLink
                   className=" text-sm px-0 py-4 font-light text-blue-600 dark:text-blue-500 hover:underline"
                   prefetch="render"
@@ -78,7 +84,7 @@ export default function New() {
                 >
                   {e}
                 </NavLink>
-              </li>
+              </div>
             )}
           </div>
         ))}

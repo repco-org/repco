@@ -50,7 +50,10 @@ export default function Playlists() {
       <div className="px-6 py-6">
         {playlists.length !== 0 ? (
           playlists.map((e: any) => (
-            <li key={e} className="font-medium">
+            <div
+              key={e}
+              className='className="p-4 w-full justify-center text-center bg-white rounded-lg border shadow-md dark:bg-gray-800 dark:border-gray-700'
+            >
               <NavLink
                 className=" text-sm px-0 py-4 font-light text-blue-600 dark:text-blue-500 hover:underline"
                 prefetch="render"
@@ -58,7 +61,7 @@ export default function Playlists() {
               >
                 {e}
               </NavLink>
-            </li>
+            </div>
           ))
         ) : (
           <div className="px-6 py-6">

@@ -1,15 +1,7 @@
-//TODO: fix typing, add some more Content, style for mobile,
-//improve filters and search, improve infinite scroll or us more efficient pagination
-//add modal rout for details for better ux, use cache for queries
 import type { LoaderFunction } from '@remix-run/node'
 import { Form, NavLink, useFetcher, useLoaderData } from '@remix-run/react'
 import { gql } from '@urql/core'
-import { useCallback, useEffect, useState } from 'react'
-import {
-  TiArrowSortedDown,
-  TiArrowSortedUp,
-  TiArrowUnsorted,
-} from 'react-icons/ti'
+import { useEffect, useState } from 'react'
 import { SanitizedHTML } from '~/components/sanitized-html'
 import type {
   LoadContentItemsQuery,
@@ -20,13 +12,17 @@ import { graphqlQuery } from '~/lib/graphql.server'
 const QUERY = gql`
   query LoadContentItems(
     $first: Int
+    $last: Int
     $after: Cursor
+    $before: Cursor
     $orderBy: [ContentItemsOrderBy!]
     $includes: String
   ) {
     contentItems(
       first: $first
+      last: $last
       after: $after
+      before: $before
       orderBy: $orderBy
       filter: { title: { includes: $includes } }
     ) {
@@ -36,7 +32,6 @@ const QUERY = gql`
         hasNextPage
         hasPreviousPage
       }
-      totalCount
       nodes {
         title
         uid
@@ -50,17 +45,29 @@ type LoaderData = { data: LoadContentItemsQuery }
 
 export const loader: LoaderFunction = ({ request }) => {
   const url = new URL(request.url)
-  const cursor = url.searchParams.get('page') || null
-  const orderBy = url.searchParams.get('orderBy') || 'TITLE_DESC'
+
+  const after = url.searchParams.get('after')
+  const before = url.searchParams.get('before')
+  const orderBy = url.searchParams.get('orderBy') || 'TITLE_ASC'
   const includes = url.searchParams.get('includes') || ''
+  if (after && before) throw new Error('Invalid query arguments.')
+  const last = before ? 50 : null
+  const first = last ? null : 50
+
   return graphqlQuery<LoadContentItemsQuery, LoadContentItemsQueryVariables>(
     QUERY,
-    //TODO: fix type-error
-    { first: 10, after: cursor, orderBy: orderBy, includes: includes },
+    {
+      first: first,
+      last: last,
+      after: after,
+      before: before,
+      orderBy: orderBy,
+      includes: includes,
+    },
   )
 }
 
-export default function Items() {
+export default function IndexRoute() {
   const { data } = useLoaderData<LoaderData>()
 
   const [pageInfo, setPageInfo] = useState(data.contentItems?.pageInfo)
@@ -68,128 +75,52 @@ export default function Items() {
 
   const [orderBy, setOrderBy] = useState('')
   const [includes, setIncludes] = useState('')
-  const [initFetch, setInitFetch] = useState(false)
-  //May there is a better way to do - with out this the search bugs
+  const [before, setBefore] = useState(false)
+  const [after, setAfter] = useState(false)
+
   const [searchField, setSearchField] = useState('')
 
-  const [scrollPosition, setScrollPosition] = useState(0)
-  const [clientHeight, setClientHeight] = useState(0)
-  const [height, setHeight] = useState(null)
-
-  const [shouldFetch, setShouldFetch] = useState(true)
-  const divHeight = useCallback((node: any) => {
-    if (node !== null) {
-      setHeight(node.getBoundingClientRect().height)
-    }
-  }, [])
-
+  const [shouldFetch, setShouldFetch] = useState(false)
   const fetcher = useFetcher()
 
-  //Following functions handle the click events for the buttons
-  function orderByAscDesc(asc: string, desc: string) {
-    setOrderBy('')
-    setShouldFetch(true)
-    orderBy.includes(asc) ? setOrderBy(desc) : setOrderBy(asc)
-    setInitFetch(true)
-  }
-
-  function includesSearch() {
-    setShouldFetch(true)
-    setIncludes(searchField)
-    setInitFetch(true)
-  }
-
-  // Set the height of the parent container whenever a container are loaded
-
-  // Add Listeners to scroll and client resize
   useEffect(() => {
-    const scrollListener = () => {
-      setClientHeight(window.innerHeight)
-      setScrollPosition(window.scrollY)
-    }
-
-    // Avoid running during SSR
-    if (typeof window !== 'undefined') {
-      window.addEventListener('scroll', scrollListener)
-    }
-
-    // Clean up
-    return () => {
-      if (typeof window !== 'undefined') {
-        window.removeEventListener('scroll', scrollListener)
-      }
-    }
-  }, [])
-
-  // Merge nodes, increment page, and allow fetching again
-  useEffect(() => {
-    // Discontinue API calls if the last page has been reached
-
-    // Nodes contain data, merge them and allow the possiblity of another fetch
-    if (fetcher.data) {
-      if (initFetch) {
-        setNodes(fetcher.data.data.contentItems.nodes)
-        setInitFetch(false)
-        setShouldFetch(true)
-      } else {
-        setNodes((prevNodes: any) => [
-          ...prevNodes,
-          ...fetcher.data.data.contentItems.nodes,
-        ])
-      }
-
-      setPageInfo(fetcher.data.data.contentItems.pageInfo)
-
-      if (
-        pageInfo?.hasNextPage ||
-        fetcher.data.data.contentItems.pageInfo.hasNextPage
-      ) {
-        setShouldFetch(true)
-      }
-    }
-  }, [fetcher.data, initFetch, pageInfo?.hasNextPage])
-
-  // Listen on scrolls. Fire on some self-described breakpoint
-  useEffect(() => {
-    if (shouldFetch && initFetch) {
-      fetcher.load(`/items?page=&orderBy=${orderBy}&includes=${includes}`)
-      setShouldFetch(false)
-      return
-    }
-
-    if (!shouldFetch || !height) return
-    if (clientHeight + scrollPosition < height) return
-
     if (shouldFetch) {
-      fetcher.load(
-        `/items?page=${pageInfo?.endCursor}&orderBy=${orderBy}&includes=${includes}`,
-      )
+      if (after) {
+        fetcher.load(
+          `/items?after=${pageInfo?.endCursor}&orderBy=${orderBy}&includes=${includes}`,
+        )
+        setShouldFetch(false)
+        setAfter(false)
+        return
+      }
+
+      if (before) {
+        fetcher.load(
+          `/items?before=${pageInfo?.startCursor}&orderBy=${orderBy}&includes=${includes}`,
+        )
+        setShouldFetch(false)
+        setBefore(false)
+        return
+      }
+
+      fetcher.load(`/items?orderBy=${orderBy}&includes=${includes}`)
+
       setShouldFetch(false)
       return
     }
+  }, [after, before, fetcher, includes, orderBy, pageInfo, shouldFetch])
 
-    fetcher.load(`/items?page=${pageInfo?.endCursor}`)
-    setShouldFetch(false)
-  }, [
-    clientHeight,
-    scrollPosition,
-    fetcher,
-    orderBy,
-    includes,
-    shouldFetch,
-    initFetch,
-    height,
-    pageInfo?.endCursor,
-  ])
-  if (!data) {
-    return 'Ooops, something went wrong :('
-  }
-  if (!data.contentItems) {
-    return 'No content items'
-  }
+  useEffect(() => {
+    if (fetcher.data) {
+      console.log('FETCH', fetcher.data.data.contentItems.nodes)
+      setNodes(fetcher.data.data.contentItems.nodes)
+      setPageInfo(fetcher.data.data.contentItems.pageInfo)
+      console.log(pageInfo)
+    }
+  }, [fetcher.data, pageInfo])
 
   return (
-    <div>
+    <main>
       <div className="relative">
         <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
           <svg
@@ -216,144 +147,134 @@ export default function Items() {
         />
         <button
           className="text-white absolute right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-          onClick={() => includesSearch()}
+          onClick={() => {
+            setShouldFetch(true)
+            setIncludes(searchField)
+          }}
         >
           Search
         </button>
       </div>
-      <div className="flex flex-col" ref={divHeight}>
-        <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
-          <div className="py-2 inline-block min-w-full sm:px-6 lg:px-8">
-            <div className="overflow-hidden">
-              <table className="min-w-full">
-                <thead className="bg-white border-b">
-                  <tr>
-                    <th
-                      scope="col"
-                      className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
-                    >
-                      Nr
-                    </th>
-                    <th
-                      scope="col"
-                      className="cursor-pointer text-sm font-medium text-gray-900 px-6 py-4 text-left"
-                      onClick={() => orderByAscDesc('UID_ASC', 'UID_DESC')}
-                    >
-                      {
-                        <div className="flex items-stretch">
-                          UID
-                          {!orderBy.includes('UID') ? (
-                            <TiArrowUnsorted />
-                          ) : orderBy.includes('ASC') ? (
-                            <TiArrowSortedUp />
-                          ) : (
-                            <TiArrowSortedDown />
-                          )}
-                        </div>
-                      }
-                    </th>
-                    <th
-                      scope="col"
-                      className="cursor-pointer text-sm font-medium text-gray-900 px-6 py-4 text-left"
-                      onClick={() => orderByAscDesc('TITLE_ASC', 'TITLE_DESC')}
-                    >
-                      {
-                        <div className="flex items-stretch">
-                          Title
-                          {!orderBy.includes('TITLE') ? (
-                            <TiArrowUnsorted />
-                          ) : orderBy.includes('ASC') ? (
-                            <TiArrowSortedUp />
-                          ) : (
-                            <TiArrowSortedDown />
-                          )}
-                        </div>
-                      }
-                    </th>
-                    <th
-                      scope="col"
-                      className="cursor-pointer text-sm font-medium text-gray-900 px-6 py-4 text-left"
-                      onClick={() =>
-                        orderByAscDesc('SUMMARY_ASC', 'SUMMARY_DESC')
-                      }
-                    >
-                      {
-                        <div className="flex items-stretch">
-                          SUMMARY
-                          {!orderBy.includes('SUMMARY') ? (
-                            <TiArrowUnsorted />
-                          ) : orderBy.includes('ASC') ? (
-                            <TiArrowSortedUp />
-                          ) : (
-                            <TiArrowSortedDown />
-                          )}
-                        </div>
-                      }
-                    </th>
-                    <th
-                      scope="col"
-                      className=" text-sm font-medium text-gray-900 px-6 py-4 text-left"
-                    >
-                      add to Playlist
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {nodes &&
-                    nodes.map((node: any, index: any) => {
-                      return (
-                        <tr
-                          className="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100"
-                          key={node.uid}
-                          //TODO: my a better UX
-                          // onClick={() => {
-                          //   window.open(`/items/item/${node.uid}`, '_self')
-                          // }}
-                        >
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {index + 1}
-                          </td>
-                          <td className="py-4 px-6">
-                            <NavLink
-                              data-bs-toggle="tooltip"
-                              title={node.uid}
-                              data-bs-placement="top"
-                              className=" text-sm px-0 py-4 font-light text-blue-600 dark:text-blue-500 hover:underline"
-                              prefetch="render"
-                              to={`/items/item/${node.uid}`}
-                            >
-                              {node.uid.substring(0, 20)}...
-                            </NavLink>
-                          </td>
-                          <td className="text-sm whitespace-nowrap text-gray-900 font-medium px-6 py-4 ">
-                            {node.title.substring(0, 100)}...
-                          </td>
-                          <td className="text-sm text-gray-900 font-light px-6 py-4 ">
-                            <SanitizedHTML
-                              allowedTags={['a', 'p']}
-                              html={node.summary}
-                            />
-                          </td>
-                          <td className="text-sm whitespace-nowrap text-gray-900 font-medium px-6 py-4 ">
-                            <Form method="post" action="/playlists/add">
-                              <button
-                                className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                                name="add-item"
-                                value={node.uid}
-                              >
-                                add
-                              </button>
-                            </Form>
-                          </td>
-                        </tr>
-                      )
-                    })}
-                </tbody>
-              </table>
+      <div>
+        <label className="sr-only">Order By</label>
+        <select
+          id="orderBy"
+          className="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer"
+          defaultValue="TITLE_ASC"
+          onChange={(e) => {
+            setShouldFetch(true)
+            setOrderBy(e.target.value)
+          }}
+        >
+          <option value="TITLE_ASC">Title ASC</option>
+          <option value="TITLE_DESC">Title DESC</option>
+        </select>{' '}
+      </div>
+      {nodes &&
+        nodes.map((node, i) => (
+          <div
+            key={node.uid}
+            className="p-4 w-full justify-center text-center bg-white rounded-lg border shadow-md dark:bg-gray-800 dark:border-gray-700"
+          >
+            <h5 className="mb-2 text-3xl font-bold text-gray-900 dark:text-white">
+              <SanitizedHTML allowedTags={['a', 'p']} html={node.title} />
+            </h5>
+            <p className="mb-5 text-base text-gray-500 sm:text-lg dark:text-gray-400">
+              <i>{node.uid}</i>
+            </p>
+            <p className="mb-5 text-base text-gray-500 sm:text-lg dark:text-gray-400">
+              <SanitizedHTML
+                allowedTags={['a', 'p']}
+                html={node.summary || ''}
+              />
+            </p>
+            <div className="justify-center items-center">
+              <div className="flex flex-row justify-center">
+                <Form method="post" action="/playlists/add">
+                  <button
+                    className=" text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                    name="add-item"
+                    value={node.uid}
+                  >
+                    add to playlist
+                  </button>
+                </Form>
+                <div className="px-1"></div>
+                <button
+                  className=" text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                  name="add-item"
+                  value={node.uid}
+                >
+                  <NavLink
+                    data-bs-toggle="tooltip"
+                    title={node.uid}
+                    data-bs-placement="top"
+                    prefetch="render"
+                    to={`/items/item/${node.uid}`}
+                  >
+                    show more
+                  </NavLink>
+                </button>
+              </div>
             </div>
           </div>
+        ))}
+      <div>
+        <div className="py-4 flex justify-center flex-row mx-auto">
+          {pageInfo?.hasPreviousPage && (
+            <button
+              type="button"
+              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm p-2.5 text-center inline-flex items-center mr-1 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              onClick={() => {
+                setShouldFetch(true)
+                setBefore(true)
+              }}
+            >
+              <div className="flex flex-row align-middle">
+                <svg
+                  className="w-5 mr-1"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z"
+                    clipRule="evenodd"
+                  ></path>
+                </svg>
+                <p className="ml-2">Prev</p>
+              </div>
+            </button>
+          )}
+          {pageInfo?.hasNextPage && (
+            <button
+              type="button"
+              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm p-2.5 text-center inline-flex items-center mr-1 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              onClick={() => {
+                setShouldFetch(true)
+                setAfter(true)
+              }}
+            >
+              <div className="flex flex-row align-middle">
+                <span className="mr-2">Next</span>
+                <svg
+                  className="w-5 ml-1"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  ></path>
+                </svg>
+              </div>
+            </button>
+          )}
         </div>
       </div>
-    </div>
+    </main>
   )
 }
