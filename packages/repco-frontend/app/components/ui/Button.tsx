@@ -1,4 +1,5 @@
-import { cva, cx, VariantProps } from 'class-variance-authority'
+import type { VariantProps } from 'class-variance-authority'
+import { cva, cx } from 'class-variance-authority'
 
 const styles = cva(
   ' border rounded-md items-center transition-colors duration-100 cursor-default disabled:opacity-50',
