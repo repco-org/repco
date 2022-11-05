@@ -3,6 +3,7 @@ import { Link, useLoaderData } from '@remix-run/react'
 import { gql } from '@urql/core'
 import { Pager } from '~/components/pager'
 import { SanitizedHTML } from '~/components/sanitized-html'
+import { Button } from '~/components/ui/Button'
 import type {
   LoadContentItemsQuery,
   LoadContentItemsQueryVariables,
@@ -53,6 +54,7 @@ export default function IndexRoute() {
   }
   return (
     <main>
+      <Button variant="bare">Test</Button>
       <Pager url="/items" pageInfo={data.contentItems.pageInfo} />
       <ul>
         {data.contentItems.nodes.map((node, i) => (
