@@ -21,6 +21,7 @@
     "@urql/core": "^3.0.3",
     "@urql/exchange-graphcache": "^5.0.1",
     "autoprefixer": "^10.4.12",
+    "class-variance-authority": "^0.2.4",
     "concurrently": "^7.4.0",
     "framer-motion": "^6",
     "graphql": "^15.8.0",
