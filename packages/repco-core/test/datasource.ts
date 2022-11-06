@@ -1,10 +1,9 @@
 import test from 'brittle'
 import { setup } from './util/setup.js'
-import { DataSource, EntityForm, PrismaClient } from '../lib.js'
+import { DataSource, EntityForm, PrismaClient, Repo } from '../lib.js'
 import {
   BaseDataSource,
   DataSourceDefinition,
-  DataSourceRegistry,
   ingestUpdatesFromDataSources,
 } from '../src/datasource.js'
 import { EntityBatch } from '../src/entity.js'
@@ -76,12 +75,13 @@ class TestDataSource extends BaseDataSource implements DataSource {
 test('datasource', async (assert) => {
   await setup(assert)
   const prisma = new PrismaClient()
+  const repo = await Repo.create(prisma, 'test')
   const datasource = new TestDataSource()
-  const dsr = new DataSourceRegistry()
-  dsr.register(datasource)
-  await ingestUpdatesFromDataSources(prisma, dsr)
+  repo.registerDataSource(datasource)
+  await ingestUpdatesFromDataSources(repo)
+  const uri = 'urn:test:content:1'
   const entities = await prisma.contentItem.findMany({
-    where: { uid: 'urn:test:content:1' },
+    where: { Revision: { entityUris: { has: uri } } },
     include: {
       MediaAssets: {
         include: { File: true },
@@ -90,10 +90,8 @@ test('datasource', async (assert) => {
   })
   assert.is(entities.length, 1)
   const entity = entities[0]
-  assert.is(entity.uid, 'urn:test:content:1')
+  console.log(entity)
   assert.is(entity.MediaAssets.length, 1)
-  assert.is(entity.MediaAssets[0].uid, 'urn:test:media:1'),
-    assert.is(entity.MediaAssets[0].File.uid, 'urn:test:file:1')
   assert.is(
     entity.MediaAssets[0].File.contentUrl,
     'http://example.org/file1.mp3',

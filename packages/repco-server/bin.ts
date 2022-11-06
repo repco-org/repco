@@ -4,5 +4,6 @@ import { runServer } from './src/lib.js'
 
 Dotenv.config()
 Dotenv.config({ path: '../../.env' })
+
 const prisma = new PrismaClient()
 runServer(prisma, Number(process.env.PORT) || 8765)

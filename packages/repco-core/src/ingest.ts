@@ -1,9 +1,5 @@
 import { PrismaClient } from 'repco-prisma'
-import {
-  DataSourcePluginRegistry,
-  DataSourceRegistry,
-  ingestUpdatesFromDataSource,
-} from './datasource.js'
+import { DataSourcePluginRegistry, DataSourceRegistry } from './datasource.js'
 import { EntityRevision } from './entity.js'
 
 // export type WorkerConstructor
@@ -57,7 +53,7 @@ export class Ingester extends Worker<void> {
     }
 
     for (const ds of this.datasources.all()) {
-      ingestUpdatesFromDataSource(this.state.prisma, this.datasources, ds)
+      // ingestUpdatesFromDataSource(this.state.prisma, this.datasources, ds)
     }
   }
 }

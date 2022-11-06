@@ -9,12 +9,16 @@ import { base64 } from 'multiformats/bases/base64'
 let ID_COUNTER = 0
 const COUNTER_MAX = 1000
 
+export function createRepoId(timestamp?: Date | number): string {
+  return 'r' + MultiID.createTimeAndRandom(timestamp).toString()
+}
+
 export function createRevisionId(timestamp?: Date | number): string {
-  return 'r.' + MultiID.createTimeAndRandom(timestamp).toString()
+  return 'v' + MultiID.createTimeAndRandom(timestamp).toString()
 }
 
 export function createEntityId(timestamp?: Date | number): string {
-  return 'e.' + MultiID.createTimeAndRandom(timestamp).toString()
+  return 'e' + MultiID.createTimeAndRandom(timestamp).toString()
 }
 
 export enum IDFormats {

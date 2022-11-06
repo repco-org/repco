@@ -12,15 +12,19 @@
     "build": "tsc --build",
     "watch": "tsc --build -w",
     "docs": "typedoc src/mod.ts --out ./docs",
-    "test": "brittle dist/test/*.js"
+    "test": "brittle dist/test/*.js",
+    "build-test": "yarn build && yarn test"
   },
   "dependencies": {
+    "@ipld/car": "^4.1.6",
     "@ipld/dag-cbor": "^7.0.3",
     "@multiformats/blake2": "^1.0.11",
+    "@ucans/ucans": "https://gitpkg.now.sh/Frando/ts-ucan/packages/ucans?fix-0.11.3",
     "dotenv": "^16.0.1",
-    "multiformats": "^9.7.0",
-    "repco-prisma": "*",
+    "level": "^8.0.0",
+    "multiformats": "^9.9.0",
     "repco-common": "*",
+    "repco-prisma": "*",
     "rss-parser": "^3.12.0",
     "streamx": "^2.12.5",
     "undici": "^5.10.0",
@@ -29,8 +33,10 @@
   },
   "devDependencies": {
     "@types/node": "^18.0.0",
+    "@types/source-map-support": "^0.5.6",
     "@types/streamx": "^2.9.1",
     "brittle": "^2.4.0",
+    "nanobench-utils": "^1.0.0",
     "typedoc": "^0.22.17",
     "typescript": "^4.7.4"
   }

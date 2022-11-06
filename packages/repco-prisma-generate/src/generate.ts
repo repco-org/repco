@@ -15,7 +15,7 @@ function isRepcoEntity(model: DMMF.Model) {
 }
 
 export function generateTypes(dmmf: DMMF.Document, file: SourceFile) {
-  const imports = ['PrismaClient', 'PrismaPromise', 'Prisma']
+  const imports = ['PrismaPromise', 'Prisma']
   const entityModels = dmmf.datamodel.models.filter(isRepcoEntity)
   // for (const model of entityModels) {
   //   // generateModelTypes(model, file)
@@ -42,6 +42,7 @@ export function generateTypes(dmmf: DMMF.Document, file: SourceFile) {
   generateEntityTypes(entityModels, file)
   generateParseFunction(entityModels, file)
   generateUpsertFunction(entityModels, file)
+  // generateUpsertBatchFunction(entityModels, file)
   generateExtractRelationsFunction(entityModels, file)
 }
 
@@ -67,6 +68,11 @@ function generateEntityTypes(models: DMMF.Model[], file: SourceFile) {
   file.addTypeAlias({
     name: `EntityInputWithUid`,
     type: `EntityInput & { uid: common.Uid }`,
+    isExported: true,
+  })
+  file.addTypeAlias({
+    name: `EntityInputWithUidAndRevisionId`,
+    type: `EntityInput & { uid: common.Uid, revisionId: string }`,
     isExported: true,
   })
   file.addTypeAlias({
@@ -108,7 +114,7 @@ function generateEntityTypes(models: DMMF.Model[], file: SourceFile) {
 //   // })
 // }
 
-function generateParseFunction (models: DMMF.Model[], file: SourceFile) {
+function generateParseFunction(models: DMMF.Model[], file: SourceFile) {
   let code = `switch (type) {`
   for (const model of models) {
     const parser = lowerName(model)
@@ -157,12 +163,12 @@ function generateExtractRelationsFunction(
         inner += `
           if (${path} !== undefined && ${path} !== null) {
             relations.push({
-              fromType: input.type,
-              fromUid: input.uid,
-              fieldName: '${field.name}',
-              toType: '${field.type}',
-              isList: ${JSON.stringify(field.isList)},
-              values: ${values}
+              uid: input.uid,
+              type: input.type,
+              field: '${field.name}',
+              targetType: '${field.type}',
+              multiple: ${JSON.stringify(field.isList)},
+              values: ${values},
             })
           }
         `
@@ -204,6 +210,83 @@ function lowerName(model: DMMF.Model): string {
   return model.name[0].toLowerCase() + model.name.substring(1)
 }
 
+// function generateUpsertBatchFunction(models: DMMF.Model[], file: SourceFile) {
+//   const init = models.map(model => {
+//     return `
+//     const ${lowerName(model)}Data: Prisma.${model.name}CreateManyInput[] = []
+//     const ${lowerName(model)}Ids: string[] = []
+//     `
+//   }).join('\n')
+//   const inner = models.map(model => {
+//     const uidFields = findReferences(model)
+//     let transform = ''
+//     if (uidFields.length) {
+//       for (const field of uidFields) {
+//         const path = `input.content.${field.name}`
+//         let inner, innerPath
+//         if (field.isList) {
+//           inner = `${path}.filter(link => link.uid).map(link => ({ uid: link.uid }))`
+//           innerPath = `(${path}?.length && ${path}[0].uid)`
+//         } else {
+//           inner = `{ uid: ${path}.uid }`
+//           innerPath = `${path}?.uid`
+//         }
+//         transform += `
+//           ${field.name}: ${innerPath} ? { connect: ${inner} } : {},`
+//       }
+//       return `
+//       case '${model.name}': {
+//         const data: Prisma.${model.name}CreateManyInput = {
+//           ...input.content,
+//           uid,
+//           Revision: { connect: { id: revisionId }},
+//           ${transform}
+//           rows.push(data)
+//         }
+//         ${lowerName(model)}Data.push(data)
+//         ${lowerName(model)}Ids.push(uid)
+//       }
+//       `
+//     }
+//   })
+//   const queries = models.map(model => {
+//     return `
+//     if (${lowerName(model)}Ids.length) {
+//       await prisma[type].deleteMany({
+//         where: { uid: { in: ${lowerName(model)}Ids } }
+//       })
+//     }
+//     if (${lowerName(model)}Data.length) {
+//       await prisma[type].createMany({
+//         data: ${lowerName(model)}Data
+//       })
+//     }
+//     `
+//   }).join('\n')
+//   const code = `
+//     ${init}
+//     for (const input of entities) {
+//       const type = input.type
+//       const uid = input.uid
+//       switch (type) {
+//         ${inner}
+//       }
+//     }
+//     ${queries}
+//   `
+//   file.addFunction({
+//     isExported: true,
+//     isAsync: true,
+//     name: 'upsertEntityBatch',
+//     parameters: [
+//       { name: 'prisma', type: 'Prisma.TransactionClient' },
+//       { name: 'entities', type: 'EntityInputWithUidAndRevisionId[]' }
+//     ],
+//     returnType: 'Promise<void>',
+//     statements: code,
+//   })
+// }
+
 function generateUpsertFunction(models: DMMF.Model[], file: SourceFile) {
   let code = `
 	const type = input.type
@@ -223,13 +306,16 @@ function generateUpsertFunction(models: DMMF.Model[], file: SourceFile) {
         // ${field.name}: undefined,
         // `
         let inner
+        let innerPath
         if (field.isList) {
           inner = `${path}.filter(link => link.uid).map(link => ({ uid: link.uid }))`
+          innerPath = `(${path}?.length && ${path}[0].uid)`
         } else {
           inner = `{ uid: ${path}.uid }`
+          innerPath = `${path}?.uid`
         }
         transform += `
-          ${field.name}: ${path} ? { connect: ${inner} } : {},`
+          ${field.name}: ${innerPath} ? { connect: ${inner} } : {},`
       }
     }
     code += `
@@ -260,7 +346,7 @@ function generateUpsertFunction(models: DMMF.Model[], file: SourceFile) {
     // isAsync: true,
     name: 'upsertEntity',
     parameters: [
-      { name: 'prisma', type: 'PrismaClient' },
+      { name: 'prisma', type: 'Prisma.TransactionClient' },
       { name: 'uid', type: 'string' },
       { name: 'revisionId', type: 'string' },
       { name: 'input', type: 'EntityInput' },
