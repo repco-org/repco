@@ -8,7 +8,7 @@ const styles = cva(
       disabled: {
         true: 'opacity-70 pointer-events-none cursor-not-allowed',
       },
-      size: {
+      variantSize: {
         icon: '!p-1',
         md: 'py-1 px-3 text-md font-medium',
         sm: 'py-1 px-2 text-sm font-medium',
@@ -18,14 +18,21 @@ const styles = cva(
           'text-white',
           'bg-blue-700 hover:bg-blue-800 placeholder:focus:ring-blue-300',
           'dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800',
-          'tfocus:ring-4 focus:outline-none rounded-lg inline-flex',
+          'focus:ring-4 focus:outline-none inline-flex',
+        ],
+        inline: [
+          'text-white',
+          'bg-blue-700 hover:bg-blue-800 placeholder:focus:ring-blue-300',
+          'dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800',
+          'absolute right-5 bottom-1.5 focus:ring-4 focus:outline-none',
+          'py-1 px-2 text-sm font-medium',
         ],
 
         bare: '',
       },
     },
     defaultVariants: {
-      size: 'md',
+      variantSize: 'md',
       variant: 'default',
     },
   },
