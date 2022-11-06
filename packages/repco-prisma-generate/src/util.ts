@@ -5,18 +5,37 @@ export function firstLower(str: string) {
   return str[0].toLowerCase() + str.substring(1)
 }
 
-function findUidFields(model: DMMF.Model): DMMF.Field[] {
-  const res = []
-  for (const field of model.fields) {
-    if (
+export function isRepcoEntity(model: DMMF.Model) {
+  return hasEntityAnnotation(model.documentation)
+}
+
+export function findRelations(model: DMMF.Model): DMMF.Field[] {
+  return model.fields.filter(
+    (field) =>
       field.kind === 'object' &&
-      field.type !== 'Revision'
-      // && field.isList
-      // && field.relationToFields?.length
-      // && field.relationToFields[0] === 'uid'
-    ) {
-      res.push(field)
-    }
+      !(
+        field.type === 'Revision' &&
+        field.relationFromFields &&
+        field.relationFromFields[0] === 'revisionId'
+      ) &&
+      !hasSkipAnnotation(field.documentation),
+  )
+}
+
+export function hasEntityAnnotation(docstring?: string) {
+  if (!docstring) return false
+  const lines = docstring.split('\n')
+  for (const line of lines) {
+    if (line.match(/\s*@repco\(Entity\)\s*/g)) return true
   }
-  return res
+  return false
+}
+
+export function hasSkipAnnotation(docstring?: string) {
+  if (!docstring) return false
+  const lines = docstring.split('\n')
+  for (const line of lines) {
+    if (line.match(/\s*@repco\(skip\)\s*/g)) return true
+  }
+  return false
 }

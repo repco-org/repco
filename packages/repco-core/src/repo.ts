@@ -1,6 +1,5 @@
 import * as ucans from '@ucans/ucans'
 import * as common from 'repco-common/zod'
-import * as z from 'zod'
 import {
   extractRelations,
   parseEntity,
@@ -20,10 +19,22 @@ import { Authority } from './repo/auth.js'
 import { IpldBlockStore, PrismaIpldBlockStore } from './repo/blockstore.js'
 import { GGraph } from './repo/graph.js'
 import { RevisionFilter, RevisionStream } from './repo/stream.js'
+import {
+  CommitIpld,
+  entityForm,
+  RevisionIpld,
+  revisionIpldToDb,
+  RootIpld,
+  headersForm,
+} from './repo/types.js'
 import { MapList } from './util/collections.js'
-import { createEntityId, createRepoId, createRevisionId } from './util/id.js'
+import { createEntityId, createRevisionId } from './util/id.js'
+
+export * from './repo/types.js'
 
 const REPOS: Map<string, Repo> = new Map()
+
+export type RevisionWithoutCid = Omit<Revision, 'revisionCid'>
 
 export enum ErrorCode {
   NOT_FOUND = 'NOT_FOUND',
@@ -40,7 +51,7 @@ export class RepoError extends Error {
 }
 
 export type OpenParams = {
-  did?: string,
+  did?: string
   name?: string
 }
 
@@ -96,7 +107,7 @@ export class Repo {
     if (params.name && REPOS.has(params.name)) return REPOS.get(params.name)!
 
     const repoData = await prisma.repo.findFirst({
-      where: { OR: [{ did: params.did }, { name: params.name }] }
+      where: { OR: [{ did: params.did }, { name: params.name }] },
     })
     if (!repoData) {
       throw new RepoError(ErrorCode.NOT_FOUND, `Repo not found`)
@@ -310,7 +321,7 @@ export class Repo {
   }
 
   async parseAndAssignUid(input: unknown): Promise<EntityInputWithHeaders> {
-    const headers = headerModel.parse(input)
+    const headers = headersForm.parse(input)
     const parsed = entityForm.parse(input)
     const entity = parseEntity(parsed.type, parsed.content)
 
@@ -516,88 +527,6 @@ export class RelationNotFoundError extends Error {
     super(
       `Related entity not found: ${value} on ${relation.type}:${relation.field}`,
     )
-  }
-}
-
-export const commitIpld = z.object({
-  repoDid: common.uid,
-  agentDid: common.uid,
-  parent: common.cid.nullish(),
-  timestamp: z.date(),
-  revisions: z.array(common.cid),
-})
-export interface CommitIpld extends z.infer<typeof commitIpld> {}
-
-export const headerModel = z.object({
-  // TODO: uid / did
-  agent: z.string().nullish(),
-  dateModified: z.date().nullish(),
-  dateCreated: z.date().nullish(),
-  revisionUris: z.array(z.string()).optional(),
-  entityUris: z.array(z.string()).optional(),
-  prevRevisionId: z.string().nullish(),
-  isDeleted: z.string().nullish(),
-})
-export interface Headers extends z.infer<typeof headerModel> {}
-
-const entityForm = z.object({
-  type: z.string(),
-  content: z.object({}).passthrough(),
-  headers: headerModel.nullish(),
-})
-
-export type RevisionWithoutCid = Omit<Revision, 'revisionCid'>
-
-export type RevisionIpld = {
-  id: string
-  prevRevisionId: string | null
-  uid: string
-  repoDid: string
-  agentDid: string
-  entityType: string
-  dateModified: Date
-  dateCreated: Date
-  isDeleted: boolean
-  entityUris: string[]
-  revisionUris: string[]
-  contentCid: common.CID
-}
-
-export type RootIpld = {
-  sig: Uint8Array
-  commit: common.CID
-}
-
-// function revisionIpldFromEntityInput (entity: EntityInputWithHeaders, repoDid: string, agentDid: string, contentCid: common.CID): RevisionIpld {
-//   const headers = entity.headers
-//   const id = createRevisionId()
-//   if (!headers.dateModified) headers.dateModified = new Date()
-//   if (!headers.dateCreated) headers.dateCreated = new Date()
-//   const revisionWithoutCid: RevisionIpld = {
-//     id,
-//     prevRevisionId: headers.prevRevisionId || null,
-//     contentCid: contentCid,
-//     entityType: entity.type,
-//     uid: entity.uid,
-//     repoDid,
-//     agentDid,
-//     revisionUris: headers.revisionUris || [],
-//     entityUris: headers.entityUris || [],
-//     isDeleted: false,
-//     dateModified: headers.dateModified || new Date(),
-//     dateCreated: headers.dateCreated || new Date(),
-//   }
-//   return revisionWithoutCid
-// }
-
-function revisionIpldToDb(
-  input: RevisionIpld,
-  revisionCid: common.CID,
-): Revision {
-  return {
-    ...input,
-    contentCid: input.contentCid.toString(),
-    revisionCid: revisionCid.toString(),
   }
 }
 

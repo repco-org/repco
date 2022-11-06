@@ -54,31 +54,25 @@ class TestDataSource extends BaseDataSource implements DataSource {
         entities: [this.DATA['urn:repco:concept:1']],
       }
     }
-    console.log('fetchUpdates', cursor, res)
     return res
   }
 
   async fetchByUID(uid: string): Promise<EntityForm[] | null> {
     const res = [this.DATA[uid]].filter((x) => x)
-    console.log('fetchByUid', uid, res)
     return res
   }
 }
 
 test('circular', async (assert) => {
   await setup(assert)
-  console.log('setup complete')
   const prisma = new PrismaClient({
     // log: ['query']
   })
   const repo = await Repo.create(prisma, 'test')
   const datasource = new TestDataSource()
   repo.registerDataSource(datasource)
-  console.log('now ingest')
   await ingestUpdatesFromDataSources(repo)
-  console.log('ingested')
   const entities = await prisma.concept.findMany()
-  console.log('entities', entities)
   assert.is(entities.length, 2)
   // const datasource2 = new TestDataSource()
   // const dsr2 = new DataSourceRegistry()

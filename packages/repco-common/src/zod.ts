@@ -53,6 +53,9 @@ export const link = z.object({
 })
 export type Link = z.infer<typeof link>
 
+export const revisionLink = z.object({ id: z.string() })
+export type RevisionLink = z.infer<typeof revisionLink>
+
 export type Relation = {
   uid: Uid
   type: string

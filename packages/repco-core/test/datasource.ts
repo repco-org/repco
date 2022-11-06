@@ -90,7 +90,6 @@ test('datasource', async (assert) => {
   })
   assert.is(entities.length, 1)
   const entity = entities[0]
-  console.log(entity)
   assert.is(entity.MediaAssets.length, 1)
   assert.is(
     entity.MediaAssets[0].File.contentUrl,

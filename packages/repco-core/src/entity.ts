@@ -36,13 +36,6 @@ export type FullEntity = repco.EntityInputWithUid & {
   revision: Revision
 }
 
-// export type Entity = {
-//   type: string
-//   uid: string
-//   content: Record<string, unknown>
-//   revision: Revision
-// }
-
 export type EntityMaybeContent<T extends boolean = true> = T extends true
   ? FullEntity
   : T extends false
@@ -52,28 +45,3 @@ export type EntityMaybeContent<T extends boolean = true> = T extends true
 export type EntityRevision = repco.EntityOutput & {
   revision: Revision
 }
-
-// export type RevisionForm = {
-//   uid?: string
-//   type?: string
-//   datasource?: string
-//   created?: Date
-//   alternativeIds?: string[]
-// }
-// export type TypedEntity<T extends AnyEntityType> = {
-//   type: T,
-//   content: Extract<repco.EntityOutput, { type: T }>["content"]
-//   revision: Revision
-// }
-
-// export type MaybeTypedEntity<T = any> = {
-//   type: T extends AnyEntityType ? T : string,
-//   content: T extends AnyEntityType ? Extract<repco.EntityOutput, { type: T }>["content"] : AnyEntityContent
-//   revision: Revision
-// }
-
-// export function assumeType<T extends AllEntityTypes>(entity: Entity): TypedEntity<T> {
-//   return entity as TypedEntity<T>
-// }
-
-// export type EntityFormContent = Omit<AnyEntityContent, 'revisionId'>
