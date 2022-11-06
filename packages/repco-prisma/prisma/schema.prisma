@@ -80,6 +80,8 @@ model DataSource {
   config    Json?
   cursor    String
   active    Boolean?
+
+  SourceRecords SourceRecord[]
 }
 
 model Keypair {
@@ -141,8 +143,12 @@ model Revision {
   Commit        Commit[]  @relation("RevisionToCommit")
   // Commit        Commit    @relation("RevisionToCommit", fields: [commitCid], references: [cid])
 
+  derivedFromUid String?
+  DerivedFrom SourceRecord? @relation("DerivedRevisions", fields: [derivedFromUid], references: [uid])
+
   // entity relations
   ContentGrouping  ContentGrouping?
+  SourceRecord     SourceRecord?
   ContentItem      ContentItem?
   License          License?
   MediaAsset       MediaAsset?
@@ -154,6 +160,27 @@ model Revision {
   Chapter          Chapter?
   Contribution     Contribution?
   Metadata         Metadata?
+}
+
+
+/// @repco(Entity)
+model SourceRecord {
+  uid         String @id @unique
+  revisionId  String @unique
+
+  /// MIME type
+  contentType String
+  /// Domain data model type identifier (URN)
+  domainType  String
+  body        String
+  meta        Json
+
+  dataSourceUid String
+
+  DataSource    DataSource @relation(fields: [dataSourceUid], references: [uid])
+  /// @repco(skip)
+  DerivedRevisions Revision[] @relation("DerivedRevisions")
+  Revision               Revision      @relation(fields: [revisionId], references: [id])
 }
 
 // Domain data model

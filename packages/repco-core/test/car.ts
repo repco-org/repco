@@ -36,10 +36,10 @@ test('car write read', { timeout: 100 * 1000 }, async (assert) => {
   const prisma = new PrismaClient({
     // log: ['query']
   })
-  const repo = await Repo.createOrOpen(prisma, 'default')
+  const repo = await Repo.create(prisma, 'default')
   const revs = Number(process.env.REVS || 20)
   const commits = Number(process.env.COMMITS || 5)
-  const items = revs * commits
+  // const items = revs * commits
   const inputs = Array.from(Array(revs).keys()).map((i) => mkinput(i))
   const timer = clock('save')
   let total = 0
@@ -52,35 +52,19 @@ test('car write read', { timeout: 100 * 1000 }, async (assert) => {
       }),
     )
     total += res.length
-    // console.log('save commit', i, 'inputs', inputs.length)
   }
-  // timer.log('finish write')
   report(timer, total, 'WRITE')
-  // let ms = Math.round(timer.ns() / 1000 / 1000 * 100) / 100
-  // console.log('took', ms, 'for', total)
-  // console.log(items / ms, 'ms per item')
-  // console.log((ms * 1000) / items, 'items per second')
 
   const head = await repo.getHead()
   if (!head) throw new Error('expected head')
-  // timer = clock('read')
   const carOut = await exportRepoToCar(repo.blockstore, head)
   const reader = await CarBlockIterator.fromIterable(carOut)
   const res = []
-  const i = 0
   const timer2 = clock('read')
   for await (const block of reader) {
     const parsed = repo.blockstore.parse(block.bytes)
     res.push(parsed)
-    // @tsignore
-    // console.log('READ', ++i, parsed.commit && 'root', parsed.timestamp && 'commit', parsed.contentCid && 'revision', (parsed as any).title && (parsed as any).title)
   }
-  // timer2.log('finish write')
   report(timer2, res.length, 'READ')
-  // ms = Math.round(timer.ns() / 1000 / 1000 * 100) / 100
-  // console.log('took', ms)
-  // console.log(items / ms, 'ms per item')
-  // console.log((ms * 1000) / items, 'items per second')
   assert.is('foo', 'foo')
-  // assert.is(res.length, revs * commits * 2 + commits * 2)
 })

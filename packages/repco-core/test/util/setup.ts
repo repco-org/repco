@@ -29,6 +29,7 @@ export async function setup(test: Test) {
     log: test.comment,
     stdio: 'inherit',
   })
+  await new Promise((resolve) => setTimeout(resolve, 1000))
 }
 
 process.on('beforeExit', () => {
