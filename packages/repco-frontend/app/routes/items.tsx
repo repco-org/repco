@@ -2,8 +2,9 @@ import type { LoaderFunction } from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
 import { gql } from '@urql/core'
 import { Pager } from '~/components/pager'
-import { SanitizedHTML } from '~/components/sanitized-html'
-import { SearchBar } from '~/components/ui/searchBar'
+import { Button } from '~/components/ui/Button'
+import { Card } from '~/components/ui/Card'
+import { SearchBar } from '~/components/ui/SearchBar'
 import type {
   LoadContentItemsQuery,
   LoadContentItemsQueryVariables,
@@ -56,16 +57,15 @@ export default function IndexRoute() {
     <main>
       <SearchBar></SearchBar>
       <Pager url="/items" pageInfo={data.contentItems.pageInfo} />
-      <ul>
-        {data.contentItems.nodes.map((node, i) => (
-          <li key={i}>
-            <h2>
-              <Link to={`/item/${node.uid}`}>{node.title}</Link>
-            </h2>
-            <SanitizedHTML allowedTags={['a', 'p']} html={node.summary} />
-          </li>
-        ))}
-      </ul>
+
+      {data.contentItems.nodes.map((node, i) => (
+        <Card variant="default" key={i}>
+          <h2>
+            <Link to={`/item/${node.uid}`}>{node.uid}</Link>
+            <Button variantSize="sm">Test</Button>
+          </h2>
+        </Card>
+      ))}
     </main>
   )
 }

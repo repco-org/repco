@@ -40,7 +40,3 @@ export type InputProps = InputBaseProps &
   React.InputHTMLAttributes<HTMLInputElement>
 
 export interface InputBaseProps extends VariantProps<typeof styles> {}
-
-export interface newInputProps
-  extends React.HTMLAttributes<HTMLInputElement>,
-    VariantProps<typeof styles> {}
