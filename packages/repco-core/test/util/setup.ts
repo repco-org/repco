@@ -15,6 +15,7 @@ let dockerUp = false
 Dotenv.config({ path: ENV_FILE })
 
 export async function setup(test: Test) {
+  if (process.env.DOCKER_SETUP === '0') return
   if (!dockerUp) {
     await spawn(
       'docker-compose',
@@ -31,6 +32,7 @@ export async function setup(test: Test) {
 }
 
 process.on('beforeExit', () => {
+  if (process.env.DOCKER_SETUP === '0') return
   if (dockerDown) return
   spawn('docker-compose', ['-f', COMPOSE_FILE, 'down', '--rm'])
     .catch(() => console.error('>> Failed to teardown docker container.'))

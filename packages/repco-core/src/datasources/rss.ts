@@ -1,3 +1,4 @@
+import { Link } from 'repco-common/zod'
 import RssParser from 'rss-parser'
 import zod from 'zod'
 import {
@@ -6,7 +7,7 @@ import {
   DataSourcePlugin,
 } from '../datasource.js'
 import { EntityBatch, EntityForm } from '../entity.js'
-import { createHash, createJsonHash } from '../helpers/hash.js'
+import { createHash, createJsonHash } from '../util/hash.js'
 
 export class RssDataSourcePlugin implements DataSourcePlugin {
   createInstance(config: any) {
@@ -231,7 +232,7 @@ export class RssDataSource implements DataSource {
     itemSlug: string,
     revisionSlug: string,
     item: RssParser.Item,
-  ): Promise<{ mediaAssets: string[]; entities: EntityForm[] }> {
+  ): Promise<{ mediaAssets: Link[]; entities: EntityForm[] }> {
     const entities: EntityForm[] = []
     if (!item.enclosure) {
       return { mediaAssets: [], entities: [] }
@@ -247,7 +248,7 @@ export class RssDataSource implements DataSource {
       revisionUris: [this._urn('rev', 'file', revisionSlug)],
     })
 
-    const mediaUid = this._urn('media', itemSlug)
+    const mediaUri = this._urn('media', itemSlug)
 
     entities.push({
       type: 'MediaAsset',
@@ -257,11 +258,11 @@ export class RssDataSource implements DataSource {
         mediaType: 'audio',
         File: { uri: fileUid },
       },
-      entityUris: [mediaUid],
+      entityUris: [mediaUri],
       revisionUris: [this._urn('rev', 'media', revisionSlug)],
     })
 
-    return { entities, mediaAssets: [mediaUid] }
+    return { entities, mediaAssets: [{ uri: mediaUri }] }
   }
 
   async _deriveSlugs(
@@ -280,7 +281,6 @@ export class RssDataSource implements DataSource {
       item,
     )
     const content = {
-      uid: this._urn('content', itemSlug),
       title: item.title || item.guid || 'missing',
       summary: item.contentSnippet,
       content: item.content || '',

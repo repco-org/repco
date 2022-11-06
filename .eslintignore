@@ -8,3 +8,5 @@ packages/*/build
 packages/*/generated
 packages/*/docs
 packages/*/node_modules
+packages/repco-frontend/public
+**/SANDBOX/**

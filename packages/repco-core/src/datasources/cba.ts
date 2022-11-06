@@ -7,8 +7,8 @@ import {
   DataSourcePlugin,
 } from '../datasource.js'
 import { ContentGroupingVariant, EntityBatch, EntityForm } from '../entity.js'
-import { extractCursorAndMap, FetchOpts } from '../helpers/datamapping.js'
-import { HttpError } from '../helpers/error.js'
+import { extractCursorAndMap, FetchOpts } from '../util/datamapping.js'
+import { HttpError } from '../util/error.js'
 
 // series:
 // https://cba.fro.at/wp-json/wp/v2/series?page=1&per_page=1&_embed&orderby=modified&order=asc&modified_after=2021-07-27T10:29:04
@@ -81,8 +81,12 @@ export class CbaDataSource implements DataSource {
         const media = await this._fetchMedia(parsed.path)
         return media.entities
       }
+      case 'series': {
+        const series = await this._fetchSeries(parsed.path)
+        return series
+      }
     }
-    return []
+    throw new Error('Unsupported CBA data type: ' + parsed.type)
   }
 
   async fetchUpdates(cursorString: string | null): Promise<EntityBatch> {
@@ -96,11 +100,11 @@ export class CbaDataSource implements DataSource {
       }
     }
     {
-      const res = await this._fetchSeries(cursor.series)
-      if (res) {
-        cursor.series = res.cursor
-        entities.push(...res.entities)
-      }
+      // const res = await this._fetchSeriesUpdates(cursor.series)
+      // if (res) {
+      //   cursor.series = res.cursor
+      //   entities.push(...res.entities)
+      // }
     }
     const batch = {
       cursor: JSON.stringify(cursor),
@@ -121,7 +125,7 @@ export class CbaDataSource implements DataSource {
     return `urn:repco:cba.media:revision:${type}:${id}:${revisionId}`
   }
 
-  private async _fetchSeries(cursor?: string) {
+  private async _fetchSeriesUpdates(cursor?: string) {
     if (!cursor) cursor = '1970-01-01T01:00:00'
     const perPage = 2
     const url = `/series?page=1&per_page=${perPage}&_embed&orderby=modified&order=asc&modified_after=${cursor}`
@@ -172,6 +176,11 @@ export class CbaDataSource implements DataSource {
   private async _fetchMedia(id: string): Promise<FormsWithUid> {
     const media = await this._fetch(`/media/${id}`)
     return this._mapMedia(media)
+  }
+
+  private async _fetchSeries(id: string) {
+    const series = await this._fetch(`/series/${id}`)
+    return this._mapSeries(series)
   }
 
   private _mapMedia(media: any): FormsWithUid {
@@ -241,7 +250,7 @@ export class CbaDataSource implements DataSource {
   }
 
   private _mapPost(post: CbaPost): EntityForm[] {
-    const content = {
+    const content: form.ContentItemInput  = {
       content: post.content.rendered,
       contentFormat: 'text/html',
       title: post.title.rendered,
@@ -249,7 +258,8 @@ export class CbaDataSource implements DataSource {
       // primaryGroupingUid: null,
       subtitle: 'missing',
       summary: post.excerpt.rendered,
-      mediaAssets: post.mediaAssets,
+      MediaAssets: post.mediaAssets.map(uri => ({ uri })),
+      PrimaryGrouping: { uri: this._urn('series', post.post_parent) }
     }
     const revisionId = this._revisionUrn(
       'post',

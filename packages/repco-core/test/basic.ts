@@ -5,8 +5,7 @@ import { PrismaClient, Repo } from '../lib.js'
 test('smoke', async (assert) => {
   await setup(assert)
   const prisma = new PrismaClient()
-  const repo = new Repo(prisma, 'default')
-  await repo.ensureCreated()
+  const repo = await Repo.create(prisma, 'default')
   const input = {
     type: 'ContentItem',
     content: {

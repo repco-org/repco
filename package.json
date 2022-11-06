@@ -14,10 +14,12 @@
     "build:graphql": "yarn --cwd packages/repco-graphql build",
     "build:core": "yarn --cwd packages/repco-core build",
     "build:server": "yarn --cwd packages/repco-server build",
+    "dev:server": "yarn --cwd packages/repco-server dev",
     "watch": "tsc --build --watch",
     "build-and-test": "yarn --frozen-lockfile && run-s build test",
     "test": "run-s test:*",
     "test:core": "yarn --cwd packages/repco-core test",
+    "test:env-reset": "yarn --cwd packages/repco-prisma prisma:test migrate reset -f --skip-generate",
     "migrate": "yarn --cwd packages/repco-prisma prisma migrate deploy",
     "migrate:dev": "yarn --cwd packages/repco-prisma prisma migrate dev && yarn --cwd packages/repco-graphql export-schema",
     "codegen": "yarn migrate:dev",
@@ -37,6 +39,7 @@
     "eslint-plugin-prettier": "^4.2.1",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.7.1",
+    "source-map-support": "^0.5.21",
     "typedoc": "^0.22.17",
     "typescript": "^4.7.4"
   }

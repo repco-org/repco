@@ -1,11 +1,9 @@
+import 'source-map-support/register.js'
 import * as dotenv from 'dotenv'
-import {
-  DataSourceRegistry,
-  ingestUpdatesFromDataSources,
-  saveCursor,
-} from './datasource.js'
+import { ingestUpdatesFromDataSources, saveCursor } from './datasource.js'
 import { CbaDataSource } from './datasources/cba.js'
 import { RssDataSource } from './datasources/rss.js'
+import { Repo } from './mod.js'
 import { PrismaClient } from './prisma.js'
 
 const USAGE = `Usage: node example.js <COMMAND>
@@ -30,25 +28,21 @@ async function main() {
     ],
   })
 
-  // prisma.$on('query', async (e: Prisma.QueryEvent) => {
-  //   console.log(`${e.query} ${e.params}`)
-  // })
-  const dsr = new DataSourceRegistry()
-  // dsr.register(new CbaDataSource())
-  dsr.register(
+  const repo = await Repo.createOrOpen(prisma, 'default', 'test repo')
+  repo.registerDataSource(
     new RssDataSource({
       endpoint:
-        'https://www.freie-radios.net/portal/podcast.php?rss&anzahl=3&start=20',
+        'https://www.freie-radios.net/portal/podcast.php?rss&anzahl=100',
     }),
   )
-  dsr.register(new CbaDataSource())
+  repo.registerDataSource(new CbaDataSource())
   if (command === 'ingest') {
-    for (const ds of dsr.all()) {
+    for (const ds of repo.dsr.all()) {
       console.log(
         `Ingest updates from \`${ds.definition.uid}\` ("${ds.definition.name}")`,
       )
     }
-    const allResults = await ingestUpdatesFromDataSources(prisma, dsr)
+    const allResults = await ingestUpdatesFromDataSources(repo)
     for (const [uid, res] of Object.entries(allResults)) {
       console.log(
         `${uid}: Ingested ${res.count} new revisions. New cursor: ${res.cursor}`,
@@ -60,7 +54,7 @@ async function main() {
     await loadAndLogAllEntities(prisma)
   } else if (command === 'store-cursor') {
     const dsUid = process.argv[3]
-    const ds = dsr.get(dsUid)
+    const ds = repo.dsr.get(dsUid)
     if (!ds) throw new Error(`Datasource ${dsUid} not registered.`)
     const cursor = process.argv[4]
     if (!cursor) throw new Error('Cursor is required')

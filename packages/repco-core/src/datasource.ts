@@ -1,7 +1,7 @@
 import { EntityBatch, EntityForm } from './entity.js'
-import { PrismaClient } from './prisma.js'
+import { Prisma } from './prisma.js'
+import { Repo } from './repo.js'
 import { UID } from './shared.js'
-import { storeEntityWithDataSourceFallback } from './store.js'
 
 export type DataSourcePluginDefinition = {
   // The unique ID for this data source instance.
@@ -120,18 +120,12 @@ export type IngestResult = Record<
 >
 
 export async function ingestUpdatesFromDataSources(
-  prisma: PrismaClient,
-  datasources: DataSourceRegistry,
+  repo: Repo,
   maxIterations = 1,
 ): Promise<IngestResult> {
   const res: IngestResult = {}
-  for (const ds of datasources.all()) {
-    const ret = await ingestUpdatesFromDataSource(
-      prisma,
-      datasources,
-      ds,
-      maxIterations,
-    )
+  for (const ds of repo.dsr.all()) {
+    const ret = await ingestUpdatesFromDataSource(repo, ds, maxIterations)
     res[ds.definition.uid] = ret
   }
   return res
@@ -146,45 +140,27 @@ export async function ingestUpdatesFromDataSources(
  * updates are returned, then stop.
  */
 export async function ingestUpdatesFromDataSource(
-  prisma: PrismaClient,
-  datasources: DataSourceRegistry,
+  repo: Repo,
   datasource: DataSource,
   maxIterations = 1,
 ) {
   let count = 0
-  let cursor = await fetchCursor(prisma, datasource)
+  let cursor = await fetchCursor(repo.prisma, datasource)
   while (--maxIterations >= 0) {
-    // console.log('fetch updates for cursor', cursor)
+    // console.time('fetchUpdates:' + datasource.definition.uid)
     const batch: EntityBatch = await datasource.fetchUpdates(cursor)
+    // console.timeEnd('fetchUpdates:' + datasource.definition.uid)
     if (!batch.entities.length) break
     count += batch.entities.length
-    // console.log('fetched entities from datasource', batch.entities)
     cursor = batch.cursor
-    await storeEntityBatchFromDataSource(prisma, datasources, datasource, batch)
-    await saveCursor(prisma, datasource, cursor)
+    // console.time('saveUpdates:' + datasource.definition.uid)
+    await repo.saveBatch('me', batch.entities) // TODO: Agent
+    await saveCursor(repo.prisma, datasource, cursor)
+    // console.timeEnd('saveUpdates:' + datasource.definition.uid)
   }
   return {
     count,
     cursor,
-  }
-}
-
-export async function storeEntityBatchFromDataSource(
-  prisma: PrismaClient,
-  datasources: DataSourceRegistry,
-  datasource: DataSource,
-  batch: EntityBatch,
-) {
-  for (const entity of batch.entities) {
-    entity.agent = datasource.definition.uid
-    // console.log('IN', entity)
-    const stored = await storeEntityWithDataSourceFallback(
-      prisma,
-      datasources,
-      entity,
-    )
-    // console.log('rid', stored.revision.id)
-    // console.log('OUT', stored)
   }
 }
 
@@ -193,7 +169,7 @@ export async function storeEntityBatchFromDataSource(
  * Usually this is a timestamp or something similar
  */
 async function fetchCursor(
-  prisma: PrismaClient,
+  prisma: Prisma.TransactionClient,
   datasource: DataSource,
 ): Promise<string | null> {
   const state = await prisma.dataSource.findUnique({
@@ -212,7 +188,7 @@ async function fetchCursor(
  * sense to take the last modified date or something similar.
  */
 export async function saveCursor(
-  prisma: PrismaClient,
+  prisma: Prisma.TransactionClient,
   datasource: DataSource,
   cursor: string,
 ) {

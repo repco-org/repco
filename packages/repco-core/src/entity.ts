@@ -28,6 +28,10 @@ export type EntityBatch = {
 
 export type EntityForm = repco.EntityInput & Headers
 
+export type EntityInputWithHeaders = repco.EntityInputWithUid & {
+  headers: Headers
+}
+
 export type FullEntity = repco.EntityInputWithUid & {
   revision: Revision
 }

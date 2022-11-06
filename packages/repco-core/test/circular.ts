@@ -1,11 +1,10 @@
 import test from 'brittle'
 import { setup } from './util/setup.js'
-import { EntityForm, PrismaClient } from '../lib.js'
+import { EntityForm, PrismaClient, Repo } from '../lib.js'
 import {
   BaseDataSource,
   DataSource,
   DataSourceDefinition,
-  DataSourceRegistry,
   ingestUpdatesFromDataSources,
 } from '../src/datasource.js'
 import { EntityBatch } from '../src/entity.js'
@@ -37,9 +36,9 @@ class TestDataSource extends BaseDataSource implements DataSource {
         type: 'Concept',
         content: {
           name: 'concept2',
-          SameAs: { uri: 'urn:repco:concept:1' },
+          // SameAs: { uri: 'urn:repco:concept:1' },
         },
-        entityUris: ['urn:repco:concept:1'],
+        entityUris: ['urn:repco:concept:2'],
       },
     }
   }
@@ -69,13 +68,22 @@ class TestDataSource extends BaseDataSource implements DataSource {
 test('circular', async (assert) => {
   await setup(assert)
   console.log('setup complete')
-  const prisma = new PrismaClient()
+  const prisma = new PrismaClient({
+    // log: ['query']
+  })
+  const repo = await Repo.create(prisma, 'test')
   const datasource = new TestDataSource()
-  const dsr = new DataSourceRegistry()
-  dsr.register(datasource)
+  repo.registerDataSource(datasource)
   console.log('now ingest')
-  await ingestUpdatesFromDataSources(prisma, dsr)
+  await ingestUpdatesFromDataSources(repo)
   console.log('ingested')
   const entities = await prisma.concept.findMany()
   console.log('entities', entities)
+  assert.is(entities.length, 2)
+  // const datasource2 = new TestDataSource()
+  // const dsr2 = new DataSourceRegistry()
+  // dsr2.register(datasource2)
+  // console.log('now ingest 2')
+  // await ingestUpdatesFromDataSources(repo)
+  // console.log('entities', entities)
 })
