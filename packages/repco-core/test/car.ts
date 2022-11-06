@@ -36,7 +36,7 @@ test('car write read', { timeout: 100 * 1000 }, async (assert) => {
   const prisma = new PrismaClient({
     // log: ['query']
   })
-  const repo = await Repo.createOrOpen(prisma, 'default', 'default')
+  const repo = await Repo.createOrOpen(prisma, 'default')
   const revs = Number(process.env.REVS || 20)
   const commits = Number(process.env.COMMITS || 5)
   const items = revs * commits
