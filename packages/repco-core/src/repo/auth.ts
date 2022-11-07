@@ -5,6 +5,14 @@ export type Authority = {
   keypair?: ucans.EdKeypair
 }
 
+export async function verifySignature(
+  did: string,
+  payload: Uint8Array,
+  sig: Uint8Array,
+) {
+  return ucans.defaults.verifySignature(did, payload, sig)
+}
+
 // export async function createRepoRoot() {
 //   const keypair = await ucans.EdKeypair.create()
 

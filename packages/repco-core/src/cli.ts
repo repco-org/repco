@@ -28,7 +28,7 @@ async function main() {
     ],
   })
 
-  const repo = await Repo.createOrOpen(prisma, 'default', 'test repo')
+  const repo = await Repo.createOrOpen(prisma, 'default')
   repo.registerDataSource(
     new RssDataSource({
       endpoint:

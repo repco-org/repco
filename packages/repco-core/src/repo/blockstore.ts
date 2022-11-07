@@ -1,9 +1,10 @@
 import * as codec from '@ipld/dag-cbor'
 import * as Block from 'multiformats/block'
+import * as uint8arrays from 'uint8arrays'
 import { blake2b256 as hasher } from '@multiformats/blake2/blake2b'
+// import { sha256 as hasher } from 'multiformats/hashes/sha2'
 import { Level } from 'level'
 import { CID } from 'multiformats/cid'
-// import { sha256 as hasher } from 'multiformats/hashes/sha2'
 import { Prisma } from 'repco-prisma'
 
 class CIDNotFoundError extends Error {
@@ -12,9 +13,45 @@ class CIDNotFoundError extends Error {
   }
 }
 
+export function parseToIpld(bytes: Uint8Array | Buffer) {
+  const decoded = codec.decode(bytes)
+  const value = postDecode(decoded as any as IpldRecord)
+  return value
+}
+
+export function parseBytesWith<T>(
+  bytes: Uint8Array,
+  parseFn: ParseFnOrObj<T>,
+): T {
+  const value = parseToIpld(bytes)
+  return parseIpldWith(value, parseFn)
+}
+
+export function parseIpldWith<T>(
+  value: IpldRecord,
+  parseFn: ParseFnOrObj<T>,
+): T {
+  let parser
+  if (typeof parseFn === 'function') parser = parseFn
+  else parser = parseFn.parse
+  return parser(value)
+}
+
+export async function validateCID(params: { cid: CID; bytes: Uint8Array }) {
+  const { cid, bytes } = params
+  if (cid.multihash.code !== hasher.code) {
+    throw new Error('CID hash format is unsupported')
+  }
+  const hash = await hasher.digest(bytes)
+  if (!uint8arrays.equals(cid.multihash.bytes, hash.bytes)) {
+    throw new Error('CID hash does not match bytes')
+  }
+}
+
 export interface IpldBlockStore {
   put(data: any): Promise<CID>
   getBytes(cid: CID): Promise<Uint8Array>
+  putBytes(cid: CID, bytes: Uint8Array): Promise<void>
   get(cid: CID): Promise<IpldRecord>
   parse(bytes: Uint8Array | Buffer): IpldRecord
   has(cid: CID): Promise<boolean>
@@ -70,10 +107,7 @@ export abstract class IpldBlockStoreBase implements IpldBlockStore {
 
   async getParsed<T>(cid: CID, parse: ParseFnOrObj<T>): Promise<T> {
     const value = await this.get(cid)
-    let parser
-    if (typeof parse === 'function') parser = parse
-    else parser = parse.parse
-    return parser(value)
+    return parseIpldWith(value, parse)
   }
 
   transaction(): IpldBlockStore {
