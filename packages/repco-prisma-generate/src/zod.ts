@@ -58,17 +58,12 @@ export function generateZodInputs(
               .write('z.object(')
               .inlineBlock(() => {
                 model.fields
-                  // .filter((f) => f.kind !== 'object')
                   .filter((f) => !f.isReadOnly)
                   // remove fields that are explicitly skipped
                   .filter((f) => !SKIP_FIELDS.has(f.name))
                   .filter((f) => !hasSkipAnnotation(f.documentation))
-                  // remove Uid fields, because we add the references themselves
-                  // .filter((f) => !f.name.endsWith('Uid'))
                   .forEach((field) => {
                     writeArray(writer, intoJsDoc(field.documentation))
-                    // lowercase (for references)
-                    // const name = firstLower(field.name)
                     writer
                       .write(`${field.name}: ${getZodConstructor(field)}`)
                       .write(',')

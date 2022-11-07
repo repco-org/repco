@@ -1,6 +1,6 @@
 import test from 'brittle'
 import { setup } from './util/setup.js'
-import { EntityForm, PrismaClient, Repo } from '../lib.js'
+import { EntityForm, Repo } from '../lib.js'
 import {
   BaseDataSource,
   DataSource,
@@ -64,10 +64,7 @@ class TestDataSource extends BaseDataSource implements DataSource {
 }
 
 test('circular', async (assert) => {
-  await setup(assert)
-  const prisma = new PrismaClient({
-    // log: ['query']
-  })
+  const prisma = await setup(assert)
   const repo = await Repo.create(prisma, 'test')
   const datasource = new TestDataSource()
   repo.registerDataSource(datasource)

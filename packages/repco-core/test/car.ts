@@ -32,10 +32,7 @@ function mkinput(i: number) {
 }
 
 test('car write read', { timeout: 100 * 1000 }, async (assert) => {
-  await setup(assert)
-  const prisma = new PrismaClient({
-    // log: ['query']
-  })
+  const prisma = await setup(assert)
   const repo = await Repo.create(prisma, 'default')
   const revs = Number(process.env.REVS || 20)
   const commits = Number(process.env.COMMITS || 5)

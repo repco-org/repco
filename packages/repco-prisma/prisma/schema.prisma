@@ -34,6 +34,7 @@ model Repo {
   did  String @id @unique
   name String?
   head String? @unique
+  tail String? @unique
 
   Head     Commit?    @relation("RepoToHead", fields: [head], references: [rootCid])
   Revision Revision[]
