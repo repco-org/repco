@@ -55,32 +55,48 @@ export interface DataSource {
   canFetchUID(uid: string): boolean
 }
 
+interface PluginLike {
+  definition: {
+    uid: string
+  }
+}
+
+export class Registry<T extends PluginLike> {
+  map: Map<string, T> = new Map()
+
+  get(uid: string): T | undefined {
+    return this.map.get(uid)
+  }
+
+  all(): T[] {
+    return [...this.map.values()]
+  }
+
+  register(item: T) {
+    const uid = item.definition.uid
+    this.map.set(uid, item)
+  }
+
+  filtered(fn: (p: T) => boolean): T[] {
+    return [...this.map.values()].filter(fn)
+  }
+
+  // @deprecated
+  getByUID(uid: string): T | null {
+    return this.get(uid) || null
+  }
+}
+
 export abstract class BaseDataSource {
   canFetchUID(_uid: string): boolean {
     return false
   }
+  async fetchUpdates(_cursor: string | null): Promise<EntityBatch> {
+    return { cursor: '', entities: [] }
+  }
 }
 
-export class DataSourceRegistry {
-  map: Map<string, DataSource> = new Map()
-
-  get(uid: string): DataSource | null {
-    return this.map.get(uid) || null
-  }
-
-  all(): DataSource[] {
-    return [...this.map.values()]
-  }
-
-  register(datasource: DataSource) {
-    const uid = datasource.definition.uid
-    this.map.set(uid, datasource)
-  }
-
-  getByUID(uid: string): DataSource | null {
-    return this.map.get(uid) || null
-  }
-
+export class DataSourceRegistry extends Registry<DataSource> {
   getForUID(uid: string): DataSource[] {
     const matching = []
     for (const ds of this.map.values()) {

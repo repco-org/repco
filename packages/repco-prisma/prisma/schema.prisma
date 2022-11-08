@@ -174,11 +174,10 @@ model SourceRecord {
   /// Domain data model type identifier (URN)
   domainType  String
   body        String
-  meta        Json
+  meta        Json?
 
-  dataSourceUid String
-
-  DataSource    DataSource @relation(fields: [dataSourceUid], references: [uid])
+  dataSourceUid String?
+  DataSource    DataSource? @relation(fields: [dataSourceUid], references: [uid])
   /// @repco(skip)
   DerivedRevisions Revision[] @relation("DerivedRevisions")
   Revision               Revision      @relation(fields: [revisionId], references: [id])

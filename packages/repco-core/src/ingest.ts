@@ -1,6 +1,6 @@
 import { PrismaClient } from 'repco-prisma'
 import { DataSourcePluginRegistry, DataSourceRegistry } from './datasource.js'
-import { EntityRevision } from './entity.js'
+import { EntityWithRevision } from './entity.js'
 
 // export type WorkerConstructor
 export enum WorkerStatus {
@@ -24,7 +24,7 @@ export abstract class Worker<Conf = void> {
 }
 
 export abstract class Indexer<Conf = void> extends Worker<Conf> {
-  abstract onRevisions(revisions: EntityRevision[]): Promise<void>
+  abstract onRevisions(revisions: EntityWithRevision[]): Promise<void>
 }
 
 export class Ingester extends Worker<void> {

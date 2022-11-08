@@ -11,15 +11,19 @@ import {
 import { DataSource, DataSourceRegistry } from './datasource.js'
 import {
   EntityInputWithHeaders,
+  EntityInputWithRevision,
   EntityMaybeContent,
-  FullEntity,
 } from './entity.js'
 import { Authority } from './repo/auth.js'
 import { IpldBlockStore, PrismaIpldBlockStore } from './repo/blockstore.js'
 import { exportRepoToCar, exportRepoToCarReversed } from './repo/export.js'
 import { GGraph } from './repo/graph.js'
 import { importRepoFromCar } from './repo/import.js'
-import { RevisionFilter, RevisionStream } from './repo/stream.js'
+import {
+  ContentLoaderStream,
+  RevisionFilter,
+  RevisionStream,
+} from './repo/stream.js'
 import {
   CommitBundle,
   CommitIpld,
@@ -221,9 +225,27 @@ export class Repo {
     return new RevisionStream(this, true, from, filter)
   }
 
+  createContentStream(
+    filter: RevisionFilter,
+  ): AsyncGenerator<EntityInputWithRevision> {
+    return ContentLoaderStream(
+      this.createRevisionStream(filter.from || '0', filter),
+      false,
+    )
+  }
+
+  createContentBatchStream(
+    filter: RevisionFilter,
+  ): AsyncGenerator<EntityInputWithRevision[]> {
+    return ContentLoaderStream(
+      this.createRevisionBatchStream(filter.from || '0', filter),
+      true,
+    )
+  }
+
   async fetchRevisionsWithContent(
     filter: RevisionFilter = {},
-  ): Promise<FullEntity[]> {
+  ): Promise<EntityInputWithRevision[]> {
     const where: Prisma.RevisionWhereInput = {
       repoDid: this.did,
     }
@@ -238,6 +260,16 @@ export class Repo {
       take: filter.limit,
     })
     return Promise.all(revisions.map((r) => this.maybeResolveContent(r, true)))
+  }
+
+  async getCursor(): Promise<string | undefined> {
+    const row = await this.prisma.revision.findFirst({
+      where: { repoDid: this.did },
+      orderBy: { id: 'desc' },
+      select: { id: true },
+    })
+    if (!row) return undefined
+    return row.id
   }
 
   async getTail(): Promise<common.CID | null> {
@@ -262,7 +294,7 @@ export class Repo {
     agentDid: string,
     input: any,
     headers: any = {},
-  ): Promise<FullEntity> {
+  ): Promise<EntityInputWithRevision> {
     const data = { ...input, ...headers }
     const res = await this.saveBatch(agentDid, [data])
     if (!res.length) throw new Error('Expected a result')
@@ -294,6 +326,8 @@ export class Repo {
 
     // Resolve missing relations.
     const entities = await RelationFinder.resolve(this, parsedInputs)
+
+    if (!entities.length) return []
 
     // Save the batch in one transaction.
     return this.$transaction(async (repo) => {
@@ -470,6 +504,7 @@ export class Repo {
       isDeleted: false,
       dateModified: headers.dateModified || new Date(),
       dateCreated: headers.dateCreated || new Date(),
+      derivedFromUid: headers.derivedFromUid,
     }
     const revisionCid = await this.blockstore.put(revisionWithoutCid)
     return {
@@ -509,27 +544,7 @@ export class Repo {
     })
   }
 
-  private async saveRevision(revision: Revision): Promise<void> {
-    await this.prisma.revision.create({
-      data: {
-        ...revision,
-      },
-      select: { id: true },
-    })
-    const entityUpsert = {
-      uid: revision.uid,
-      revisionId: revision.id,
-      type: revision.entityType,
-    }
-    await this.prisma.entity.upsert({
-      where: { uid: revision.uid },
-      create: entityUpsert,
-      update: entityUpsert,
-      select: { uid: true },
-    })
-  }
-
-  private async updateDomainView(entity: FullEntity) {
+  private async updateDomainView(entity: EntityInputWithRevision) {
     const domainUpsertPromise = repco.upsertEntity(
       this.prisma,
       entity.revision.uid,
@@ -573,13 +588,13 @@ export class Repo {
       return (await this.resolveContent(revision)) as EntityMaybeContent<T>
     } else {
       return {
-        type: revision.entityType as FullEntity['type'],
+        type: revision.entityType as EntityInputWithRevision['type'],
         revision,
       } as EntityMaybeContent<T>
     }
   }
 
-  async resolveContent(revision: Revision): Promise<FullEntity> {
+  async resolveContent(revision: Revision): Promise<EntityInputWithRevision> {
     try {
       const rawContent = await this.blockstore.get(
         common.parseCid(revision.contentCid),
@@ -609,11 +624,11 @@ function setUid(
   input: repco.EntityInput,
   uid: string,
 ): asserts input is repco.EntityInputWithUid {
-  ;(input as any).uid = uid
+  ; (input as any).uid = uid
   input.content.uid = uid
 }
 
-class RelationFinder {
+export class RelationFinder {
   prisma: Prisma.TransactionClient
   counter = 0
   // map of uid -> entity
@@ -633,19 +648,27 @@ class RelationFinder {
     return resolver.resolve()
   }
 
+  static resolveLinks(repo: Repo, links: common.Link[]) {
+    const resolver = new RelationFinder(repo)
+    for (const link of links) {
+      resolver.pushLink(link)
+    }
+    return resolver.resolve()
+  }
+
   constructor(public repo: Repo) {
     this.prisma = repo.prisma
   }
 
-  pushLink(value: common.Link, relation: common.Relation) {
+  pushLink(value: common.Link, relation?: common.Relation) {
     // TODO: Throw if uri missing?
     if (value.uid || !value.uri || this.missingUris.has(value.uri)) return
     // check if already in map: resolve now
     if (this.uriMap.has(value.uri)) {
       value.uid = this.uriMap.get(value.uri)
     } else {
-      this.relsByUri.push(value.uri, relation)
       this.pendingUris.add(value.uri)
+      if (relation) this.relsByUri.push(value.uri, relation)
     }
   }
 

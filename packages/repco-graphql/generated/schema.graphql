@@ -10154,9 +10154,9 @@ type SourceRecord {
 
   """Reads a single `DataSource` that is related to this `SourceRecord`."""
   dataSource: DataSource
-  dataSourceUid: String!
+  dataSourceUid: String
   domainType: String!
-  meta: JSON!
+  meta: JSON
 
   """Reads a single `Revision` that is related to this `SourceRecord`."""
   revision: Revision
@@ -10240,6 +10240,9 @@ input SourceRecordFilter {
 
   """Filter by the object’s `dataSource` relation."""
   dataSource: DataSourceFilter
+
+  """A related `dataSource` exists."""
+  dataSourceExists: Boolean
 
   """Filter by the object’s `dataSourceUid` field."""
   dataSourceUid: StringFilter
