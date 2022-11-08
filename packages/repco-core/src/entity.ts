@@ -32,16 +32,54 @@ export type EntityInputWithHeaders = repco.EntityInputWithUid & {
   headers: Headers
 }
 
-export type FullEntity = repco.EntityInputWithUid & {
+export type EntityInputWithRevision = repco.EntityInputWithUid & {
   revision: Revision
 }
 
 export type EntityMaybeContent<T extends boolean = true> = T extends true
-  ? FullEntity
+  ? EntityInputWithRevision
   : T extends false
-  ? Omit<FullEntity, 'content'>
+  ? Omit<EntityInputWithRevision, 'content'>
   : never
 
-export type EntityRevision = repco.EntityOutput & {
+// TODO: This should be the output types.
+export type EntityWithRevision = EntityInputWithRevision
+// export type EntityWithRevision = repco.EntityInputWithUid & {
+//   revision: Revision
+// }
+
+export type EntityType = repco.EntityOutput['type']
+
+// TODO: This should be the output types.
+export type TypedEntity<T extends EntityType> = Extract<
+  repco.EntityInput,
+  { type: T }
+>
+export type TypedEntityWithRevision<T extends EntityType> = TypedEntity<T> & {
   revision: Revision
+  uid: string
+}
+export function filterType<T extends EntityType>(
+  entities: EntityWithRevision[],
+  type: T,
+): TypedEntityWithRevision<T>[] {
+  return entities.filter((x) => x.type === type) as TypedEntityWithRevision<T>[]
+}
+
+export function checkType<T extends EntityType>(
+  entity: EntityWithRevision,
+  type: T,
+): asserts entity is TypedEntityWithRevision<T> {
+  if (entity.type !== type)
+    throw new Error(
+      `Type mismatch: expected ${type} but received ${entity.type}`,
+    )
+}
+
+export function safeCheckType<T extends EntityType>(
+  entity: EntityWithRevision,
+  type: T,
+): TypedEntityWithRevision<T> | null {
+  if (entity.type !== type) return null
+  return entity as TypedEntityWithRevision<T>
 }

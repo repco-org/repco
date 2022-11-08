@@ -16,28 +16,15 @@ export const handler = (
   res: Response,
   _next: any,
 ) => {
-  err = ServerError.fromError(err)
-  let status
-  let message
-  if (ServerError.is(err)) {
-    status = err.status
-    message = err.message
-    // console.log('Error: ', err.status, err.message)
-  } else if (err instanceof Prisma.PrismaClientKnownRequestError) {
-    status = 500
-    message = err.message.replaceAll('\n', '')
-  } else {
-    status = 500
-    message = 'Internal server error'
-    console.log('Error: ', status, err.message)
-  }
+  ServerError.process(err)
   if (process.env.NODE_ENV !== 'production') {
     console.log(`${req.method} ${req.url} ERR`, err)
   }
-  res.status(status).json({ ok: false, error: message })
+  res.status(err.status).json({ ok: false, error: err.message })
 }
 
 export class ServerError extends Error {
+  _isServerError = true
   constructor(public status: number, message: string, options?: ErrorOptions) {
     super(message, options)
   }
@@ -45,20 +32,22 @@ export class ServerError extends Error {
   static is(obj: unknown): obj is ServerError {
     return (
       obj instanceof ServerError ||
-      (obj instanceof Error && typeof (obj as any).status === 'number')
+      (obj instanceof Error && (obj as any)._isServerError)
     )
   }
 
-  static fromError(err: any): ServerError {
-    if (ServerError.is(err)) return err
-    if (!(err instanceof Error)) err = new Error(err)
+  static process(err: any): asserts err is ServerError {
+    if (ServerError.is(err)) return
+    if (!(err instanceof Error)) err = new Error(String(err))
     let status = 500
     if (RepoError.is(err)) {
       if (err.code === 'NOT_FOUND') {
         status = 404
       }
+    } else if (err instanceof Prisma.PrismaClientKnownRequestError) {
+      status = 400
+      err.message = err.message.replaceAll('\n', '')
     }
     ;(err as any).status = status
-    return err as ServerError
   }
 }
