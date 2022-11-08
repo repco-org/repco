@@ -16,14 +16,12 @@ export async function* ContentLoaderStream<
 >(input: RevisionStream<B, T>, inBatches: B): AsyncGenerator<U>
 {
   for await (const chunk of input) {
-    console.log('ITE IN', inBatches, chunk)
     const batch = input.asBatch(chunk)
     const out = []
     for (const revision of batch) {
       const entity = await input.repo.resolveContent(revision)
       out.push(entity)
     }
-    console.log('NOW YIELD', 'b', inBatches, out)
     if (inBatches) yield out as U
     else {
       for (const chunk of out) yield chunk as U

@@ -11,9 +11,9 @@ const round = (x: number) => Math.round(x * 100) / 100
 
 const report = (timer: any, items: number, message: string) => {
   const ms = timer.ns() / 1000 / 1000
-  console.log(`${message}: took ${round(ms)}ms for ${items} items`)
+  console.log(`# ${message}: took ${round(ms)}ms for ${items} items`)
   console.log(
-    `${round(items / (ms / 1000))} items/s ${round(ms / items)} ms/item`,
+    `# ${round(items / (ms / 1000))} items/s ${round(ms / items)} ms/item`,
   )
 }
 
