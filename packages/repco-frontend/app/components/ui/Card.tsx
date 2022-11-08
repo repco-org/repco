@@ -10,8 +10,11 @@ const styles = cva('p-4 rounded-lg border shadow-md', {
       full: 'w-full',
     },
     variant: {
-      default: ['dark:bg-gray-800 dark:border-gray-700'],
-      centered: ['justify-center text-center'],
+      default: [' dark:bg-gray-800 dark:border-gray-700'],
+      centered: [
+        'justify-center text-center',
+        'dark:bg-gray-800 dark:border-gray-700',
+      ],
       bare: '',
     },
   },
