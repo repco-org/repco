@@ -1,5 +1,6 @@
 import { Prisma, Revision } from 'repco-prisma'
 import { Readable } from 'streamx'
+import { EntityWithRevision } from '../entity.js'
 import type { Repo } from '../repo.js'
 
 export type RevisionFilter = {
@@ -11,17 +12,22 @@ export type RevisionFilter = {
 export async function* ContentLoaderStream<
   B extends boolean,
   T extends B extends false ? Revision : Revision[],
->(
-  input: RevisionStream<B,T>
-) {
+  U extends B extends false ? EntityWithRevision : EntityWithRevision[]
+>(input: RevisionStream<B, T>, inBatches: B): AsyncGenerator<U>
+{
   for await (const chunk of input) {
+    console.log('ITE IN', inBatches, chunk)
     const batch = input.asBatch(chunk)
     const out = []
     for (const revision of batch) {
       const entity = await input.repo.resolveContent(revision)
       out.push(entity)
     }
-    yield out
+    console.log('NOW YIELD', 'b', inBatches, out)
+    if (inBatches) yield out as U
+    else {
+      for (const chunk of out) yield chunk as U
+    }
   }
 }
 

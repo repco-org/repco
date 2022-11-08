@@ -1,5 +1,5 @@
-import express, { Response } from 'express'
-import { PrismaClient, Repo } from 'repco-core'
+import express from 'express'
+import { Repo } from 'repco-core'
 import Changes from './routes/changes.js'
 import { getLocals } from './lib.js'
 

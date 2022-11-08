@@ -121,8 +121,7 @@ export abstract class IpldBlockStoreBase implements IpldBlockStore {
 
 export class PrismaIpldBlockStoreTransaction
   extends IpldBlockStoreBase
-  implements IpldBlockStore
-{
+  implements IpldBlockStore {
   batch: Record<string, Uint8Array> = {}
   constructor(private prisma: Prisma.TransactionClient) {
     super()
@@ -189,8 +188,7 @@ export class PrismaIpldBlockStoreTransaction
 
 export class PrismaIpldBlockStore
   extends IpldBlockStoreBase
-  implements IpldBlockStore
-{
+  implements IpldBlockStore {
   constructor(private prisma: Prisma.TransactionClient) {
     super()
   }
@@ -209,10 +207,15 @@ export class PrismaIpldBlockStore
         },
       })
     } catch (err) {
-      if (err instanceof Prisma.PrismaClientKnownRequestError) {
-        console.error('CODE', err.code)
+      // P2002: Unique constraint failed
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2002'
+      ) {
+        // block exists: do nothing.
+      } else {
+        throw err
       }
-      throw err
     }
   }
 
@@ -239,8 +242,7 @@ export class PrismaIpldBlockStore
 
 export class LevelIpldBlockStore
   extends IpldBlockStoreBase
-  implements IpldBlockStore
-{
+  implements IpldBlockStore {
   db: Level<Uint8Array, Uint8Array>
   opened = false
   _open?: Promise<void>

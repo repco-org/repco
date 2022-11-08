@@ -46,7 +46,7 @@ export const revisionIpld = z.object({
   entityUris: z.array(z.string()).default([]),
   revisionUris: z.array(z.string()).default([]),
   contentCid: common.cid,
-  derivedFromUid: common.uid.optional(),
+  derivedFromUid: common.uid.nullish(),
 })
 
 export type RevisionIpld = {
@@ -63,7 +63,7 @@ export type RevisionIpld = {
   entityUris: string[]
   revisionUris: string[]
   contentCid: CID
-  derivedFromUid?: common.Uid
+  derivedFromUid?: common.Uid | null
 }
 
 export const rootIpld = z.object({

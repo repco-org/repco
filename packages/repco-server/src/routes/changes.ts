@@ -1,17 +1,39 @@
 import express from 'express'
 import type { Request } from 'express'
+import { CID } from 'multiformats/cid'
 import { ContentLoaderStream, Repo } from 'repco-core'
+import { Readable } from 'stream'
 import { ServerError } from '../error.js'
 import { getLocals } from '../lib.js'
 
 const router = express.Router()
 
-const HEADER_JSON = 'application/json'
+// const HEADER_JSON = 'application/json'
 const HEADER_NDJSON = 'application/x-ndjson'
+const HEADER_CAR = 'application/vnd.ipld.car'
 
 type RequestT = Request<any, any, any, any, Record<string, any>>
 
 router.get('/', async (req, res) => {})
+
+router.get('/sync/:repoDid/:tail?', async (req, res) => {
+  const { prisma } = getLocals(res)
+  const { repoDid, tail: tailStr } = req.params
+  const tail = tailStr ? CID.parse(tailStr) : undefined
+  const repo = await Repo.open(prisma, repoDid)
+  const carStream = await repo.exportToCarReversed(tail)
+  const byteStream = Readable.from(carStream)
+  res.header('content-type', HEADER_CAR)
+  byteStream.pipe(res)
+})
+
+router.post('/sync/:repoDid', async (req, res) => {
+  const { prisma } = getLocals(res)
+  const { repoDid } = req.params
+  const repo = await Repo.open(prisma, repoDid)
+  await repo.importFromCar(req)
+  res.json({ ok: true })
+})
 
 router.get('/changes/:repoDid', async (req, res) => {
   const { prisma } = getLocals(res)
@@ -22,7 +44,7 @@ router.get('/changes/:repoDid', async (req, res) => {
   const content = req.query.content?.toString()
   let stream: AsyncIterable<any>
   if (content) {
-    stream = ContentLoaderStream(revisionStream)
+    stream = ContentLoaderStream(revisionStream, true)
   } else {
     stream = revisionStream
   }
