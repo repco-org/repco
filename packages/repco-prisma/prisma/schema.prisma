@@ -261,7 +261,7 @@ model MediaAsset {
   File          File           @relation("file", fields: [fileUid], references: [uid])
   ContentItems  ContentItem[]
   Transcripts   Transcript[]
-  Chapters      Chapter[]
+  Chapters      Chapter[]      
   TeaserImage   File?          @relation("thumbnail", fields: [teaserImageUid], references: [uid])
   License       License?       @relation(fields: [licenseUid], references: [uid])
   Contributions Contribution[]
