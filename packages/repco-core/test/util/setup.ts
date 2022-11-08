@@ -1,4 +1,3 @@
-// import Dotenv from 'dotenv'
 import 'source-map-support/register.js'
 import { Test } from 'brittle'
 import {
@@ -7,14 +6,10 @@ import {
   SpawnOptions,
 } from 'node:child_process'
 import { PrismaClient } from '../../lib.js'
+import type { Prisma } from 'repco-prisma'
 
 const COMPOSE_FILE = '../../test/docker-compose.test.yml'
-// const ENV_FILE = '../../test/test.env'
-
 const RUNNING_DBS = new Set()
-// let dockerDown = false
-// let dockerUp = false
-// Dotenv.config({ path: ENV_FILE })
 
 type SetupOpts = {
   port?: number
@@ -23,10 +18,19 @@ export async function setup(test: Test, opts: SetupOpts = {}) {
   const pgPort = opts.port || 20432
   const databaseUrl = await setupDb(test, pgPort)
   process.env.DATABASE_URL = databaseUrl
+  let log: Prisma.LogDefinition[] = []
+  if (process.env.QUERY_LOG) log = [{ emit: 'event', level: 'query' }]
   const prisma = new PrismaClient({
+    log,
     datasources: {
       db: { url: databaseUrl },
     },
+  })
+  // @ts-ignore
+  prisma.$on("query", async (e: any) => {
+    if (process.env.QUERY_LOG) {
+      console.log(`${e.query} ${e.params}`)
+    }
   })
   return prisma
 }
