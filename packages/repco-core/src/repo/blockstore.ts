@@ -48,10 +48,13 @@ export async function validateCID(params: { cid: CID; bytes: Uint8Array }) {
   }
 }
 
+export type BlockT = { cid: CID, bytes: Uint8Array }
+
 export interface IpldBlockStore {
   put(data: any): Promise<CID>
   getBytes(cid: CID): Promise<Uint8Array>
   putBytes(cid: CID, bytes: Uint8Array): Promise<void>
+  putBytesBatch(blocks: BlockT[]): Promise<void>
   get(cid: CID): Promise<IpldRecord>
   parse(bytes: Uint8Array | Buffer): IpldRecord
   has(cid: CID): Promise<boolean>
@@ -66,6 +69,10 @@ export abstract class IpldBlockStoreBase implements IpldBlockStore {
   abstract putBytes(cid: CID, bytes: Uint8Array): Promise<void>
   abstract getBytes(cid: CID): Promise<Uint8Array>
   abstract hasCid(cid: CID): Promise<boolean>
+
+  async putBytesBatch(blocks: BlockT[]) {
+    await Promise.all(blocks.map(block => this.putBytes(block.cid, block.bytes)))
+  }
 
   parse(bytes: Uint8Array | Buffer) {
     const decoded = codec.decode(bytes)
@@ -130,6 +137,12 @@ export class PrismaIpldBlockStoreTransaction
   async putBytes(cid: CID, bytes: Uint8Array): Promise<void> {
     const cidStr = cid.toString()
     this.batch[cidStr] = bytes
+  }
+
+  async putBytesBatch(blocks: BlockT[]) {
+    for (const block of blocks) {
+      this.batch[block.cid.toString()] = block.bytes
+    }
   }
 
   async getBytes(cid: CID): Promise<Uint8Array> {
@@ -217,6 +230,12 @@ export class PrismaIpldBlockStore
         throw err
       }
     }
+  }
+
+  async putBytesBatch(blocks: BlockT[]) {
+    const tx = this.transaction()
+    await tx.putBytesBatch(blocks)
+    await tx.commit()
   }
 
   async getBytes(cid: CID): Promise<Uint8Array> {

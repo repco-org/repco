@@ -34,14 +34,15 @@ export class RevisionStream<
   T extends B extends false ? Revision : Revision[],
 > extends Readable<T> {
   finished = false
+  cursor = '0'
 
   constructor(
     public repo: Repo,
     public readonly batch: B,
-    public cursor: string = '',
     public filter: RevisionFilter = {},
   ) {
     super()
+    if (filter.from) this.cursor = filter.from
   }
 
   asBatch(chunk: T): Revision[] {
