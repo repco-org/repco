@@ -20,28 +20,33 @@
     "@ipld/dag-cbor": "^7.0.3",
     "@multiformats/blake2": "^1.0.11",
     "@pkgjs/parseargs": "^0.11.0",
+    "@types/cli-progress": "^3.11.0",
     "@ucans/ucans": "https://gitpkg.now.sh/Frando/ts-ucan/packages/ucans?fix-0.11.3",
+    "casual": "^1.6.2",
+    "cli-progress": "^3.11.2",
+    "cli-table": "^0.3.11",
     "dotenv": "^16.0.1",
     "level": "^8.0.0",
     "multiformats": "^9.9.0",
     "picocolors": "^1.0.0",
+    "pretty-bytes": "^6.0.0",
+    "pretty-ms": "^8.0.0",
     "repco-common": "*",
     "repco-prisma": "*",
     "rss-parser": "^3.12.0",
+    "speedometer": "^1.1.0",
     "streamx": "^2.12.5",
     "uint8arrays": "^4.0.2",
     "undici": "^5.10.0",
+    "unique-names-generator": "^4.7.1",
     "vscode-uri": "^3.0.6",
     "zod": "^3.19"
   },
   "devDependencies": {
-    "@types/node": "^18.0.0",
+    "@types/cli-table": "^0.3.1",
     "@types/pkgjs__parseargs": "^0.10.0",
-    "@types/source-map-support": "^0.5.6",
     "@types/streamx": "^2.9.1",
     "brittle": "^2.4.0",
-    "nanobench-utils": "^1.0.0",
-    "typedoc": "^0.22.17",
-    "typescript": "^4.7.4"
+    "nanobench-utils": "^1.0.0"
   }
 }

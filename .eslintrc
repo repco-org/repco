@@ -15,10 +15,9 @@
   ],
   "rules": {
     "no-var": "warn",
-    "no-empty": ["error", { "allowEmptyCatch": true }],
-    "no-unused-vars": "off",
     "prettier/prettier": "warn",
-    "comma-dangle": "off",
+    "no-constant-condition": ["warn", { "checkLoops": false }],
+    "@typescript-eslint/comma-dangle": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/no-empty-interface": "off",
