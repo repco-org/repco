@@ -1,4 +1,5 @@
 import Table from 'cli-table'
+import pc from 'picocolors'
 import fs from 'fs/promises'
 import fmtBytes from 'pretty-bytes'
 import fmtMs from 'pretty-ms'
@@ -29,7 +30,8 @@ export const create = createCommand({
   async run(_opts, args) {
     const prisma = new PrismaClient()
     const repo = await Repo.create(prisma, args.name)
-    print(`Created mirror repo with DID \`${repo.did}\``)
+    print(`Created new repo "${repo.name}" and DID`)
+    print(`   ${pc.yellow(repo.did)}`)
     print('The secret key for this repo is stored in the database.')
   },
 })
@@ -51,7 +53,8 @@ export const join = createCommand({
   async run(_opts, args) {
     const prisma = new PrismaClient()
     const repo = await Repo.create(prisma, args.name, args.did)
-    print(`Created mirror repo with DID \`${repo.did}\``)
+    print(`Created mirror repo ${repo.name} and DID`)
+    print(`  ${pc.yellow(repo.did)}`)
   },
 })
 
@@ -82,7 +85,7 @@ export const carExport = createCommand({
     const repoStream = await repo.exportToCarReversed({
       tail: from,
       onProgress: (progress) => {
-        if (!bar.getTotal()) {
+        if (!bar.getProgress()) {
           bar.start(progress.commitsTotal, 0, {
             blocks: 0,
             bytes: 0,

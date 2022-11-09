@@ -13,7 +13,7 @@ import {
   sp,
 } from '../mod.js'
 
-const hl = pc.underline
+const hl = (x: string) => pc.green(x.toUpperCase())
 const orNoHelp = (help?: string) => help || pc.italic('no help text')
 const printlns = (lines: (string | string[])[], ind = 0) =>
   lines.forEach((l) => print(l, ind))
@@ -38,7 +38,7 @@ export function shortUsage(command?: CommandSpec) {
 }
 
 function readPackage() {
-  const path = new URL('../../../../package.json', import.meta.url)
+  const path = new URL('../package.json', import.meta.url)
   const pkg = readFileSync(path).toString()
   return JSON.parse(pkg)
 }
@@ -95,10 +95,10 @@ export const help = createCommand({
 })
 
 function printList(commands: CommandSpec[], prefix = false, outerInd = 0) {
-  const ind = maxlength(commands.map((c) => c.name))
+  const ind = maxlength(commands.map((c) => cmdName(c, prefix)))
   for (const command of commands) {
     if (command.commands) {
-      print(command.help || command.name)
+      print(pc.yellow(command.help || command.name), outerInd)
       printList(command.commands, prefix, outerInd)
       print('')
     } else {
@@ -108,10 +108,10 @@ function printList(commands: CommandSpec[], prefix = false, outerInd = 0) {
 }
 
 function commandShortHelp(command: CommandSpec, prefix?: boolean, ind = 0) {
-  const name = prefix ? cmdName(command) : command.name
+  const name = cmdName(command, prefix)
   return [
     pc.bold(name),
-    sp(Math.max(ind - name.length, 0) + 2),
+    sp(Math.max(ind - name.length, 0)),
     orNoHelp(command.help),
   ].join('')
 }
