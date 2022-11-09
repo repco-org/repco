@@ -74,12 +74,16 @@ model User {
   Agent Agent  @relation(fields: [did], references: [did])
 }
 
+model Cursor {
+  uid String @id @unique
+  cursor String?
+}
+
 model DataSource {
   uid       String   @id @unique
-  // TODO: Make required once we reset the schema.
-  pluginUid String?
+  pluginUid String
   config    Json?
-  cursor    String
+  cursor    String?
   active    Boolean?
 
   SourceRecords SourceRecord[]
