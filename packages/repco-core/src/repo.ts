@@ -15,10 +15,14 @@ import {
   EntityMaybeContent,
 } from './entity.js'
 import { Authority } from './repo/auth.js'
-import { IpldBlockStore, PrismaIpldBlockStore } from './repo/blockstore.js'
-import { exportRepoToCar, exportRepoToCarReversed } from './repo/export.js'
+import {
+  IpldBlockStore,
+  LevelIpldBlockStore,
+  PrismaIpldBlockStore,
+} from './repo/blockstore.js'
+import { ExportOnProgressCallback, exportRepoToCar, exportRepoToCarReversed } from './repo/export.js'
 import { GGraph } from './repo/graph.js'
-import { importRepoFromCar } from './repo/import.js'
+import { importRepoFromCar, OnProgressCallback } from './repo/import.js'
 import {
   ContentLoaderStream,
   RevisionFilter,
@@ -73,6 +77,15 @@ const REVISION_SELECT = {
   uid: true,
 }
 
+function defaultBlockStore(
+  prisma: PrismaClient | Prisma.TransactionClient,
+): IpldBlockStore {
+  if (process.env.LEVEL_BLOCK_STORE) {
+    return new LevelIpldBlockStore(process.env.LEVEL_BLOCK_STORE)
+  }
+  return new PrismaIpldBlockStore(prisma)
+}
+
 export class Repo {
   public dsr: DataSourceRegistry
   public blockstore: IpldBlockStore
@@ -94,8 +107,29 @@ export class Repo {
     }
   }
 
+  static async openWithDefaults(nameOrDid?: string) {
+    const prisma = new PrismaClient()
+    if (!nameOrDid) nameOrDid = process.env.REPCO_REPO || 'default'
+    return Repo.open(prisma, nameOrDid)
+  }
+
   static async create(prisma: PrismaClient, name: string, did?: string) {
-    // No did specified: Create new keypair.
+    if (!name.match(/[a-zA-Z0-9-]{3,64}/)) {
+      throw new Error(
+        'Repo name is invalid. Repo names must be between 3 and 64 alphanumerical characters',
+      )
+    }
+    // DID specified: Validate the DID type.
+    // TODO: Check if the check via verifyIssuerAlg is enough.
+    if (did) {
+      const supportedAlgs = ['EdDSA', 'ES256', 'RS256']
+      let valid = false
+      for (const alg of supportedAlgs) {
+        valid = valid || ucans.defaults.verifyIssuerAlg(did, alg)
+      }
+      if (!valid) throw new Error('DID is invalid or unsupported.')
+    }
+    // No DID specified: Create new keypair.
     if (!did) {
       const keypair = await ucans.EdKeypair.create({ exportable: true })
       did = keypair.did()
@@ -138,7 +172,11 @@ export class Repo {
   }
 
   static async load(prisma: PrismaClient, params: OpenParams): Promise<Repo> {
-    if (!params.did && !params.name) throw new Error('Invalid open params')
+    if (!params.did && !params.name) {
+      throw new Error(
+        'Invalid open params: One of `did` or `name` is required.',
+      )
+    }
     const record = await prisma.repo.findFirst({
       where: { OR: [{ did: params.did }, { name: params.name }] },
     })
@@ -155,7 +193,7 @@ export class Repo {
       if (keypair.did() !== did) {
         throw new RepoError(
           ErrorCode.INVALID,
-          `Invalid secret key for did ${did}`,
+          `Stored secret key for DID ${did} is invalid.`,
         )
       }
     }
@@ -179,15 +217,13 @@ export class Repo {
     this.record = record
     this.prisma = prisma
     this.dsr = dsr || new DataSourceRegistry()
-    this.blockstore = bs || new PrismaIpldBlockStore(prisma)
-    // this.blockstore = bs || LevelIpldBlockStore.createTemp(authority.did)
+    this.blockstore = bs || defaultBlockStore(prisma)
     this.authority = authority
   }
 
   private $transaction<R>(fn: (repo: Repo) => Promise<R>) {
     assertFullClient(this.prisma)
     return this.prisma.$transaction(async (tx) => {
-      // console.time('tx')
       const self = new Repo(
         tx,
         this.record,
@@ -196,7 +232,6 @@ export class Repo {
         this.blockstore,
       )
       const res = await fn(self)
-      // console.timeEnd('tx')
       return res
     })
   }
@@ -217,30 +252,24 @@ export class Repo {
     this.dsr.register(ds)
   }
 
-  createRevisionStream(from = '0', filter: RevisionFilter) {
-    return new RevisionStream(this, false, from, filter)
+  createRevisionStream(filter: RevisionFilter = {}) {
+    return new RevisionStream(this, false, filter)
   }
 
-  createRevisionBatchStream(from = '0', filter: RevisionFilter) {
-    return new RevisionStream(this, true, from, filter)
+  createRevisionBatchStream(filter: RevisionFilter = {}) {
+    return new RevisionStream(this, true, filter)
   }
 
   createContentStream(
-    filter: RevisionFilter,
+    filter: RevisionFilter = {},
   ): AsyncGenerator<EntityInputWithRevision> {
-    return ContentLoaderStream(
-      this.createRevisionStream(filter.from || '0', filter),
-      false,
-    )
+    return ContentLoaderStream(this.createRevisionStream(filter), false)
   }
 
   createContentBatchStream(
     filter: RevisionFilter,
   ): AsyncGenerator<EntityInputWithRevision[]> {
-    return ContentLoaderStream(
-      this.createRevisionBatchStream(filter.from || '0', filter),
-      true,
-    )
+    return ContentLoaderStream(this.createRevisionBatchStream(filter), true)
   }
 
   async fetchRevisionsWithContent(
@@ -301,20 +330,23 @@ export class Repo {
     return res[0]
   }
 
-  async exportToCar(tail?: CID) {
+  async exportToCar(opts: { tail?: CID } = {}) {
     const head = await this.getHead()
     if (!head) throw new Error('Cannot export empty repo.')
-    return exportRepoToCar(this.blockstore, head, tail)
+    return exportRepoToCar(this.blockstore, head, opts.tail)
   }
 
-  async exportToCarReversed(tail?: CID, head?: CID) {
-    head = head || (await this.getHead()) || undefined
+  async exportToCarReversed(opts: { tail?: CID; head?: CID, onProgress?: ExportOnProgressCallback } = {}) {
+    const head = opts.head || (await this.getHead()) || undefined
     if (!head) throw new Error('Cannot export empty repo.')
-    return exportRepoToCarReversed(this, head, tail)
+    return exportRepoToCarReversed(this, head, opts.tail, opts.onProgress)
   }
 
-  async importFromCar(stream: AsyncIterable<Uint8Array>) {
-    return importRepoFromCar(this, stream)
+  async importFromCar(
+    stream: AsyncIterable<Uint8Array>,
+    onProgress?: OnProgressCallback,
+  ) {
+    return importRepoFromCar(this, stream, onProgress)
   }
 
   async saveBatch(agentDid: string, inputs: unknown[]) {
@@ -624,7 +656,7 @@ function setUid(
   input: repco.EntityInput,
   uid: string,
 ): asserts input is repco.EntityInputWithUid {
-  ; (input as any).uid = uid
+  ;(input as any).uid = uid
   input.content.uid = uid
 }
 

@@ -17,6 +17,9 @@ export interface DataSourcePlugin<C = any> {
 
 export class DataSourcePluginRegistry {
   private plugins: Record<string, DataSourcePlugin> = {}
+  all(): DataSourcePlugin[] {
+    return [...Object.values(this.plugins)]
+  }
   register(plugin: DataSourcePlugin) {
     this.plugins[plugin.definition.uid] = plugin
   }

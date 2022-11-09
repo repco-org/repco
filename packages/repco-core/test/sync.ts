@@ -35,7 +35,7 @@ test('simple sync', async (assert) => {
   input.content.title = 'baz'
   await repo1.saveEntity('me', input)
   const oldHead = await repo2.getHead()
-  const stream2 = await repo1.exportToCarReversed(oldHead)
+  const stream2 = await repo1.exportToCarReversed({ tail: oldHead })
   await repo2.importFromCar(stream2)
   const revisions2b = await repo2.fetchRevisionsWithContent()
   assert.alike(

@@ -1,4 +1,5 @@
 import { form } from 'repco-prisma'
+import * as zod from 'zod'
 import { fetch } from 'undici'
 import { CbaPost, CbaSeries } from './cba/types.js'
 import {
@@ -9,6 +10,8 @@ import {
 import { ContentGroupingVariant, EntityBatch, EntityForm } from '../entity.js'
 import { extractCursorAndMap, FetchOpts } from '../util/datamapping.js'
 import { HttpError } from '../util/error.js'
+
+const DEFAULT_ENDPOINT = 'https://cba.fro.at/wp-json/wp/v2'
 
 // series:
 // https://cba.fro.at/wp-json/wp/v2/series?page=1&per_page=1&_embed&orderby=modified&order=asc&modified_after=2021-07-27T10:29:04
@@ -37,9 +40,16 @@ function parseUrn(urn: string) {
   }
 }
 
+const configSchema = zod.object({
+  endpoint: zod.string().url().optional(),
+  apiKey: zod.string().optional()
+})
+type ConfigSchema = zod.infer<typeof configSchema>
+
 export class CbaDataSourcePlugin implements DataSourcePlugin {
   createInstance(config: any) {
-    return new CbaDataSource()
+    const parsedConfig = configSchema.parse(config)
+    return new CbaDataSource(parsedConfig)
   }
   get definition() {
     return {
@@ -51,8 +61,10 @@ export class CbaDataSourcePlugin implements DataSourcePlugin {
 
 export class CbaDataSource implements DataSource {
   endpoint: string
-  constructor() {
-    this.endpoint = 'https://cba.fro.at/wp-json/wp/v2'
+  apiKey?: string
+  constructor(config: ConfigSchema) {
+    this.endpoint = config.endpoint || DEFAULT_ENDPOINT
+    this.apiKey = config.apiKey || process.env.CBA_API_KEY || undefined
   }
 
   get definition(): DataSourceDefinition {
@@ -285,8 +297,8 @@ export class CbaDataSource implements DataSource {
       }
       opts.params = undefined
     }
-    if (process.env.CBA_API_KEY) {
-      url.searchParams.set('api_key', process.env.CBA_API_KEY)
+    if (this.apiKey) {
+      url.searchParams.set('api_key', this.apiKey)
     }
     const res = await fetch(url.toString(), opts)
     if (!res.ok) {
