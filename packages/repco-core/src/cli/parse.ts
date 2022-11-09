@@ -10,8 +10,9 @@ export const print = (msg: string | string[], i = 0) => {
   msg = Array.isArray(msg) ? msg.join('') : msg
   console.log(sp(i) + msg)
 }
-export const cmdName = (cmd: CommandSpec) =>
-  cmd.prefix ? [cmd.prefix, cmd.name].join(' ') : cmd.name
+export function cmdName (cmd: CommandSpec) {
+  return cmd.prefix ? [cmd.prefix, cmd.name].join(' ') : cmd.name
+}
 
 // types
 

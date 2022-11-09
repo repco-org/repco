@@ -7,10 +7,17 @@
   ],
   "main": "dist/lib.js",
   "type": "module",
+  "bin": {
+    "repco": "./bin.js"
+  },
   "scripts": {
     "cli": "node bin.js",
-    "build": "tsc --build",
-    "watch": "tsc --build -w",
+    "build": "run-s build:*",
+    "build:tsc": "tsc --build",
+    "build:bundle": "node scripts/bundle.js",
+    "watch": "run-p watch:*",
+    "watch:tsc": "tsc --build -w",
+    "watch:bundle": "node scripts/bundle.js -w",
     "docs": "typedoc src/mod.ts --out ./docs",
     "test": "brittle dist/test/*.js",
     "build-test": "yarn build && yarn test"
@@ -22,7 +29,7 @@
     "@pkgjs/parseargs": "^0.11.0",
     "@types/cli-progress": "^3.11.0",
     "@ucans/ucans": "https://gitpkg.now.sh/Frando/ts-ucan/packages/ucans?fix-0.11.3",
-    "casual": "^1.6.2",
+    "casual-browserify": "^1.5.19-2",
     "cli-progress": "^3.11.2",
     "cli-table": "^0.3.11",
     "dotenv": "^16.0.1",
@@ -36,7 +43,7 @@
     "rss-parser": "^3.12.0",
     "speedometer": "^1.1.0",
     "streamx": "^2.12.5",
-    "uint8arrays": "^4.0.2",
+    "uint8arrays": "^3.1.1",
     "undici": "^5.10.0",
     "unique-names-generator": "^4.7.1",
     "vscode-uri": "^3.0.6",

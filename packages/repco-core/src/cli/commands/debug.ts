@@ -1,4 +1,4 @@
-import casual from 'casual'
+import casual from 'casual-browserify'
 import prettyMs from 'pretty-ms'
 import { SingleBar } from 'cli-progress'
 import { createCommand, createCommandGroup } from '../parse.js'

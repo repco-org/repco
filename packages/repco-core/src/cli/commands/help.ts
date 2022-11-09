@@ -20,7 +20,7 @@ const printlns = (lines: (string | string[])[], ind = 0) =>
 const maxlength = (lines: string[]) =>
   lines.reduce((agg, cur) => Math.max(cur.length, agg), 0) + 2
 
-const TEASER = 'Replicate community media'
+const TEASER = pc.magenta('Replicate community media')
 const NAME = 'repco'
 const USAGE = [
   hl('Usage:'),
