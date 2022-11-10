@@ -13,10 +13,16 @@
     "plugin:prettier/recommended",
     "prettier"
   ],
+  "env": {
+    "browser": true,
+    "node": true,
+    "es2022": true
+  },
   "rules": {
     "no-var": "warn",
     "prettier/prettier": "warn",
     "no-constant-condition": ["warn", { "checkLoops": false }],
+    "no-empty": ["warn"],
     "@typescript-eslint/comma-dangle": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/ban-ts-comment": "off",
