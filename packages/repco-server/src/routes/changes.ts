@@ -21,7 +21,7 @@ router.get('/sync/:repoDid/:tail?', async (req, res) => {
   const { repoDid, tail: tailStr } = req.params
   const tail = tailStr ? CID.parse(tailStr) : undefined
   const repo = await Repo.open(prisma, repoDid)
-  const carStream = await repo.exportToCarReversed(tail)
+  const carStream = await repo.exportToCarReversed({ tail })
   const byteStream = Readable.from(carStream)
   res.header('content-type', HEADER_CAR)
   byteStream.pipe(res)
@@ -40,7 +40,7 @@ router.get('/changes/:repoDid', async (req, res) => {
   const { repoDid } = req.params
   const repo = await Repo.open(prisma, repoDid)
   const from = req.query.from?.toString()
-  const revisionStream = repo.createRevisionBatchStream(from || '0', {})
+  const revisionStream = repo.createRevisionBatchStream({ from })
   const content = req.query.content?.toString()
   let stream: AsyncIterable<any>
   if (content) {
