@@ -14,13 +14,22 @@ import {
   EntityInputWithRevision,
   EntityMaybeContent,
 } from './entity.js'
-import { Authority } from './repo/auth.js'
+import {
+  createRepoKeypair,
+  getInstanceDid,
+  getPublishingUcanForInstance,
+  instanceSignPayload,
+} from './instance.js'
 import {
   IpldBlockStore,
   LevelIpldBlockStore,
   PrismaIpldBlockStore,
 } from './repo/blockstore.js'
-import { ExportOnProgressCallback, exportRepoToCar, exportRepoToCarReversed } from './repo/export.js'
+import {
+  ExportOnProgressCallback,
+  exportRepoToCar,
+  exportRepoToCarReversed,
+} from './repo/export.js'
 import { GGraph } from './repo/graph.js'
 import { importRepoFromCar, OnProgressCallback } from './repo/import.js'
 import {
@@ -41,8 +50,6 @@ import { MapList } from './util/collections.js'
 import { createEntityId, createRevisionId } from './util/id.js'
 
 export * from './repo/types.js'
-
-// const REPOS: Map<string, Repo> = new Map()
 
 export type RevisionWithoutCid = Omit<Revision, 'revisionCid'>
 export type RevisionWithUnknownContent = {
@@ -93,7 +100,7 @@ export class Repo {
 
   public readonly record: RepoRecord
 
-  private authority: Authority
+  private publishingCapability: string | null
   private validatedAgents: Set<string> = new Set()
 
   public static CACHE: Map<string, Repo> = new Map()
@@ -131,14 +138,8 @@ export class Repo {
     }
     // No DID specified: Create new keypair.
     if (!did) {
-      const keypair = await ucans.EdKeypair.create({ exportable: true })
+      const keypair = await createRepoKeypair(prisma)
       did = keypair.did()
-      await prisma.keypair.create({
-        data: {
-          did,
-          secret: await keypair.export(),
-        },
-      })
     }
     // Create repo.
     await prisma.repo.create({
@@ -184,21 +185,10 @@ export class Repo {
       throw new RepoError(ErrorCode.NOT_FOUND, `Repo not found`)
     }
     const did = record.did
-    const keypairData = await prisma.keypair.findUnique({
-      where: { did: record.did },
-    })
-    let keypair
-    if (keypairData) {
-      keypair = ucans.EdKeypair.fromSecretKey(keypairData.secret)
-      if (keypair.did() !== did) {
-        throw new RepoError(
-          ErrorCode.INVALID,
-          `Stored secret key for DID ${did} is invalid.`,
-        )
-      }
-    }
-    const authority: Authority = { did, keypair }
-    const repo = new Repo(prisma, record, authority)
+    const cap = await getPublishingUcanForInstance(prisma, did).catch(
+      (_) => null,
+    )
+    const repo = new Repo(prisma, record, cap)
     return repo
   }
 
@@ -210,7 +200,7 @@ export class Repo {
   constructor(
     prisma: PrismaClient | Prisma.TransactionClient,
     record: RepoRecord,
-    authority: Authority,
+    cap: string | null,
     dsr?: DataSourceRegistry,
     bs?: IpldBlockStore,
   ) {
@@ -218,7 +208,7 @@ export class Repo {
     this.prisma = prisma
     this.dsr = dsr || new DataSourceRegistry()
     this.blockstore = bs || defaultBlockStore(prisma)
-    this.authority = authority
+    this.publishingCapability = cap
   }
 
   private $transaction<R>(fn: (repo: Repo) => Promise<R>) {
@@ -227,7 +217,7 @@ export class Repo {
       const self = new Repo(
         tx,
         this.record,
-        this.authority,
+        this.publishingCapability,
         this.dsr,
         this.blockstore,
       )
@@ -245,7 +235,7 @@ export class Repo {
   }
 
   get writeable() {
-    return !!this.authority.keypair
+    return !!this.publishingCapability
   }
 
   registerDataSource(ds: DataSource) {
@@ -336,7 +326,13 @@ export class Repo {
     return exportRepoToCar(this.blockstore, head, opts.tail)
   }
 
-  async exportToCarReversed(opts: { tail?: CID; head?: CID, onProgress?: ExportOnProgressCallback } = {}) {
+  async exportToCarReversed(
+    opts: {
+      tail?: CID
+      head?: CID
+      onProgress?: ExportOnProgressCallback
+    } = {},
+  ) {
     const head = opts.head || (await this.getHead()) || undefined
     if (!head) throw new Error('Cannot export empty repo.')
     return exportRepoToCarReversed(this, head, opts.tail, opts.onProgress)
@@ -369,10 +365,11 @@ export class Repo {
   }
 
   private async saveBatchInner(
-    agentDid: string,
+    _agentDid: string,
     entities: EntityInputWithHeaders[],
   ) {
-    if (!this.authority.keypair) throw new Error('Repo is not writable')
+    if (!this.publishingCapability) throw new Error('Repo is not writable')
+    const agentDid = await getInstanceDid(this.prisma)
     const timestamp = new Date()
     try {
       this.blockstore = this.blockstore.transaction()
@@ -398,7 +395,9 @@ export class Repo {
       const root: RootIpld = {
         kind: 'root',
         commit: commitCid,
-        sig: await this.authority.keypair.sign(commitCid.bytes),
+        sig: await instanceSignPayload(this.prisma, commitCid.bytes),
+        cap: this.publishingCapability,
+        agent: agentDid,
       }
       const rootCid = await this.blockstore.put(root)
 
