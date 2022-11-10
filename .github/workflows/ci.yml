@@ -19,5 +19,7 @@ jobs:
         run: yarn build
       - name: Test
         run: yarn test
+        env:
+          VERBOSE: '1'
       - name: Lint
         run: yarn lint
