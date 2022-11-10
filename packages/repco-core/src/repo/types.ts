@@ -1,7 +1,7 @@
 import * as common from 'repco-common/zod'
 import * as z from 'zod'
-import { repco, Revision } from 'repco-prisma'
 import { CID } from 'multiformats/cid.js'
+import { repco, Revision } from 'repco-prisma'
 
 export const commitIpld = z.object({
   kind: z.literal('commit'),
@@ -70,12 +70,16 @@ export const rootIpld = z.object({
   kind: z.literal('root'),
   sig: common.bytes,
   commit: common.cid,
+  cap: z.string(),
+  agent: z.string()
 })
 
 export type RootIpld = {
   kind: 'root'
   sig: Uint8Array
   commit: CID
+  cap: string
+  agent: string
 }
 
 export function revisionIpldToDb(
@@ -92,8 +96,8 @@ export function revisionIpldToDb(
 }
 
 export type CommitBundle = {
-  root: { cid: CID, body: RootIpld }
-  commit: { cid: CID, body: CommitIpld }
+  root: { cid: CID; body: RootIpld }
+  commit: { cid: CID; body: CommitIpld }
   revisions: {
     revision: RevisionIpld
     revisionCid: CID

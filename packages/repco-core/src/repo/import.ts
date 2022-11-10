@@ -1,7 +1,7 @@
 import { CarBlockIterator } from '@ipld/car'
 import { Block } from '@ipld/car/api.js'
 import { CID } from 'multiformats/cid.js'
-import { verifySignature } from './auth.js'
+import { verifyPublishingCapability, verifyRoot, verifySignature } from './auth.js'
 import {
   BlockT,
   parseBytesWith,
@@ -127,6 +127,7 @@ async function* readCommitBundles(
         break
       case State.Commit:
         if (!bundle.root) throw new Error('invalid state')
+        await verifyRoot(bundle.root.body, repo.did)
         if (!bundle.root.body.commit.equals(block.cid)) {
           throw new UnexpectedCidError(
             block.cid,
@@ -142,11 +143,6 @@ async function* readCommitBundles(
         if (bundle.commit.body.repoDid !== repo.did) {
           throw new Error('commit does not belong to repo')
         }
-        await verifySignature(
-          bundle.commit.body.repoDid + '',
-          bundle.root.body.commit.bytes,
-          bundle.root.body.sig,
-        )
         state = State.Revision
         break
       case State.Revision:
