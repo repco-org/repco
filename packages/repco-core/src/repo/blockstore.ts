@@ -7,6 +7,11 @@ import { Level } from 'level'
 import { CID } from 'multiformats/cid'
 import { Prisma } from 'repco-prisma'
 
+export async function createCID(value: Uint8Array): Promise<CID> {
+  const block = await Block.encode({ value, hasher, codec })
+  return block.cid
+}
+
 class CIDNotFoundError extends Error {
   constructor(public cid: CID) {
     super('CID not found: ' + cid.toString())
@@ -323,7 +328,7 @@ export class LevelIpldBlockStore
 
 const ISO_DATE_REGEX = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/
 
-type IpldScalar = string | number | CID | Uint8Array | null
+type IpldScalar = string | number | CID | boolean | Uint8Array | null
 interface IpldRecord {
   [k: string]: IpldValue
 }
