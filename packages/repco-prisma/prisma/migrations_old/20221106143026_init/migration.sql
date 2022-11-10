@@ -46,7 +46,7 @@ CREATE TABLE "DataSource" (
     "uid" TEXT NOT NULL,
     "pluginUid" TEXT,
     "config" JSONB,
-    "cursor" TEXT NOT NULL,
+    "cursor" TEXT,
     "active" BOOLEAN,
 
     CONSTRAINT "DataSource_pkey" PRIMARY KEY ("uid")
