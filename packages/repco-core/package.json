@@ -54,6 +54,7 @@
     "@types/pkgjs__parseargs": "^0.10.0",
     "@types/streamx": "^2.9.1",
     "brittle": "^2.4.0",
+    "get-port": "^6.1.2",
     "nanobench-utils": "^1.0.0"
   }
 }
