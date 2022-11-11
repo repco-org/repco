@@ -4472,6 +4472,8 @@ export type LoadContentItemsQueryVariables = Exact<{
   last: InputMaybe<Scalars['Int']>
   after: InputMaybe<Scalars['Cursor']>
   before: InputMaybe<Scalars['Cursor']>
+  orderBy: InputMaybe<Array<ContentItemsOrderBy> | ContentItemsOrderBy>
+  includes: InputMaybe<Scalars['String']>
 }>
 
 export type LoadContentItemsQuery = {
