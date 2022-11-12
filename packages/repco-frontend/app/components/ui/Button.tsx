@@ -16,8 +16,8 @@ const styles = cva(
       },
       variant: {
         default: [
-          'text-white',
-          'bg-blue-700 hover:bg-blue-800 placeholder:focus:ring-blue-300',
+          'text-blue-700',
+          'bg-white-700 hover:bg-blue-200 placeholder:focus:ring-blue-300',
           'dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800',
           'focus:ring-4 focus:outline-none inline-flex',
         ],
