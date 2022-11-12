@@ -1,7 +1,6 @@
 import { ActionFunction, json, LoaderFunction } from '@remix-run/node'
 import { Form, useLoaderData, useSearchParams } from '@remix-run/react'
 import { gql } from '@urql/core'
-import { Filter } from '~/components/Filter'
 import { SanitizedHTML } from '~/components/sanitized-html'
 import { SearchBar } from '~/components/SearchBar'
 import {
@@ -93,7 +92,7 @@ export default function IndexRoute() {
     <main>
       <SearchBar />
 
-      <Filter />
+      {/* <Filter /> */}
       {data.contentItems?.nodes &&
         data.contentItems?.nodes.map((node, i) => (
           <Card key={i}>
