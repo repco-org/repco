@@ -17,9 +17,10 @@ const styles = cva(
         default: [
           'block  text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500',
         ],
-        withBtn: [
-          'block w-full text-md text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500',
+        search: [
+          'block p-4 pl-10 w-full text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500',
         ],
+
         bare: '',
       },
     },
@@ -34,6 +35,32 @@ export function Input(props: InputProps) {
   const className = cx(styles(props))
 
   return <input className={className} {...props} />
+}
+
+export function SearchInput(props: InputProps) {
+  const className = cx(styles(props))
+
+  return (
+    <div className=" relative w-full">
+      <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
+        <svg
+          aria-hidden="true"
+          className="w-5 h-5 text-gray-500 dark:text-gray-400"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          ></path>
+        </svg>
+      </div>
+      <input className={className} {...props} />
+    </div>
+  )
 }
 
 export type InputProps = InputBaseProps &
