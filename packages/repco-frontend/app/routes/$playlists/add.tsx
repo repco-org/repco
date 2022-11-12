@@ -1,7 +1,8 @@
 import type { ActionFunction, LoaderFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
-import { Form, Link, NavLink, useActionData } from '@remix-run/react'
+import { Form, Link, useActionData } from '@remix-run/react'
 import { useEffect, useState } from 'react'
+import { NavButton } from '~/components/ui/Button'
 import { addToLocalStorageArray, localStorageItemToArray } from '~/lib/helpers'
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -39,35 +40,43 @@ export default function Playlists() {
   }, [playlistAndUid, uid])
 
   return (
-    <div className="px-6 py-6">
+    <main className="px-2">
       {added ? (
-        <h1 className="font-medium leading-tight text-2xl mt-0 mb-2 text-green-600">
-          Success <br /> {playlistAndUid}
-        </h1>
+        <div>
+          <h1 className="font-medium leading-tight text-2xl mt-0 mb-2 text-green-600">
+            Success <br /> {playlistAndUid}
+          </h1>
+          <p>
+            {' '}
+            <NavButton to={`/items`}>Return to Items</NavButton>
+          </p>
+        </div>
       ) : added || playlists.length !== 0 ? (
-        playlists.map((e: any) => (
-          <Form className="card" key={e} method="post">
-            <p>
-              <NavLink
-                className="link"
-                prefetch="render"
-                to={`/playlists/playlist/${e}`}
-              >
-                {e}
-              </NavLink>
-            </p>
-            <button className="button" value={[e, uid]} name="add-to-playlist">
-              add to playlist
-            </button>
-          </Form>
-        ))
+        <div>
+          <h5 className="font-medium leading-tight text-xl mt-0 mb-2 text-blue-600">
+            add ContenItem {uid} to:
+          </h5>
+          {playlists.map((e: any) => (
+            <Form className="card" key={e} method="post">
+              <p>
+                <button
+                  className="text-sm"
+                  value={[e, uid]}
+                  name="add-to-playlist"
+                >
+                  {e}
+                </button>
+              </p>
+            </Form>
+          ))}
+        </div>
       ) : (
         <div className="px-6 py-6">
           <h1 className="font-medium leading-tight text-2xl mt-0 mb-2 text-red-600">
-            <Link to={'/playlists/new'}>Create at least one Playlist</Link>
+            <Link to={'/playlists'}>Create at least one Playlist</Link>
           </h1>
         </div>
       )}
-    </div>
+    </main>
   )
 }

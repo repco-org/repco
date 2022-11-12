@@ -1,11 +1,11 @@
 import { Form, useSubmit } from '@remix-run/react'
-import { SearchInput } from './ui/Input'
+import { SearchInput } from './Input'
 
-export function SearchBar() {
+export function SearchBar({ path }: { path: string }) {
   const submit = useSubmit()
   return (
     <Form
-      action="/items/"
+      action={path}
       method="get"
       onChange={(e) => {
         submit(e.currentTarget)
