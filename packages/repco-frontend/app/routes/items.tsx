@@ -1,15 +1,11 @@
-import { ActionFunction, json, LoaderFunction } from '@remix-run/node'
+import { LoaderFunction } from '@remix-run/node'
 import { Form, useLoaderData, useSearchParams } from '@remix-run/react'
 import { gql } from '@urql/core'
 import { SanitizedHTML } from '~/components/sanitized-html'
-import { SearchBar } from '~/components/SearchBar'
-import {
-  Button,
-  NavButton,
-  NextButton,
-  PrevButton,
-} from '~/components/ui/Button'
+import { Button, NavButton } from '~/components/ui/Button'
 import { Card } from '~/components/ui/Card'
+import { Pager } from '~/components/ui/Pager'
+import { SearchBar } from '~/components/ui/SearchBar'
 import type {
   LoadContentItemsQuery,
   LoadContentItemsQueryVariables,
@@ -74,14 +70,6 @@ export const loader: LoaderFunction = async ({ request }) => {
   )
 }
 
-export const action: ActionFunction = async ({
-  request,
-}): Promise<Response> => {
-  const form = await request.formData()
-  const orderBy = form.getAll('filter') || ''
-  return json({ order: orderBy })
-}
-
 export default function IndexRoute() {
   const { data } = useLoaderData<LoaderData>()
 
@@ -89,20 +77,19 @@ export default function IndexRoute() {
   const includes = searchParams.getAll('includes')
   const orderBy = searchParams.getAll('orderBy')
   return (
-    <main>
-      <SearchBar />
+    <main className="px-2">
+      <SearchBar path="/items" />
 
-      {/* <Filter /> */}
       {data.contentItems?.nodes &&
         data.contentItems?.nodes.map((node, i) => (
           <Card key={i}>
-            <h5 className="h5">
+            <h5 className="font-medium leading-tight text-xl mt-0 mb-2 text-blue-600">
               <SanitizedHTML allowedTags={['a', 'p']} html={node.title} />
             </h5>
-            <p className="text">
+            <p className="text-sm">
               <i>{node.uid}</i>
             </p>
-            <p className="text">
+            <p>
               <SanitizedHTML
                 allowedTags={['a', 'p']}
                 html={node.summary || ''}
@@ -122,20 +109,11 @@ export default function IndexRoute() {
             </div>
           </Card>
         ))}
-      <div className="py-4 flex justify-center flex-row mx-auto">
-        {data.contentItems?.pageInfo?.hasPreviousPage && (
-          <PrevButton
-            prefetch="render"
-            to={`/items?before=${data.contentItems?.pageInfo?.startCursor}&orderBy=${orderBy}&includes=${includes}`}
-          />
-        )}
-        {data.contentItems?.pageInfo?.hasNextPage && (
-          <NextButton
-            prefetch="render"
-            to={`/items?after=${data.contentItems?.pageInfo?.endCursor}&orderBy=${orderBy}&includes=${includes}`}
-          />
-        )}
-      </div>
+      <Pager
+        pageInfo={data.contentItems?.pageInfo}
+        orderBy={orderBy}
+        includes={includes}
+      />
     </main>
   )
 }

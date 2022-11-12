@@ -1,7 +1,7 @@
 import type { PropsWithChildren } from 'react'
 import { Outlet } from 'react-router-dom'
-import { Logo } from './logo'
 import { Button } from './ui/Button'
+import { Logo } from './ui/logo'
 import { Nav } from './ui/Nav'
 
 export function Layout(props: PropsWithChildren) {
