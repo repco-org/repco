@@ -1,8 +1,9 @@
-import { LoaderFunction } from '@remix-run/node'
-import { Form, useLoaderData } from '@remix-run/react'
+import { ActionFunction, json, LoaderFunction } from '@remix-run/node'
+import { Form, useLoaderData, useSearchParams } from '@remix-run/react'
 import { gql } from '@urql/core'
-import { useRef, useState } from 'react'
+import { Filter } from '~/components/Filter'
 import { SanitizedHTML } from '~/components/sanitized-html'
+import { SearchBar } from '~/components/SearchBar'
 import {
   Button,
   NavButton,
@@ -10,7 +11,6 @@ import {
   PrevButton,
 } from '~/components/ui/Button'
 import { Card } from '~/components/ui/Card'
-import { Input } from '~/components/ui/Input'
 import type {
   LoadContentItemsQuery,
   LoadContentItemsQueryVariables,
@@ -51,9 +51,8 @@ const QUERY = gql`
 
 type LoaderData = { data: LoadContentItemsQuery }
 
-export const loader: LoaderFunction = ({ request }) => {
+export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url)
-
   const after = url.searchParams.get('after')
   const before = url.searchParams.get('before')
   const orderBy = url.searchParams.get('orderBy') || 'TITLE_ASC'
@@ -76,52 +75,25 @@ export const loader: LoaderFunction = ({ request }) => {
   )
 }
 
+export const action: ActionFunction = async ({
+  request,
+}): Promise<Response> => {
+  const form = await request.formData()
+  const orderBy = form.getAll('filter') || ''
+  return json({ order: orderBy })
+}
+
 export default function IndexRoute() {
   const { data } = useLoaderData<LoaderData>()
-  console.log(data)
 
-  const [orderBy, setOrderBy] = useState('')
-  const [includes, setIncludes] = useState('')
-
-  const [searchField, setSearchField] = useState('')
-
-  const formRef = useRef<HTMLFormElement>(null)
-
+  const [searchParams] = useSearchParams()
+  const includes = searchParams.getAll('includes')
+  const orderBy = searchParams.getAll('orderBy')
   return (
     <main>
-      <Form action="/items" method="get">
-        <div className="relative">
-          <Input
-            type="search"
-            id="default-search"
-            name="includes"
-            variant="withBtn"
-            placeholder="Search Titles..."
-            onChange={(e) => setSearchField(e.target.value)}
-          />
+      <SearchBar />
 
-          <Button
-            type="submit"
-            variant="inline"
-            onClick={() => {
-              setIncludes(searchField)
-            }}
-          >
-            Search
-          </Button>
-        </div>
-      </Form>
-
-      <div>
-        <Form ref={formRef} method="get" action="/">
-          <label>Order By </label>
-          <select value="Bla" onChange={() => formRef.current?.submit()}>
-            <option value="TITLE_ASC">Title ASC</option>
-            <option value="TITLE_DESC">Title DESC</option>
-          </select>{' '}
-        </Form>
-      </div>
-
+      <Filter />
       {data.contentItems?.nodes &&
         data.contentItems?.nodes.map((node, i) => (
           <Card key={i}>
