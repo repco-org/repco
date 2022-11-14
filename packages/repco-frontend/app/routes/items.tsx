@@ -18,8 +18,17 @@ const QUERY = gql`
     $last: Int
     $after: Cursor
     $before: Cursor
+    $orderBy: [ContentItemsOrderBy!]
+    $includes: String
   ) {
-    contentItems(first: $first, last: $last, after: $after, before: $before) {
+    contentItems(
+      first: $first
+      last: $last
+      after: $after
+      before: $before
+      orderBy: $orderBy
+      filter: { title: { includes: $includes } }
+    ) {
       pageInfo {
         startCursor
         endCursor
@@ -34,7 +43,6 @@ const QUERY = gql`
     }
   }
 `
-
 type LoaderData = { data: LoadContentItemsQuery }
 
 export const loader: LoaderFunction = async ({ request }) => {
