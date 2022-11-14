@@ -1,8 +1,10 @@
 import type { LoaderFunction } from '@remix-run/node'
-import { Link, useLoaderData } from '@remix-run/react'
+import { NavLink, useLoaderData } from '@remix-run/react'
 import { gql } from '@urql/core'
 import { SanitizedHTML } from '~/components/sanitized-html'
-import { Card } from '~/components/ui/Card'
+import { NavButton } from '~/components/ui/Button'
+import { ContentItemCard } from '~/components/ui/Card'
+import { Collapsible } from '~/components/ui/Collapsible'
 import type {
   LoadContentItemsQuery,
   LoadContentItemsQueryVariables,
@@ -55,14 +57,32 @@ export default function IndexRoute() {
     <div className="md:w-full">
       <ul className="py-2 px-2">
         {data.contentItems.nodes.map((node, i) => (
-          <Card variant="centered">
-            <li key={i}>
-              <h2>
-                <Link to={`/item/${node.uid}`}>{node.title}</Link>
-              </h2>
-              <SanitizedHTML allowedTags={['a', 'p']} html={node.summary} />
-            </li>
-          </Card>
+          <ContentItemCard variant={'hover'}>
+            <NavLink to={`item/${node.uid}`}>
+              <h5 className="font-medium leading-tight text-xl text-blue-600">
+                <SanitizedHTML allowedTags={['a', 'p']} html={node.title} />
+              </h5>
+            </NavLink>
+            <p className="text-sm">
+              <i>{node.uid}</i>
+            </p>
+            <p>
+              <SanitizedHTML
+                allowedTags={['a', 'p']}
+                html={node.summary || ''}
+              />
+            </p>
+            <div>
+              <div>
+                <NavButton to={`item/${node.uid}`} prefetch="render">
+                  show more
+                </NavButton>
+              </div>
+              <div>
+                <Collapsible />
+              </div>
+            </div>
+          </ContentItemCard>
         ))}
       </ul>
     </div>

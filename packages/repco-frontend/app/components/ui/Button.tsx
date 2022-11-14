@@ -3,7 +3,7 @@ import type { VariantProps } from 'class-variance-authority'
 import { cva, cx } from 'class-variance-authority'
 import { ClassProp } from 'class-variance-authority/dist/types'
 
-const styles = cva('', {
+export const stylesButton = cva('', {
   variants: {
     disabled: {
       true: 'opacity-70 pointer-events-none cursor-not-allowed',
@@ -30,7 +30,7 @@ const styles = cva('', {
   },
 })
 
-export interface ButtonBaseProps extends VariantProps<typeof styles> {}
+export interface ButtonBaseProps extends VariantProps<typeof stylesButton> {}
 
 export type ButtonProps = ButtonBaseProps &
   React.ButtonHTMLAttributes<HTMLButtonElement> &
@@ -42,12 +42,12 @@ export type NavButtonProps = ButtonBaseProps &
   ClassProp
 
 export function Button(props: ButtonProps) {
-  const className = cx(styles(props))
+  const className = cx(stylesButton(props))
   return <button className={className} {...props} />
 }
 
 export function NavButton(props: NavButtonProps) {
-  const className = cx(styles(props))
+  const className = cx(stylesButton(props))
   return (
     <NavLink {...props}>
       <button className={className} {...props} />
