@@ -40,7 +40,11 @@ const stylesDropdownMenu = cva('', {
 export interface DropdownMenuBaseProps
   extends VariantProps<typeof stylesDropdownMenu> {}
 
-export type DropdownMenuProps = DropdownMenuBaseProps
+export type DropdownMenuProps = DropdownMenuBaseProps & Props
+
+type Props = {
+  node: string
+}
 
 export function DropdownMenuCards(props: DropdownMenuProps) {
   const className = cx(stylesDropdownMenu(props))
@@ -56,7 +60,7 @@ export function DropdownMenuCards(props: DropdownMenuProps) {
       <DropdownMenu.Portal>
         <DropdownMenu.Content className={className} align="end" sideOffset={5}>
           <DropdownMenu.Item className="block py-2 px-4 hover:bg-gray-100">
-            <NavLink to="#">add to Playlist</NavLink>
+            add to playlist
           </DropdownMenu.Item>
 
           <DropdownMenu.Item
