@@ -19,6 +19,7 @@ esbuild
     bundle: true,
     format: 'esm',
     watch: watch && { onRebuild },
+    sourcemap: true,
     platform: 'node',
     external: ['@prisma/client', 'classic-level'],
     banner: {
