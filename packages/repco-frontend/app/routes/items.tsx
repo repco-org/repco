@@ -1,15 +1,16 @@
 import type { LoaderFunction } from '@remix-run/node'
-import { NavLink, useLoaderData } from '@remix-run/react'
+import { NavLink, useLoaderData, useSearchParams } from '@remix-run/react'
 import { gql } from '@urql/core'
 import { SanitizedHTML } from '~/components/sanitized-html'
 import { NavButton } from '~/components/ui/Button'
 import { ContentItemCard } from '~/components/ui/Card'
 import { Collapsible } from '~/components/ui/Collapsible'
+import { SearchBar } from '~/components/ui/SearchBar'
 import type {
   LoadContentItemsQuery,
   LoadContentItemsQueryVariables,
 } from '~/graphql/types.js'
-import { graphqlQuery, parsePagination } from '~/lib/graphql.server'
+import { graphqlQuery } from '~/lib/graphql.server'
 
 const QUERY = gql`
   query LoadContentItems(
@@ -36,27 +37,41 @@ const QUERY = gql`
 
 type LoaderData = { data: LoadContentItemsQuery }
 
-export const loader: LoaderFunction = ({ request }) => {
+export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url)
-  const pagination = parsePagination(url)
+  const after = url.searchParams.get('after')
+  const before = url.searchParams.get('before')
+  const orderBy = url.searchParams.get('orderBy') || 'TITLE_ASC'
+  const includes = url.searchParams.get('includes') || ''
+  if (after && before) throw new Error('Invalid query arguments.')
+  const last = before ? 10 : null
+  const first = last ? null : 10
+
   return graphqlQuery<LoadContentItemsQuery, LoadContentItemsQueryVariables>(
     QUERY,
-    pagination,
+    {
+      first: first,
+      last: last,
+      after: after,
+      before: before,
+      //@ts-ignore
+      orderBy: orderBy,
+      includes: includes,
+    },
   )
 }
 
 export default function IndexRoute() {
   const { data } = useLoaderData<LoaderData>()
-  if (!data) {
-    return 'Ooops, something went wrong :('
-  }
-  if (!data.contentItems) {
-    return 'No content items'
-  }
+
+  const [searchParams] = useSearchParams()
+  const includes = searchParams.getAll('includes')
+  const orderBy = searchParams.getAll('orderBy')
   return (
     <div className="md:w-full">
+      <SearchBar path="/items" />
       <ul className="py-2 px-2">
-        {data.contentItems.nodes.map((node, i) => (
+        {data.contentItems?.nodes.map((node, i) => (
           <ContentItemCard node={node.uid} variant={'hover'}>
             <NavLink to={`item/${node.uid}`}>
               <h5 className="font-medium leading-tight text-xl text-blue-600">
