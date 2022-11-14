@@ -33,13 +33,17 @@ export function ContentItemCard(props: CardProps) {
         <div className="w-full">{props.children}</div>
 
         <div>
-          <DropdownMenuCards />
+          <DropdownMenuCards node={props.node} />
         </div>
       </div>
     </div>
   )
 }
+type Props = {
+  node: string
+}
 export type CardProps = CardBaseProps &
   React.DetailsHTMLAttributes<HTMLDivElement> &
-  ClassProp
+  ClassProp &
+  Props
 export interface CardBaseProps extends VariantProps<typeof styles> {}

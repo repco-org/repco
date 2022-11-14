@@ -1,9 +1,13 @@
 import * as CollapsiblePrimitive from '@radix-ui/react-collapsible'
 import React, { useEffect, useState } from 'react'
 import { PlayIcon, PlusIcon, TriangleRightIcon } from '@radix-ui/react-icons'
+import { Form, NavLink } from '@remix-run/react'
 import { localStorageItemToArray } from '~/lib/helpers'
+import { Button } from './Button'
 
-interface Props {}
+interface Props {
+  node: string
+}
 
 export function Collapsible(props: Props) {
   const [isOpen, setIsOpen] = useState(false)
@@ -38,8 +42,14 @@ export function Collapsible(props: Props) {
           >
             {title}
             <div className="hidden items-center space-x-3 group-hover:flex">
-              <PlusIcon className="cursor-pointer text-gray-800 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" />
-              <PlayIcon className="cursor-pointer text-gray-800 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" />
+              <Form method="post" action="/playlists/add">
+                <Button variant={'bare'} name="add-item" value={props.node}>
+                  <PlusIcon className="cursor-pointer text-gray-800 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" />
+                </Button>
+              </Form>
+              <NavLink to={`/playlists/playlist/${title}`}>
+                <PlayIcon className="cursor-pointer text-gray-800 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" />
+              </NavLink>
             </div>
           </div>
         ))}

@@ -57,7 +57,7 @@ export default function IndexRoute() {
     <div className="md:w-full">
       <ul className="py-2 px-2">
         {data.contentItems.nodes.map((node, i) => (
-          <ContentItemCard variant={'hover'}>
+          <ContentItemCard node={node.uid} variant={'hover'}>
             <NavLink to={`item/${node.uid}`}>
               <h5 className="font-medium leading-tight text-xl text-blue-600">
                 <SanitizedHTML allowedTags={['a', 'p']} html={node.title} />
@@ -79,7 +79,7 @@ export default function IndexRoute() {
                 </NavButton>
               </div>
               <div>
-                <Collapsible />
+                <Collapsible node={node.uid} />
               </div>
             </div>
           </ContentItemCard>
