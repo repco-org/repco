@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom'
 
 const active =
-  'bg-white inline-block border-l border-t border-r rounded-t py-2 px-4 font-semibold text-blue-700'
+  'bg-white inline-block border-l border-t border-r rounded-t py-2 px-4 font-semibold text-purple-500'
 const inactive =
   'bg-white inline-block border-l border-t border-r rounded-t py-2 px-4 font-semibold text-blue-200'
 
