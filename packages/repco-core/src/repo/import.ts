@@ -1,7 +1,7 @@
 import { CarBlockIterator } from '@ipld/car'
 import { Block } from '@ipld/car/api.js'
 import { CID } from 'multiformats/cid.js'
-import { verifyPublishingCapability, verifyRoot, verifySignature } from './auth.js'
+import { verifyRoot } from './auth.js'
 import {
   BlockT,
   parseBytesWith,
