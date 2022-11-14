@@ -1,8 +1,6 @@
 import Table from 'cli-table'
 import { createCommand, createCommandGroup } from '../parse.js'
-import { plugins } from '../../datasources/defaults.js'
-import { Ingester } from '../../ingest.js'
-import { Repo } from '../../repo.js'
+import { Ingester, Repo, defaultDataSourcePlugins as plugins } from 'repco-core'
 
 export const listPlugins = createCommand({
   name: 'list-plugins',
