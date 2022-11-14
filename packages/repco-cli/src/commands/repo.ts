@@ -11,9 +11,7 @@ import { CID } from 'multiformats/cid'
 import { PrismaClient } from 'repco-prisma'
 import { pipeline } from 'stream/promises'
 import { createCommand, createCommandGroup } from '../parse.js'
-import { ImportProgress } from '../../mod.js'
-import { Repo } from '../../repo.js'
-import { ExportProgress } from '../../repo/export.js'
+import { Repo, ImportProgress, ExportProgress } from 'repco-core'
 
 // helpers
 const print = (msg: string) => console.error(msg)

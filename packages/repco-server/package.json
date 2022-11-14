@@ -13,7 +13,7 @@
     "dev": "run-p watch start:watch",
     "docs": "typedoc src/mod.ts --out ./docs",
     "start": "node dist/bin.js",
-    "start:watch": "nodemon -r source-map-support/register dist/bin.js"
+    "start:watch": "nodemon -r source-map-support/register --watch dist --watch ../repco-core/dist dist/bin.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

@@ -8,10 +8,10 @@ generator client {
   previewFeatures = ["interactiveTransactions"]
 }
 
-generator dbml {
-  provider = "prisma-dbml-generator"
-  output   = "../generated/dbml"
-}
+// generator dbml {
+//   provider = "prisma-dbml-generator"
+//   output   = "../generated/dbml"
+// }
 
 generator repco {
   provider = "repco-prisma-generate"
