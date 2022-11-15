@@ -1,8 +1,8 @@
 import type { ActionFunction, LoaderFunction } from '@remix-run/node'
 import { Form, NavLink, useActionData } from '@remix-run/react'
 import { useEffect, useState } from 'react'
-import { Button } from '~/components/ui/Button'
-import { Input } from '~/components/ui/Input'
+import { Button } from '~/components/ui/primitives/Button'
+import { Input } from '~/components/ui/primitives/Input'
 import { addToLocalStorageArray, localStorageItemToArray } from '~/lib/helpers'
 
 export const loader: LoaderFunction = ({ request }) => {
