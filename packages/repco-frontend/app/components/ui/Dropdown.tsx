@@ -1,7 +1,7 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import React from 'react'
 import { HamburgerMenuIcon } from '@radix-ui/react-icons'
-import { NavLink } from '@remix-run/react'
+import { Form, NavLink } from '@remix-run/react'
 import { cva, cx, VariantProps } from 'class-variance-authority'
 import { Button } from './Button'
 
@@ -58,32 +58,34 @@ export function DropdownMenuCards(props: DropdownMenuProps) {
       </DropdownMenu.Trigger>
 
       <DropdownMenu.Portal>
-        <DropdownMenu.Content className={className} align="end" sideOffset={5}>
-          <DropdownMenu.Item className="block py-2 px-4 hover:bg-gray-100">
-            add to playlist
-          </DropdownMenu.Item>
+        <DropdownMenu.Content className="bg-white" align="end" sideOffset={5}>
+          <Form method="post" action="/playlists/add">
+            <Button variant="bare" type="submit">
+              add to playlist
+            </Button>
+          </Form>
 
           <DropdownMenu.Item
             disabled={true}
-            className="block py-2 px-4 text-gray-400 hover:bg-gray-100 pointer-events-none cursor-not-allowed"
+            className="block text-sm py-2 px-4 text-gray-400 hover:bg-gray-100 pointer-events-none cursor-not-allowed"
           >
-            <NavLink to="#">Transcription</NavLink>
+            Transcription
           </DropdownMenu.Item>
           <DropdownMenu.Item
             disabled={true}
-            className="block py-2 px-4 text-gray-400 hover:bg-gray-100 pointer-events-none cursor-not-allowed"
+            className="block text-sm py-2 px-4 text-gray-400 hover:bg-gray-100 pointer-events-none cursor-not-allowed"
           >
-            <NavLink to="#">Translation</NavLink>
+            Translation
           </DropdownMenu.Item>
           <DropdownMenu.Item
             disabled={true}
-            className="block py-2 px-4 text-gray-400 hover:bg-gray-100 pointer-events-none cursor-not-allowed"
+            className="block text-sm py-2 px-4 text-gray-400 hover:bg-gray-100 pointer-events-none cursor-not-allowed"
           >
-            <NavLink to="#">get similar items</NavLink>
+            get similar items
           </DropdownMenu.Item>
           <DropdownMenu.Item
             disabled={true}
-            className="block py-2 px-4 text-gray-400 hover:bg-gray-100 pointer-events-none cursor-not-allowed"
+            className="block text-sm py-2 px-4 text-gray-400 hover:bg-gray-100 pointer-events-none cursor-not-allowed"
           >
             <NavLink to="#">recommend/share</NavLink>
           </DropdownMenu.Item>

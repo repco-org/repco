@@ -1,7 +1,8 @@
-import { NavLink, NavLinkProps } from '@remix-run/react'
+import type { NavLinkProps } from '@remix-run/react'
+import { NavLink } from '@remix-run/react'
 import type { VariantProps } from 'class-variance-authority'
 import { cva, cx } from 'class-variance-authority'
-import { ClassProp } from 'class-variance-authority/dist/types'
+import type { ClassProp } from 'class-variance-authority/dist/types'
 
 export const stylesButton = cva('', {
   variants: {
