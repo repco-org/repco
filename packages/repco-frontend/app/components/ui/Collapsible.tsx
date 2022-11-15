@@ -1,9 +1,14 @@
 import * as CollapsiblePrimitive from '@radix-ui/react-collapsible'
 import React, { useEffect, useState } from 'react'
-import { PlayIcon, PlusIcon, TriangleRightIcon } from '@radix-ui/react-icons'
-import { Form, NavLink } from '@remix-run/react'
-import { localStorageItemToArray } from '~/lib/helpers'
-import { Button } from './Button'
+import {
+  CheckIcon,
+  PlayIcon,
+  PlusIcon,
+  TriangleRightIcon,
+} from '@radix-ui/react-icons'
+import { NavLink } from '@remix-run/react'
+import { addToLocalStorageArray, localStorageItemToArray } from '~/lib/helpers'
+import { NewPlaylistBar } from './NewPlaylistBar'
 
 interface Props {
   node: string
@@ -13,6 +18,13 @@ export function CollapsiblePlaylist(props: Props) {
   const [isOpen, setIsOpen] = useState(false)
   const [playlists, setPlaylists] = useState([])
   const [showData, setShowData] = useState(true)
+  const [added, setAdded] = useState('')
+
+  function addToPlaylist(playlist: string, node: string) {
+    addToLocalStorageArray(playlist, node)
+    setPlaylists(localStorageItemToArray('playlists'))
+    setAdded(playlist)
+  }
 
   useEffect(() => {
     if (!showData) return
@@ -32,6 +44,9 @@ export function CollapsiblePlaylist(props: Props) {
         <div>add to Playlist</div>
         <TriangleRightIcon className="transform duration-300 ease-in-out group-radix-state-open:rotate-90" />
       </CollapsiblePrimitive.Trigger>
+      <CollapsiblePrimitive.Content>
+        <NewPlaylistBar />
+      </CollapsiblePrimitive.Content>
       <CollapsiblePrimitive.Content className="mt-4 flex flex-col space-y-4">
         {playlists.map((title, i) => (
           <div
@@ -42,12 +57,21 @@ export function CollapsiblePlaylist(props: Props) {
           >
             {title}
             <div className="hidden items-center space-x-3 group-hover:flex">
-              <Form method="post" action="/playlists/add">
-                <Button variant={'bare'} name="add-item" value={props.node}>
-                  <input type="hidden" value={title} name="add-to-playlist" />
-                  <PlusIcon className="cursor-pointer text-gray-800 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" />
-                </Button>
-              </Form>
+              <button
+                onClick={() => {
+                  addToPlaylist(title, props.node)
+                }}
+              >
+                <PlusIcon
+                  className={
+                    added.includes(title)
+                      ? 'hidden'
+                      : 'cursor-pointer text-gray-800 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                  }
+                />
+              </button>
+              <CheckIcon className={added.includes(title) ? '' : 'hidden'} />
+
               <NavLink to={`/playlists/playlist/${title}`}>
                 <PlayIcon className="cursor-pointer text-gray-800 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" />
               </NavLink>

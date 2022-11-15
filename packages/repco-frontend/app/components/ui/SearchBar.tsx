@@ -1,5 +1,5 @@
 import { Form, useSubmit } from '@remix-run/react'
-import { SearchInput } from './Input'
+import { IconSearchInput } from './Input'
 
 export function SearchBar({ path }: { path: string }) {
   const submit = useSubmit()
@@ -12,10 +12,10 @@ export function SearchBar({ path }: { path: string }) {
       }}
     >
       <div className="flex">
-        <SearchInput
+        <IconSearchInput
           name="includes"
           type="search"
-          variant="search"
+          variant="icon"
           variantSize="sm"
           placeholder="Search Titles..."
         />
