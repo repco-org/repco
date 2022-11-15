@@ -5,7 +5,7 @@ const active =
 const inactive =
   'bg-white inline-block border-l border-t border-r rounded-t py-2 px-4 font-semibold text-blue-200'
 
-export function Nav() {
+export function NavBar() {
   return (
     <ul className="flex border-b">
       <li className="-mb-px mr-1">

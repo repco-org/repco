@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { addToLocalStorageArray } from '~/lib/helpers'
-import { Button } from './Button'
-import { IconAddInput } from './Input'
+import { Button } from '../primitives/Button'
+import { IconAddInput } from '../primitives/Input'
 
 export function NewPlaylistBar() {
   const [input, setInput] = useState('')
@@ -22,10 +22,10 @@ export function NewPlaylistBar() {
         variant="icon"
         variantSize="sm"
         placeholder="add new playlist..."
-        onChange={(e) => setInput(e.target.value)}
+        onChange={(e: any) => setInput(e.target.value)}
       />
       <Button
-        onClick={(e) => {
+        onClick={() => {
           newPlaylist()
         }}
       >

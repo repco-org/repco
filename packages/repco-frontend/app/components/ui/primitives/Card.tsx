@@ -1,8 +1,9 @@
-import { cva, cx, VariantProps } from 'class-variance-authority'
-import { ClassProp } from 'class-variance-authority/dist/types'
+import type { VariantProps } from 'class-variance-authority'
+import { cva, cx } from 'class-variance-authority'
+import type { ClassProp } from 'class-variance-authority/dist/types'
 import { NavButton } from './Button'
-import { CollapsiblePlaylist } from './Collapsible'
-import { DropdownMenuCards } from './Dropdown'
+import { CollapsiblePlaylist } from '../Collapsible'
+import { DropdownMenuCards } from '../Dropdown'
 
 const styles = cva('p-4 rounded-lg border shadow-xs', {
   variants: {

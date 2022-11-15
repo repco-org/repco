@@ -2,7 +2,7 @@ import type { ActionFunction, LoaderFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import { Form, Link, useActionData } from '@remix-run/react'
 import { useEffect, useState } from 'react'
-import { NavButton } from '~/components/ui/Button'
+import { NavButton } from '~/components/ui/primitives/Button'
 import { addToLocalStorageArray, localStorageItemToArray } from '~/lib/helpers'
 
 export const loader: LoaderFunction = async ({ request }) => {

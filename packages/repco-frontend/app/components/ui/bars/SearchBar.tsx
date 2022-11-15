@@ -1,5 +1,5 @@
 import { Form, useSubmit } from '@remix-run/react'
-import { IconSearchInput } from './Input'
+import { IconSearchInput } from '../primitives/Input'
 
 export function SearchBar({ path }: { path: string }) {
   const submit = useSubmit()

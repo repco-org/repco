@@ -2,8 +2,8 @@ import type { LoaderFunction } from '@remix-run/node'
 import { NavLink, useLoaderData } from '@remix-run/react'
 import { gql } from '@urql/core'
 import { SanitizedHTML } from '~/components/sanitized-html'
-import { ContentItemCard } from '~/components/ui/Card'
-import { SearchBar } from '~/components/ui/SearchBar'
+import { SearchBar } from '~/components/ui/bars/SearchBar'
+import { ContentItemCard } from '~/components/ui/primitives/Card'
 import type {
   LoadContentItemsQuery,
   LoadContentItemsQueryVariables,

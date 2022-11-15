@@ -1,5 +1,5 @@
 import type { PageInfo } from '~/graphql/types.js'
-import { NextButton, PrevButton } from './Button'
+import { NextButton, PrevButton } from './primitives/Button'
 
 export function Pager({
   pageInfo,

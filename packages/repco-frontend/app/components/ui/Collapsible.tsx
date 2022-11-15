@@ -1,5 +1,4 @@
 import * as CollapsiblePrimitive from '@radix-ui/react-collapsible'
-import React, { useEffect, useState } from 'react'
 import {
   CheckIcon,
   PlayIcon,
@@ -7,8 +6,9 @@ import {
   TriangleRightIcon,
 } from '@radix-ui/react-icons'
 import { NavLink } from '@remix-run/react'
+import { useEffect, useState } from 'react'
 import { addToLocalStorageArray, localStorageItemToArray } from '~/lib/helpers'
-import { NewPlaylistBar } from './NewPlaylistBar'
+import { NewPlaylistBar } from './bars/NewPlaylistBar'
 
 interface Props {
   node: string
