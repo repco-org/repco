@@ -9,7 +9,7 @@ interface Props {
   node: string
 }
 
-export function Collapsible(props: Props) {
+export function CollapsiblePlaylist(props: Props) {
   const [isOpen, setIsOpen] = useState(false)
   const [playlists, setPlaylists] = useState([])
   const [showData, setShowData] = useState(true)
@@ -44,6 +44,7 @@ export function Collapsible(props: Props) {
             <div className="hidden items-center space-x-3 group-hover:flex">
               <Form method="post" action="/playlists/add">
                 <Button variant={'bare'} name="add-item" value={props.node}>
+                  <input type="hidden" value={title} name="add-to-playlist" />
                   <PlusIcon className="cursor-pointer text-gray-800 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" />
                 </Button>
               </Form>
