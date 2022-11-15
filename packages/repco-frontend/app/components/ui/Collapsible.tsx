@@ -3,6 +3,7 @@ import {
   CheckIcon,
   PlayIcon,
   PlusIcon,
+  TriangleDownIcon,
   TriangleRightIcon,
 } from '@radix-ui/react-icons'
 import { NavLink } from '@remix-run/react'
@@ -12,6 +13,40 @@ import { NewPlaylistBar } from './bars/NewPlaylistBar'
 
 interface Props {
   node: string
+}
+
+export function CollapsibleFilter() {
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <CollapsiblePrimitive.Root open={isOpen}>
+      <CollapsiblePrimitive.Trigger className="w-full py-1 px-2 text-sm border rounded-md  transition-colors duration-100 cursor-default disabled:opacity-50 text-blue-700 bg-white-700 hover:text-purple-500 placeholder:focus:ring-purple-500 focus:ring-2 focus:outline-none">
+        <div
+          className="flex"
+          onClick={() => {
+            isOpen ? setIsOpen(false) : setIsOpen(true)
+          }}
+        >
+          Filters
+          <TriangleDownIcon className="transform duration-300 ease-in-out group-radix-state-open:rotate-90" />
+        </div>
+
+        <CollapsiblePrimitive.Content>
+          <div className="flex w-1/4">
+            <label className="px-2">OrderBy</label>
+            <select
+              name="orderBy"
+              className="w-1/4 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full "
+            >
+              <option value="">choose...</option>
+              <option value="TITLE_ASC">Title ASC</option>
+              <option value="TITLE_DESC">Title DESC</option>
+            </select>
+          </div>
+        </CollapsiblePrimitive.Content>
+      </CollapsiblePrimitive.Trigger>
+    </CollapsiblePrimitive.Root>
+  )
 }
 
 export function CollapsiblePlaylist(props: Props) {
