@@ -1,9 +1,8 @@
 import type { ActionFunction, LoaderFunction } from '@remix-run/node'
-import { Form, NavLink, useActionData } from '@remix-run/react'
+import { NavLink, useActionData } from '@remix-run/react'
 import { useEffect, useState } from 'react'
-import { Button } from '~/components/ui/primitives/Button'
-import { Input } from '~/components/ui/primitives/Input'
-import { addToLocalStorageArray, localStorageItemToArray } from '~/lib/helpers'
+import { NewPlaylistBar } from '~/components/ui/bars/NewPlaylistBar'
+import { getStorage } from '~/lib/helpers'
 
 export const loader: LoaderFunction = ({ request }) => {
   // TODO: query playlists from repco db
@@ -29,31 +28,19 @@ export default function Playlists() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      addToLocalStorageArray('playlists', data)
-      setPlaylists(localStorageItemToArray('playlists'))
+      setPlaylists(getStorage('playlists'))
     }
   }, [data])
   useEffect(() => {
     if (!showData) return
     if (typeof window !== 'undefined') {
-      setPlaylists(localStorageItemToArray('playlists'))
+      setPlaylists(getStorage('playlists'))
       setShowData(false)
     }
   }, [showData])
   return (
     <main className="px-2">
-      <Form method="post" action="/playlists">
-        <div className="py-2 flex">
-          <Input
-            type="text"
-            name="create-playlist"
-            id="create-playlist"
-            placeholder="add a new playlist..."
-            variantSize="sm"
-          />
-          <Button>create new playlist</Button>
-        </div>
-      </Form>
+      <NewPlaylistBar />
       <div className="px-2 ">
         {playlists.length !== 0 ? (
           playlists.map((e: any) => (

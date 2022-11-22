@@ -32,8 +32,8 @@ export function ContentItemCard(props: CardProps) {
   const className = cx(styles(props))
   return (
     <div className={className} {...props}>
-      <div className="flex flex-row  justify-end">
-        <div className="w-full">
+      <div className="flex flex-row">
+        <div className="w-full px-4">
           <div>{props.children}</div>
           <div>
             <NavButton to={`item/${props.node}`} prefetch="render">
@@ -42,7 +42,7 @@ export function ContentItemCard(props: CardProps) {
             <CollapsiblePlaylist node={props.node} />
           </div>
         </div>
-        <div>
+        <div className="items-start">
           <DropdownMenuCards node={props.node} />
         </div>
       </div>

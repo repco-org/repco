@@ -1,7 +1,7 @@
 import type { LoaderFunction } from '@remix-run/node'
 import { Link, NavLink, useLoaderData } from '@remix-run/react'
 import { useEffect, useState } from 'react'
-import { localStorageItemToArray } from '~/lib/helpers'
+import { getStorage } from '~/lib/helpers'
 
 export const loader: LoaderFunction = ({ params }) => {
   const playlist = params
@@ -15,7 +15,7 @@ export default function Playlist() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setPlaylists(localStorageItemToArray(data.id))
+      setPlaylists(getStorage(data.id))
     }
   }, [data])
 

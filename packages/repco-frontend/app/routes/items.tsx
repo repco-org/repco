@@ -1,8 +1,9 @@
 import type { LoaderFunction } from '@remix-run/node'
-import { NavLink, useLoaderData } from '@remix-run/react'
+import { NavLink, useLoaderData, useSearchParams } from '@remix-run/react'
 import { gql } from '@urql/core'
 import { SanitizedHTML } from '~/components/sanitized-html'
 import { SearchBar } from '~/components/ui/bars/SearchBar'
+import { Pager } from '~/components/ui/Pager'
 import { ContentItemCard } from '~/components/ui/primitives/Card'
 import type {
   LoadContentItemsQuery,
@@ -69,22 +70,24 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export default function IndexRoute() {
   const { data } = useLoaderData<LoaderData>()
-
+  const [searchParams] = useSearchParams()
+  const includes = searchParams.getAll('includes')
+  const orderBy = searchParams.getAll('orderBy')
   return (
     <div className="md:w-full">
       <SearchBar path="/items" />
-      <ul className="py-2 px-2">
+      <div className="break-before-auto py-2 px-2">
         {data.contentItems?.nodes.map((node, i) => (
           <ContentItemCard key={i} node={node.uid} variant={'hover'}>
             <NavLink to={`item/${node.uid}`}>
-              <h5 className="font-medium leading-tight text-xl text-blue-600">
+              <h5 className="break-words  font-medium leading-tight text-xl text-blue-600">
                 <SanitizedHTML allowedTags={['a', 'p']} html={node.title} />
               </h5>
             </NavLink>
             <p className="text-sm">
-              <i>{node.uid}</i>
+              <i className="break-all">{node.uid}</i>
             </p>
-            <p>
+            <p className="break-words">
               <SanitizedHTML
                 allowedTags={['a', 'p']}
                 html={node.summary || ''}
@@ -92,7 +95,12 @@ export default function IndexRoute() {
             </p>
           </ContentItemCard>
         ))}
-      </ul>
+      </div>
+      <Pager
+        pageInfo={data.contentItems?.pageInfo}
+        orderBy={orderBy}
+        includes={includes}
+      />
     </div>
   )
 }
