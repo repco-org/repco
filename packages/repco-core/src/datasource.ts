@@ -23,11 +23,11 @@ export class DataSourcePluginRegistry {
   register(plugin: DataSourcePlugin) {
     this.plugins[plugin.definition.uid] = plugin
   }
-  createInstance(uid: string, config: any): DataSource {
-    if (!this.plugins[uid]) {
-      throw new Error(`Unknown data source plugin: ${uid}`)
+  createInstance(pluginUid: string, config: any): DataSource {
+    if (!this.plugins[pluginUid]) {
+      throw new Error(`Unknown data source plugin: ${pluginUid}`)
     }
-    return this.plugins[uid].createInstance(config)
+    return this.plugins[pluginUid].createInstance(config)
   }
   has(uid: string): boolean {
     return !!this.plugins[uid]

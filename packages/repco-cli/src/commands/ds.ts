@@ -32,9 +32,11 @@ export const add = createCommand({
     const config = { endpoint: args.endpoint }
     if (!plugins.has(args.plugin))
       throw new Error(`Datasource plugin \`${args.plugin}\` is not installed.`)
+    const ds = plugins.createInstance(args.plugin, config)
+    const uid = ds.definition.uid
     const res = await prisma.dataSource.create({
       data: {
-        uid: args.endpoint,
+        uid,
         pluginUid: args.plugin,
         config: config,
         cursor: '',
