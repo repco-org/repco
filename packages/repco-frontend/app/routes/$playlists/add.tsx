@@ -3,7 +3,7 @@ import { json } from '@remix-run/node'
 import { Form, Link, useActionData } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 import { NavButton } from '~/components/ui/primitives/Button'
-import { addToLocalStorageArray, localStorageItemToArray } from '~/lib/helpers'
+import { getStorage, setStorage } from '~/lib/helpers'
 
 export const loader: LoaderFunction = async ({ request }) => {
   //TODO: query from repco db playlists
@@ -15,26 +15,25 @@ export const action: ActionFunction = async ({ request }) => {
   const data = formData.get('add-item') || ''
 
   const add = formData.get('add-to-playlist') || ''
-
   return json({ uid: data, playlistAndUid: add })
 }
 
 export default function Playlists() {
   const { uid, playlistAndUid } = useActionData()
-
+  console.log(uid, playlistAndUid)
   const [playlists, setPlaylists] = useState([])
   const [added, setadded] = useState(false)
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setPlaylists(localStorageItemToArray('playlists'))
+      setPlaylists(getStorage('playlists'))
     }
   }, [uid, playlistAndUid])
 
   useEffect(() => {
     if (playlistAndUid) {
       const newPlaylist = [playlistAndUid.split(',')]
-      addToLocalStorageArray(newPlaylist[0][0], newPlaylist[0][1])
-      setPlaylists(localStorageItemToArray('playlists'))
+      setStorage(newPlaylist[0][0], newPlaylist[0][1])
+      setPlaylists(getStorage('playlists'))
       setadded(true)
     }
   }, [playlistAndUid, uid])
@@ -47,7 +46,6 @@ export default function Playlists() {
             Success <br /> {playlistAndUid}
           </h1>
           <p>
-            {' '}
             <NavButton to={`/items`}>Return to Items</NavButton>
           </p>
         </div>
@@ -57,7 +55,7 @@ export default function Playlists() {
             add ContenItem {uid} to:
           </h5>
           {playlists.map((e: any) => (
-            <Form className="card" key={e} method="post">
+            <Form key={e} method="post">
               <p>
                 <button
                   className="text-sm"

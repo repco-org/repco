@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { addToLocalStorageArray } from '~/lib/helpers'
+import { setStorage } from '~/lib/helpers'
 import { Button } from '../primitives/Button'
 import { IconAddInput } from '../primitives/Input'
 
@@ -10,7 +10,7 @@ export function NewPlaylistBar() {
     const date = new Date(timestamp)
     const dd_mm_yyyy = date.toLocaleDateString()
     const time = date.toLocaleTimeString()
-    addToLocalStorageArray('playlists', input + ' ' + dd_mm_yyyy + ' ' + time)
+    setStorage('playlists', input + ' ' + dd_mm_yyyy + ' ' + time)
     location.reload()
   }
   return (
