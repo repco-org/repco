@@ -10,7 +10,6 @@ export const loader: LoaderFunction = ({ params }) => {
 
 export default function Playlist() {
   const data = useLoaderData()
-  console.log(data)
   const [playlists, setPlaylists] = useState([])
 
   useEffect(() => {
@@ -19,7 +18,6 @@ export default function Playlist() {
     }
   }, [data])
 
-  console.log(data)
   return (
     <main className="px-2">
       <h5 className="py-2 font-medium leading-tight text-xl mt-0 mb-2 text-blue-600">
