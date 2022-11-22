@@ -1,7 +1,6 @@
 import type { ActionFunction, LoaderFunction } from '@remix-run/node'
 import { NavLink, useActionData } from '@remix-run/react'
 import { useEffect, useState } from 'react'
-import { NewPlaylistBar } from '~/components/ui/bars/NewPlaylistBar'
 import { getStorage } from '~/lib/helpers'
 
 export const loader: LoaderFunction = ({ request }) => {
@@ -40,7 +39,6 @@ export default function PlaylistIndex() {
   }, [showData])
   return (
     <main className="px-2">
-      <NewPlaylistBar />
       <div className="px-2 ">
         {playlists.length !== 0 ? (
           playlists.map((e: any) => (
