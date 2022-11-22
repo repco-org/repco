@@ -1,5 +1,4 @@
 export function setStorage(name: string, value: string) {
-  console.log('SET')
   const values = localStorage.getItem(name)
   const arr = values ? JSON.parse(values) : []
   arr.push(value)
@@ -7,7 +6,6 @@ export function setStorage(name: string, value: string) {
 }
 
 export function getStorage(name: string) {
-  console.log('get')
   const values = localStorage.getItem(name)
   const arr = values ? JSON.parse(values) : []
   return arr
