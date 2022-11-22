@@ -23,18 +23,16 @@ export default function Playlists() {
   console.log(uid, playlistAndUid)
   const [playlists, setPlaylists] = useState([])
   const [added, setadded] = useState(false)
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setPlaylists(getStorage('playlists'))
-    }
-  }, [uid, playlistAndUid])
-
-  useEffect(() => {
-    if (playlistAndUid) {
-      const newPlaylist = [playlistAndUid.split(',')]
-      setStorage(newPlaylist[0][0], newPlaylist[0][1])
-      setPlaylists(getStorage('playlists'))
-      setadded(true)
+      if (playlistAndUid) {
+        const newPlaylist = [playlistAndUid.split(',')]
+        setStorage(newPlaylist[0][0], newPlaylist[0][1])
+        setPlaylists(getStorage('playlists'))
+        setadded(true)
+      }
     }
   }, [playlistAndUid, uid])
 
