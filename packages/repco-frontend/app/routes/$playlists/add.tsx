@@ -20,7 +20,6 @@ export const action: ActionFunction = async ({ request }) => {
 
 export default function Playlists() {
   const { uid, playlistAndUid } = useActionData()
-  console.log(uid, playlistAndUid)
   const [playlists, setPlaylists] = useState([])
   const [added, setadded] = useState(false)
 
