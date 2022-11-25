@@ -17,6 +17,7 @@ import {
 import {
   createRepoKeypair,
   getInstanceDid,
+  getInstanceKeypair,
   getPublishingUcanForInstance,
   instanceSignPayload,
 } from './instance.js'
@@ -97,6 +98,7 @@ export class Repo {
   public dsr: DataSourceRegistry
   public blockstore: IpldBlockStore
   public prisma: PrismaClient | Prisma.TransactionClient
+  public ipld: IpldRepo
 
   public readonly record: RepoRecord
 
@@ -209,6 +211,7 @@ export class Repo {
     this.dsr = dsr || new DataSourceRegistry()
     this.blockstore = bs || defaultBlockStore(prisma)
     this.publishingCapability = cap
+    this.ipld = new IpldRepo(record, this.blockstore)
   }
 
   private $transaction<R>(fn: (repo: Repo) => Promise<R>) {
@@ -369,52 +372,16 @@ export class Repo {
     entities: EntityInputWithHeaders[],
   ) {
     if (!this.publishingCapability) throw new Error('Repo is not writable')
-    const agentDid = await getInstanceDid(this.prisma)
-    const timestamp = new Date()
-    try {
-      this.blockstore = this.blockstore.transaction()
-
-      // save all revisions in blockstore
-      const revisions = []
-      for (const entity of entities) {
-        const revision = await this.saveEntityIpld(agentDid, entity)
-        revisions.push({ ...revision, parsedContent: entity })
-      }
-
-      // save commit ipld
-      const parent = await this.getHead()
-      const commit: CommitIpld = {
-        kind: 'commit',
-        repoDid: this.did,
-        agentDid,
-        parent,
-        revisions: revisions.map((r) => r.revisionCid),
-        timestamp,
-      }
-      const commitCid = await this.blockstore.put(commit)
-      const root: RootIpld = {
-        kind: 'root',
-        commit: commitCid,
-        sig: await instanceSignPayload(this.prisma, commitCid.bytes),
-        cap: this.publishingCapability,
-        agent: agentDid,
-      }
-      const rootCid = await this.blockstore.put(root)
-
-      // batch commit ipld changes
-      this.blockstore = await this.blockstore.commit()
-
-      const bundle = {
-        root: { cid: rootCid, body: root },
-        commit: { cid: commitCid, body: commit },
-        revisions,
-      }
-      const ret = await this.saveFromIpld(bundle)
-      return ret
-    } catch (err) {
-      console.error('TX FAILED', err)
-      throw err
-    }
+    const agentKeypair = await getInstanceKeypair(this.prisma)
+    const parent = await this.getHead()
+    const bundle = await this.ipld.createCommit(
+      entities,
+      agentKeypair,
+      this.publishingCapability,
+      parent,
+    )
+    const ret = await this.saveFromIpld(bundle)
+    return ret
   }
 
   async saveFromIpld(bundle: CommitBundle) {
@@ -509,40 +476,6 @@ export class Repo {
     setUid(entity, uid)
 
     return { ...entity, headers }
-  }
-
-  private async saveEntityIpld(
-    agentDid: string,
-    entity: EntityInputWithHeaders,
-    // ): Promise<FullEntity & { revisionCid: common.CID }> {
-  ): Promise<RevisionWithUnknownContent> {
-    const headers = entity.headers
-    const contentCid = await this.blockstore.put(entity.content)
-    const id = createRevisionId()
-    if (!headers.dateModified) headers.dateModified = new Date()
-    if (!headers.dateCreated) headers.dateCreated = new Date()
-    const revisionWithoutCid: RevisionIpld = {
-      kind: 'revision',
-      id,
-      prevRevisionId: headers.prevRevisionId || null,
-      contentCid,
-      entityType: entity.type,
-      uid: entity.uid,
-      repoDid: this.did,
-      agentDid,
-      revisionUris: headers.revisionUris || [],
-      entityUris: headers.entityUris || [],
-      isDeleted: false,
-      dateModified: headers.dateModified || new Date(),
-      dateCreated: headers.dateCreated || new Date(),
-      derivedFromUid: headers.derivedFromUid,
-    }
-    const revisionCid = await this.blockstore.put(revisionWithoutCid)
-    return {
-      revision: revisionWithoutCid,
-      revisionCid,
-      content: entity.content,
-    }
   }
 
   private async ensureAgent(did: string) {
@@ -643,6 +576,91 @@ export class Repo {
   }
 }
 
+export class IpldRepo {
+  constructor(public record: RepoRecord, public blockstore: IpldBlockStore) {}
+  get did() {
+    return this.record.did
+  }
+  async createCommit(
+    entities: EntityInputWithHeaders[],
+    agentKeypair: ucans.EdKeypair,
+    publishingCapability: string,
+    parentCommit?: CID,
+  ) {
+    const agentDid = agentKeypair.did()
+    const timestamp = new Date()
+    this.blockstore = this.blockstore.transaction()
+
+    // save all revisions in blockstore
+    const revisions = []
+    for (const entity of entities) {
+      const revision = await this.createRevision(agentDid, entity)
+      revisions.push({ ...revision, parsedContent: entity })
+    }
+
+    // save commit ipld
+    const commit: CommitIpld = {
+      kind: 'commit',
+      repoDid: this.did,
+      agentDid,
+      parent: parentCommit,
+      revisions: revisions.map((r) => r.revisionCid),
+      timestamp,
+    }
+    const commitCid = await this.blockstore.put(commit)
+    const root: RootIpld = {
+      kind: 'root',
+      commit: commitCid,
+      sig: await agentKeypair.sign(commitCid.bytes),
+      cap: publishingCapability,
+      agent: agentDid,
+    }
+    const rootCid = await this.blockstore.put(root)
+
+    // batch commit ipld changes
+    this.blockstore = await this.blockstore.commit()
+
+    const bundle = {
+      root: { cid: rootCid, body: root },
+      commit: { cid: commitCid, body: commit },
+      revisions,
+    }
+    return bundle
+  }
+  private async createRevision(
+    agentDid: string,
+    entity: EntityInputWithHeaders,
+  ): Promise<RevisionWithUnknownContent> {
+    const headers = entity.headers
+    const contentCid = await this.blockstore.put(entity.content)
+    const id = createRevisionId()
+    if (!headers.dateModified) headers.dateModified = new Date()
+    if (!headers.dateCreated) headers.dateCreated = new Date()
+    const revisionWithoutCid: RevisionIpld = {
+      kind: 'revision',
+      id,
+      prevRevisionId: headers.prevRevisionId || null,
+      contentCid,
+      entityType: entity.type,
+      uid: entity.uid,
+      repoDid: this.did,
+      agentDid,
+      revisionUris: headers.revisionUris || [],
+      entityUris: headers.entityUris || [],
+      isDeleted: false,
+      dateModified: headers.dateModified || new Date(),
+      dateCreated: headers.dateCreated || new Date(),
+      derivedFromUid: headers.derivedFromUid,
+    }
+    const revisionCid = await this.blockstore.put(revisionWithoutCid)
+    return {
+      revision: revisionWithoutCid,
+      revisionCid,
+      content: entity.content,
+    }
+  }
+}
+
 export class RelationNotFoundError extends Error {
   constructor(public value: string, public relation: common.Relation) {
     super(
@@ -655,7 +673,7 @@ function setUid(
   input: repco.EntityInput,
   uid: string,
 ): asserts input is repco.EntityInputWithUid {
-  ;(input as any).uid = uid
+  ; (input as any).uid = uid
   input.content.uid = uid
 }
 
