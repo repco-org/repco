@@ -1,0 +1,360 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // TODO: This disables all referential integrity on the DB level. We only want this for the entity tables.
+  // See https://github.com/prisma/prisma/issues/15744
+  referentialIntegrity = "prisma"
+}
+
+generator client {
+  previewFeatures = ["referentialIntegrity"]
+  provider = "prisma-client-js"
+}
+
+generator dbml {
+  provider = "prisma-dbml-generator"
+  output   = "../generated/dbml"
+}
+
+generator repco {
+  provider = "repco-prisma-generate"
+  output   = "../generated/repco"
+}
+
+enum ContentGroupingVariant {
+  EPISODIC
+  SERIAL
+}
+
+enum AgentType {
+  DATASOURCE
+  USER
+}
+
+// Core data model
+
+model Repo {
+  uid      String     @id @unique
+  name     String?
+  Revision Revision[]
+}
+
+model Agent {
+  uid        String      @id @unique
+  type       AgentType?
+  // DataSource DataSource?
+  User       User?
+  Revisions  Revision[]
+}
+
+model User {
+  uid   String @id @unique
+  name  String
+  agent Agent  @relation(fields: [uid], references: [uid])
+}
+
+model DataSource {
+  uid       String  @id @unique
+  // TODO: Make required once we reset the schema.
+  pluginUid String?
+  config    Json?
+  cursor    String
+
+  // agent Agent @relation(fields: [uid], references: [uid])
+}
+
+model Block {
+  cid        String    @id @unique
+  // len        Int
+  bytes      Bytes
+  // links      String[]
+  Revision Revision? @relation("RevisionBlock")
+  Content  Revision? @relation("ContentBlock")
+}
+
+model Entity {
+  uid        String @id @unique
+  revisionId String @unique
+  type       String
+
+  Revision Revision   @relation(fields: [revisionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  Metadata Metadata[]
+}
+
+// model Uri {
+//   uri String @unique
+//   IsRevision Revision @relation("RevisionUri", fields: [uri]
+//   scopes String[]
+// }
+
+model Revision {
+  id String @id @unique
+
+  // core relation scalars
+  prevRevisionId String? @unique
+  uid            String
+  repoDid        String
+  agentDid       String // uid of writing agent (datasource or user)
+
+  // core headers
+  entityType   String
+  dateModified DateTime
+  dateCreated  DateTime
+  isDeleted    Boolean  @default(false) // todo: better have publication status
+  entityUris   String[]
+  revisionUris String[]
+
+  // core derived fields
+  revisionCid String @unique // cid of revision block
+  contentCid  String @unique // cid of content block
+
+  // core relations
+  Repo          Repo      @relation(fields: [repoDid], references: [uid])
+  Agent         Agent     @relation(fields: [agentDid], references: [uid])
+  ContentBlock  Block     @relation("ContentBlock", fields: [contentCid], references: [cid])
+  RevisionBlock Block     @relation("RevisionBlock", fields: [revisionCid], references: [cid], onUpdate: NoAction, onDelete: NoAction)
+  PrevRevision  Revision? @relation("RevisionHistory", fields: [prevRevisionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  NextRevision  Revision? @relation("RevisionHistory")
+  Entity        Entity?
+
+  // entity relations
+  ContentGrouping  ContentGrouping?
+  ContentItem      ContentItem?
+  License          License?
+  MediaAsset       MediaAsset?
+  File             File?
+  Concept          Concept?
+  Actor            Actor?
+  BroadcastEvent   BroadcastEvent?
+  BroadcastService BroadcastService?
+  Chapter          Chapter?
+  Contribution     Contribution?
+  Metadata         Metadata?
+}
+
+// Domain data model
+
+/// @repco(Entity)
+model ContentGrouping {
+  uid        String @id @unique
+  revisionId String @unique
+
+  broadcastSchedule String? // TODO: JSON (channel, rrule)
+  description       String?
+  groupingType      String // TODO: enum?
+  startingDate      DateTime?
+  subtitle          String?
+  summary           String?
+  terminationDate   DateTime?
+  title             String
+  variant           ContentGroupingVariant
+
+  licenseUid String?
+
+  License                License?      @relation(fields: [licenseUid], references: [uid], onDelete: NoAction, onUpdate: NoAction)
+  ContentItemsPrimary    ContentItem[] @relation("primaryGrouping")
+  ContentItemsAdditional ContentItem[]
+  Revision               Revision      @relation(fields: [revisionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// @repco(Entity)
+model ContentItem {
+  uid           String    @id @unique /// @zod.refine(imports.isValidUID)
+  revisionId    String    @unique
+  title         String
+  subtitle      String?
+  pubDate       DateTime? // TODO: Review this
+  summary       String?
+  content       String
+  contentFormat String
+
+  primaryGroupingUid String?
+  licenseUid         String?
+
+  Revision            Revision          @relation(fields: [revisionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  AdditionalGroupings ContentGrouping[]
+  BroadcastEvents     BroadcastEvent[]
+  Concepts            Concept[]
+  Contributions       Contribution[]
+  License             License?          @relation(fields: [licenseUid], references: [uid], onDelete: NoAction, onUpdate: NoAction)
+  MediaAssets         MediaAsset[]
+  PrimaryGrouping     ContentGrouping?  @relation("primaryGrouping", fields: [primaryGroupingUid], references: [uid], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// @repco(Entity)
+model License {
+  uid        String @id @unique
+  revisionId String @unique
+  name       String
+
+  Revision         Revision          @relation(fields: [revisionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  ContentItems     ContentItem[]
+  MediaAssets      MediaAsset[]
+  ContentGroupings ContentGrouping[]
+}
+
+/// @repco(Entity)
+model MediaAsset {
+  uid         String  @id @unique
+  revisionId  String  @unique
+  title       String
+  description String?
+  duration    Float?
+  mediaType   String // TODO: Enum?
+
+  fileUid        String
+  teaserImageUid String?
+  licenseUid     String?
+
+  Revision      Revision       @relation(fields: [revisionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  File          File           @relation("file", fields: [fileUid], references: [uid], onDelete: NoAction, onUpdate: NoAction)
+  ContentItems  ContentItem[]
+  Transcripts   Transcript[]
+  Chapters      Chapter[]
+  TeaserImage   File?          @relation("thumbnail", fields: [teaserImageUid], references: [uid], onDelete: NoAction, onUpdate: NoAction)
+  License       License?       @relation(fields: [licenseUid], references: [uid], onDelete: NoAction, onUpdate: NoAction)
+  Contributions Contribution[]
+  Concepts      Concept[]
+}
+
+/// @repco(Entity)
+model Contribution {
+  uid        String @id @unique
+  revisionId String @unique
+  role       String
+
+  Actors       Actor[]
+  ContentItems ContentItem[]
+  MediaAssets  MediaAsset[]
+  Revision     Revision      @relation(fields: [revisionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// @repco(Entity)
+model Actor {
+  uid                  String @id @unique
+  revisionId           String @unique
+  name                 String
+  personOrOrganization String
+  contactInformation   String
+
+  profilePictureUid String
+
+  Revision         Revision           @relation(fields: [revisionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  BroadcastService BroadcastService[]
+  Contributions    Contribution[]
+  ProfilePicture   File?              @relation(fields: [profilePictureUid], references: [uid], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// @repco(Entity)
+model Chapter {
+  uid        String @id @unique
+  revisionId String @unique
+
+  start    Float
+  duration Float
+  title    String
+  type     String // TODO: enum?
+
+  mediaAssetUid String
+
+  MediaAsset MediaAsset @relation(fields: [mediaAssetUid], references: [uid], onDelete: NoAction, onUpdate: NoAction)
+  Revision   Revision   @relation(fields: [revisionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// @repco(Entity)
+model BroadcastEvent {
+  uid        String @id @unique
+  revisionId String @unique
+
+  start    Float
+  duration Float
+
+  broadcastServiceUid String
+  contentItemUid      String
+
+  Revision         Revision         @relation(fields: [revisionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  ContentItem      ContentItem      @relation(fields: [contentItemUid], references: [uid], onDelete: NoAction, onUpdate: NoAction)
+  BroadcastService BroadcastService @relation(fields: [broadcastServiceUid], references: [uid], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// @repco(Entity)
+model BroadcastService {
+  uid        String @id @unique
+  revisionId String @unique
+
+  name      String
+  publisher Actor  @relation(fields: [publisherUid], references: [uid], onDelete: NoAction, onUpdate: NoAction)
+  medium    String // FM, Web, ...
+  address   String
+
+  publisherUid String
+
+  Revision        Revision         @relation(fields: [revisionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  BroadcastEvents BroadcastEvent[]
+}
+
+/// @repco(Entity)
+model Transcript {
+  uid      String @id @unique
+  language String
+  text     String
+  engine   String
+
+  mediaAssetUid String
+
+  MediaAsset MediaAsset @relation(fields: [mediaAssetUid], references: [uid], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// @repco(Entity)
+model File {
+  uid        String  @id @unique
+  revisionId String  @unique
+  contentUrl String
+  contentSize        Int?  // size in bytes
+  cid String? // hash encoded as multihash (IPFS spec)
+
+  mimeType   String?
+  duration   Float?
+  codec      String?
+  bitrate    Int?
+  resolution String?
+  additionalMetadata String?
+
+  Revision           Revision     @relation(fields: [revisionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  AsMediaAssets      MediaAsset[] @relation("file")
+  AsThumbnail        MediaAsset[] @relation("thumbnail")
+  Actors             Actor[]
+}
+
+/// @repco(Entity)
+model Concept {
+  uid        String @id @unique
+  revisionId String @unique
+
+  originNamespace String?
+  name            String
+  summary         String?
+  description     String?
+  wikidataIdentifier      String?
+  sameAsUid       String? @unique
+
+  Revision      Revision      @relation(fields: [revisionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  SameAs        Concept?      @relation("isSameAs", fields: [sameAsUid], references: [uid], onDelete: NoAction, onUpdate: NoAction)
+  SameAsReverse Concept?      @relation("isSameAs")
+  ContentItems  ContentItem[]
+  MediaAssets   MediaAsset[]
+}
+
+/// @repco(Entity)
+model Metadata {
+  uid        String @unique
+  revisionId String @unique
+
+  namespace String
+  content   Json
+
+  targetUid String
+
+  Revision     Revision @relation(fields: [revisionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  TargetEntity Entity   @relation(fields: [targetUid], references: [uid], onDelete: NoAction, onUpdate: NoAction)
+}

@@ -53,6 +53,9 @@
     },
     {
       "path": "./packages/repco-server"
+    },
+    {
+      "path": "./packages/repco-cli"
     }
   ]
 }

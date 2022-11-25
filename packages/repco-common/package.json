@@ -1,0 +1,19 @@
+{
+  "name": "repco-common",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/lib.js",
+  "scripts": {
+    "build": "tsc --build",
+    "watch": "tsc --build -w"
+  },
+  "exports": {
+    ".": "./dist/lib.js",
+    "./zod": "./dist/zod.js"
+  },
+  "dependencies": {
+    "multiformats": "^9.9.0",
+    "pino": "^8.7.0",
+    "zod": "^3.19"
+  }
+}

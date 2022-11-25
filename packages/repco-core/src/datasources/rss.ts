@@ -1,3 +1,4 @@
+import { Link } from 'repco-common/zod'
 import RssParser from 'rss-parser'
 import zod from 'zod'
 import {
@@ -6,7 +7,7 @@ import {
   DataSourcePlugin,
 } from '../datasource.js'
 import { EntityBatch, EntityForm } from '../entity.js'
-import { createHash, createJsonHash } from '../helpers/hash.js'
+import { createHash, createJsonHash } from '../util/hash.js'
 
 export class RssDataSourcePlugin implements DataSourcePlugin {
   createInstance(config: any) {
@@ -180,14 +181,12 @@ export class RssDataSource implements DataSource {
   async _crawlBackwardsFrom(cursor: Cursor) {
     // const lastLeastRecentPubDate = cursor.newest.leastRecentPubDate || new Date()
     // const maxPageNumber = cursor.newest.maxPageNumber || 0
-
     // // TODO: Make configurable
     // const pagination = {
     //   offsetParam: 'start',
     //   limitParam: 'anzahl',
     //   limit: 5,
     // }
-
     // const url = new URL(this.endpoint)
     // const page = maxPageNumber + 1
     // url.searchParams.set(pagination.limitParam, pagination.limit.toString())
@@ -233,7 +232,7 @@ export class RssDataSource implements DataSource {
     itemSlug: string,
     revisionSlug: string,
     item: RssParser.Item,
-  ): Promise<{ mediaAssets: string[]; entities: EntityForm[] }> {
+  ): Promise<{ mediaAssets: Link[]; entities: EntityForm[] }> {
     const entities: EntityForm[] = []
     if (!item.enclosure) {
       return { mediaAssets: [], entities: [] }
@@ -243,31 +242,27 @@ export class RssDataSource implements DataSource {
     entities.push({
       type: 'File',
       content: {
-        uid: fileUid,
         contentUrl: item.enclosure.url,
       },
-      revision: {
-        alternativeIds: [this._urn('rev', 'file', revisionSlug)],
-      },
+      entityUris: [fileUid],
+      revisionUris: [this._urn('rev', 'file', revisionSlug)],
     })
 
-    const mediaUid = this._urn('media', itemSlug)
+    const mediaUri = this._urn('media', itemSlug)
 
     entities.push({
       type: 'MediaAsset',
       content: {
-        uid: mediaUid,
         title: item.title || item.guid || 'missing',
-        file: fileUid,
         duration: 0,
         mediaType: 'audio',
+        File: { uri: fileUid },
       },
-      revision: {
-        alternativeIds: [this._urn('rev', 'media', revisionSlug)],
-      },
+      entityUris: [mediaUri],
+      revisionUris: [this._urn('rev', 'media', revisionSlug)],
     })
 
-    return { entities, mediaAssets: [mediaUid] }
+    return { entities, mediaAssets: [{ uri: mediaUri }] }
   }
 
   async _deriveSlugs(
@@ -286,7 +281,6 @@ export class RssDataSource implements DataSource {
       item,
     )
     const content = {
-      uid: this._urn('content', itemSlug),
       title: item.title || item.guid || 'missing',
       summary: item.contentSnippet,
       content: item.content || '',
@@ -294,10 +288,11 @@ export class RssDataSource implements DataSource {
       pubDate: item.pubDate ? new Date(item.pubDate) : null,
       mediaAssets,
     }
-    const revision = {
-      alternativeIds: [this._urn('rev', 'content', revisionSlug)],
+    const headers = {
+      revisionUris: [this._urn('rev', 'content', revisionSlug)],
+      entityUris: [this._urn('content', itemSlug)],
     }
-    entities.push({ type: 'ContentItem', content, revision })
+    entities.push({ type: 'ContentItem', content, ...headers })
     return entities
   }
 }

@@ -1,12 +1,44 @@
 -- CreateEnum
 CREATE TYPE "ContentGroupingVariant" AS ENUM ('EPISODIC', 'SERIAL');
 
+-- CreateEnum
+CREATE TYPE "AgentType" AS ENUM ('DATASOURCE', 'USER');
+
 -- CreateTable
 CREATE TABLE "Repo" (
-    "uid" TEXT NOT NULL,
+    "did" TEXT NOT NULL,
     "name" TEXT,
+    "head" TEXT,
 
-    CONSTRAINT "Repo_pkey" PRIMARY KEY ("uid")
+    CONSTRAINT "Repo_pkey" PRIMARY KEY ("did")
+);
+
+-- CreateTable
+CREATE TABLE "Commit" (
+    "rootCid" TEXT NOT NULL,
+    "commitCid" TEXT NOT NULL,
+    "repoDid" TEXT NOT NULL,
+    "agentDid" TEXT NOT NULL,
+    "timestamp" TIMESTAMP(3) NOT NULL,
+    "parent" TEXT,
+
+    CONSTRAINT "Commit_pkey" PRIMARY KEY ("rootCid")
+);
+
+-- CreateTable
+CREATE TABLE "Agent" (
+    "did" TEXT NOT NULL,
+    "type" "AgentType",
+
+    CONSTRAINT "Agent_pkey" PRIMARY KEY ("did")
+);
+
+-- CreateTable
+CREATE TABLE "User" (
+    "did" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+
+    CONSTRAINT "User_pkey" PRIMARY KEY ("did")
 );
 
 -- CreateTable
@@ -14,22 +46,52 @@ CREATE TABLE "DataSource" (
     "uid" TEXT NOT NULL,
     "pluginUid" TEXT,
     "config" JSONB,
-    "cursor" TEXT NOT NULL,
+    "cursor" TEXT,
+    "active" BOOLEAN,
 
     CONSTRAINT "DataSource_pkey" PRIMARY KEY ("uid")
 );
 
 -- CreateTable
+CREATE TABLE "Keypair" (
+    "did" TEXT NOT NULL,
+    "secret" TEXT NOT NULL,
+
+    CONSTRAINT "Keypair_pkey" PRIMARY KEY ("did")
+);
+
+-- CreateTable
+CREATE TABLE "Block" (
+    "cid" TEXT NOT NULL,
+    "bytes" BYTEA NOT NULL,
+
+    CONSTRAINT "Block_pkey" PRIMARY KEY ("cid")
+);
+
+-- CreateTable
+CREATE TABLE "Entity" (
+    "uid" TEXT NOT NULL,
+    "revisionId" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+
+    CONSTRAINT "Entity_pkey" PRIMARY KEY ("uid")
+);
+
+-- CreateTable
 CREATE TABLE "Revision" (
     "id" TEXT NOT NULL,
-    "type" TEXT NOT NULL,
+    "prevRevisionId" TEXT,
     "uid" TEXT NOT NULL,
-    "created" TIMESTAMP(3) NOT NULL,
-    "datasource" TEXT NOT NULL,
-    "repoUid" TEXT NOT NULL,
-    "content" JSONB NOT NULL,
-    "alternativeIds" TEXT[],
-    "previousRevisionId" TEXT,
+    "repoDid" TEXT NOT NULL,
+    "agentDid" TEXT NOT NULL,
+    "entityType" TEXT NOT NULL,
+    "dateModified" TIMESTAMP(3) NOT NULL,
+    "dateCreated" TIMESTAMP(3) NOT NULL,
+    "isDeleted" BOOLEAN NOT NULL DEFAULT false,
+    "entityUris" TEXT[],
+    "revisionUris" TEXT[],
+    "contentCid" TEXT NOT NULL,
+    "revisionCid" TEXT NOT NULL,
 
     CONSTRAINT "Revision_pkey" PRIMARY KEY ("id")
 );
@@ -38,15 +100,15 @@ CREATE TABLE "Revision" (
 CREATE TABLE "ContentGrouping" (
     "uid" TEXT NOT NULL,
     "revisionId" TEXT NOT NULL,
+    "broadcastSchedule" TEXT,
+    "description" TEXT,
     "groupingType" TEXT NOT NULL,
-    "title" TEXT NOT NULL,
+    "startingDate" TIMESTAMP(3),
     "subtitle" TEXT,
     "summary" TEXT,
-    "description" TEXT,
-    "variant" "ContentGroupingVariant" NOT NULL,
-    "broadcastSchedule" TEXT,
-    "startingDate" TIMESTAMP(3),
     "terminationDate" TIMESTAMP(3),
+    "title" TEXT NOT NULL,
+    "variant" "ContentGroupingVariant" NOT NULL,
     "licenseUid" TEXT,
 
     CONSTRAINT "ContentGrouping_pkey" PRIMARY KEY ("uid")
@@ -83,9 +145,9 @@ CREATE TABLE "MediaAsset" (
     "revisionId" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT,
-    "fileUid" TEXT NOT NULL,
     "duration" DOUBLE PRECISION,
     "mediaType" TEXT NOT NULL,
+    "fileUid" TEXT NOT NULL,
     "teaserImageUid" TEXT,
     "licenseUid" TEXT,
 
@@ -132,8 +194,8 @@ CREATE TABLE "BroadcastEvent" (
     "revisionId" TEXT NOT NULL,
     "start" DOUBLE PRECISION NOT NULL,
     "duration" DOUBLE PRECISION NOT NULL,
-    "contentItemUid" TEXT NOT NULL,
     "broadcastServiceUid" TEXT NOT NULL,
+    "contentItemUid" TEXT NOT NULL,
 
     CONSTRAINT "BroadcastEvent_pkey" PRIMARY KEY ("uid")
 );
@@ -143,9 +205,9 @@ CREATE TABLE "BroadcastService" (
     "uid" TEXT NOT NULL,
     "revisionId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "publisherUid" TEXT NOT NULL,
     "medium" TEXT NOT NULL,
     "address" TEXT NOT NULL,
+    "publisherUid" TEXT NOT NULL,
 
     CONSTRAINT "BroadcastService_pkey" PRIMARY KEY ("uid")
 );
@@ -166,8 +228,9 @@ CREATE TABLE "File" (
     "uid" TEXT NOT NULL,
     "revisionId" TEXT NOT NULL,
     "contentUrl" TEXT NOT NULL,
+    "contentSize" INTEGER,
+    "cid" TEXT,
     "mimeType" TEXT,
-    "multihash" TEXT,
     "duration" DOUBLE PRECISION,
     "codec" TEXT,
     "bitrate" INTEGER,
@@ -181,13 +244,29 @@ CREATE TABLE "File" (
 CREATE TABLE "Concept" (
     "uid" TEXT NOT NULL,
     "revisionId" TEXT NOT NULL,
-    "originNamespace" TEXT NOT NULL,
+    "originNamespace" TEXT,
     "name" TEXT NOT NULL,
-    "summary" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
-    "wikidataID" TEXT NOT NULL,
+    "summary" TEXT,
+    "description" TEXT,
+    "wikidataIdentifier" TEXT,
+    "sameAsUid" TEXT,
 
     CONSTRAINT "Concept_pkey" PRIMARY KEY ("uid")
+);
+
+-- CreateTable
+CREATE TABLE "Metadata" (
+    "uid" TEXT NOT NULL,
+    "revisionId" TEXT NOT NULL,
+    "namespace" TEXT NOT NULL,
+    "content" JSONB NOT NULL,
+    "targetUid" TEXT NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "_RevisionToCommit" (
+    "A" TEXT NOT NULL,
+    "B" TEXT NOT NULL
 );
 
 -- CreateTable
@@ -197,13 +276,13 @@ CREATE TABLE "_ContentGroupingToContentItem" (
 );
 
 -- CreateTable
-CREATE TABLE "_ContentItemToMediaAsset" (
+CREATE TABLE "_ContentItemToContribution" (
     "A" TEXT NOT NULL,
     "B" TEXT NOT NULL
 );
 
 -- CreateTable
-CREATE TABLE "_ContentItemToContribution" (
+CREATE TABLE "_ContentItemToMediaAsset" (
     "A" TEXT NOT NULL,
     "B" TEXT NOT NULL
 );
@@ -233,16 +312,49 @@ CREATE TABLE "_ConceptToMediaAsset" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Repo_uid_key" ON "Repo"("uid");
+CREATE UNIQUE INDEX "Repo_did_key" ON "Repo"("did");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Repo_head_key" ON "Repo"("head");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Commit_rootCid_key" ON "Commit"("rootCid");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Commit_commitCid_key" ON "Commit"("commitCid");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Commit_parent_key" ON "Commit"("parent");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Agent_did_key" ON "Agent"("did");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_did_key" ON "User"("did");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "DataSource_uid_key" ON "DataSource"("uid");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Keypair_did_key" ON "Keypair"("did");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Block_cid_key" ON "Block"("cid");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Entity_uid_key" ON "Entity"("uid");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Entity_revisionId_key" ON "Entity"("revisionId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Revision_id_key" ON "Revision"("id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Revision_previousRevisionId_key" ON "Revision"("previousRevisionId");
+CREATE UNIQUE INDEX "Revision_prevRevisionId_key" ON "Revision"("prevRevisionId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Revision_revisionCid_key" ON "Revision"("revisionCid");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "ContentGrouping_uid_key" ON "ContentGrouping"("uid");
@@ -314,22 +426,37 @@ CREATE UNIQUE INDEX "Concept_uid_key" ON "Concept"("uid");
 CREATE UNIQUE INDEX "Concept_revisionId_key" ON "Concept"("revisionId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Concept_sameAsUid_key" ON "Concept"("sameAsUid");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Metadata_uid_key" ON "Metadata"("uid");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Metadata_revisionId_key" ON "Metadata"("revisionId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_RevisionToCommit_AB_unique" ON "_RevisionToCommit"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_RevisionToCommit_B_index" ON "_RevisionToCommit"("B");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "_ContentGroupingToContentItem_AB_unique" ON "_ContentGroupingToContentItem"("A", "B");
 
 -- CreateIndex
 CREATE INDEX "_ContentGroupingToContentItem_B_index" ON "_ContentGroupingToContentItem"("B");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "_ContentItemToMediaAsset_AB_unique" ON "_ContentItemToMediaAsset"("A", "B");
-
--- CreateIndex
-CREATE INDEX "_ContentItemToMediaAsset_B_index" ON "_ContentItemToMediaAsset"("B");
-
--- CreateIndex
 CREATE UNIQUE INDEX "_ContentItemToContribution_AB_unique" ON "_ContentItemToContribution"("A", "B");
 
 -- CreateIndex
 CREATE INDEX "_ContentItemToContribution_B_index" ON "_ContentItemToContribution"("B");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_ContentItemToMediaAsset_AB_unique" ON "_ContentItemToMediaAsset"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_ContentItemToMediaAsset_B_index" ON "_ContentItemToMediaAsset"("B");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_ContributionToMediaAsset_AB_unique" ON "_ContributionToMediaAsset"("A", "B");
@@ -356,10 +483,31 @@ CREATE UNIQUE INDEX "_ConceptToMediaAsset_AB_unique" ON "_ConceptToMediaAsset"("
 CREATE INDEX "_ConceptToMediaAsset_B_index" ON "_ConceptToMediaAsset"("B");
 
 -- AddForeignKey
-ALTER TABLE "Revision" ADD CONSTRAINT "Revision_repoUid_fkey" FOREIGN KEY ("repoUid") REFERENCES "Repo"("uid") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Repo" ADD CONSTRAINT "Repo_head_fkey" FOREIGN KEY ("head") REFERENCES "Commit"("rootCid") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Revision" ADD CONSTRAINT "Revision_previousRevisionId_fkey" FOREIGN KEY ("previousRevisionId") REFERENCES "Revision"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Commit" ADD CONSTRAINT "Commit_repoDid_fkey" FOREIGN KEY ("repoDid") REFERENCES "Repo"("did") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Commit" ADD CONSTRAINT "Commit_parent_fkey" FOREIGN KEY ("parent") REFERENCES "Commit"("rootCid") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Commit" ADD CONSTRAINT "Commit_agentDid_fkey" FOREIGN KEY ("agentDid") REFERENCES "Agent"("did") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "User" ADD CONSTRAINT "User_did_fkey" FOREIGN KEY ("did") REFERENCES "Agent"("did") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Entity" ADD CONSTRAINT "Entity_revisionId_fkey" FOREIGN KEY ("revisionId") REFERENCES "Revision"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Revision" ADD CONSTRAINT "Revision_repoDid_fkey" FOREIGN KEY ("repoDid") REFERENCES "Repo"("did") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Revision" ADD CONSTRAINT "Revision_agentDid_fkey" FOREIGN KEY ("agentDid") REFERENCES "Agent"("did") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Revision" ADD CONSTRAINT "Revision_prevRevisionId_fkey" FOREIGN KEY ("prevRevisionId") REFERENCES "Revision"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ContentGrouping" ADD CONSTRAINT "ContentGrouping_revisionId_fkey" FOREIGN KEY ("revisionId") REFERENCES "Revision"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -431,22 +579,37 @@ ALTER TABLE "File" ADD CONSTRAINT "File_revisionId_fkey" FOREIGN KEY ("revisionI
 ALTER TABLE "Concept" ADD CONSTRAINT "Concept_revisionId_fkey" FOREIGN KEY ("revisionId") REFERENCES "Revision"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Concept" ADD CONSTRAINT "Concept_sameAsUid_fkey" FOREIGN KEY ("sameAsUid") REFERENCES "Concept"("uid") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Metadata" ADD CONSTRAINT "Metadata_targetUid_fkey" FOREIGN KEY ("targetUid") REFERENCES "Entity"("uid") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Metadata" ADD CONSTRAINT "Metadata_revisionId_fkey" FOREIGN KEY ("revisionId") REFERENCES "Revision"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_RevisionToCommit" ADD CONSTRAINT "_RevisionToCommit_A_fkey" FOREIGN KEY ("A") REFERENCES "Commit"("rootCid") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_RevisionToCommit" ADD CONSTRAINT "_RevisionToCommit_B_fkey" FOREIGN KEY ("B") REFERENCES "Revision"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "_ContentGroupingToContentItem" ADD CONSTRAINT "_ContentGroupingToContentItem_A_fkey" FOREIGN KEY ("A") REFERENCES "ContentGrouping"("uid") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_ContentGroupingToContentItem" ADD CONSTRAINT "_ContentGroupingToContentItem_B_fkey" FOREIGN KEY ("B") REFERENCES "ContentItem"("uid") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "_ContentItemToMediaAsset" ADD CONSTRAINT "_ContentItemToMediaAsset_A_fkey" FOREIGN KEY ("A") REFERENCES "ContentItem"("uid") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_ContentItemToMediaAsset" ADD CONSTRAINT "_ContentItemToMediaAsset_B_fkey" FOREIGN KEY ("B") REFERENCES "MediaAsset"("uid") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "_ContentItemToContribution" ADD CONSTRAINT "_ContentItemToContribution_A_fkey" FOREIGN KEY ("A") REFERENCES "ContentItem"("uid") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_ContentItemToContribution" ADD CONSTRAINT "_ContentItemToContribution_B_fkey" FOREIGN KEY ("B") REFERENCES "Contribution"("uid") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_ContentItemToMediaAsset" ADD CONSTRAINT "_ContentItemToMediaAsset_A_fkey" FOREIGN KEY ("A") REFERENCES "ContentItem"("uid") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_ContentItemToMediaAsset" ADD CONSTRAINT "_ContentItemToMediaAsset_B_fkey" FOREIGN KEY ("B") REFERENCES "MediaAsset"("uid") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_ContributionToMediaAsset" ADD CONSTRAINT "_ContributionToMediaAsset_A_fkey" FOREIGN KEY ("A") REFERENCES "Contribution"("uid") ON DELETE CASCADE ON UPDATE CASCADE;

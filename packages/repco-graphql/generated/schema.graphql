@@ -174,6 +174,12 @@ input ActorFilter {
   """Checks for all expressions in this list."""
   and: [ActorFilter!]
 
+  """Filter by the object’s `broadcastServicesByPublisher` relation."""
+  broadcastServicesByPublisher: ActorToManyBroadcastServiceFilter
+
+  """Some related `broadcastServicesByPublisher` exist."""
+  broadcastServicesByPublisherExist: Boolean
+
   """Filter by the object’s `contactInformation` field."""
   contactInformation: StringFilter
 
@@ -189,14 +195,40 @@ input ActorFilter {
   """Filter by the object’s `personOrOrganization` field."""
   personOrOrganization: StringFilter
 
+  """Filter by the object’s `profilePicture` relation."""
+  profilePicture: FileFilter
+
   """Filter by the object’s `profilePictureUid` field."""
   profilePictureUid: StringFilter
+
+  """Filter by the object’s `revision` relation."""
+  revision: RevisionFilter
 
   """Filter by the object’s `revisionId` field."""
   revisionId: StringFilter
 
   """Filter by the object’s `uid` field."""
   uid: StringFilter
+}
+
+"""
+A filter to be used against many `BroadcastService` object types. All fields are combined with a logical ‘and.’
+"""
+input ActorToManyBroadcastServiceFilter {
+  """
+  Every related `BroadcastService` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: BroadcastServiceFilter
+
+  """
+  No related `BroadcastService` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: BroadcastServiceFilter
+
+  """
+  Some related `BroadcastService` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: BroadcastServiceFilter
 }
 
 """A connection to a list of `Actor` values."""
@@ -242,6 +274,588 @@ enum ActorsOrderBy {
   REVISION_ID_DESC
   UID_ASC
   UID_DESC
+}
+
+type Agent {
+  """Reads and enables pagination through a set of `Commit`."""
+  commitsByAgentDid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: CommitCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: CommitFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Commit`."""
+    orderBy: [CommitsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): CommitsConnection!
+
+  """Reads and enables pagination through a set of `Commit`."""
+  commitsByCommitAgentDidAndParent(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: CommitCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: CommitFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Commit`."""
+    orderBy: [CommitsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): AgentCommitsByCommitAgentDidAndParentManyToManyConnection!
+  did: String!
+
+  """Reads and enables pagination through a set of `Repo`."""
+  reposByCommitAgentDidAndRepoDid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: RepoCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: RepoFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Repo`."""
+    orderBy: [ReposOrderBy!] = [PRIMARY_KEY_ASC]
+  ): AgentReposByCommitAgentDidAndRepoDidManyToManyConnection!
+
+  """Reads and enables pagination through a set of `Revision`."""
+  revisionsByAgentDid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: RevisionCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: RevisionFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Revision`."""
+    orderBy: [RevisionsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): RevisionsConnection!
+  type: AgentType
+
+  """Reads a single `User` that is related to this `Agent`."""
+  userByDid: User
+
+  """Reads and enables pagination through a set of `User`."""
+  usersByDid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: UserCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: UserFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `User`."""
+    orderBy: [UsersOrderBy!] = [PRIMARY_KEY_ASC]
+  ): UsersConnection! @deprecated(reason: "Please use userByDid instead")
+}
+
+"""A connection to a list of `Commit` values, with data from `Commit`."""
+type AgentCommitsByCommitAgentDidAndParentManyToManyConnection {
+  """
+  A list of edges which contains the `Commit`, info from the `Commit`, and the cursor to aid in pagination.
+  """
+  edges: [AgentCommitsByCommitAgentDidAndParentManyToManyEdge!]!
+
+  """A list of `Commit` objects."""
+  nodes: [Commit!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Commit` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Commit` edge in the connection, with data from `Commit`."""
+type AgentCommitsByCommitAgentDidAndParentManyToManyEdge {
+  """Reads and enables pagination through a set of `Commit`."""
+  commitsByParent(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: CommitCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: CommitFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Commit`."""
+    orderBy: [CommitsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): CommitsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Commit` at the end of the edge."""
+  node: Commit!
+}
+
+"""
+A condition to be used against `Agent` object types. All fields are tested for equality and combined with a logical ‘and.’
+"""
+input AgentCondition {
+  """Checks for equality with the object’s `did` field."""
+  did: String
+
+  """Checks for equality with the object’s `type` field."""
+  type: AgentType
+}
+
+"""
+A filter to be used against `Agent` object types. All fields are combined with a logical ‘and.’
+"""
+input AgentFilter {
+  """Checks for all expressions in this list."""
+  and: [AgentFilter!]
+
+  """Filter by the object’s `commitsByAgentDid` relation."""
+  commitsByAgentDid: AgentToManyCommitFilter
+
+  """Some related `commitsByAgentDid` exist."""
+  commitsByAgentDidExist: Boolean
+
+  """Filter by the object’s `did` field."""
+  did: StringFilter
+
+  """Negates the expression."""
+  not: AgentFilter
+
+  """Checks for any expressions in this list."""
+  or: [AgentFilter!]
+
+  """Filter by the object’s `revisionsByAgentDid` relation."""
+  revisionsByAgentDid: AgentToManyRevisionFilter
+
+  """Some related `revisionsByAgentDid` exist."""
+  revisionsByAgentDidExist: Boolean
+
+  """Filter by the object’s `type` field."""
+  type: AgentTypeFilter
+
+  """Filter by the object’s `userByDid` relation."""
+  userByDid: UserFilter
+
+  """A related `userByDid` exists."""
+  userByDidExists: Boolean
+}
+
+"""A connection to a list of `Repo` values, with data from `Commit`."""
+type AgentReposByCommitAgentDidAndRepoDidManyToManyConnection {
+  """
+  A list of edges which contains the `Repo`, info from the `Commit`, and the cursor to aid in pagination.
+  """
+  edges: [AgentReposByCommitAgentDidAndRepoDidManyToManyEdge!]!
+
+  """A list of `Repo` objects."""
+  nodes: [Repo!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Repo` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Repo` edge in the connection, with data from `Commit`."""
+type AgentReposByCommitAgentDidAndRepoDidManyToManyEdge {
+  """Reads and enables pagination through a set of `Commit`."""
+  commitsByRepoDid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: CommitCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: CommitFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Commit`."""
+    orderBy: [CommitsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): CommitsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Repo` at the end of the edge."""
+  node: Repo!
+}
+
+"""
+A filter to be used against many `Commit` object types. All fields are combined with a logical ‘and.’
+"""
+input AgentToManyCommitFilter {
+  """
+  Every related `Commit` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: CommitFilter
+
+  """
+  No related `Commit` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: CommitFilter
+
+  """
+  Some related `Commit` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: CommitFilter
+}
+
+"""
+A filter to be used against many `Revision` object types. All fields are combined with a logical ‘and.’
+"""
+input AgentToManyRevisionFilter {
+  """
+  Every related `Revision` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: RevisionFilter
+
+  """
+  No related `Revision` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: RevisionFilter
+
+  """
+  Some related `Revision` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: RevisionFilter
+}
+
+enum AgentType {
+  DATASOURCE
+  USER
+}
+
+"""
+A filter to be used against AgentType fields. All fields are combined with a logical ‘and.’
+"""
+input AgentTypeFilter {
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: AgentType
+
+  """Equal to the specified value."""
+  equalTo: AgentType
+
+  """Greater than the specified value."""
+  greaterThan: AgentType
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: AgentType
+
+  """Included in the specified list."""
+  in: [AgentType!]
+
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Less than the specified value."""
+  lessThan: AgentType
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: AgentType
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: AgentType
+
+  """Not equal to the specified value."""
+  notEqualTo: AgentType
+
+  """Not included in the specified list."""
+  notIn: [AgentType!]
+}
+
+"""A connection to a list of `Agent` values."""
+type AgentsConnection {
+  """
+  A list of edges which contains the `Agent` and cursor to aid in pagination.
+  """
+  edges: [AgentsEdge!]!
+
+  """A list of `Agent` objects."""
+  nodes: [Agent!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Agent` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Agent` edge in the connection."""
+type AgentsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Agent` at the end of the edge."""
+  node: Agent!
+}
+
+"""Methods to use when ordering `Agent`."""
+enum AgentsOrderBy {
+  DID_ASC
+  DID_DESC
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  TYPE_ASC
+  TYPE_DESC
+}
+
+type Block {
+  bytes: String!
+  cid: String!
+}
+
+"""
+A condition to be used against `Block` object types. All fields are tested for equality and combined with a logical ‘and.’
+"""
+input BlockCondition {
+  """Checks for equality with the object’s `bytes` field."""
+  bytes: String
+
+  """Checks for equality with the object’s `cid` field."""
+  cid: String
+}
+
+"""
+A filter to be used against `Block` object types. All fields are combined with a logical ‘and.’
+"""
+input BlockFilter {
+  """Checks for all expressions in this list."""
+  and: [BlockFilter!]
+
+  """Filter by the object’s `cid` field."""
+  cid: StringFilter
+
+  """Negates the expression."""
+  not: BlockFilter
+
+  """Checks for any expressions in this list."""
+  or: [BlockFilter!]
+}
+
+"""A connection to a list of `Block` values."""
+type BlocksConnection {
+  """
+  A list of edges which contains the `Block` and cursor to aid in pagination.
+  """
+  edges: [BlocksEdge!]!
+
+  """A list of `Block` objects."""
+  nodes: [Block!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Block` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Block` edge in the connection."""
+type BlocksEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Block` at the end of the edge."""
+  node: Block!
+}
+
+"""Methods to use when ordering `Block`."""
+enum BlocksOrderBy {
+  BYTES_ASC
+  BYTES_DESC
+  CID_ASC
+  CID_DESC
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+}
+
+"""
+A filter to be used against Boolean fields. All fields are combined with a logical ‘and.’
+"""
+input BooleanFilter {
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: Boolean
+
+  """Equal to the specified value."""
+  equalTo: Boolean
+
+  """Greater than the specified value."""
+  greaterThan: Boolean
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: Boolean
+
+  """Included in the specified list."""
+  in: [Boolean!]
+
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Less than the specified value."""
+  lessThan: Boolean
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: Boolean
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: Boolean
+
+  """Not equal to the specified value."""
+  notEqualTo: Boolean
+
+  """Not included in the specified list."""
+  notIn: [Boolean!]
 }
 
 type BroadcastEvent {
@@ -294,8 +908,14 @@ input BroadcastEventFilter {
   """Checks for all expressions in this list."""
   and: [BroadcastEventFilter!]
 
+  """Filter by the object’s `broadcastService` relation."""
+  broadcastService: BroadcastServiceFilter
+
   """Filter by the object’s `broadcastServiceUid` field."""
   broadcastServiceUid: StringFilter
+
+  """Filter by the object’s `contentItem` relation."""
+  contentItem: ContentItemFilter
 
   """Filter by the object’s `contentItemUid` field."""
   contentItemUid: StringFilter
@@ -308,6 +928,9 @@ input BroadcastEventFilter {
 
   """Checks for any expressions in this list."""
   or: [BroadcastEventFilter!]
+
+  """Filter by the object’s `revision` relation."""
+  revision: RevisionFilter
 
   """Filter by the object’s `revisionId` field."""
   revisionId: StringFilter
@@ -545,6 +1168,12 @@ input BroadcastServiceFilter {
   """Checks for all expressions in this list."""
   and: [BroadcastServiceFilter!]
 
+  """Filter by the object’s `broadcastEvents` relation."""
+  broadcastEvents: BroadcastServiceToManyBroadcastEventFilter
+
+  """Some related `broadcastEvents` exist."""
+  broadcastEventsExist: Boolean
+
   """Filter by the object’s `medium` field."""
   medium: StringFilter
 
@@ -557,14 +1186,40 @@ input BroadcastServiceFilter {
   """Checks for any expressions in this list."""
   or: [BroadcastServiceFilter!]
 
+  """Filter by the object’s `publisher` relation."""
+  publisher: ActorFilter
+
   """Filter by the object’s `publisherUid` field."""
   publisherUid: StringFilter
+
+  """Filter by the object’s `revision` relation."""
+  revision: RevisionFilter
 
   """Filter by the object’s `revisionId` field."""
   revisionId: StringFilter
 
   """Filter by the object’s `uid` field."""
   uid: StringFilter
+}
+
+"""
+A filter to be used against many `BroadcastEvent` object types. All fields are combined with a logical ‘and.’
+"""
+input BroadcastServiceToManyBroadcastEventFilter {
+  """
+  Every related `BroadcastEvent` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: BroadcastEventFilter
+
+  """
+  No related `BroadcastEvent` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: BroadcastEventFilter
+
+  """
+  Some related `BroadcastEvent` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: BroadcastEventFilter
 }
 
 """A connection to a list of `BroadcastService` values."""
@@ -666,6 +1321,9 @@ input ChapterFilter {
   """Filter by the object’s `duration` field."""
   duration: FloatFilter
 
+  """Filter by the object’s `mediaAsset` relation."""
+  mediaAsset: MediaAssetFilter
+
   """Filter by the object’s `mediaAssetUid` field."""
   mediaAssetUid: StringFilter
 
@@ -674,6 +1332,9 @@ input ChapterFilter {
 
   """Checks for any expressions in this list."""
   or: [ChapterFilter!]
+
+  """Filter by the object’s `revision` relation."""
+  revision: RevisionFilter
 
   """Filter by the object’s `revisionId` field."""
   revisionId: StringFilter
@@ -738,7 +1399,478 @@ enum ChaptersOrderBy {
   UID_DESC
 }
 
+type Commit {
+  """Reads a single `Agent` that is related to this `Commit`."""
+  agentByAgentDid: Agent
+  agentDid: String!
+
+  """Reads and enables pagination through a set of `Agent`."""
+  agentsByCommitParentAndAgentDid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: AgentCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: AgentFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Agent`."""
+    orderBy: [AgentsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): CommitAgentsByCommitParentAndAgentDidManyToManyConnection!
+
+  """Reads a single `Commit` that is related to this `Commit`."""
+  commitByParent: Commit
+  commitCid: String!
+
+  """Reads and enables pagination through a set of `Commit`."""
+  commitsByParent(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: CommitCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: CommitFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Commit`."""
+    orderBy: [CommitsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): CommitsConnection!
+  parent: String
+
+  """Reads a single `Repo` that is related to this `Commit`."""
+  repoByRepoDid: Repo
+  repoDid: String!
+
+  """Reads and enables pagination through a set of `Repo`."""
+  reposByCommitParentAndRepoDid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: RepoCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: RepoFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Repo`."""
+    orderBy: [ReposOrderBy!] = [PRIMARY_KEY_ASC]
+  ): CommitReposByCommitParentAndRepoDidManyToManyConnection!
+
+  """Reads and enables pagination through a set of `Repo`."""
+  reposByHead(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: RepoCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: RepoFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Repo`."""
+    orderBy: [ReposOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ReposConnection!
+  rootCid: String!
+  timestamp: Datetime!
+}
+
+"""A connection to a list of `Agent` values, with data from `Commit`."""
+type CommitAgentsByCommitParentAndAgentDidManyToManyConnection {
+  """
+  A list of edges which contains the `Agent`, info from the `Commit`, and the cursor to aid in pagination.
+  """
+  edges: [CommitAgentsByCommitParentAndAgentDidManyToManyEdge!]!
+
+  """A list of `Agent` objects."""
+  nodes: [Agent!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Agent` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Agent` edge in the connection, with data from `Commit`."""
+type CommitAgentsByCommitParentAndAgentDidManyToManyEdge {
+  """Reads and enables pagination through a set of `Commit`."""
+  commitsByAgentDid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: CommitCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: CommitFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Commit`."""
+    orderBy: [CommitsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): CommitsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Agent` at the end of the edge."""
+  node: Agent!
+}
+
+"""
+A condition to be used against `Commit` object types. All fields are tested for equality and combined with a logical ‘and.’
+"""
+input CommitCondition {
+  """Checks for equality with the object’s `agentDid` field."""
+  agentDid: String
+
+  """Checks for equality with the object’s `commitCid` field."""
+  commitCid: String
+
+  """Checks for equality with the object’s `parent` field."""
+  parent: String
+
+  """Checks for equality with the object’s `repoDid` field."""
+  repoDid: String
+
+  """Checks for equality with the object’s `rootCid` field."""
+  rootCid: String
+
+  """Checks for equality with the object’s `timestamp` field."""
+  timestamp: Datetime
+}
+
+"""
+A filter to be used against `Commit` object types. All fields are combined with a logical ‘and.’
+"""
+input CommitFilter {
+  """Filter by the object’s `agentByAgentDid` relation."""
+  agentByAgentDid: AgentFilter
+
+  """Filter by the object’s `agentDid` field."""
+  agentDid: StringFilter
+
+  """Checks for all expressions in this list."""
+  and: [CommitFilter!]
+
+  """Filter by the object’s `commitByParent` relation."""
+  commitByParent: CommitFilter
+
+  """A related `commitByParent` exists."""
+  commitByParentExists: Boolean
+
+  """Filter by the object’s `commitCid` field."""
+  commitCid: StringFilter
+
+  """Filter by the object’s `commitsByParent` relation."""
+  commitsByParent: CommitToManyCommitFilter
+
+  """Some related `commitsByParent` exist."""
+  commitsByParentExist: Boolean
+
+  """Negates the expression."""
+  not: CommitFilter
+
+  """Checks for any expressions in this list."""
+  or: [CommitFilter!]
+
+  """Filter by the object’s `parent` field."""
+  parent: StringFilter
+
+  """Filter by the object’s `repoByRepoDid` relation."""
+  repoByRepoDid: RepoFilter
+
+  """Filter by the object’s `repoDid` field."""
+  repoDid: StringFilter
+
+  """Filter by the object’s `reposByHead` relation."""
+  reposByHead: CommitToManyRepoFilter
+
+  """Some related `reposByHead` exist."""
+  reposByHeadExist: Boolean
+
+  """Filter by the object’s `rootCid` field."""
+  rootCid: StringFilter
+
+  """Filter by the object’s `timestamp` field."""
+  timestamp: DatetimeFilter
+}
+
+"""A connection to a list of `Repo` values, with data from `Commit`."""
+type CommitReposByCommitParentAndRepoDidManyToManyConnection {
+  """
+  A list of edges which contains the `Repo`, info from the `Commit`, and the cursor to aid in pagination.
+  """
+  edges: [CommitReposByCommitParentAndRepoDidManyToManyEdge!]!
+
+  """A list of `Repo` objects."""
+  nodes: [Repo!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Repo` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Repo` edge in the connection, with data from `Commit`."""
+type CommitReposByCommitParentAndRepoDidManyToManyEdge {
+  """Reads and enables pagination through a set of `Commit`."""
+  commitsByRepoDid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: CommitCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: CommitFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Commit`."""
+    orderBy: [CommitsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): CommitsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Repo` at the end of the edge."""
+  node: Repo!
+}
+
+"""
+A filter to be used against many `Commit` object types. All fields are combined with a logical ‘and.’
+"""
+input CommitToManyCommitFilter {
+  """
+  Every related `Commit` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: CommitFilter
+
+  """
+  No related `Commit` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: CommitFilter
+
+  """
+  Some related `Commit` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: CommitFilter
+}
+
+"""
+A filter to be used against many `Repo` object types. All fields are combined with a logical ‘and.’
+"""
+input CommitToManyRepoFilter {
+  """
+  Every related `Repo` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: RepoFilter
+
+  """
+  No related `Repo` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: RepoFilter
+
+  """
+  Some related `Repo` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: RepoFilter
+}
+
+"""A connection to a list of `Commit` values."""
+type CommitsConnection {
+  """
+  A list of edges which contains the `Commit` and cursor to aid in pagination.
+  """
+  edges: [CommitsEdge!]!
+
+  """A list of `Commit` objects."""
+  nodes: [Commit!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Commit` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Commit` edge in the connection."""
+type CommitsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Commit` at the end of the edge."""
+  node: Commit!
+}
+
+"""Methods to use when ordering `Commit`."""
+enum CommitsOrderBy {
+  AGENT_DID_ASC
+  AGENT_DID_DESC
+  COMMIT_CID_ASC
+  COMMIT_CID_DESC
+  NATURAL
+  PARENT_ASC
+  PARENT_DESC
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  REPO_DID_ASC
+  REPO_DID_DESC
+  ROOT_CID_ASC
+  ROOT_CID_DESC
+  TIMESTAMP_ASC
+  TIMESTAMP_DESC
+}
+
 type Concept {
+  """Reads and enables pagination through a set of `Concept`."""
+  conceptsBySameAs(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ConceptCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ConceptFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Concept`."""
+    orderBy: [ConceptsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ConceptsConnection!
+
   """Reads and enables pagination through a set of `ContentItem`."""
   contentItems(
     """Read all values in the set after (below) this cursor."""
@@ -772,7 +1904,7 @@ type Concept {
     """The method to use when ordering `ContentItem`."""
     orderBy: [ContentItemsOrderBy!] = [PRIMARY_KEY_ASC]
   ): ConceptContentItemsByConceptToContentItemAAndBManyToManyConnection!
-  description: String!
+  description: String
 
   """Reads and enables pagination through a set of `MediaAsset`."""
   mediaAssets(
@@ -808,14 +1940,18 @@ type Concept {
     orderBy: [MediaAssetsOrderBy!] = [PRIMARY_KEY_ASC]
   ): ConceptMediaAssetsByConceptToMediaAssetAAndBManyToManyConnection!
   name: String!
-  originNamespace: String!
+  originNamespace: String
 
   """Reads a single `Revision` that is related to this `Concept`."""
   revision: Revision
   revisionId: String!
-  summary: String!
+
+  """Reads a single `Concept` that is related to this `Concept`."""
+  sameAs: Concept
+  sameAsUid: String
+  summary: String
   uid: String!
-  wikidataId: String!
+  wikidataIdentifier: String
 }
 
 """
@@ -834,14 +1970,17 @@ input ConceptCondition {
   """Checks for equality with the object’s `revisionId` field."""
   revisionId: String
 
+  """Checks for equality with the object’s `sameAsUid` field."""
+  sameAsUid: String
+
   """Checks for equality with the object’s `summary` field."""
   summary: String
 
   """Checks for equality with the object’s `uid` field."""
   uid: String
 
-  """Checks for equality with the object’s `wikidataId` field."""
-  wikidataId: String
+  """Checks for equality with the object’s `wikidataIdentifier` field."""
+  wikidataIdentifier: String
 }
 
 """
@@ -915,6 +2054,12 @@ input ConceptFilter {
   """Checks for all expressions in this list."""
   and: [ConceptFilter!]
 
+  """Filter by the object’s `conceptsBySameAs` relation."""
+  conceptsBySameAs: ConceptToManyConceptFilter
+
+  """Some related `conceptsBySameAs` exist."""
+  conceptsBySameAsExist: Boolean
+
   """Filter by the object’s `description` field."""
   description: StringFilter
 
@@ -930,8 +2075,20 @@ input ConceptFilter {
   """Filter by the object’s `originNamespace` field."""
   originNamespace: StringFilter
 
+  """Filter by the object’s `revision` relation."""
+  revision: RevisionFilter
+
   """Filter by the object’s `revisionId` field."""
   revisionId: StringFilter
+
+  """Filter by the object’s `sameAs` relation."""
+  sameAs: ConceptFilter
+
+  """A related `sameAs` exists."""
+  sameAsExists: Boolean
+
+  """Filter by the object’s `sameAsUid` field."""
+  sameAsUid: StringFilter
 
   """Filter by the object’s `summary` field."""
   summary: StringFilter
@@ -939,8 +2096,8 @@ input ConceptFilter {
   """Filter by the object’s `uid` field."""
   uid: StringFilter
 
-  """Filter by the object’s `wikidataId` field."""
-  wikidataId: StringFilter
+  """Filter by the object’s `wikidataIdentifier` field."""
+  wikidataIdentifier: StringFilter
 }
 
 """
@@ -1007,6 +2164,26 @@ type ConceptMediaAssetsByConceptToMediaAssetAAndBManyToManyEdge {
   node: MediaAsset!
 }
 
+"""
+A filter to be used against many `Concept` object types. All fields are combined with a logical ‘and.’
+"""
+input ConceptToManyConceptFilter {
+  """
+  Every related `Concept` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: ConceptFilter
+
+  """
+  No related `Concept` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: ConceptFilter
+
+  """
+  Some related `Concept` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: ConceptFilter
+}
+
 """A connection to a list of `Concept` values."""
 type ConceptsConnection {
   """
@@ -1046,12 +2223,14 @@ enum ConceptsOrderBy {
   PRIMARY_KEY_DESC
   REVISION_ID_ASC
   REVISION_ID_DESC
+  SAME_AS_UID_ASC
+  SAME_AS_UID_DESC
   SUMMARY_ASC
   SUMMARY_DESC
   UID_ASC
   UID_DESC
-  WIKIDATA_ID_ASC
-  WIKIDATA_ID_DESC
+  WIKIDATA_IDENTIFIER_ASC
+  WIKIDATA_IDENTIFIER_DESC
 }
 
 type ContentGrouping {
@@ -1295,11 +2474,23 @@ input ContentGroupingFilter {
   """Filter by the object’s `broadcastSchedule` field."""
   broadcastSchedule: StringFilter
 
+  """Filter by the object’s `contentItemsByPrimaryGrouping` relation."""
+  contentItemsByPrimaryGrouping: ContentGroupingToManyContentItemFilter
+
+  """Some related `contentItemsByPrimaryGrouping` exist."""
+  contentItemsByPrimaryGroupingExist: Boolean
+
   """Filter by the object’s `description` field."""
   description: StringFilter
 
   """Filter by the object’s `groupingType` field."""
   groupingType: StringFilter
+
+  """Filter by the object’s `license` relation."""
+  license: LicenseFilter
+
+  """A related `license` exists."""
+  licenseExists: Boolean
 
   """Filter by the object’s `licenseUid` field."""
   licenseUid: StringFilter
@@ -1309,6 +2500,9 @@ input ContentGroupingFilter {
 
   """Checks for any expressions in this list."""
   or: [ContentGroupingFilter!]
+
+  """Filter by the object’s `revision` relation."""
+  revision: RevisionFilter
 
   """Filter by the object’s `revisionId` field."""
   revisionId: StringFilter
@@ -1395,6 +2589,26 @@ type ContentGroupingLicensesByContentItemPrimaryGroupingUidAndLicenseUidManyToMa
 
   """The `License` at the end of the edge."""
   node: License!
+}
+
+"""
+A filter to be used against many `ContentItem` object types. All fields are combined with a logical ‘and.’
+"""
+input ContentGroupingToManyContentItemFilter {
+  """
+  Every related `ContentItem` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: ContentItemFilter
+
+  """
+  No related `ContentItem` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: ContentItemFilter
+
+  """
+  Some related `ContentItem` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: ContentItemFilter
 }
 
 enum ContentGroupingVariant {
@@ -2037,11 +3251,23 @@ input ContentItemFilter {
   """Checks for all expressions in this list."""
   and: [ContentItemFilter!]
 
+  """Filter by the object’s `broadcastEvents` relation."""
+  broadcastEvents: ContentItemToManyBroadcastEventFilter
+
+  """Some related `broadcastEvents` exist."""
+  broadcastEventsExist: Boolean
+
   """Filter by the object’s `content` field."""
   content: StringFilter
 
   """Filter by the object’s `contentFormat` field."""
   contentFormat: StringFilter
+
+  """Filter by the object’s `license` relation."""
+  license: LicenseFilter
+
+  """A related `license` exists."""
+  licenseExists: Boolean
 
   """Filter by the object’s `licenseUid` field."""
   licenseUid: StringFilter
@@ -2052,11 +3278,20 @@ input ContentItemFilter {
   """Checks for any expressions in this list."""
   or: [ContentItemFilter!]
 
+  """Filter by the object’s `primaryGrouping` relation."""
+  primaryGrouping: ContentGroupingFilter
+
+  """A related `primaryGrouping` exists."""
+  primaryGroupingExists: Boolean
+
   """Filter by the object’s `primaryGroupingUid` field."""
   primaryGroupingUid: StringFilter
 
   """Filter by the object’s `pubDate` field."""
   pubDate: DatetimeFilter
+
+  """Filter by the object’s `revision` relation."""
+  revision: RevisionFilter
 
   """Filter by the object’s `revisionId` field."""
   revisionId: StringFilter
@@ -2138,6 +3373,26 @@ type ContentItemMediaAssetsByContentItemToMediaAssetAAndBManyToManyEdge {
 
   """The `MediaAsset` at the end of the edge."""
   node: MediaAsset!
+}
+
+"""
+A filter to be used against many `BroadcastEvent` object types. All fields are combined with a logical ‘and.’
+"""
+input ContentItemToManyBroadcastEventFilter {
+  """
+  Every related `BroadcastEvent` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: BroadcastEventFilter
+
+  """
+  No related `BroadcastEvent` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: BroadcastEventFilter
+
+  """
+  Some related `BroadcastEvent` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: BroadcastEventFilter
 }
 
 """A connection to a list of `ContentItem` values."""
@@ -2461,6 +3716,9 @@ input ContributionFilter {
   """Checks for any expressions in this list."""
   or: [ContributionFilter!]
 
+  """Filter by the object’s `revision` relation."""
+  revision: RevisionFilter
+
   """Filter by the object’s `revisionId` field."""
   revisionId: StringFilter
 
@@ -2580,9 +3838,44 @@ enum ContributionsOrderBy {
 scalar Cursor
 
 type DataSource {
+  active: Boolean
   config: JSON
-  cursor: String!
-  pluginUid: String
+  cursor: String
+  pluginUid: String!
+
+  """Reads and enables pagination through a set of `SourceRecord`."""
+  sourceRecords(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SourceRecordCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SourceRecordFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `SourceRecord`."""
+    orderBy: [SourceRecordsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): SourceRecordsConnection!
   uid: String!
 }
 
@@ -2591,6 +3884,9 @@ A condition to be used against `DataSource` object types. All fields are tested
 for equality and combined with a logical ‘and.’
 """
 input DataSourceCondition {
+  """Checks for equality with the object’s `active` field."""
+  active: Boolean
+
   """Checks for equality with the object’s `config` field."""
   config: JSON
 
@@ -2608,6 +3904,9 @@ input DataSourceCondition {
 A filter to be used against `DataSource` object types. All fields are combined with a logical ‘and.’
 """
 input DataSourceFilter {
+  """Filter by the object’s `active` field."""
+  active: BooleanFilter
+
   """Checks for all expressions in this list."""
   and: [DataSourceFilter!]
 
@@ -2626,8 +3925,34 @@ input DataSourceFilter {
   """Filter by the object’s `pluginUid` field."""
   pluginUid: StringFilter
 
+  """Filter by the object’s `sourceRecords` relation."""
+  sourceRecords: DataSourceToManySourceRecordFilter
+
+  """Some related `sourceRecords` exist."""
+  sourceRecordsExist: Boolean
+
   """Filter by the object’s `uid` field."""
   uid: StringFilter
+}
+
+"""
+A filter to be used against many `SourceRecord` object types. All fields are combined with a logical ‘and.’
+"""
+input DataSourceToManySourceRecordFilter {
+  """
+  Every related `SourceRecord` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: SourceRecordFilter
+
+  """
+  No related `SourceRecord` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: SourceRecordFilter
+
+  """
+  Some related `SourceRecord` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: SourceRecordFilter
 }
 
 """A connection to a list of `DataSource` values."""
@@ -2658,6 +3983,8 @@ type DataSourcesEdge {
 
 """Methods to use when ordering `DataSource`."""
 enum DataSourcesOrderBy {
+  ACTIVE_ASC
+  ACTIVE_DESC
   CONFIG_ASC
   CONFIG_DESC
   CURSOR_ASC
@@ -2719,6 +4046,153 @@ input DatetimeFilter {
   notIn: [Datetime!]
 }
 
+"""A connection to a list of `Entity` values."""
+type EntitiesConnection {
+  """
+  A list of edges which contains the `Entity` and cursor to aid in pagination.
+  """
+  edges: [EntitiesEdge!]!
+
+  """A list of `Entity` objects."""
+  nodes: [Entity!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Entity` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Entity` edge in the connection."""
+type EntitiesEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Entity` at the end of the edge."""
+  node: Entity!
+}
+
+"""Methods to use when ordering `Entity`."""
+enum EntitiesOrderBy {
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  REVISION_ID_ASC
+  REVISION_ID_DESC
+  TYPE_ASC
+  TYPE_DESC
+  UID_ASC
+  UID_DESC
+}
+
+type Entity {
+  """Reads and enables pagination through a set of `Metadatum`."""
+  metadataByTarget(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: MetadatumCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: MetadatumFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Metadatum`."""
+    orderBy: [MetadataOrderBy!] = [NATURAL]
+  ): MetadataConnection!
+
+  """Reads a single `Revision` that is related to this `Entity`."""
+  revision: Revision
+  revisionId: String!
+  type: String!
+  uid: String!
+}
+
+"""
+A condition to be used against `Entity` object types. All fields are tested for equality and combined with a logical ‘and.’
+"""
+input EntityCondition {
+  """Checks for equality with the object’s `revisionId` field."""
+  revisionId: String
+
+  """Checks for equality with the object’s `type` field."""
+  type: String
+
+  """Checks for equality with the object’s `uid` field."""
+  uid: String
+}
+
+"""
+A filter to be used against `Entity` object types. All fields are combined with a logical ‘and.’
+"""
+input EntityFilter {
+  """Checks for all expressions in this list."""
+  and: [EntityFilter!]
+
+  """Filter by the object’s `metadataByTarget` relation."""
+  metadataByTarget: EntityToManyMetadatumFilter
+
+  """Some related `metadataByTarget` exist."""
+  metadataByTargetExist: Boolean
+
+  """Negates the expression."""
+  not: EntityFilter
+
+  """Checks for any expressions in this list."""
+  or: [EntityFilter!]
+
+  """Filter by the object’s `revision` relation."""
+  revision: RevisionFilter
+
+  """Filter by the object’s `revisionId` field."""
+  revisionId: StringFilter
+
+  """Filter by the object’s `type` field."""
+  type: StringFilter
+
+  """Filter by the object’s `uid` field."""
+  uid: StringFilter
+}
+
+"""
+A filter to be used against many `Metadatum` object types. All fields are combined with a logical ‘and.’
+"""
+input EntityToManyMetadatumFilter {
+  """
+  Every related `Metadatum` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: MetadatumFilter
+
+  """
+  No related `Metadatum` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: MetadatumFilter
+
+  """
+  Some related `Metadatum` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: MetadatumFilter
+}
+
 type File {
   """Reads and enables pagination through a set of `Actor`."""
   actorsByProfilePicture(
@@ -2755,7 +4229,9 @@ type File {
   ): ActorsConnection!
   additionalMetadata: String
   bitrate: Int
+  cid: String
   codec: String
+  contentSize: Int
   contentUrl: String!
   duration: Float
 
@@ -2963,7 +4439,6 @@ type File {
     orderBy: [MediaAssetsOrderBy!] = [PRIMARY_KEY_ASC]
   ): MediaAssetsConnection!
   mimeType: String
-  multihash: String
   resolution: String
 
   """Reads a single `Revision` that is related to this `File`."""
@@ -2982,8 +4457,14 @@ input FileCondition {
   """Checks for equality with the object’s `bitrate` field."""
   bitrate: Int
 
+  """Checks for equality with the object’s `cid` field."""
+  cid: String
+
   """Checks for equality with the object’s `codec` field."""
   codec: String
+
+  """Checks for equality with the object’s `contentSize` field."""
+  contentSize: Int
 
   """Checks for equality with the object’s `contentUrl` field."""
   contentUrl: String
@@ -2993,9 +4474,6 @@ input FileCondition {
 
   """Checks for equality with the object’s `mimeType` field."""
   mimeType: String
-
-  """Checks for equality with the object’s `multihash` field."""
-  multihash: String
 
   """Checks for equality with the object’s `resolution` field."""
   resolution: String
@@ -3131,6 +4609,12 @@ type FileFilesByMediaAssetTeaserImageUidAndFileUidManyToManyEdge {
 A filter to be used against `File` object types. All fields are combined with a logical ‘and.’
 """
 input FileFilter {
+  """Filter by the object’s `actorsByProfilePicture` relation."""
+  actorsByProfilePicture: FileToManyActorFilter
+
+  """Some related `actorsByProfilePicture` exist."""
+  actorsByProfilePictureExist: Boolean
+
   """Filter by the object’s `additionalMetadata` field."""
   additionalMetadata: StringFilter
 
@@ -3140,8 +4624,14 @@ input FileFilter {
   """Filter by the object’s `bitrate` field."""
   bitrate: IntFilter
 
+  """Filter by the object’s `cid` field."""
+  cid: StringFilter
+
   """Filter by the object’s `codec` field."""
   codec: StringFilter
+
+  """Filter by the object’s `contentSize` field."""
+  contentSize: IntFilter
 
   """Filter by the object’s `contentUrl` field."""
   contentUrl: StringFilter
@@ -3149,11 +4639,20 @@ input FileFilter {
   """Filter by the object’s `duration` field."""
   duration: FloatFilter
 
+  """Filter by the object’s `mediaAssets` relation."""
+  mediaAssets: FileToManyMediaAssetFilter
+
+  """Filter by the object’s `mediaAssetsByTeaserImage` relation."""
+  mediaAssetsByTeaserImage: FileToManyMediaAssetFilter
+
+  """Some related `mediaAssetsByTeaserImage` exist."""
+  mediaAssetsByTeaserImageExist: Boolean
+
+  """Some related `mediaAssets` exist."""
+  mediaAssetsExist: Boolean
+
   """Filter by the object’s `mimeType` field."""
   mimeType: StringFilter
-
-  """Filter by the object’s `multihash` field."""
-  multihash: StringFilter
 
   """Negates the expression."""
   not: FileFilter
@@ -3163,6 +4662,9 @@ input FileFilter {
 
   """Filter by the object’s `resolution` field."""
   resolution: StringFilter
+
+  """Filter by the object’s `revision` relation."""
+  revision: RevisionFilter
 
   """Filter by the object’s `revisionId` field."""
   revisionId: StringFilter
@@ -3295,6 +4797,46 @@ type FileLicensesByMediaAssetTeaserImageUidAndLicenseUidManyToManyEdge {
   node: License!
 }
 
+"""
+A filter to be used against many `Actor` object types. All fields are combined with a logical ‘and.’
+"""
+input FileToManyActorFilter {
+  """
+  Every related `Actor` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: ActorFilter
+
+  """
+  No related `Actor` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: ActorFilter
+
+  """
+  Some related `Actor` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: ActorFilter
+}
+
+"""
+A filter to be used against many `MediaAsset` object types. All fields are combined with a logical ‘and.’
+"""
+input FileToManyMediaAssetFilter {
+  """
+  Every related `MediaAsset` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: MediaAssetFilter
+
+  """
+  No related `MediaAsset` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: MediaAssetFilter
+
+  """
+  Some related `MediaAsset` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: MediaAssetFilter
+}
+
 """A connection to a list of `File` values."""
 type FilesConnection {
   """
@@ -3327,16 +4869,18 @@ enum FilesOrderBy {
   ADDITIONAL_METADATA_DESC
   BITRATE_ASC
   BITRATE_DESC
+  CID_ASC
+  CID_DESC
   CODEC_ASC
   CODEC_DESC
+  CONTENT_SIZE_ASC
+  CONTENT_SIZE_DESC
   CONTENT_URL_ASC
   CONTENT_URL_DESC
   DURATION_ASC
   DURATION_DESC
   MIME_TYPE_ASC
   MIME_TYPE_DESC
-  MULTIHASH_ASC
-  MULTIHASH_DESC
   NATURAL
   PRIMARY_KEY_ASC
   PRIMARY_KEY_DESC
@@ -3492,6 +5036,144 @@ input JSONFilter {
 
   """Not included in the specified list."""
   notIn: [JSON!]
+}
+
+type Keypair {
+  did: String!
+  name: String
+  scope: KeypairScope!
+  secret: String!
+}
+
+"""
+A condition to be used against `Keypair` object types. All fields are tested for equality and combined with a logical ‘and.’
+"""
+input KeypairCondition {
+  """Checks for equality with the object’s `did` field."""
+  did: String
+
+  """Checks for equality with the object’s `name` field."""
+  name: String
+
+  """Checks for equality with the object’s `scope` field."""
+  scope: KeypairScope
+
+  """Checks for equality with the object’s `secret` field."""
+  secret: String
+}
+
+"""
+A filter to be used against `Keypair` object types. All fields are combined with a logical ‘and.’
+"""
+input KeypairFilter {
+  """Checks for all expressions in this list."""
+  and: [KeypairFilter!]
+
+  """Filter by the object’s `did` field."""
+  did: StringFilter
+
+  """Filter by the object’s `name` field."""
+  name: StringFilter
+
+  """Negates the expression."""
+  not: KeypairFilter
+
+  """Checks for any expressions in this list."""
+  or: [KeypairFilter!]
+
+  """Filter by the object’s `scope` field."""
+  scope: KeypairScopeFilter
+
+  """Filter by the object’s `secret` field."""
+  secret: StringFilter
+}
+
+enum KeypairScope {
+  INSTANCE
+  REPO
+}
+
+"""
+A filter to be used against KeypairScope fields. All fields are combined with a logical ‘and.’
+"""
+input KeypairScopeFilter {
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: KeypairScope
+
+  """Equal to the specified value."""
+  equalTo: KeypairScope
+
+  """Greater than the specified value."""
+  greaterThan: KeypairScope
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: KeypairScope
+
+  """Included in the specified list."""
+  in: [KeypairScope!]
+
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Less than the specified value."""
+  lessThan: KeypairScope
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: KeypairScope
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: KeypairScope
+
+  """Not equal to the specified value."""
+  notEqualTo: KeypairScope
+
+  """Not included in the specified list."""
+  notIn: [KeypairScope!]
+}
+
+"""A connection to a list of `Keypair` values."""
+type KeypairsConnection {
+  """
+  A list of edges which contains the `Keypair` and cursor to aid in pagination.
+  """
+  edges: [KeypairsEdge!]!
+
+  """A list of `Keypair` objects."""
+  nodes: [Keypair!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Keypair` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Keypair` edge in the connection."""
+type KeypairsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Keypair` at the end of the edge."""
+  node: Keypair!
+}
+
+"""Methods to use when ordering `Keypair`."""
+enum KeypairsOrderBy {
+  DID_ASC
+  DID_DESC
+  NAME_ASC
+  NAME_DESC
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  SCOPE_ASC
+  SCOPE_DESC
+  SECRET_ASC
+  SECRET_DESC
 }
 
 type License {
@@ -3913,6 +5595,24 @@ input LicenseFilter {
   """Checks for all expressions in this list."""
   and: [LicenseFilter!]
 
+  """Filter by the object’s `contentGroupings` relation."""
+  contentGroupings: LicenseToManyContentGroupingFilter
+
+  """Some related `contentGroupings` exist."""
+  contentGroupingsExist: Boolean
+
+  """Filter by the object’s `contentItems` relation."""
+  contentItems: LicenseToManyContentItemFilter
+
+  """Some related `contentItems` exist."""
+  contentItemsExist: Boolean
+
+  """Filter by the object’s `mediaAssets` relation."""
+  mediaAssets: LicenseToManyMediaAssetFilter
+
+  """Some related `mediaAssets` exist."""
+  mediaAssetsExist: Boolean
+
   """Filter by the object’s `name` field."""
   name: StringFilter
 
@@ -3922,11 +5622,74 @@ input LicenseFilter {
   """Checks for any expressions in this list."""
   or: [LicenseFilter!]
 
+  """Filter by the object’s `revision` relation."""
+  revision: RevisionFilter
+
   """Filter by the object’s `revisionId` field."""
   revisionId: StringFilter
 
   """Filter by the object’s `uid` field."""
   uid: StringFilter
+}
+
+"""
+A filter to be used against many `ContentGrouping` object types. All fields are combined with a logical ‘and.’
+"""
+input LicenseToManyContentGroupingFilter {
+  """
+  Every related `ContentGrouping` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: ContentGroupingFilter
+
+  """
+  No related `ContentGrouping` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: ContentGroupingFilter
+
+  """
+  Some related `ContentGrouping` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: ContentGroupingFilter
+}
+
+"""
+A filter to be used against many `ContentItem` object types. All fields are combined with a logical ‘and.’
+"""
+input LicenseToManyContentItemFilter {
+  """
+  Every related `ContentItem` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: ContentItemFilter
+
+  """
+  No related `ContentItem` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: ContentItemFilter
+
+  """
+  Some related `ContentItem` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: ContentItemFilter
+}
+
+"""
+A filter to be used against many `MediaAsset` object types. All fields are combined with a logical ‘and.’
+"""
+input LicenseToManyMediaAssetFilter {
+  """
+  Every related `MediaAsset` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: MediaAssetFilter
+
+  """
+  No related `MediaAsset` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: MediaAssetFilter
+
+  """
+  Some related `MediaAsset` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: MediaAssetFilter
 }
 
 """A connection to a list of `License` values."""
@@ -4397,14 +6160,29 @@ input MediaAssetFilter {
   """Checks for all expressions in this list."""
   and: [MediaAssetFilter!]
 
+  """Filter by the object’s `chapters` relation."""
+  chapters: MediaAssetToManyChapterFilter
+
+  """Some related `chapters` exist."""
+  chaptersExist: Boolean
+
   """Filter by the object’s `description` field."""
   description: StringFilter
 
   """Filter by the object’s `duration` field."""
   duration: FloatFilter
 
+  """Filter by the object’s `file` relation."""
+  file: FileFilter
+
   """Filter by the object’s `fileUid` field."""
   fileUid: StringFilter
+
+  """Filter by the object’s `license` relation."""
+  license: LicenseFilter
+
+  """A related `license` exists."""
+  licenseExists: Boolean
 
   """Filter by the object’s `licenseUid` field."""
   licenseUid: StringFilter
@@ -4418,8 +6196,17 @@ input MediaAssetFilter {
   """Checks for any expressions in this list."""
   or: [MediaAssetFilter!]
 
+  """Filter by the object’s `revision` relation."""
+  revision: RevisionFilter
+
   """Filter by the object’s `revisionId` field."""
   revisionId: StringFilter
+
+  """Filter by the object’s `teaserImage` relation."""
+  teaserImage: FileFilter
+
+  """A related `teaserImage` exists."""
+  teaserImageExists: Boolean
 
   """Filter by the object’s `teaserImageUid` field."""
   teaserImageUid: StringFilter
@@ -4427,8 +6214,54 @@ input MediaAssetFilter {
   """Filter by the object’s `title` field."""
   title: StringFilter
 
+  """Filter by the object’s `transcripts` relation."""
+  transcripts: MediaAssetToManyTranscriptFilter
+
+  """Some related `transcripts` exist."""
+  transcriptsExist: Boolean
+
   """Filter by the object’s `uid` field."""
   uid: StringFilter
+}
+
+"""
+A filter to be used against many `Chapter` object types. All fields are combined with a logical ‘and.’
+"""
+input MediaAssetToManyChapterFilter {
+  """
+  Every related `Chapter` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: ChapterFilter
+
+  """
+  No related `Chapter` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: ChapterFilter
+
+  """
+  Some related `Chapter` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: ChapterFilter
+}
+
+"""
+A filter to be used against many `Transcript` object types. All fields are combined with a logical ‘and.’
+"""
+input MediaAssetToManyTranscriptFilter {
+  """
+  Every related `Transcript` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: TranscriptFilter
+
+  """
+  No related `Transcript` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: TranscriptFilter
+
+  """
+  Some related `Transcript` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: TranscriptFilter
 }
 
 """A connection to a list of `MediaAsset` values."""
@@ -4480,6 +6313,117 @@ enum MediaAssetsOrderBy {
   TITLE_DESC
   UID_ASC
   UID_DESC
+}
+
+"""A connection to a list of `Metadatum` values."""
+type MetadataConnection {
+  """
+  A list of edges which contains the `Metadatum` and cursor to aid in pagination.
+  """
+  edges: [MetadataEdge!]!
+
+  """A list of `Metadatum` objects."""
+  nodes: [Metadatum!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Metadatum` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Metadatum` edge in the connection."""
+type MetadataEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Metadatum` at the end of the edge."""
+  node: Metadatum!
+}
+
+"""Methods to use when ordering `Metadatum`."""
+enum MetadataOrderBy {
+  CONTENT_ASC
+  CONTENT_DESC
+  NAMESPACE_ASC
+  NAMESPACE_DESC
+  NATURAL
+  REVISION_ID_ASC
+  REVISION_ID_DESC
+  TARGET_UID_ASC
+  TARGET_UID_DESC
+  UID_ASC
+  UID_DESC
+}
+
+type Metadatum {
+  content: JSON!
+  namespace: String!
+
+  """Reads a single `Revision` that is related to this `Metadatum`."""
+  revision: Revision
+  revisionId: String!
+
+  """Reads a single `Entity` that is related to this `Metadatum`."""
+  target: Entity
+  targetUid: String!
+  uid: String!
+}
+
+"""
+A condition to be used against `Metadatum` object types. All fields are tested
+for equality and combined with a logical ‘and.’
+"""
+input MetadatumCondition {
+  """Checks for equality with the object’s `content` field."""
+  content: JSON
+
+  """Checks for equality with the object’s `namespace` field."""
+  namespace: String
+
+  """Checks for equality with the object’s `revisionId` field."""
+  revisionId: String
+
+  """Checks for equality with the object’s `targetUid` field."""
+  targetUid: String
+
+  """Checks for equality with the object’s `uid` field."""
+  uid: String
+}
+
+"""
+A filter to be used against `Metadatum` object types. All fields are combined with a logical ‘and.’
+"""
+input MetadatumFilter {
+  """Checks for all expressions in this list."""
+  and: [MetadatumFilter!]
+
+  """Filter by the object’s `content` field."""
+  content: JSONFilter
+
+  """Filter by the object’s `namespace` field."""
+  namespace: StringFilter
+
+  """Negates the expression."""
+  not: MetadatumFilter
+
+  """Checks for any expressions in this list."""
+  or: [MetadatumFilter!]
+
+  """Filter by the object’s `revision` relation."""
+  revision: RevisionFilter
+
+  """Filter by the object’s `revisionId` field."""
+  revisionId: StringFilter
+
+  """Filter by the object’s `target` relation."""
+  target: EntityFilter
+
+  """Filter by the object’s `targetUid` field."""
+  targetUid: StringFilter
+
+  """Filter by the object’s `uid` field."""
+  uid: StringFilter
 }
 
 """Information about pagination in a connection."""
@@ -4534,6 +6478,76 @@ type Query {
     """The method to use when ordering `Actor`."""
     orderBy: [ActorsOrderBy!] = [PRIMARY_KEY_ASC]
   ): ActorsConnection
+  agent(did: String!): Agent
+
+  """Reads and enables pagination through a set of `Agent`."""
+  agents(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: AgentCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: AgentFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Agent`."""
+    orderBy: [AgentsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): AgentsConnection
+  block(cid: String!): Block
+
+  """Reads and enables pagination through a set of `Block`."""
+  blocks(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: BlockCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: BlockFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Block`."""
+    orderBy: [BlocksOrderBy!] = [PRIMARY_KEY_ASC]
+  ): BlocksConnection
   broadcastEvent(uid: String!): BroadcastEvent
 
   """Reads and enables pagination through a set of `BroadcastEvent`."""
@@ -4639,6 +6653,41 @@ type Query {
     """The method to use when ordering `Chapter`."""
     orderBy: [ChaptersOrderBy!] = [PRIMARY_KEY_ASC]
   ): ChaptersConnection
+  commit(rootCid: String!): Commit
+
+  """Reads and enables pagination through a set of `Commit`."""
+  commits(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: CommitCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: CommitFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Commit`."""
+    orderBy: [CommitsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): CommitsConnection
   concept(uid: String!): Concept
 
   """Reads and enables pagination through a set of `Concept`."""
@@ -4814,6 +6863,41 @@ type Query {
     """The method to use when ordering `DataSource`."""
     orderBy: [DataSourcesOrderBy!] = [PRIMARY_KEY_ASC]
   ): DataSourcesConnection
+
+  """Reads and enables pagination through a set of `Entity`."""
+  entities(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: EntityCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: EntityFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Entity`."""
+    orderBy: [EntitiesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): EntitiesConnection
+  entity(uid: String!): Entity
   file(uid: String!): File
 
   """Reads and enables pagination through a set of `File`."""
@@ -4849,6 +6933,41 @@ type Query {
     """The method to use when ordering `File`."""
     orderBy: [FilesOrderBy!] = [PRIMARY_KEY_ASC]
   ): FilesConnection
+  keypair(did: String!): Keypair
+
+  """Reads and enables pagination through a set of `Keypair`."""
+  keypairs(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: KeypairCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: KeypairFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Keypair`."""
+    orderBy: [KeypairsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): KeypairsConnection
   license(uid: String!): License
 
   """Reads and enables pagination through a set of `License`."""
@@ -4920,12 +7039,81 @@ type Query {
     orderBy: [MediaAssetsOrderBy!] = [PRIMARY_KEY_ASC]
   ): MediaAssetsConnection
 
+  """Reads and enables pagination through a set of `Metadatum`."""
+  metadata(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: MetadatumCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: MetadatumFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Metadatum`."""
+    orderBy: [MetadataOrderBy!] = [NATURAL]
+  ): MetadataConnection
+
   """
   Exposes the root query type nested one level down. This is helpful for Relay 1
   which can only query top level fields if they are in a particular form.
   """
   query: Query!
-  revision(rowId: String!): Revision
+  repo(did: String!): Repo
+
+  """Reads and enables pagination through a set of `Repo`."""
+  repos(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: RepoCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: RepoFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Repo`."""
+    orderBy: [ReposOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ReposConnection
+  revision(id: String!): Revision
 
   """Reads and enables pagination through a set of `Revision`."""
   revisions(
@@ -4960,6 +7148,41 @@ type Query {
     """The method to use when ordering `Revision`."""
     orderBy: [RevisionsOrderBy!] = [PRIMARY_KEY_ASC]
   ): RevisionsConnection
+  sourceRecord(uid: String!): SourceRecord
+
+  """Reads and enables pagination through a set of `SourceRecord`."""
+  sourceRecords(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SourceRecordCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SourceRecordFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `SourceRecord`."""
+    orderBy: [SourceRecordsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): SourceRecordsConnection
   transcript(uid: String!): Transcript
 
   """Reads and enables pagination through a set of `Transcript`."""
@@ -4995,6 +7218,483 @@ type Query {
     """The method to use when ordering `Transcript`."""
     orderBy: [TranscriptsOrderBy!] = [PRIMARY_KEY_ASC]
   ): TranscriptsConnection
+  ucan(cid: String!): Ucan
+
+  """Reads and enables pagination through a set of `Ucan`."""
+  ucans(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: UcanCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: UcanFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Ucan`."""
+    orderBy: [UcansOrderBy!] = [PRIMARY_KEY_ASC]
+  ): UcansConnection
+  user(did: String!): User
+
+  """Reads and enables pagination through a set of `User`."""
+  users(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: UserCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: UserFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `User`."""
+    orderBy: [UsersOrderBy!] = [PRIMARY_KEY_ASC]
+  ): UsersConnection
+}
+
+type Repo {
+  """Reads and enables pagination through a set of `Agent`."""
+  agentsByCommitRepoDidAndAgentDid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: AgentCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: AgentFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Agent`."""
+    orderBy: [AgentsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): RepoAgentsByCommitRepoDidAndAgentDidManyToManyConnection!
+
+  """Reads a single `Commit` that is related to this `Repo`."""
+  commitByHead: Commit
+
+  """Reads and enables pagination through a set of `Commit`."""
+  commitsByCommitRepoDidAndParent(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: CommitCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: CommitFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Commit`."""
+    orderBy: [CommitsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): RepoCommitsByCommitRepoDidAndParentManyToManyConnection!
+
+  """Reads and enables pagination through a set of `Commit`."""
+  commitsByRepoDid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: CommitCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: CommitFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Commit`."""
+    orderBy: [CommitsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): CommitsConnection!
+  did: String!
+  head: String
+  name: String
+
+  """Reads and enables pagination through a set of `Revision`."""
+  revisionsByRepoDid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: RevisionCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: RevisionFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Revision`."""
+    orderBy: [RevisionsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): RevisionsConnection!
+  tail: String
+}
+
+"""A connection to a list of `Agent` values, with data from `Commit`."""
+type RepoAgentsByCommitRepoDidAndAgentDidManyToManyConnection {
+  """
+  A list of edges which contains the `Agent`, info from the `Commit`, and the cursor to aid in pagination.
+  """
+  edges: [RepoAgentsByCommitRepoDidAndAgentDidManyToManyEdge!]!
+
+  """A list of `Agent` objects."""
+  nodes: [Agent!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Agent` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Agent` edge in the connection, with data from `Commit`."""
+type RepoAgentsByCommitRepoDidAndAgentDidManyToManyEdge {
+  """Reads and enables pagination through a set of `Commit`."""
+  commitsByAgentDid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: CommitCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: CommitFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Commit`."""
+    orderBy: [CommitsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): CommitsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Agent` at the end of the edge."""
+  node: Agent!
+}
+
+"""A connection to a list of `Commit` values, with data from `Commit`."""
+type RepoCommitsByCommitRepoDidAndParentManyToManyConnection {
+  """
+  A list of edges which contains the `Commit`, info from the `Commit`, and the cursor to aid in pagination.
+  """
+  edges: [RepoCommitsByCommitRepoDidAndParentManyToManyEdge!]!
+
+  """A list of `Commit` objects."""
+  nodes: [Commit!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Commit` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Commit` edge in the connection, with data from `Commit`."""
+type RepoCommitsByCommitRepoDidAndParentManyToManyEdge {
+  """Reads and enables pagination through a set of `Commit`."""
+  commitsByParent(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: CommitCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: CommitFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Commit`."""
+    orderBy: [CommitsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): CommitsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Commit` at the end of the edge."""
+  node: Commit!
+}
+
+"""
+A condition to be used against `Repo` object types. All fields are tested for equality and combined with a logical ‘and.’
+"""
+input RepoCondition {
+  """Checks for equality with the object’s `did` field."""
+  did: String
+
+  """Checks for equality with the object’s `head` field."""
+  head: String
+
+  """Checks for equality with the object’s `name` field."""
+  name: String
+
+  """Checks for equality with the object’s `tail` field."""
+  tail: String
+}
+
+"""
+A filter to be used against `Repo` object types. All fields are combined with a logical ‘and.’
+"""
+input RepoFilter {
+  """Checks for all expressions in this list."""
+  and: [RepoFilter!]
+
+  """Filter by the object’s `commitByHead` relation."""
+  commitByHead: CommitFilter
+
+  """A related `commitByHead` exists."""
+  commitByHeadExists: Boolean
+
+  """Filter by the object’s `commitsByRepoDid` relation."""
+  commitsByRepoDid: RepoToManyCommitFilter
+
+  """Some related `commitsByRepoDid` exist."""
+  commitsByRepoDidExist: Boolean
+
+  """Filter by the object’s `did` field."""
+  did: StringFilter
+
+  """Filter by the object’s `head` field."""
+  head: StringFilter
+
+  """Filter by the object’s `name` field."""
+  name: StringFilter
+
+  """Negates the expression."""
+  not: RepoFilter
+
+  """Checks for any expressions in this list."""
+  or: [RepoFilter!]
+
+  """Filter by the object’s `revisionsByRepoDid` relation."""
+  revisionsByRepoDid: RepoToManyRevisionFilter
+
+  """Some related `revisionsByRepoDid` exist."""
+  revisionsByRepoDidExist: Boolean
+
+  """Filter by the object’s `tail` field."""
+  tail: StringFilter
+}
+
+"""
+A filter to be used against many `Commit` object types. All fields are combined with a logical ‘and.’
+"""
+input RepoToManyCommitFilter {
+  """
+  Every related `Commit` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: CommitFilter
+
+  """
+  No related `Commit` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: CommitFilter
+
+  """
+  Some related `Commit` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: CommitFilter
+}
+
+"""
+A filter to be used against many `Revision` object types. All fields are combined with a logical ‘and.’
+"""
+input RepoToManyRevisionFilter {
+  """
+  Every related `Revision` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: RevisionFilter
+
+  """
+  No related `Revision` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: RevisionFilter
+
+  """
+  Some related `Revision` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: RevisionFilter
+}
+
+"""A connection to a list of `Repo` values."""
+type ReposConnection {
+  """
+  A list of edges which contains the `Repo` and cursor to aid in pagination.
+  """
+  edges: [ReposEdge!]!
+
+  """A list of `Repo` objects."""
+  nodes: [Repo!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Repo` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Repo` edge in the connection."""
+type ReposEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Repo` at the end of the edge."""
+  node: Repo!
+}
+
+"""Methods to use when ordering `Repo`."""
+enum ReposOrderBy {
+  DID_ASC
+  DID_DESC
+  HEAD_ASC
+  HEAD_DESC
+  NAME_ASC
+  NAME_DESC
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  TAIL_ASC
+  TAIL_DESC
 }
 
 type Revision {
@@ -5065,7 +7765,10 @@ type Revision {
     """The method to use when ordering `Actor`."""
     orderBy: [ActorsOrderBy!] = [PRIMARY_KEY_ASC]
   ): RevisionActorsByBroadcastServiceRevisionIdAndPublisherUidManyToManyConnection!
-  alternativeIds: [String]
+
+  """Reads a single `Agent` that is related to this `Revision`."""
+  agentByAgentDid: Agent
+  agentDid: String!
 
   """Reads and enables pagination through a set of `BroadcastEvent`."""
   broadcastEvents(
@@ -5203,6 +7906,40 @@ type Revision {
     orderBy: [ChaptersOrderBy!] = [PRIMARY_KEY_ASC]
   ): ChaptersConnection!
 
+  """Reads and enables pagination through a set of `Commit`."""
+  commits(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: CommitCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: CommitFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Commit`."""
+    orderBy: [CommitsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): RevisionCommitsByRevisionToCommitBAndAManyToManyConnection!
+
   """Reads and enables pagination through a set of `Concept`."""
   concepts(
     """Read all values in the set after (below) this cursor."""
@@ -5236,7 +7973,41 @@ type Revision {
     """The method to use when ordering `Concept`."""
     orderBy: [ConceptsOrderBy!] = [PRIMARY_KEY_ASC]
   ): ConceptsConnection!
-  content: JSON!
+
+  """Reads and enables pagination through a set of `Concept`."""
+  conceptsByConceptRevisionIdAndSameAsUid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ConceptCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ConceptFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Concept`."""
+    orderBy: [ConceptsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): RevisionConceptsByConceptRevisionIdAndSameAsUidManyToManyConnection!
+  contentCid: String!
 
   """Reads and enables pagination through a set of `ContentGrouping`."""
   contentGroupings(
@@ -5407,8 +8178,116 @@ type Revision {
     """The method to use when ordering `Contribution`."""
     orderBy: [ContributionsOrderBy!] = [PRIMARY_KEY_ASC]
   ): ContributionsConnection!
-  created: Datetime!
-  datasource: String!
+
+  """Reads and enables pagination through a set of `DataSource`."""
+  dataSourcesBySourceRecordRevisionIdAndDataSourceUid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: DataSourceCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: DataSourceFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `DataSource`."""
+    orderBy: [DataSourcesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): RevisionDataSourcesBySourceRecordRevisionIdAndDataSourceUidManyToManyConnection!
+  dateCreated: Datetime!
+  dateModified: Datetime!
+
+  """Reads a single `SourceRecord` that is related to this `Revision`."""
+  derivedFrom: SourceRecord
+  derivedFromUid: String
+
+  """Reads and enables pagination through a set of `Entity`."""
+  entities(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: EntityCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: EntityFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Entity`."""
+    orderBy: [EntitiesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): EntitiesConnection!
+
+  """Reads and enables pagination through a set of `Entity`."""
+  entitiesByMetadatumRevisionIdAndTargetUid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: EntityCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: EntityFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Entity`."""
+    orderBy: [EntitiesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): RevisionEntitiesByMetadatumRevisionIdAndTargetUidManyToManyConnection!
+  entityType: String!
+  entityUris: [String]
 
   """Reads and enables pagination through a set of `File`."""
   files(
@@ -5545,6 +8424,8 @@ type Revision {
     """The method to use when ordering `File`."""
     orderBy: [FilesOrderBy!] = [PRIMARY_KEY_ASC]
   ): RevisionFilesByMediaAssetRevisionIdAndTeaserImageUidManyToManyConnection!
+  id: String!
+  isDeleted: Boolean!
 
   """Reads and enables pagination through a set of `License`."""
   licenses(
@@ -5750,8 +8631,52 @@ type Revision {
     orderBy: [MediaAssetsOrderBy!] = [PRIMARY_KEY_ASC]
   ): RevisionMediaAssetsByChapterRevisionIdAndMediaAssetUidManyToManyConnection!
 
+  """Reads and enables pagination through a set of `Metadatum`."""
+  metadata(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: MetadatumCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: MetadatumFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Metadatum`."""
+    orderBy: [MetadataOrderBy!] = [NATURAL]
+  ): MetadataConnection!
+
+  """Reads a single `Revision` that is related to this `Revision`."""
+  prevRevision: Revision
+  prevRevisionId: String
+
+  """Reads a single `Repo` that is related to this `Revision`."""
+  repoByRepoDid: Repo
+  repoDid: String!
+  revisionCid: String!
+  revisionUris: [String]
+
   """Reads and enables pagination through a set of `Revision`."""
-  nextRevisions(
+  revisionsByPrevRevisionId(
     """Read all values in the set after (below) this cursor."""
     after: Cursor
 
@@ -5784,11 +8709,39 @@ type Revision {
     orderBy: [RevisionsOrderBy!] = [PRIMARY_KEY_ASC]
   ): RevisionsConnection!
 
-  """Reads a single `Revision` that is related to this `Revision`."""
-  previousRevision: Revision
-  previousRevisionId: String
-  rowId: String!
-  type: String!
+  """Reads and enables pagination through a set of `SourceRecord`."""
+  sourceRecords(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SourceRecordCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SourceRecordFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `SourceRecord`."""
+    orderBy: [SourceRecordsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): SourceRecordsConnection!
   uid: String!
 }
 
@@ -5921,30 +8874,170 @@ type RevisionBroadcastServicesByBroadcastEventRevisionIdAndBroadcastServiceUidMa
 }
 
 """
+A connection to a list of `Commit` values, with data from `_RevisionToCommit`.
+"""
+type RevisionCommitsByRevisionToCommitBAndAManyToManyConnection {
+  """
+  A list of edges which contains the `Commit`, info from the `_RevisionToCommit`, and the cursor to aid in pagination.
+  """
+  edges: [RevisionCommitsByRevisionToCommitBAndAManyToManyEdge!]!
+
+  """A list of `Commit` objects."""
+  nodes: [Commit!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Commit` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Commit` edge in the connection, with data from `_RevisionToCommit`."""
+type RevisionCommitsByRevisionToCommitBAndAManyToManyEdge {
+  """Reads and enables pagination through a set of `_RevisionToCommit`."""
+  _revisionToCommitsByA(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: _RevisionToCommitCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: _RevisionToCommitFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `_RevisionToCommit`."""
+    orderBy: [_RevisionToCommitsOrderBy!] = [NATURAL]
+  ): _RevisionToCommitsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Commit` at the end of the edge."""
+  node: Commit!
+}
+
+"""A connection to a list of `Concept` values, with data from `Concept`."""
+type RevisionConceptsByConceptRevisionIdAndSameAsUidManyToManyConnection {
+  """
+  A list of edges which contains the `Concept`, info from the `Concept`, and the cursor to aid in pagination.
+  """
+  edges: [RevisionConceptsByConceptRevisionIdAndSameAsUidManyToManyEdge!]!
+
+  """A list of `Concept` objects."""
+  nodes: [Concept!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Concept` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Concept` edge in the connection, with data from `Concept`."""
+type RevisionConceptsByConceptRevisionIdAndSameAsUidManyToManyEdge {
+  """Reads and enables pagination through a set of `Concept`."""
+  conceptsBySameAs(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ConceptCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ConceptFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Concept`."""
+    orderBy: [ConceptsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ConceptsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Concept` at the end of the edge."""
+  node: Concept!
+}
+
+"""
 A condition to be used against `Revision` object types. All fields are tested
 for equality and combined with a logical ‘and.’
 """
 input RevisionCondition {
-  """Checks for equality with the object’s `alternativeIds` field."""
-  alternativeIds: [String]
+  """Checks for equality with the object’s `agentDid` field."""
+  agentDid: String
 
-  """Checks for equality with the object’s `content` field."""
-  content: JSON
+  """Checks for equality with the object’s `contentCid` field."""
+  contentCid: String
 
-  """Checks for equality with the object’s `created` field."""
-  created: Datetime
+  """Checks for equality with the object’s `dateCreated` field."""
+  dateCreated: Datetime
 
-  """Checks for equality with the object’s `datasource` field."""
-  datasource: String
+  """Checks for equality with the object’s `dateModified` field."""
+  dateModified: Datetime
 
-  """Checks for equality with the object’s `previousRevisionId` field."""
-  previousRevisionId: String
+  """Checks for equality with the object’s `derivedFromUid` field."""
+  derivedFromUid: String
 
-  """Checks for equality with the object’s `rowId` field."""
-  rowId: String
+  """Checks for equality with the object’s `entityType` field."""
+  entityType: String
 
-  """Checks for equality with the object’s `type` field."""
-  type: String
+  """Checks for equality with the object’s `entityUris` field."""
+  entityUris: [String]
+
+  """Checks for equality with the object’s `id` field."""
+  id: String
+
+  """Checks for equality with the object’s `isDeleted` field."""
+  isDeleted: Boolean
+
+  """Checks for equality with the object’s `prevRevisionId` field."""
+  prevRevisionId: String
+
+  """Checks for equality with the object’s `repoDid` field."""
+  repoDid: String
+
+  """Checks for equality with the object’s `revisionCid` field."""
+  revisionCid: String
+
+  """Checks for equality with the object’s `revisionUris` field."""
+  revisionUris: [String]
 
   """Checks for equality with the object’s `uid` field."""
   uid: String
@@ -6078,6 +9171,128 @@ type RevisionContentItemsByBroadcastEventRevisionIdAndContentItemUidManyToManyEd
 
   """The `ContentItem` at the end of the edge."""
   node: ContentItem!
+}
+
+"""
+A connection to a list of `DataSource` values, with data from `SourceRecord`.
+"""
+type RevisionDataSourcesBySourceRecordRevisionIdAndDataSourceUidManyToManyConnection {
+  """
+  A list of edges which contains the `DataSource`, info from the `SourceRecord`, and the cursor to aid in pagination.
+  """
+  edges: [RevisionDataSourcesBySourceRecordRevisionIdAndDataSourceUidManyToManyEdge!]!
+
+  """A list of `DataSource` objects."""
+  nodes: [DataSource!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `DataSource` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `DataSource` edge in the connection, with data from `SourceRecord`."""
+type RevisionDataSourcesBySourceRecordRevisionIdAndDataSourceUidManyToManyEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `DataSource` at the end of the edge."""
+  node: DataSource!
+
+  """Reads and enables pagination through a set of `SourceRecord`."""
+  sourceRecords(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: SourceRecordCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: SourceRecordFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `SourceRecord`."""
+    orderBy: [SourceRecordsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): SourceRecordsConnection!
+}
+
+"""A connection to a list of `Entity` values, with data from `Metadatum`."""
+type RevisionEntitiesByMetadatumRevisionIdAndTargetUidManyToManyConnection {
+  """
+  A list of edges which contains the `Entity`, info from the `Metadatum`, and the cursor to aid in pagination.
+  """
+  edges: [RevisionEntitiesByMetadatumRevisionIdAndTargetUidManyToManyEdge!]!
+
+  """A list of `Entity` objects."""
+  nodes: [Entity!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Entity` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Entity` edge in the connection, with data from `Metadatum`."""
+type RevisionEntitiesByMetadatumRevisionIdAndTargetUidManyToManyEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """Reads and enables pagination through a set of `Metadatum`."""
+  metadataByTarget(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: MetadatumCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: MetadatumFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Metadatum`."""
+    orderBy: [MetadataOrderBy!] = [NATURAL]
+  ): MetadataConnection!
+
+  """The `Entity` at the end of the edge."""
+  node: Entity!
 }
 
 """A connection to a list of `File` values, with data from `Actor`."""
@@ -6264,20 +9479,122 @@ type RevisionFilesByMediaAssetRevisionIdAndTeaserImageUidManyToManyEdge {
 A filter to be used against `Revision` object types. All fields are combined with a logical ‘and.’
 """
 input RevisionFilter {
-  """Filter by the object’s `alternativeIds` field."""
-  alternativeIds: StringListFilter
+  """Filter by the object’s `actors` relation."""
+  actors: RevisionToManyActorFilter
+
+  """Some related `actors` exist."""
+  actorsExist: Boolean
+
+  """Filter by the object’s `agentByAgentDid` relation."""
+  agentByAgentDid: AgentFilter
+
+  """Filter by the object’s `agentDid` field."""
+  agentDid: StringFilter
 
   """Checks for all expressions in this list."""
   and: [RevisionFilter!]
 
-  """Filter by the object’s `content` field."""
-  content: JSONFilter
+  """Filter by the object’s `broadcastEvents` relation."""
+  broadcastEvents: RevisionToManyBroadcastEventFilter
 
-  """Filter by the object’s `created` field."""
-  created: DatetimeFilter
+  """Some related `broadcastEvents` exist."""
+  broadcastEventsExist: Boolean
 
-  """Filter by the object’s `datasource` field."""
-  datasource: StringFilter
+  """Filter by the object’s `broadcastServices` relation."""
+  broadcastServices: RevisionToManyBroadcastServiceFilter
+
+  """Some related `broadcastServices` exist."""
+  broadcastServicesExist: Boolean
+
+  """Filter by the object’s `chapters` relation."""
+  chapters: RevisionToManyChapterFilter
+
+  """Some related `chapters` exist."""
+  chaptersExist: Boolean
+
+  """Filter by the object’s `concepts` relation."""
+  concepts: RevisionToManyConceptFilter
+
+  """Some related `concepts` exist."""
+  conceptsExist: Boolean
+
+  """Filter by the object’s `contentCid` field."""
+  contentCid: StringFilter
+
+  """Filter by the object’s `contentGroupings` relation."""
+  contentGroupings: RevisionToManyContentGroupingFilter
+
+  """Some related `contentGroupings` exist."""
+  contentGroupingsExist: Boolean
+
+  """Filter by the object’s `contentItems` relation."""
+  contentItems: RevisionToManyContentItemFilter
+
+  """Some related `contentItems` exist."""
+  contentItemsExist: Boolean
+
+  """Filter by the object’s `contributions` relation."""
+  contributions: RevisionToManyContributionFilter
+
+  """Some related `contributions` exist."""
+  contributionsExist: Boolean
+
+  """Filter by the object’s `dateCreated` field."""
+  dateCreated: DatetimeFilter
+
+  """Filter by the object’s `dateModified` field."""
+  dateModified: DatetimeFilter
+
+  """Filter by the object’s `derivedFrom` relation."""
+  derivedFrom: SourceRecordFilter
+
+  """A related `derivedFrom` exists."""
+  derivedFromExists: Boolean
+
+  """Filter by the object’s `derivedFromUid` field."""
+  derivedFromUid: StringFilter
+
+  """Filter by the object’s `entities` relation."""
+  entities: RevisionToManyEntityFilter
+
+  """Some related `entities` exist."""
+  entitiesExist: Boolean
+
+  """Filter by the object’s `entityType` field."""
+  entityType: StringFilter
+
+  """Filter by the object’s `entityUris` field."""
+  entityUris: StringListFilter
+
+  """Filter by the object’s `files` relation."""
+  files: RevisionToManyFileFilter
+
+  """Some related `files` exist."""
+  filesExist: Boolean
+
+  """Filter by the object’s `id` field."""
+  id: StringFilter
+
+  """Filter by the object’s `isDeleted` field."""
+  isDeleted: BooleanFilter
+
+  """Filter by the object’s `licenses` relation."""
+  licenses: RevisionToManyLicenseFilter
+
+  """Some related `licenses` exist."""
+  licensesExist: Boolean
+
+  """Filter by the object’s `mediaAssets` relation."""
+  mediaAssets: RevisionToManyMediaAssetFilter
+
+  """Some related `mediaAssets` exist."""
+  mediaAssetsExist: Boolean
+
+  """Filter by the object’s `metadata` relation."""
+  metadata: RevisionToManyMetadatumFilter
+
+  """Some related `metadata` exist."""
+  metadataExist: Boolean
 
   """Negates the expression."""
   not: RevisionFilter
@@ -6285,14 +9602,38 @@ input RevisionFilter {
   """Checks for any expressions in this list."""
   or: [RevisionFilter!]
 
-  """Filter by the object’s `previousRevisionId` field."""
-  previousRevisionId: StringFilter
+  """Filter by the object’s `prevRevision` relation."""
+  prevRevision: RevisionFilter
 
-  """Filter by the object’s `rowId` field."""
-  rowId: StringFilter
+  """A related `prevRevision` exists."""
+  prevRevisionExists: Boolean
 
-  """Filter by the object’s `type` field."""
-  type: StringFilter
+  """Filter by the object’s `prevRevisionId` field."""
+  prevRevisionId: StringFilter
+
+  """Filter by the object’s `repoByRepoDid` relation."""
+  repoByRepoDid: RepoFilter
+
+  """Filter by the object’s `repoDid` field."""
+  repoDid: StringFilter
+
+  """Filter by the object’s `revisionCid` field."""
+  revisionCid: StringFilter
+
+  """Filter by the object’s `revisionUris` field."""
+  revisionUris: StringListFilter
+
+  """Filter by the object’s `revisionsByPrevRevisionId` relation."""
+  revisionsByPrevRevisionId: RevisionToManyRevisionFilter
+
+  """Some related `revisionsByPrevRevisionId` exist."""
+  revisionsByPrevRevisionIdExist: Boolean
+
+  """Filter by the object’s `sourceRecords` relation."""
+  sourceRecords: RevisionToManySourceRecordFilter
+
+  """Some related `sourceRecords` exist."""
+  sourceRecordsExist: Boolean
 
   """Filter by the object’s `uid` field."""
   uid: StringFilter
@@ -6546,6 +9887,306 @@ type RevisionMediaAssetsByChapterRevisionIdAndMediaAssetUidManyToManyEdge {
   node: MediaAsset!
 }
 
+"""
+A filter to be used against many `Actor` object types. All fields are combined with a logical ‘and.’
+"""
+input RevisionToManyActorFilter {
+  """
+  Every related `Actor` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: ActorFilter
+
+  """
+  No related `Actor` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: ActorFilter
+
+  """
+  Some related `Actor` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: ActorFilter
+}
+
+"""
+A filter to be used against many `BroadcastEvent` object types. All fields are combined with a logical ‘and.’
+"""
+input RevisionToManyBroadcastEventFilter {
+  """
+  Every related `BroadcastEvent` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: BroadcastEventFilter
+
+  """
+  No related `BroadcastEvent` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: BroadcastEventFilter
+
+  """
+  Some related `BroadcastEvent` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: BroadcastEventFilter
+}
+
+"""
+A filter to be used against many `BroadcastService` object types. All fields are combined with a logical ‘and.’
+"""
+input RevisionToManyBroadcastServiceFilter {
+  """
+  Every related `BroadcastService` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: BroadcastServiceFilter
+
+  """
+  No related `BroadcastService` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: BroadcastServiceFilter
+
+  """
+  Some related `BroadcastService` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: BroadcastServiceFilter
+}
+
+"""
+A filter to be used against many `Chapter` object types. All fields are combined with a logical ‘and.’
+"""
+input RevisionToManyChapterFilter {
+  """
+  Every related `Chapter` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: ChapterFilter
+
+  """
+  No related `Chapter` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: ChapterFilter
+
+  """
+  Some related `Chapter` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: ChapterFilter
+}
+
+"""
+A filter to be used against many `Concept` object types. All fields are combined with a logical ‘and.’
+"""
+input RevisionToManyConceptFilter {
+  """
+  Every related `Concept` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: ConceptFilter
+
+  """
+  No related `Concept` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: ConceptFilter
+
+  """
+  Some related `Concept` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: ConceptFilter
+}
+
+"""
+A filter to be used against many `ContentGrouping` object types. All fields are combined with a logical ‘and.’
+"""
+input RevisionToManyContentGroupingFilter {
+  """
+  Every related `ContentGrouping` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: ContentGroupingFilter
+
+  """
+  No related `ContentGrouping` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: ContentGroupingFilter
+
+  """
+  Some related `ContentGrouping` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: ContentGroupingFilter
+}
+
+"""
+A filter to be used against many `ContentItem` object types. All fields are combined with a logical ‘and.’
+"""
+input RevisionToManyContentItemFilter {
+  """
+  Every related `ContentItem` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: ContentItemFilter
+
+  """
+  No related `ContentItem` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: ContentItemFilter
+
+  """
+  Some related `ContentItem` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: ContentItemFilter
+}
+
+"""
+A filter to be used against many `Contribution` object types. All fields are combined with a logical ‘and.’
+"""
+input RevisionToManyContributionFilter {
+  """
+  Every related `Contribution` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: ContributionFilter
+
+  """
+  No related `Contribution` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: ContributionFilter
+
+  """
+  Some related `Contribution` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: ContributionFilter
+}
+
+"""
+A filter to be used against many `Entity` object types. All fields are combined with a logical ‘and.’
+"""
+input RevisionToManyEntityFilter {
+  """
+  Every related `Entity` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: EntityFilter
+
+  """
+  No related `Entity` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: EntityFilter
+
+  """
+  Some related `Entity` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: EntityFilter
+}
+
+"""
+A filter to be used against many `File` object types. All fields are combined with a logical ‘and.’
+"""
+input RevisionToManyFileFilter {
+  """
+  Every related `File` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: FileFilter
+
+  """
+  No related `File` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: FileFilter
+
+  """
+  Some related `File` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: FileFilter
+}
+
+"""
+A filter to be used against many `License` object types. All fields are combined with a logical ‘and.’
+"""
+input RevisionToManyLicenseFilter {
+  """
+  Every related `License` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: LicenseFilter
+
+  """
+  No related `License` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: LicenseFilter
+
+  """
+  Some related `License` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: LicenseFilter
+}
+
+"""
+A filter to be used against many `MediaAsset` object types. All fields are combined with a logical ‘and.’
+"""
+input RevisionToManyMediaAssetFilter {
+  """
+  Every related `MediaAsset` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: MediaAssetFilter
+
+  """
+  No related `MediaAsset` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: MediaAssetFilter
+
+  """
+  Some related `MediaAsset` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: MediaAssetFilter
+}
+
+"""
+A filter to be used against many `Metadatum` object types. All fields are combined with a logical ‘and.’
+"""
+input RevisionToManyMetadatumFilter {
+  """
+  Every related `Metadatum` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: MetadatumFilter
+
+  """
+  No related `Metadatum` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: MetadatumFilter
+
+  """
+  Some related `Metadatum` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: MetadatumFilter
+}
+
+"""
+A filter to be used against many `Revision` object types. All fields are combined with a logical ‘and.’
+"""
+input RevisionToManyRevisionFilter {
+  """
+  Every related `Revision` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: RevisionFilter
+
+  """
+  No related `Revision` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: RevisionFilter
+
+  """
+  Some related `Revision` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: RevisionFilter
+}
+
+"""
+A filter to be used against many `SourceRecord` object types. All fields are combined with a logical ‘and.’
+"""
+input RevisionToManySourceRecordFilter {
+  """
+  Every related `SourceRecord` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: SourceRecordFilter
+
+  """
+  No related `SourceRecord` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: SourceRecordFilter
+
+  """
+  Some related `SourceRecord` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: SourceRecordFilter
+}
+
 """A connection to a list of `Revision` values."""
 type RevisionsConnection {
   """
@@ -6574,23 +10215,229 @@ type RevisionsEdge {
 
 """Methods to use when ordering `Revision`."""
 enum RevisionsOrderBy {
-  ALTERNATIVE_IDS_ASC
-  ALTERNATIVE_IDS_DESC
-  CONTENT_ASC
-  CONTENT_DESC
-  CREATED_ASC
-  CREATED_DESC
-  DATASOURCE_ASC
-  DATASOURCE_DESC
+  AGENT_DID_ASC
+  AGENT_DID_DESC
+  CONTENT_CID_ASC
+  CONTENT_CID_DESC
+  DATE_CREATED_ASC
+  DATE_CREATED_DESC
+  DATE_MODIFIED_ASC
+  DATE_MODIFIED_DESC
+  DERIVED_FROM_UID_ASC
+  DERIVED_FROM_UID_DESC
+  ENTITY_TYPE_ASC
+  ENTITY_TYPE_DESC
+  ENTITY_URIS_ASC
+  ENTITY_URIS_DESC
   ID_ASC
   ID_DESC
+  IS_DELETED_ASC
+  IS_DELETED_DESC
   NATURAL
-  PREVIOUS_REVISION_ID_ASC
-  PREVIOUS_REVISION_ID_DESC
+  PREV_REVISION_ID_ASC
+  PREV_REVISION_ID_DESC
   PRIMARY_KEY_ASC
   PRIMARY_KEY_DESC
-  TYPE_ASC
-  TYPE_DESC
+  REPO_DID_ASC
+  REPO_DID_DESC
+  REVISION_CID_ASC
+  REVISION_CID_DESC
+  REVISION_URIS_ASC
+  REVISION_URIS_DESC
+  UID_ASC
+  UID_DESC
+}
+
+type SourceRecord {
+  body: String!
+  contentType: String!
+
+  """Reads a single `DataSource` that is related to this `SourceRecord`."""
+  dataSource: DataSource
+  dataSourceUid: String
+  domainType: String!
+  meta: JSON
+
+  """Reads a single `Revision` that is related to this `SourceRecord`."""
+  revision: Revision
+  revisionId: String!
+
+  """Reads and enables pagination through a set of `Revision`."""
+  revisionsByDerivedFrom(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: RevisionCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: RevisionFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Revision`."""
+    orderBy: [RevisionsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): RevisionsConnection!
+  uid: String!
+}
+
+"""
+A condition to be used against `SourceRecord` object types. All fields are
+tested for equality and combined with a logical ‘and.’
+"""
+input SourceRecordCondition {
+  """Checks for equality with the object’s `body` field."""
+  body: String
+
+  """Checks for equality with the object’s `contentType` field."""
+  contentType: String
+
+  """Checks for equality with the object’s `dataSourceUid` field."""
+  dataSourceUid: String
+
+  """Checks for equality with the object’s `domainType` field."""
+  domainType: String
+
+  """Checks for equality with the object’s `meta` field."""
+  meta: JSON
+
+  """Checks for equality with the object’s `revisionId` field."""
+  revisionId: String
+
+  """Checks for equality with the object’s `uid` field."""
+  uid: String
+}
+
+"""
+A filter to be used against `SourceRecord` object types. All fields are combined with a logical ‘and.’
+"""
+input SourceRecordFilter {
+  """Checks for all expressions in this list."""
+  and: [SourceRecordFilter!]
+
+  """Filter by the object’s `body` field."""
+  body: StringFilter
+
+  """Filter by the object’s `contentType` field."""
+  contentType: StringFilter
+
+  """Filter by the object’s `dataSource` relation."""
+  dataSource: DataSourceFilter
+
+  """A related `dataSource` exists."""
+  dataSourceExists: Boolean
+
+  """Filter by the object’s `dataSourceUid` field."""
+  dataSourceUid: StringFilter
+
+  """Filter by the object’s `domainType` field."""
+  domainType: StringFilter
+
+  """Filter by the object’s `meta` field."""
+  meta: JSONFilter
+
+  """Negates the expression."""
+  not: SourceRecordFilter
+
+  """Checks for any expressions in this list."""
+  or: [SourceRecordFilter!]
+
+  """Filter by the object’s `revision` relation."""
+  revision: RevisionFilter
+
+  """Filter by the object’s `revisionId` field."""
+  revisionId: StringFilter
+
+  """Filter by the object’s `revisionsByDerivedFrom` relation."""
+  revisionsByDerivedFrom: SourceRecordToManyRevisionFilter
+
+  """Some related `revisionsByDerivedFrom` exist."""
+  revisionsByDerivedFromExist: Boolean
+
+  """Filter by the object’s `uid` field."""
+  uid: StringFilter
+}
+
+"""
+A filter to be used against many `Revision` object types. All fields are combined with a logical ‘and.’
+"""
+input SourceRecordToManyRevisionFilter {
+  """
+  Every related `Revision` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: RevisionFilter
+
+  """
+  No related `Revision` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: RevisionFilter
+
+  """
+  Some related `Revision` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: RevisionFilter
+}
+
+"""A connection to a list of `SourceRecord` values."""
+type SourceRecordsConnection {
+  """
+  A list of edges which contains the `SourceRecord` and cursor to aid in pagination.
+  """
+  edges: [SourceRecordsEdge!]!
+
+  """A list of `SourceRecord` objects."""
+  nodes: [SourceRecord!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `SourceRecord` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `SourceRecord` edge in the connection."""
+type SourceRecordsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `SourceRecord` at the end of the edge."""
+  node: SourceRecord!
+}
+
+"""Methods to use when ordering `SourceRecord`."""
+enum SourceRecordsOrderBy {
+  BODY_ASC
+  BODY_DESC
+  CONTENT_TYPE_ASC
+  CONTENT_TYPE_DESC
+  DATA_SOURCE_UID_ASC
+  DATA_SOURCE_UID_DESC
+  DOMAIN_TYPE_ASC
+  DOMAIN_TYPE_DESC
+  META_ASC
+  META_DESC
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  REVISION_ID_ASC
+  REVISION_ID_DESC
   UID_ASC
   UID_DESC
 }
@@ -6835,6 +10682,9 @@ input TranscriptFilter {
   """Filter by the object’s `language` field."""
   language: StringFilter
 
+  """Filter by the object’s `mediaAsset` relation."""
+  mediaAsset: MediaAssetFilter
+
   """Filter by the object’s `mediaAssetUid` field."""
   mediaAssetUid: StringFilter
 
@@ -6894,6 +10744,184 @@ enum TranscriptsOrderBy {
   UID_DESC
 }
 
+type Ucan {
+  audience: String!
+  cid: String!
+  resource: String!
+  scope: String!
+  token: String!
+}
+
+"""
+A condition to be used against `Ucan` object types. All fields are tested for equality and combined with a logical ‘and.’
+"""
+input UcanCondition {
+  """Checks for equality with the object’s `audience` field."""
+  audience: String
+
+  """Checks for equality with the object’s `cid` field."""
+  cid: String
+
+  """Checks for equality with the object’s `resource` field."""
+  resource: String
+
+  """Checks for equality with the object’s `scope` field."""
+  scope: String
+
+  """Checks for equality with the object’s `token` field."""
+  token: String
+}
+
+"""
+A filter to be used against `Ucan` object types. All fields are combined with a logical ‘and.’
+"""
+input UcanFilter {
+  """Checks for all expressions in this list."""
+  and: [UcanFilter!]
+
+  """Filter by the object’s `audience` field."""
+  audience: StringFilter
+
+  """Filter by the object’s `cid` field."""
+  cid: StringFilter
+
+  """Negates the expression."""
+  not: UcanFilter
+
+  """Checks for any expressions in this list."""
+  or: [UcanFilter!]
+
+  """Filter by the object’s `resource` field."""
+  resource: StringFilter
+
+  """Filter by the object’s `scope` field."""
+  scope: StringFilter
+
+  """Filter by the object’s `token` field."""
+  token: StringFilter
+}
+
+"""A connection to a list of `Ucan` values."""
+type UcansConnection {
+  """
+  A list of edges which contains the `Ucan` and cursor to aid in pagination.
+  """
+  edges: [UcansEdge!]!
+
+  """A list of `Ucan` objects."""
+  nodes: [Ucan!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Ucan` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Ucan` edge in the connection."""
+type UcansEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Ucan` at the end of the edge."""
+  node: Ucan!
+}
+
+"""Methods to use when ordering `Ucan`."""
+enum UcansOrderBy {
+  AUDIENCE_ASC
+  AUDIENCE_DESC
+  CID_ASC
+  CID_DESC
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  RESOURCE_ASC
+  RESOURCE_DESC
+  SCOPE_ASC
+  SCOPE_DESC
+  TOKEN_ASC
+  TOKEN_DESC
+}
+
+type User {
+  """Reads a single `Agent` that is related to this `User`."""
+  agentByDid: Agent
+  did: String!
+  name: String!
+}
+
+"""
+A condition to be used against `User` object types. All fields are tested for equality and combined with a logical ‘and.’
+"""
+input UserCondition {
+  """Checks for equality with the object’s `did` field."""
+  did: String
+
+  """Checks for equality with the object’s `name` field."""
+  name: String
+}
+
+"""
+A filter to be used against `User` object types. All fields are combined with a logical ‘and.’
+"""
+input UserFilter {
+  """Filter by the object’s `agentByDid` relation."""
+  agentByDid: AgentFilter
+
+  """Checks for all expressions in this list."""
+  and: [UserFilter!]
+
+  """Filter by the object’s `did` field."""
+  did: StringFilter
+
+  """Filter by the object’s `name` field."""
+  name: StringFilter
+
+  """Negates the expression."""
+  not: UserFilter
+
+  """Checks for any expressions in this list."""
+  or: [UserFilter!]
+}
+
+"""A connection to a list of `User` values."""
+type UsersConnection {
+  """
+  A list of edges which contains the `User` and cursor to aid in pagination.
+  """
+  edges: [UsersEdge!]!
+
+  """A list of `User` objects."""
+  nodes: [User!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `User` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `User` edge in the connection."""
+type UsersEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `User` at the end of the edge."""
+  node: User!
+}
+
+"""Methods to use when ordering `User`."""
+enum UsersOrderBy {
+  DID_ASC
+  DID_DESC
+  NAME_ASC
+  NAME_DESC
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+}
+
 type _ActorToContribution {
   a: String!
 
@@ -6926,11 +10954,17 @@ input _ActorToContributionFilter {
   """Filter by the object’s `a` field."""
   a: StringFilter
 
+  """Filter by the object’s `actorByA` relation."""
+  actorByA: ActorFilter
+
   """Checks for all expressions in this list."""
   and: [_ActorToContributionFilter!]
 
   """Filter by the object’s `b` field."""
   b: StringFilter
+
+  """Filter by the object’s `contributionByB` relation."""
+  contributionByB: ContributionFilter
 
   """Negates the expression."""
   not: _ActorToContributionFilter
@@ -7016,6 +11050,12 @@ input _ConceptToContentItemFilter {
   """Filter by the object’s `b` field."""
   b: StringFilter
 
+  """Filter by the object’s `conceptByA` relation."""
+  conceptByA: ConceptFilter
+
+  """Filter by the object’s `contentItemByB` relation."""
+  contentItemByB: ContentItemFilter
+
   """Negates the expression."""
   not: _ConceptToContentItemFilter
 
@@ -7099,6 +11139,12 @@ input _ConceptToMediaAssetFilter {
 
   """Filter by the object’s `b` field."""
   b: StringFilter
+
+  """Filter by the object’s `conceptByA` relation."""
+  conceptByA: ConceptFilter
+
+  """Filter by the object’s `mediaAssetByB` relation."""
+  mediaAssetByB: MediaAssetFilter
 
   """Negates the expression."""
   not: _ConceptToMediaAssetFilter
@@ -7184,6 +11230,12 @@ input _ContentGroupingToContentItemFilter {
   """Filter by the object’s `b` field."""
   b: StringFilter
 
+  """Filter by the object’s `contentGroupingByA` relation."""
+  contentGroupingByA: ContentGroupingFilter
+
+  """Filter by the object’s `contentItemByB` relation."""
+  contentItemByB: ContentItemFilter
+
   """Negates the expression."""
   not: _ContentGroupingToContentItemFilter
 
@@ -7267,6 +11319,12 @@ input _ContentItemToContributionFilter {
 
   """Filter by the object’s `b` field."""
   b: StringFilter
+
+  """Filter by the object’s `contentItemByA` relation."""
+  contentItemByA: ContentItemFilter
+
+  """Filter by the object’s `contributionByB` relation."""
+  contributionByB: ContributionFilter
 
   """Negates the expression."""
   not: _ContentItemToContributionFilter
@@ -7352,6 +11410,12 @@ input _ContentItemToMediaAssetFilter {
   """Filter by the object’s `b` field."""
   b: StringFilter
 
+  """Filter by the object’s `contentItemByA` relation."""
+  contentItemByA: ContentItemFilter
+
+  """Filter by the object’s `mediaAssetByB` relation."""
+  mediaAssetByB: MediaAssetFilter
+
   """Negates the expression."""
   not: _ContentItemToMediaAssetFilter
 
@@ -7436,6 +11500,12 @@ input _ContributionToMediaAssetFilter {
   """Filter by the object’s `b` field."""
   b: StringFilter
 
+  """Filter by the object’s `contributionByA` relation."""
+  contributionByA: ContributionFilter
+
+  """Filter by the object’s `mediaAssetByB` relation."""
+  mediaAssetByB: MediaAssetFilter
+
   """Negates the expression."""
   not: _ContributionToMediaAssetFilter
 
@@ -7473,6 +11543,92 @@ type _ContributionToMediaAssetsEdge {
 
 """Methods to use when ordering `_ContributionToMediaAsset`."""
 enum _ContributionToMediaAssetsOrderBy {
+  A_ASC
+  A_DESC
+  B_ASC
+  B_DESC
+  NATURAL
+}
+
+type _RevisionToCommit {
+  a: String!
+  b: String!
+
+  """Reads a single `Commit` that is related to this `_RevisionToCommit`."""
+  commitByA: Commit
+
+  """Reads a single `Revision` that is related to this `_RevisionToCommit`."""
+  revisionByB: Revision
+}
+
+"""
+A condition to be used against `_RevisionToCommit` object types. All fields are
+tested for equality and combined with a logical ‘and.’
+"""
+input _RevisionToCommitCondition {
+  """Checks for equality with the object’s `a` field."""
+  a: String
+
+  """Checks for equality with the object’s `b` field."""
+  b: String
+}
+
+"""
+A filter to be used against `_RevisionToCommit` object types. All fields are combined with a logical ‘and.’
+"""
+input _RevisionToCommitFilter {
+  """Filter by the object’s `a` field."""
+  a: StringFilter
+
+  """Checks for all expressions in this list."""
+  and: [_RevisionToCommitFilter!]
+
+  """Filter by the object’s `b` field."""
+  b: StringFilter
+
+  """Filter by the object’s `commitByA` relation."""
+  commitByA: CommitFilter
+
+  """Negates the expression."""
+  not: _RevisionToCommitFilter
+
+  """Checks for any expressions in this list."""
+  or: [_RevisionToCommitFilter!]
+
+  """Filter by the object’s `revisionByB` relation."""
+  revisionByB: RevisionFilter
+}
+
+"""A connection to a list of `_RevisionToCommit` values."""
+type _RevisionToCommitsConnection {
+  """
+  A list of edges which contains the `_RevisionToCommit` and cursor to aid in pagination.
+  """
+  edges: [_RevisionToCommitsEdge!]!
+
+  """A list of `_RevisionToCommit` objects."""
+  nodes: [_RevisionToCommit!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `_RevisionToCommit` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""A `_RevisionToCommit` edge in the connection."""
+type _RevisionToCommitsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `_RevisionToCommit` at the end of the edge."""
+  node: _RevisionToCommit!
+}
+
+"""Methods to use when ordering `_RevisionToCommit`."""
+enum _RevisionToCommitsOrderBy {
   A_ASC
   A_DESC
   B_ASC

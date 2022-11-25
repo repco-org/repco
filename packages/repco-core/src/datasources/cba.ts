@@ -1,7 +1,5 @@
-import {
-  FileInput,
-  MediaAssetInput,
-} from 'repco-prisma/dist/generated/repco/index.js'
+import { form } from 'repco-prisma'
+import * as zod from 'zod'
 import { fetch } from 'undici'
 import { CbaPost, CbaSeries } from './cba/types.js'
 import {
@@ -10,8 +8,10 @@ import {
   DataSourcePlugin,
 } from '../datasource.js'
 import { ContentGroupingVariant, EntityBatch, EntityForm } from '../entity.js'
-import { extractCursorAndMap, FetchOpts } from '../helpers/datamapping.js'
-import { HttpError } from '../helpers/error.js'
+import { extractCursorAndMap, FetchOpts } from '../util/datamapping.js'
+import { HttpError } from '../util/error.js'
+
+const DEFAULT_ENDPOINT = 'https://cba.fro.at/wp-json/wp/v2'
 
 // series:
 // https://cba.fro.at/wp-json/wp/v2/series?page=1&per_page=1&_embed&orderby=modified&order=asc&modified_after=2021-07-27T10:29:04
@@ -40,9 +40,16 @@ function parseUrn(urn: string) {
   }
 }
 
+const configSchema = zod.object({
+  endpoint: zod.string().url().optional(),
+  apiKey: zod.string().optional()
+})
+type ConfigSchema = zod.infer<typeof configSchema>
+
 export class CbaDataSourcePlugin implements DataSourcePlugin {
   createInstance(config: any) {
-    return new CbaDataSource()
+    const parsedConfig = configSchema.parse(config)
+    return new CbaDataSource(parsedConfig)
   }
   get definition() {
     return {
@@ -54,14 +61,16 @@ export class CbaDataSourcePlugin implements DataSourcePlugin {
 
 export class CbaDataSource implements DataSource {
   endpoint: string
-  constructor() {
-    this.endpoint = 'https://cba.fro.at/wp-json/wp/v2'
+  apiKey?: string
+  constructor(config: ConfigSchema) {
+    this.endpoint = config.endpoint || DEFAULT_ENDPOINT
+    this.apiKey = config.apiKey || process.env.CBA_API_KEY || undefined
   }
 
   get definition(): DataSourceDefinition {
     return {
       name: 'Cultural Broacasting Archive',
-      uid: 'repco:datasource:cba.media',
+      uid: 'urn:datasource:cba:' + this.endpoint,
       pluginUid: 'urn:repco:datasource:cba',
     }
   }
@@ -84,8 +93,12 @@ export class CbaDataSource implements DataSource {
         const media = await this._fetchMedia(parsed.path)
         return media.entities
       }
+      case 'series': {
+        const series = await this._fetchSeries(parsed.path)
+        return series
+      }
     }
-    return []
+    throw new Error('Unsupported CBA data type: ' + parsed.type)
   }
 
   async fetchUpdates(cursorString: string | null): Promise<EntityBatch> {
@@ -99,11 +112,11 @@ export class CbaDataSource implements DataSource {
       }
     }
     {
-      const res = await this._fetchSeries(cursor.series)
-      if (res) {
-        cursor.series = res.cursor
-        entities.push(...res.entities)
-      }
+      // const res = await this._fetchSeriesUpdates(cursor.series)
+      // if (res) {
+      //   cursor.series = res.cursor
+      //   entities.push(...res.entities)
+      // }
     }
     const batch = {
       cursor: JSON.stringify(cursor),
@@ -124,7 +137,7 @@ export class CbaDataSource implements DataSource {
     return `urn:repco:cba.media:revision:${type}:${id}:${revisionId}`
   }
 
-  private async _fetchSeries(cursor?: string) {
+  private async _fetchSeriesUpdates(cursor?: string) {
     if (!cursor) cursor = '1970-01-01T01:00:00'
     const perPage = 2
     const url = `/series?page=1&per_page=${perPage}&_embed&orderby=modified&order=asc&modified_after=${cursor}`
@@ -177,33 +190,46 @@ export class CbaDataSource implements DataSource {
     return this._mapMedia(media)
   }
 
+  private async _fetchSeries(id: string) {
+    const series = await this._fetch(`/series/${id}`)
+    return this._mapSeries(series)
+  }
+
   private _mapMedia(media: any): FormsWithUid {
     if (!media.source_url) throw new Error('Missing media source URL')
     const fileId = this._urn('file', media.id)
     const mediaId = this._urn('media', media.id)
     const details = media.media_details
-    const file: FileInput = {
-      uid: fileId,
+    const file: form.FileInput = {
+      // uid: fileId,
       contentUrl: media.source_url,
       bitrate: details?.bitrate || null,
-      additionalMetadata: null,
+      // additionalMetadata: null,
       codec: null,
       // contentSize: null,
       duration: details?.duration || null,
       mimeType: media.mime_type,
-      multihash: null,
+      cid: null,
       resolution: null,
     }
-    const asset: MediaAssetInput = {
-      uid: mediaId,
-      file: fileId,
+    const asset: form.MediaAssetInput = {
+      // uid: mediaId,
       title: media.title.rendered,
       duration: file.duration,
       description: media.description?.rendered || null,
       mediaType: 'audio',
+      File: { uri: fileId },
     }
-    const fileEntity: EntityForm = { type: 'File', content: file }
-    const mediaEntity: EntityForm = { type: 'MediaAsset', content: asset }
+    const fileEntity: EntityForm = {
+      type: 'File',
+      content: file,
+      entityUris: [fileId],
+    }
+    const mediaEntity: EntityForm = {
+      type: 'MediaAsset',
+      content: asset,
+      entityUris: [mediaId],
+    }
     return {
       uid: mediaId,
       entities: [fileEntity, mediaEntity],
@@ -212,7 +238,6 @@ export class CbaDataSource implements DataSource {
 
   private _mapSeries(series: CbaSeries): EntityForm[] {
     const content = {
-      uid: this._urn('series', series.id),
       title: series.title.rendered,
       description: series.content.rendered,
       groupingType: 'show',
@@ -228,15 +253,16 @@ export class CbaDataSource implements DataSource {
       series.id,
       new Date(series.modified).getTime(),
     )
-    const revision = {
-      alternativeIds: [revisionId],
+    const uri = this._urn('series', series.id)
+    const headers = {
+      revisionUris: [revisionId],
+      entityUris: [uri],
     }
-    return [{ type: 'ContentGrouping', content, revision }]
+    return [{ type: 'ContentGrouping', content, ...headers }]
   }
 
   private _mapPost(post: CbaPost): EntityForm[] {
-    const content = {
-      uid: this._urn('post', post.id),
+    const content: form.ContentItemInput  = {
       content: post.content.rendered,
       contentFormat: 'text/html',
       title: post.title.rendered,
@@ -244,17 +270,20 @@ export class CbaDataSource implements DataSource {
       // primaryGroupingUid: null,
       subtitle: 'missing',
       summary: post.excerpt.rendered,
-      mediaAssets: post.mediaAssets,
+      MediaAssets: post.mediaAssets.map(uri => ({ uri })),
+      PrimaryGrouping: { uri: this._urn('series', post.post_parent) }
     }
     const revisionId = this._revisionUrn(
       'post',
       post.id,
       new Date(post.modified).getTime(),
     )
-    const revision = {
-      alternativeIds: [revisionId],
+    const entityUri = this._urn('post', post.id)
+    const headers = {
+      revisionUris: [revisionId],
+      entityUris: [entityUri],
     }
-    return [{ type: 'ContentItem', content, revision }]
+    return [{ type: 'ContentItem', content, ...headers }]
   }
 
   private async _fetch<T = any>(
@@ -268,8 +297,8 @@ export class CbaDataSource implements DataSource {
       }
       opts.params = undefined
     }
-    if (process.env.CBA_API_KEY) {
-      url.searchParams.set('api_key', process.env.CBA_API_KEY)
+    if (this.apiKey) {
+      url.searchParams.set('api_key', this.apiKey)
     }
     const res = await fetch(url.toString(), opts)
     if (!res.ok) {

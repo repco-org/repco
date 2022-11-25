@@ -1,23 +1,16 @@
-import express, { Response } from 'express'
-import { PrismaClient } from 'repco-core'
+import express from 'express'
+import { Repo } from 'repco-core'
 import Changes from './routes/changes.js'
-
-export type Locals = {
-  prisma: PrismaClient
-}
-
-export function getLocals(res: Response): Locals {
-  if (!res.locals.prisma) {
-    throw new Error('Missing prisma client')
-  }
-  const prisma = res.locals.prisma as PrismaClient
-  return { prisma }
-}
+import { getLocals } from './lib.js'
 
 const router = express.Router()
 
 router.get('/', async (req, res) => {
   res.send('hello, world')
+})
+
+router.get('/repos', async (req, res) => {
+  res.json(await Repo.list(getLocals(res).prisma))
 })
 
 router.get('/health', (req, res) => {

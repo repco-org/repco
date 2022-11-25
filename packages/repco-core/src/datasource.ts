@@ -1,7 +1,7 @@
 import { EntityBatch, EntityForm } from './entity.js'
-import { PrismaClient } from './prisma.js'
+import { Prisma } from './prisma.js'
+import { Repo } from './repo.js'
 import { UID } from './shared.js'
-import { storeEntityWithDataSourceFallback } from './store.js'
 
 export type DataSourcePluginDefinition = {
   // The unique ID for this data source instance.
@@ -17,14 +17,17 @@ export interface DataSourcePlugin<C = any> {
 
 export class DataSourcePluginRegistry {
   private plugins: Record<string, DataSourcePlugin> = {}
+  all(): DataSourcePlugin[] {
+    return [...Object.values(this.plugins)]
+  }
   register(plugin: DataSourcePlugin) {
     this.plugins[plugin.definition.uid] = plugin
   }
-  createInstance(uid: string, config: any): DataSource {
-    if (!this.plugins[uid]) {
-      throw new Error(`Unknown data source plugin: ${uid}`)
+  createInstance(pluginUid: string, config: any): DataSource {
+    if (!this.plugins[pluginUid]) {
+      throw new Error(`Unknown data source plugin: ${pluginUid}`)
     }
-    return this.plugins[uid].createInstance(config)
+    return this.plugins[pluginUid].createInstance(config)
   }
   has(uid: string): boolean {
     return !!this.plugins[uid]
@@ -55,32 +58,48 @@ export interface DataSource {
   canFetchUID(uid: string): boolean
 }
 
+interface PluginLike {
+  definition: {
+    uid: string
+  }
+}
+
+export class Registry<T extends PluginLike> {
+  map: Map<string, T> = new Map()
+
+  get(uid: string): T | undefined {
+    return this.map.get(uid)
+  }
+
+  all(): T[] {
+    return [...this.map.values()]
+  }
+
+  register(item: T) {
+    const uid = item.definition.uid
+    this.map.set(uid, item)
+  }
+
+  filtered(fn: (p: T) => boolean): T[] {
+    return [...this.map.values()].filter(fn)
+  }
+
+  // @deprecated
+  getByUID(uid: string): T | null {
+    return this.get(uid) || null
+  }
+}
+
 export abstract class BaseDataSource {
   canFetchUID(_uid: string): boolean {
     return false
   }
+  async fetchUpdates(_cursor: string | null): Promise<EntityBatch> {
+    return { cursor: '', entities: [] }
+  }
 }
 
-export class DataSourceRegistry {
-  map: Map<string, DataSource> = new Map()
-
-  get(uid: string): DataSource | null {
-    return this.map.get(uid) || null
-  }
-
-  all(): DataSource[] {
-    return [...this.map.values()]
-  }
-
-  register(datasource: DataSource) {
-    const uid = datasource.definition.uid
-    this.map.set(uid, datasource)
-  }
-
-  getByUID(uid: string): DataSource | null {
-    return this.map.get(uid) || null
-  }
-
+export class DataSourceRegistry extends Registry<DataSource> {
   getForUID(uid: string): DataSource[] {
     const matching = []
     for (const ds of this.map.values()) {
@@ -89,6 +108,25 @@ export class DataSourceRegistry {
       }
     }
     return matching
+  }
+
+  async fetchEntities(uris: string[]) {
+    const fetched: EntityForm[] = []
+    const notFound = uris
+    for (const uri of uris) {
+      const matchingSources = this.getForUID(uri)
+      let found = false
+      for (const datasource of matchingSources) {
+        const entities = await datasource.fetchByUID(uri)
+        if (entities && entities.length) {
+          fetched.push(...entities)
+          found = true
+          break
+        }
+      }
+      if (!found) notFound.push(uri)
+    }
+    return { fetched, notFound }
   }
 }
 
@@ -101,18 +139,12 @@ export type IngestResult = Record<
 >
 
 export async function ingestUpdatesFromDataSources(
-  prisma: PrismaClient,
-  datasources: DataSourceRegistry,
+  repo: Repo,
   maxIterations = 1,
 ): Promise<IngestResult> {
   const res: IngestResult = {}
-  for (const ds of datasources.all()) {
-    const ret = await ingestUpdatesFromDataSource(
-      prisma,
-      datasources,
-      ds,
-      maxIterations,
-    )
+  for (const ds of repo.dsr.all()) {
+    const ret = await ingestUpdatesFromDataSource(repo, ds, maxIterations)
     res[ds.definition.uid] = ret
   }
   return res
@@ -127,46 +159,27 @@ export async function ingestUpdatesFromDataSources(
  * updates are returned, then stop.
  */
 export async function ingestUpdatesFromDataSource(
-  prisma: PrismaClient,
-  datasources: DataSourceRegistry,
+  repo: Repo,
   datasource: DataSource,
   maxIterations = 1,
 ) {
   let count = 0
-  let cursor = await fetchCursor(prisma, datasource)
+  let cursor = await fetchCursor(repo.prisma, datasource)
   while (--maxIterations >= 0) {
-    // console.log('fetch updates for cursor', cursor)
+    // console.time('fetchUpdates:' + datasource.definition.uid)
     const batch: EntityBatch = await datasource.fetchUpdates(cursor)
+    // console.timeEnd('fetchUpdates:' + datasource.definition.uid)
     if (!batch.entities.length) break
     count += batch.entities.length
-    // console.log('fetched entities from datasource', batch.entities)
     cursor = batch.cursor
-    await storeEntityBatchFromDataSource(prisma, datasources, datasource, batch)
-    await saveCursor(prisma, datasource, cursor)
+    // console.time('saveUpdates:' + datasource.definition.uid)
+    await repo.saveBatch('me', batch.entities) // TODO: Agent
+    await saveCursor(repo.prisma, datasource, cursor)
+    // console.timeEnd('saveUpdates:' + datasource.definition.uid)
   }
   return {
     count,
     cursor,
-  }
-}
-
-export async function storeEntityBatchFromDataSource(
-  prisma: PrismaClient,
-  datasources: DataSourceRegistry,
-  datasource: DataSource,
-  batch: EntityBatch,
-) {
-  for (const entity of batch.entities) {
-    if (!entity.revision) entity.revision = {}
-    entity.revision.datasource = datasource.definition.uid
-    // console.log('IN', entity)
-    const stored = await storeEntityWithDataSourceFallback(
-      prisma,
-      datasources,
-      entity,
-    )
-    // console.log('rid', stored.revision.id)
-    // console.log('OUT', stored)
   }
 }
 
@@ -175,7 +188,7 @@ export async function storeEntityBatchFromDataSource(
  * Usually this is a timestamp or something similar
  */
 async function fetchCursor(
-  prisma: PrismaClient,
+  prisma: Prisma.TransactionClient,
   datasource: DataSource,
 ): Promise<string | null> {
   const state = await prisma.dataSource.findUnique({
@@ -194,7 +207,7 @@ async function fetchCursor(
  * sense to take the last modified date or something similar.
  */
 export async function saveCursor(
-  prisma: PrismaClient,
+  prisma: Prisma.TransactionClient,
   datasource: DataSource,
   cursor: string,
 ) {

@@ -1,33 +1,24 @@
 import test from 'brittle'
 import { setup } from './util/setup.js'
-import {
-  EntityForm,
-  fetchRevisions,
-  PrismaClient,
-  storeEntity,
-} from '../lib.js'
+import { Repo } from '../lib.js'
 
 test('smoke', async (assert) => {
-  await setup(assert)
-  const prisma = new PrismaClient()
-  const input: EntityForm = {
+  const prisma = await setup(assert)
+  const repo = await Repo.create(prisma, 'default')
+  const input = {
     type: 'ContentItem',
     content: {
-      uid: 'urn:repco:foo:bar',
       title: 'foo',
       contentFormat: 'boo',
       content: 'badoo',
-      // licenseUid: null,
-      // primaryGroupingUid: null,
       subtitle: 'asdf',
       summary: 'yoo',
     },
   }
-  await storeEntity(prisma, 'primary', input)
-  const revisions = await fetchRevisions(prisma, {})
+  await repo.saveEntity('me', input)
+  const revisions = await repo.fetchRevisionsWithContent()
   assert.is(revisions.length, 1)
   const revision = revisions[0]
-  assert.is(revision.uid, input.content.uid)
-  assert.is(typeof revision.id, 'string')
+  assert.is(typeof revision.revision.id, 'string')
   assert.is((revision.content as any).title, 'foo')
 })

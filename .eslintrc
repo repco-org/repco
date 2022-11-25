@@ -13,17 +13,26 @@
     "plugin:prettier/recommended",
     "prettier"
   ],
+  "env": {
+    "browser": true,
+    "node": true,
+    "es2022": true
+  },
   "rules": {
     "no-var": "warn",
-    "no-empty": ["error", { "allowEmptyCatch": true }],
-    "no-unused-vars": "off",
     "prettier/prettier": "warn",
-    "comma-dangle": "off",
+    "no-constant-condition": ["warn", { "checkLoops": false }],
+    "no-empty": ["warn"],
+    "@typescript-eslint/comma-dangle": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/no-empty-interface": "off",
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-empty-function": "off",
-    "@typescript-eslint/no-unused-vars": ["warn"]
+    "@typescript-eslint/no-unused-vars": ["warn", {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
+    }]
   }
 }
