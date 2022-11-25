@@ -36,9 +36,11 @@
   },
   "devDependencies": {
     "@types/streamx": "^2.9.1",
+    "@types/tempy": "^0.3.0",
     "brittle": "^2.4.0",
     "esbuild": "^0.14.51",
     "get-port": "^6.1.2",
-    "nanobench-utils": "^1.0.0"
+    "nanobench-utils": "^1.0.0",
+    "tempy": "^3.0.0"
   }
 }
