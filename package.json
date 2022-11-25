@@ -27,7 +27,8 @@
     "cli": "node packages/repco-cli/bin.js",
     "lint": "eslint packages",
     "lint:fix": "eslint packages --fix",
-    "update-ts-references": "node scripts/update-ts-references.js"
+    "update-ts-references": "node scripts/update-ts-references.js",
+    "frontend": "yarn --cwd packages/repco-frontend dev"
   },
   "devDependencies": {
     "@mattinton/prettier-plugin-tidy-imports": "^1.1.12",
