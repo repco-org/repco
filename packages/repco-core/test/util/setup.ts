@@ -11,12 +11,15 @@ import { PrismaClient } from '../../lib.js'
 
 const COMPOSE_FILE = '../../test/docker-compose.test.yml'
 
+type LogFn = (msg: string) => void
+
 type SetupOpts = {
   port?: number
 }
 export async function setup(test: Test, opts: SetupOpts = {}) {
   const pgPort = opts.port || (await getPort())
-  const databaseUrl = await setupDb(test, pgPort)
+  const { teardown, databaseUrl } = await setupDb(pgPort, test.comment)
+  test.teardown(teardown, {})
   process.env.DATABASE_URL = databaseUrl
   let log: Prisma.LogDefinition[] = []
   if (process.env.QUERY_LOG) log = [{ emit: 'event', level: 'query' }]
@@ -41,54 +44,57 @@ export async function setup2(test: Test) {
   return [first, second]
 }
 
-export async function setupDb(test: Test, port: number) {
-  if (process.env.DOCKER_SETUP === '0') return
+export async function setupDb(port: number, log: LogFn = console.log) {
+  const databaseUrl = `postgresql://test:test@localhost:${port}/tests`
+  if (process.env.DOCKER_SETUP === '0')
+    return { databaseUrl, teardown: () => {} }
   const env = {
     ...process.env,
     POSTGRES_PORT: '' + port,
     DATABASE_URL: `postgresql://test:test@localhost:${port}/tests`,
   }
   const verbose = !!process.env.VERBOSE
-  await spawn(
-    'docker',
-    [
-      'compose',
-      '-p',
-      'repco-postgres-test-' + port,
-      '-f',
-      COMPOSE_FILE,
-      'up',
-      '-d',
-      '--remove-orphans',
-    ],
-    {
-      verbose,
-      log: test.comment,
-      env,
-    },
-  )
-  await spawn('yarn', ['prisma', 'migrate', 'reset', '-f', '--skip-generate'], {
-    log: test.comment,
+  const name = 'repco-postgres-test-' + port
+  const composeArgs = ['compose', '--verbose', '-p', name, '-f', COMPOSE_FILE]
+  const spawnOpts = {
     verbose,
+    log,
     env,
-  })
-  test.teardown(() => {
-    spawn(
+  }
+  const teardown = async () => {
+    try {
+      await spawn('docker', [...composeArgs, 'down'], {
+        ...spawnOpts,
+        // test.comment may not be used after the test ended, so resort to a direct log handler here.
+        log: (msg) => console.log('# ' + msg),
+      })
+    } catch (err) {
+      console.error(
+        'Failed to teardown docker container: ' + (err as Error).message,
+      )
+    }
+  }
+  try {
+    await spawn(
       'docker',
-      [
-        'compose',
-        '-p',
-        'repco-postgres-test-' + port,
-        '-f',
-        COMPOSE_FILE,
-        'down',
-      ],
-      { verbose },
-    ).catch((err) =>
-      test.comment('Failed to teardown docker container: ' + err.message),
+      [...composeArgs, 'up', '-d', '--remove-orphans'],
+      spawnOpts,
     )
-  }, {})
-  return env.DATABASE_URL
+
+    // await spawn('docker', [...composeArgs, 'ps'], spawnOpts)
+    // await spawn('docker', [...composeArgs, 'logs'], spawnOpts)
+
+    await spawn(
+      'yarn',
+      ['prisma', 'migrate', 'reset', '-f', '--skip-generate'],
+      spawnOpts,
+    )
+  } catch (err) {
+    log('Database setup failed: ' + err)
+    await teardown()
+    throw err
+  }
+  return { teardown, databaseUrl: env.DATABASE_URL }
 }
 
 function spawn(
