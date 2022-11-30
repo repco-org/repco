@@ -67,6 +67,10 @@ export class CbaDataSource implements DataSource {
     this.apiKey = config.apiKey || process.env.CBA_API_KEY || undefined
   }
 
+  get config() {
+    return { endpoint: this.endpoint, apiKey: this.apiKey }
+  }
+
   get definition(): DataSourceDefinition {
     return {
       name: 'Cultural Broacasting Archive',
@@ -75,12 +79,12 @@ export class CbaDataSource implements DataSource {
     }
   }
 
-  canFetchUID(uid: string): boolean {
+  canFetchURN(uid: string): boolean {
     if (uid.startsWith('urn:repco:cba.media:')) return true
     return false
   }
 
-  async fetchByUID(uid: string): Promise<EntityForm[]> {
+  async fetchByURN(uid: string): Promise<EntityForm[]> {
     const parsed = parseUrn(uid)
     if (parsed.datasource !== 'cba.media') throw new Error('Not a CBA URN')
     switch (parsed.type) {
@@ -237,7 +241,7 @@ export class CbaDataSource implements DataSource {
   }
 
   private _mapSeries(series: CbaSeries): EntityForm[] {
-    const content = {
+    const content: form.ContentGroupingInput = {
       title: series.title.rendered,
       description: series.content.rendered,
       groupingType: 'show',

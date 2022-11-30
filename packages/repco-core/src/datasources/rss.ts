@@ -86,6 +86,10 @@ export class RssDataSource implements DataSource {
     this.baseUid = 'urn:repco:rss:' + this.endpoint.hostname
   }
 
+  get config() {
+    return { endpoint: this.endpoint }
+  }
+
   get definition(): DataSourceDefinition {
     const uid = this.baseUid
     return {
@@ -95,11 +99,11 @@ export class RssDataSource implements DataSource {
     }
   }
 
-  canFetchUID(uid: string): boolean {
+  canFetchURN(uid: string): boolean {
     return false
   }
 
-  async fetchByUID(uid: string): Promise<EntityForm[]> {
+  async fetchByURN(uid: string): Promise<EntityForm[]> {
     return []
   }
 

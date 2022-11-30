@@ -16,10 +16,8 @@ import {
 } from './entity.js'
 import {
   createRepoKeypair,
-  getInstanceDid,
   getInstanceKeypair,
   getPublishingUcanForInstance,
-  instanceSignPayload,
 } from './instance.js'
 import {
   IpldBlockStore,
@@ -348,7 +346,7 @@ export class Repo {
     return importRepoFromCar(this, stream, onProgress)
   }
 
-  async saveBatch(agentDid: string, inputs: unknown[]) {
+  async saveBatch(_agentDid: string, inputs: unknown[]) {
     if (!this.writeable) throw new Error('Repo is not writeable')
     // Parse and assign uids.
     const parsedInputs = await Promise.all(
@@ -362,15 +360,12 @@ export class Repo {
 
     // Save the batch in one transaction.
     return this.$transaction(async (repo) => {
-      const res = await repo.saveBatchInner(agentDid, entities)
+      const res = await repo.saveBatchInner(entities)
       return res
     })
   }
 
-  private async saveBatchInner(
-    _agentDid: string,
-    entities: EntityInputWithHeaders[],
-  ) {
+  private async saveBatchInner(entities: EntityInputWithHeaders[]) {
     if (!this.publishingCapability) throw new Error('Repo is not writable')
     const agentKeypair = await getInstanceKeypair(this.prisma)
     const parent = await this.getHead()

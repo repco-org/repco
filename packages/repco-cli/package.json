@@ -22,6 +22,7 @@
   "dependencies": {
     "@pkgjs/parseargs": "^0.11.0",
     "@types/cli-progress": "^3.11.0",
+    "@types/table": "^6.3.2",
     "casual-browserify": "^1.5.19-2",
     "cli-progress": "^3.11.2",
     "cli-table": "^0.3.11",
@@ -31,7 +32,8 @@
     "repco-core": "*",
     "repco-prisma": "*",
     "repco-server": "*",
-    "speedometer": "^1.1.0"
+    "speedometer": "^1.1.0",
+    "table": "^6.8.1"
   },
   "devDependencies": {
     "@types/cli-table": "^0.3.1",

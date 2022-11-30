@@ -48,12 +48,12 @@ class TestDataSource extends BaseDataSource implements DataSource {
     }
   }
 
-  canFetchUID(uid: string): boolean {
+  canFetchURN(uid: string): boolean {
     if (uid.startsWith('urn:test:')) return true
     return false
   }
 
-  async fetchByUID(uid: string): Promise<EntityForm[] | null> {
+  async fetchByURN(uid: string): Promise<EntityForm[] | null> {
     const parts = uid.split(':')
     if (parts[2] === 'feed') {
       return [

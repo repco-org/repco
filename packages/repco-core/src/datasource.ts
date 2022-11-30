@@ -1,46 +1,19 @@
 import { EntityBatch, EntityForm } from './entity.js'
-import { Prisma } from './prisma.js'
+import { DataSourcePluginRegistry } from './plugins.js'
+import { Prisma, PrismaCore } from './prisma.js'
 import { Repo } from './repo.js'
-import { UID } from './shared.js'
+import { Registry } from './util/registry.js'
 
-export type DataSourcePluginDefinition = {
-  // The unique ID for this data source instance.
-  uid: UID
-  // The human-readable name of the data source instance (e.g. "CBA")
-  name: string
-}
+export type { DataSourcePlugin } from './plugins.js'
 
-export interface DataSourcePlugin<C = any> {
-  createInstance(config: C): DataSource
-  get definition(): DataSourcePluginDefinition
-}
-
-export class DataSourcePluginRegistry {
-  private plugins: Record<string, DataSourcePlugin> = {}
-  all(): DataSourcePlugin[] {
-    return [...Object.values(this.plugins)]
-  }
-  register(plugin: DataSourcePlugin) {
-    this.plugins[plugin.definition.uid] = plugin
-  }
-  createInstance(pluginUid: string, config: any): DataSource {
-    if (!this.plugins[pluginUid]) {
-      throw new Error(`Unknown data source plugin: ${pluginUid}`)
-    }
-    return this.plugins[pluginUid].createInstance(config)
-  }
-  has(uid: string): boolean {
-    return !!this.plugins[uid]
-  }
-}
+type UID = string
 
 export type DataSourceDefinition = {
   // The unique ID for this data source instance.
   uid: UID
   // The human-readable name of the data source instance (e.g. "CBA")
   name: string
-  // A primary endpoint URL for this data source.
-  // url: string
+  // The plugin that handles this datasource
   pluginUid: UID
 }
 
@@ -53,45 +26,15 @@ export type DataSourceDefinition = {
  */
 export interface DataSource {
   get definition(): DataSourceDefinition
+  get config(): any
   fetchUpdates(cursor: string | null): Promise<EntityBatch>
-  fetchByUID(uid: string): Promise<EntityForm[] | null>
-  canFetchUID(uid: string): boolean
-}
-
-interface PluginLike {
-  definition: {
-    uid: string
-  }
-}
-
-export class Registry<T extends PluginLike> {
-  map: Map<string, T> = new Map()
-
-  get(uid: string): T | undefined {
-    return this.map.get(uid)
-  }
-
-  all(): T[] {
-    return [...this.map.values()]
-  }
-
-  register(item: T) {
-    const uid = item.definition.uid
-    this.map.set(uid, item)
-  }
-
-  filtered(fn: (p: T) => boolean): T[] {
-    return [...this.map.values()].filter(fn)
-  }
-
-  // @deprecated
-  getByUID(uid: string): T | null {
-    return this.get(uid) || null
-  }
+  fetchByURN(uid: string): Promise<EntityForm[] | null>
+  canFetchURN(uid: string): boolean
 }
 
 export abstract class BaseDataSource {
-  canFetchUID(_uid: string): boolean {
+  get config() { return null }
+  canFetchURN(_uid: string): boolean {
     return false
   }
   async fetchUpdates(_cursor: string | null): Promise<EntityBatch> {
@@ -99,25 +42,23 @@ export abstract class BaseDataSource {
   }
 }
 
+type FailedHydrates = { err: Error; row: any }
+
 export class DataSourceRegistry extends Registry<DataSource> {
-  getForUID(uid: string): DataSource[] {
-    const matching = []
-    for (const ds of this.map.values()) {
-      if (ds.canFetchUID(uid)) {
-        matching.push(ds)
-      }
-    }
-    return matching
+  _hydrating?: Promise<{ failed: FailedHydrates[] }>
+
+  allForURN(urn: string): DataSource[] {
+    return this.filtered((ds) => ds.canFetchURN(urn))
   }
 
   async fetchEntities(uris: string[]) {
     const fetched: EntityForm[] = []
     const notFound = uris
     for (const uri of uris) {
-      const matchingSources = this.getForUID(uri)
+      const matchingSources = this.allForURN(uri)
       let found = false
       for (const datasource of matchingSources) {
-        const entities = await datasource.fetchByUID(uri)
+        const entities = await datasource.fetchByURN(uri)
         if (entities && entities.length) {
           fetched.push(...entities)
           found = true
@@ -127,6 +68,56 @@ export class DataSourceRegistry extends Registry<DataSource> {
       if (!found) notFound.push(uri)
     }
     return { fetched, notFound }
+  }
+
+  registerFromPlugins(
+    plugins: DataSourcePluginRegistry,
+    pluginUid: string,
+    config: any,
+  ) {
+    const instance = plugins.createInstance(pluginUid, config)
+    if (this.has(instance.definition.uid)) {
+      throw new Error(
+        `Datasource with ${instance.definition.uid} already exists.`,
+      )
+    }
+    return this.register(instance)
+  }
+
+  async hydrate(prisma: PrismaCore, plugins: DataSourcePluginRegistry) {
+    if (!this._hydrating) {
+      this._hydrating = (async () => {
+        const rows = await prisma.dataSource.findMany()
+        const failed = []
+        for (const row of rows) {
+          try {
+            this.registerFromPlugins(plugins, row.pluginUid, row.config)
+          } catch (err) {
+            failed.push({ row, err: err as Error })
+          }
+        }
+        return { failed }
+      })()
+    }
+    return this._hydrating
+  }
+
+  async create(
+    prisma: PrismaCore,
+    plugins: DataSourcePluginRegistry,
+    pluginUid: string,
+    config: any,
+  ) {
+    const instance = this.registerFromPlugins(plugins, pluginUid, config)
+    const data = {
+      uid: instance.definition.uid,
+      pluginUid,
+      config,
+    }
+    await prisma.dataSource.create({
+      data,
+    })
+    return instance
   }
 }
 
@@ -191,14 +182,11 @@ async function fetchCursor(
   prisma: Prisma.TransactionClient,
   datasource: DataSource,
 ): Promise<string | null> {
-  const state = await prisma.dataSource.findUnique({
+  const row = await prisma.dataSource.findUnique({
     where: { uid: datasource.definition.uid },
+    select: { cursor: true },
   })
-  let cursor = null
-  if (state) {
-    cursor = state.cursor
-  }
-  return cursor
+  return row?.cursor || null
 }
 
 /**
@@ -211,13 +199,9 @@ export async function saveCursor(
   datasource: DataSource,
   cursor: string,
 ) {
-  await prisma.dataSource.upsert({
-    where: { uid: datasource.definition.uid },
-    update: { cursor },
-    create: {
-      uid: datasource.definition.uid,
-      pluginUid: datasource.definition.pluginUid,
-      cursor,
-    },
+  const uid = datasource.definition.uid
+  await prisma.dataSource.update({
+    where: { uid },
+    data: { cursor },
   })
 }

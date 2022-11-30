@@ -1,4 +1,5 @@
-import { EntityForm, EntityWithRevision, filterType, Registry, TypedEntityWithRevision } from './mod.js'
+import { EntityForm, EntityWithRevision, filterType, TypedEntityWithRevision } from './mod.js'
+import { Registry } from './util/registry.js'
 import { form, Revision } from './prisma.js'
 
 // TODO: this should be the output type

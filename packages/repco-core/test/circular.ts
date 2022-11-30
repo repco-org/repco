@@ -17,7 +17,7 @@ class TestDataSource extends BaseDataSource implements DataSource {
       pluginUid: 'urn:repco:datasource:test',
     }
   }
-  canFetchUID(uid: string): boolean {
+  canFetchURN(uid: string): boolean {
     if (uid.startsWith('urn:repco:')) return true
     return false
   }
@@ -57,7 +57,7 @@ class TestDataSource extends BaseDataSource implements DataSource {
     return res
   }
 
-  async fetchByUID(uid: string): Promise<EntityForm[] | null> {
+  async fetchByURN(uid: string): Promise<EntityForm[] | null> {
     const res = [this.DATA[uid]].filter((x) => x)
     return res
   }
