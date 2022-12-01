@@ -1,18 +1,17 @@
-// import Table from 'cli-table'
+import Table from 'cli-table3'
 import pc from 'picocolors'
 import { createCommand, createCommandGroup } from '../parse.js'
 import { Ingester, Repo, defaultDataSourcePlugins as plugins } from 'repco-core'
-import { table, getBorderCharacters } from 'table'
 
 export const listPlugins = createCommand({
   name: 'list-plugins',
   help: 'List datasource plugins',
   async run() {
-    const header = ['Uid', 'Name'].map(pc.red)
+    const head = ['Uid', 'Name'].map(pc.red)
     const data = plugins.all().map(plugin => plugin.definition).map(d => [d.uid, d.name])
-    console.log(table([header, ...data], {
-      border: getBorderCharacters('norc')
-    }))
+    const table = new Table({ head })
+    table.push(...data)
+    console.log(table.toString())
   },
 })
 
@@ -26,14 +25,7 @@ export const list = createCommand({
   async run(opts) {
     const repo = await Repo.openWithDefaults(opts.repo)
     await repo.dsr.hydrate(repo.prisma, plugins)
-    const data = []
-    for (const ds of repo.dsr.all()) {
-      const def = ds.definition
-      data.push({
-        ...ds.definition,
-        config: ds.config,
-      })
-    }
+    const data = repo.dsr.all().map(ds => ({ ...ds.definition, config: ds.config }))
     if (opts.json) {
       console.log(JSON.stringify(data))
     } else {
@@ -41,12 +33,16 @@ export const list = createCommand({
         const data = []
         for (let [key, value] of Object.entries(row)) {
           if (key === 'config') value = JSON.stringify(value)
-          data.push([pc.gray(key), value])
+          data.push([key, value])
         }
-        console.log(table(data, {
-          border: getBorderCharacters('norc'),
-          columns: [{}, { wrapWord: true, width: 70 }]
-        }))
+        const max = data.reduce((sum, [k]) => Math.max(k.length, sum), 0)
+        const table = new Table({
+          wordWrap: true,
+          wrapOnWordBoundary: false,
+          colWidths: [max + 2, process.stdout.columns - 6 - max]
+        })
+        table.push(...data)
+        console.log(table.toString())
       }
     }
   },
