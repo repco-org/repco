@@ -1,5 +1,6 @@
 _This document is a work in progress. In this case it is about a discussion process for the RDDM. It is not up to date, but it contains findings about the relations of the entities._
 
+
 # repco data model
 
 repco defines a data model for the exchange of community media. This represenation is developed to suit a number of domains: Podcasts, community radio and television, conference recordings, collections of cultural heritage, arts.
