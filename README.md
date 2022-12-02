@@ -33,10 +33,10 @@ yarn cli repo create default
 # add datasource
 yarn cli ds add -r <repo> <plugin-name> <endpoint>
 # for example the cba plugin - need to define the api key for cba in .env file
-_yarn cli ds add -r default urn:repco:datasource:cba https://cba.fro.at/wp-json/wp/v2_
-# ingest revision from datasource
+yarn cli ds add -r default urn:repco:datasource:cba https://cba.fro.at/wp-json/wp/v2
+# ingest updates from all datasources
 yarn cli ds ingest
-# log the stored revisions
+# print all revisions in a repo
 yarn cli repo log-revisions <repo>
 # get revisions over HTTP
 curl http://localhost:8765/changes

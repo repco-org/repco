@@ -2,15 +2,15 @@
 
 A DataSource is an external provider for repco data. The interface is implemented for individual providers (like CBA, XRCB, media.cccc.de). The DataSource includes methods to fetch data from the external source and converts this data into the repco data model.
 
-Datasources are registered in repco as plugins which create an instance of the datasource.
+Datasources are configured for each repo seperately. Once enabled, the ds ingest command will fetch and store new content from all datasources withing a repo.
 
 The created datasource can be listed in the CLI, added to a REPO and include content in a repo.
 
 Fetch updates from a data source, using the cursor persisted after the last invocation. All updates will be persisted to the local database. After each page of updates, the current cursor will be saved locally as well.
 
-A courser can be anything for Wordpress APIs we suggest the last_modified Date.
+A cursor may be any string; it's format is left to the datasource itself. Oftenly, you can use a timestamp of the last modification that was ingested. If you need to store more than a single value for a reliable cursor, you may put any stringified JSON into the cursor as well.
 
-To implement a datasource, a DatasourcePlugin must be created which implements the DataSourcePlugins interface. A DatasourcePlugin returns a name and a uid. Repco prefers urns as uid.
+To implement a datasource, a DatasourcePlugin must be created which implements the DataSourcePlugins interface. A DatasourcePlugin returns a `name` and a `uid`. Repco prefers urns as uid.
 
 ` {uid: 'urn:repco:datasource:cba', name: 'CBA',}`
 
