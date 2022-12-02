@@ -24,14 +24,24 @@ cp sample.env .env
 docker-compose up -d
 # initial db migration (required)
 yarn migrate
-# ingest revision from cba.media
-yarn cli ingest
-# log the stored revisions
-yarn cli log-revisions
-# start the HTTP server
+# start the server [optional]
 yarn server
+# start the frontend [optional]
+yarn frontend
+# add new repo
+yarn cli repo create default
+# add datasource
+yarn cli ds add -r <repo> <plugin-name> <endpoint>
+# for example the cba plugin - need to define the api key for cba in .env file
+_yarn cli ds add -r default urn:repco:datasource:cba https://cba.fro.at/wp-json/wp/v2_
+# ingest revision from datasource
+yarn cli ds ingest
+# log the stored revisions
+yarn cli repo log-revisions <repo>
 # get revisions over HTTP
 curl http://localhost:8765/changes
+# browse through contentItems via GUI
+http://localhost:3000
 ```
 
 ## Development notes
@@ -61,18 +71,8 @@ While this is an in progress project may this is not the last standing.
 Repco is organized as a monorepro. In the individual packages a TypeDoc documentation can be generated with `yarn docs`.
 Most and most important functions, types, interfaces etc. are provided with appropriate comments. Each package usually contains a README.md with a short description. Additionally in each package a diagram folder can be created which contains a visualization of classes or processes.
 
-Project Tree - rough overview
+The documentation is available at [/doc]
 
-REPCO
+# Contribution
 
-```
-|
-|-REPCO
-| |-packages
-| | |-repco-core            //this packege ingest data from a datasource and persist to a local postgress
-| | |-repco-prisma          //defines the repco datamodel
-| | |-repco-prisma-generate //a custom prisma generator for validation and upsert function of the datamodel
-| | |-repco-server          //simple http-server for replication between the repco-nodes
-```
-
----
+If you want to contribute, chat with us on our [Discord channel](https://discord.gg/XfUPZFH6cj).

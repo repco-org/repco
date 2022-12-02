@@ -1,4 +1,4 @@
-# repco
+# repco [no longer up to date]
 
 This documents outlines a specification and architecture for _repco_, a framework for the exchange of community media and metadata.
 
