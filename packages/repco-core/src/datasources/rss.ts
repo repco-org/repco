@@ -1,13 +1,10 @@
-import { Link } from 'repco-common/zod'
-import RssParser from 'rss-parser'
-import zod from 'zod'
-import {
-  DataSource,
-  DataSourceDefinition,
-  DataSourcePlugin,
-} from '../datasource.js'
-import { EntityBatch, EntityForm } from '../entity.js'
-import { createHash, createJsonHash } from '../util/hash.js'
+// template for using a datasource based on rss an example for FRN can be found at `packages/repco-core/rss-demo.ts`.
+import RssParser from "rss-parser";
+import zod from "zod";
+import { Link } from "repco-common/zod";
+import { DataSource, DataSourceDefinition, DataSourcePlugin } from "../datasource.js";
+import { EntityBatch, EntityForm } from "../entity.js";
+import { createHash, createJsonHash } from "../util/hash.js";
 
 export class RssDataSourcePlugin implements DataSourcePlugin {
   createInstance(config: any) {

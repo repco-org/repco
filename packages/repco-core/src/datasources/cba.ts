@@ -1,5 +1,7 @@
-import { form } from 'repco-prisma'
+//This is an example for the Wordpress API from CBA
+
 import * as zod from 'zod'
+import { form } from 'repco-prisma'
 import { fetch } from 'undici'
 import { CbaPost, CbaSeries } from './cba/types.js'
 import {
@@ -42,7 +44,7 @@ function parseUrn(urn: string) {
 
 const configSchema = zod.object({
   endpoint: zod.string().url().optional(),
-  apiKey: zod.string().optional()
+  apiKey: zod.string().optional(),
 })
 type ConfigSchema = zod.infer<typeof configSchema>
 
@@ -262,7 +264,7 @@ export class CbaDataSource implements DataSource {
   }
 
   private _mapPost(post: CbaPost): EntityForm[] {
-    const content: form.ContentItemInput  = {
+    const content: form.ContentItemInput = {
       content: post.content.rendered,
       contentFormat: 'text/html',
       title: post.title.rendered,
@@ -270,8 +272,8 @@ export class CbaDataSource implements DataSource {
       // primaryGroupingUid: null,
       subtitle: 'missing',
       summary: post.excerpt.rendered,
-      MediaAssets: post.mediaAssets.map(uri => ({ uri })),
-      PrimaryGrouping: { uri: this._urn('series', post.post_parent) }
+      MediaAssets: post.mediaAssets.map((uri) => ({ uri })),
+      PrimaryGrouping: { uri: this._urn('series', post.post_parent) },
     }
     const revisionId = this._revisionUrn(
       'post',
