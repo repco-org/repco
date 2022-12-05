@@ -16,7 +16,7 @@ To implement a datasource, a DatasourcePlugin must be created which implements t
 
 Furthermore the actual datasource is created which is responsible for the mapping of the data to the repco data model. For this the interface DataSource is implemented.
 
-A datasource has a definition consisting of uid, name, and pluginId. Further it provides at least the methods 
+A datasource has a definition consisting of uid, name, and pluginId. Further it provides at least the methods
 
 `fetchUpdates(cursor: string | null): Promise<EntityBatch>   `
 
@@ -28,8 +28,8 @@ For the special case of RSS feeds, we implement a RssDatasourcePlugin.
 
 The algorithm works as follows:
 
-* fetch the newest page
+- fetch the newest page
 
-* Case A: Oldest date of the page is older than the most recent date of the last fetch.  This means that we have caught up with the new elements. We reset to page 0. We are done if this fetch was already on page 0.
+- Case A: Oldest date of the page is older than the most recent date of the last fetch. This means that we have caught up with the new elements. We reset to page 0. We are done if this fetch was already on page 0.
 
-* Case B: The oldest date from this page is still newer than the most recent date of the last complete fetch. This means: increase the page number to continue the fetch until we reach the most recent publication date.
+- Case B: The oldest date from this page is still newer than the most recent date of the last complete fetch. This means: increase the page number to continue the fetch until we reach the most recent publication date.

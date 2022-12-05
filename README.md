@@ -46,13 +46,13 @@ http://localhost:3000
 
 ## Development notes
 
-### Package and repo structure 
+### Package and repo structure
 
-This project is structured as a monorepo of multiple TypeScript packages. We use Yarn workspaces to enable inter-project depencencies. To speed up build times, we also use [TypeScript project references](https://www.typescriptlang.org/docs/handbook/project-references.html). This is all readily setup, so you can just use `yarn build` or `yarn watch` in any of the packages and workspace dependencies will automatically be rebuilt if needed. 
+This project is structured as a monorepo of multiple TypeScript packages. We use Yarn workspaces to enable inter-project depencencies. To speed up build times, we also use [TypeScript project references](https://www.typescriptlang.org/docs/handbook/project-references.html). This is all readily setup, so you can just use `yarn build` or `yarn watch` in any of the packages and workspace dependencies will automatically be rebuilt if needed.
 
 When adding new workspace dependencies to projects, the dependency has to be added to the references section in the `tsconfig.json` as well. A script is included to automate this process, so whenever adding new workspace packages or adding a workspace dependency to an existing package, run `yarn update-ts-references` from the workspace root.
 
-When adding a new package, use one of the `tsconfig.json` files in any of the projects as a start. 
+When adding a new package, use one of the `tsconfig.json` files in any of the projects as a start.
 
 ### Codegen and migrations
 

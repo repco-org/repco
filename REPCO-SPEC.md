@@ -1,7 +1,6 @@
-# repco 
+# repco
 
 _This specification is currently in review and will be updated soon. Please check the doc folder for up-to-date descriptions of the data model._
-
 
 This documents outlines a specification and architecture for _repco_, a framework for the exchange of community media and metadata.
 
