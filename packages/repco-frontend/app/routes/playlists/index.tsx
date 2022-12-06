@@ -1,7 +1,6 @@
 import type { ActionFunction, LoaderFunction } from '@remix-run/node'
-import { NavLink, useActionData } from '@remix-run/react'
-import { useEffect, useState } from 'react'
-import { getStorage } from '~/lib/helpers'
+import { NavLink } from '@remix-run/react'
+import { usePlaylists } from '~/lib/usePlaylists'
 
 export const loader: LoaderFunction = ({ request }) => {
   // TODO: query playlists from repco db
@@ -21,27 +20,15 @@ export const action: ActionFunction = async ({ request }) => {
 }
 
 export default function PlaylistIndex() {
-  const [showData, setShowData] = useState(true)
-  const data = useActionData()
-  const [playlists, setPlaylists] = useState([])
+  const [playlists, store] = usePlaylists()
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setPlaylists(getStorage('playlists'))
-    }
-  }, [data])
-  useEffect(() => {
-    if (!showData) return
-    if (typeof window !== 'undefined') {
-      setPlaylists(getStorage('playlists'))
-      setShowData(false)
-    }
-  }, [showData])
+  if (!playlists) return <div>loading...</div>
+
   return (
     <main className="px-2">
       <div className="px-2 ">
         {playlists.length !== 0 ? (
-          playlists.map((e: any) => (
+          playlists.map((e) => (
             <div key={e} className="card">
               <NavLink
                 className="text-sm"
