@@ -1,12 +1,11 @@
 import { Outlet } from '@remix-run/react'
-import { NewPlaylistBar } from '~/components/ui/bars/NewPlaylistBar'
 
 export default function Playlists() {
   return (
-    <div>
-      <NewPlaylistBar />
-
-      <Outlet />
+    <div className="bg-gradient-to-r from-violet-500 to-fuchsia-500 bg-opacity-90">
+      <div className="container mx-auto px-4">
+        <Outlet />
+      </div>
     </div>
   )
 }
