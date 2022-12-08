@@ -137,58 +137,41 @@ test('datasource', async (assert) => {
   )
 })
 
-test('remap', async (assert) => {
+test.solo('remap', async (assert) => {
   const prisma = await setup(assert)
   const repo = await Repo.create(prisma, 'test')
+
   const plugins = new DataSourcePluginRegistry()
   plugins.register(new TestDataSourcePlugin())
   await repo.dsr.create(repo.prisma, plugins, 'ds:test', {})
+
   await ingestUpdatesFromDataSources(repo)
-  const uri = 'urn:test:content:1'
-  const entities = await prisma.contentItem.findMany({
-    where: { Revision: { entityUris: { has: uri } } },
-    include: {
-      MediaAssets: {
-        include: { File: true },
-      },
-    },
-  })
-  assert.is(entities.length, 1)
-  const entity = entities[0]
-  assert.is(entity.MediaAssets.length, 1)
-  assert.is(
-    entity.MediaAssets[0].File.contentUrl,
-    'http://example.org/file1.mp3',
-  )
 
   const head = await repo.getHead()
-  console.log('HEAD after ingest', head)
   let len = await prisma.revision.count()
-  console.log('revs after ingest', len)
+  assert.is(len, 3)
 
   const datasource = repo.dsr.get(DS_UID)
-
   assert.is(!!datasource, true)
 
   await remapDataSource(repo, datasource!)
   const head2 = await repo.getHead()
-  console.log('HEAD after remap without changes', head2)
-  assert.is(head!.toString(), head2!.toString())
+  assert.is(head.toString(), head2.toString())
 
   len = await prisma.revision.count()
-  console.log('revs after remap1', len)
+  assert.is(len, 3)
 
   // @ts-ignore
   datasource.mapUppercase = true
 
   await remapDataSource(repo, datasource!)
   const head3 = await repo.getHead()
-  console.log('HEAD after remap with changes', head3)
-  assert.not(head2!.toString(), head3!.toString())
+  assert.not(head2.toString(), head3.toString())
 
   len = await prisma.revision.count()
-  console.log('revs after remap2', len)
+  assert.is(len, 4)
 
   const entitiesAfter = await prisma.contentItem.findMany()
-  console.log(entitiesAfter)
+  assert.is(entitiesAfter.length, 1)
+  assert.is(entitiesAfter[0].title, 'TEST1')
 })

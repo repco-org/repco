@@ -48,7 +48,7 @@ test('car write read', { timeout: 100 * 1000 }, async (assert) => {
         return input
       }),
     )
-    total += res.length
+    if (res) total += res.length
   }
   report(timer, total, 'WRITE')
 

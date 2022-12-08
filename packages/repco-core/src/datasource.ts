@@ -1,6 +1,6 @@
 import { EntityForm } from './entity.js'
 import { DataSourcePluginRegistry } from './plugins.js'
-import { Prisma, PrismaCore } from './prisma.js'
+import { Prisma, PrismaCore, SourceRecord } from './prisma.js'
 import { Repo } from './repo.js'
 import { createSourceRecordId } from './util/id.js'
 import { Registry } from './util/registry.js'
@@ -74,7 +74,11 @@ export class DataSourceRegistry extends Registry<DataSource> {
       for (const datasource of matchingSources) {
         const sourceRecords = await datasource.fetchByUri(uri)
         if (sourceRecords && sourceRecords.length) {
-          const entities = await mapAndPersistSourceRecord(repo, datasource, sourceRecords)
+          const entities = await mapAndPersistSourceRecord(
+            repo,
+            datasource,
+            sourceRecords,
+          )
           fetched.push(...entities)
           found = true
           break
@@ -194,7 +198,11 @@ export async function ingestUpdatesFromDataSource(
 //
 // Important: Caller has to ensure that all source records have been
 // created by the datasource passed into this function.
-async function mapAndPersistSourceRecord(repo: Repo, datasource: DataSource, sourceRecords: SourceRecordForm[]) {
+async function mapAndPersistSourceRecord(
+  repo: Repo,
+  datasource: DataSource,
+  sourceRecords: Array<SourceRecordForm & { uid?: string }>,
+) {
   const entities = []
   const date = new Date()
   for (const sourceRecord of sourceRecords) {
@@ -205,25 +213,29 @@ async function mapAndPersistSourceRecord(repo: Repo, datasource: DataSource, sou
       .map((e) => e.entityUris || [])
       .flat()
 
-    const sourceRecordId = createSourceRecordId()
-    // save source record
-    await repo.prisma.sourceRecord.create({
-      data: {
-        uid: sourceRecordId,
-        contentType: sourceRecord.contentType,
-        body: sourceRecord.body,
-        sourceType: sourceRecord.sourceType,
-        sourceUri: sourceRecord.sourceUri,
-        timestamp: date,
-        dataSourceUid: datasource.definition.uid,
-        containedEntityUris,
-      },
-    })
+    let sourceRecordId = sourceRecord.uid
+    if (!sourceRecordId) {
+      sourceRecordId = createSourceRecordId()
+      // save source record
+      await repo.prisma.sourceRecord.create({
+        data: {
+          uid: sourceRecordId,
+          contentType: sourceRecord.contentType,
+          body: sourceRecord.body,
+          sourceType: sourceRecord.sourceType,
+          sourceUri: sourceRecord.sourceUri,
+          timestamp: date,
+          dataSourceUid: datasource.definition.uid,
+          containedEntityUris,
+        },
+      })
+    }
 
     for (const entity of entitiesFromSourceRecord) {
       entity.derivedFromUid = sourceRecordId
-      entities.push(entity)
     }
+
+    entities.push(...entitiesFromSourceRecord)
   }
   return entities
 }
@@ -234,22 +246,40 @@ export async function remapDataSource(repo: Repo, datasource: DataSource) {
 
   let cursor: string | undefined = undefined
   while (true) {
-    let findCursor = undefined
-    if (cursor) {
-      findCursor = { uid: cursor }
-    }
-    const records = await repo.prisma.sourceRecord.findMany({
-      skip: cursor ? 1 : 0,
-      where: { dataSourceUid },
-      cursor: findCursor,
-      take: batchSize,
-      orderBy: { uid: 'asc' }
-    })
+    const records: SourceRecord[] = await fetchSourceRecords(
+      repo.prisma,
+      dataSourceUid,
+      batchSize,
+      cursor,
+    )
     if (!records.length) break
-    cursor = records[records.length - 1].uid
+
+    const nextCursor = records[records.length - 1].uid
+    if (nextCursor === cursor) break
+
     const entities = await mapAndPersistSourceRecord(repo, datasource, records)
     await repo.saveBatch('me', entities)
+
+    cursor = nextCursor
   }
+}
+
+async function fetchSourceRecords(
+  prisma: Prisma.TransactionClient,
+  dataSourceUid: string,
+  take: number,
+  from?: string,
+) {
+  const skip = from ? 1 : 0
+  const cursor = from ? { uid: from } : undefined
+  const records = await prisma.sourceRecord.findMany({
+    skip,
+    where: { dataSourceUid },
+    cursor,
+    take,
+    orderBy: { uid: 'asc' },
+  })
+  return records
 }
 
 /**

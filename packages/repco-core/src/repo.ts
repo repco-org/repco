@@ -302,12 +302,12 @@ export class Repo {
     return common.parseCid(row.tail)
   }
 
-  async getHead(): Promise<common.CID | undefined> {
+  async getHead(): Promise<common.CID> {
     const row = await this.prisma.repo.findUnique({
       where: { did: this.did },
       select: { head: true },
     })
-    if (!row || !row.head) return undefined
+    if (!row || !row.head) throw new Error('Repo may not be empty')
     return common.parseCid(row.head)
   }
 
@@ -315,10 +315,10 @@ export class Repo {
     agentDid: string,
     input: any,
     headers: any = {},
-  ): Promise<EntityInputWithRevision> {
+  ): Promise<EntityInputWithRevision | null> {
     const data = { ...input, ...headers }
     const res = await this.saveBatch(agentDid, [data])
-    if (!res.length) throw new Error('Expected a result')
+    if (!res) return null
     return res[0]
   }
 
@@ -376,6 +376,7 @@ export class Repo {
       this.publishingCapability,
       parent,
     )
+    if (!bundle) return null
     const ret = await this.saveFromIpld(bundle)
     return ret
   }
@@ -598,6 +599,8 @@ export class IpldRepo {
         revisions.push({ ...revision, parsedContent: entity })
       }
     }
+
+    if (!revisions.length) return null
 
     // save commit ipld
     const commit: CommitIpld = {
