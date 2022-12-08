@@ -1,4 +1,4 @@
-import { EntityBatch, EntityForm } from './entity.js'
+import { EntityForm } from './entity.js'
 import { DataSourcePluginRegistry } from './plugins.js'
 import { Prisma, PrismaCore } from './prisma.js'
 import { Repo } from './repo.js'
@@ -7,6 +7,16 @@ import { Registry } from './util/registry.js'
 export type { DataSourcePlugin } from './plugins.js'
 
 type UID = string
+
+export type SourceRecordForm = {
+  sourceUri: string
+  contentType: string
+  body: string
+  sourceType: string
+  meta?: any
+}
+
+export type FetchUpdatesResult = { cursor: string; records: SourceRecordForm[] }
 
 export type DataSourceDefinition = {
   // The unique ID for this data source instance.
@@ -27,18 +37,21 @@ export type DataSourceDefinition = {
 export interface DataSource {
   get definition(): DataSourceDefinition
   get config(): any
-  fetchUpdates(cursor: string | null): Promise<EntityBatch>
-  fetchByUri(uid: string): Promise<EntityForm[] | null>
+  fetchUpdates(cursor: string | null): Promise<FetchUpdatesResult>
+  fetchByUri(uid: string): Promise<SourceRecordForm[] | null>
   canFetchUri(uid: string): boolean
+  mapSourceRecord(record: SourceRecordForm): Promise<EntityForm[]>
 }
 
 export abstract class BaseDataSource {
-  get config() { return null }
+  get config() {
+    return null
+  }
   canFetchUri(_uid: string): boolean {
     return false
   }
-  async fetchUpdates(_cursor: string | null): Promise<EntityBatch> {
-    return { cursor: '', entities: [] }
+  async fetchUpdates(_cursor: string | null): Promise<FetchUpdatesResult> {
+    return { cursor: '', records: [] }
   }
 }
 
@@ -58,8 +71,15 @@ export class DataSourceRegistry extends Registry<DataSource> {
       const matchingSources = this.allForUri(uri)
       let found = false
       for (const datasource of matchingSources) {
-        const entities = await datasource.fetchByUri(uri)
-        if (entities && entities.length) {
+        const sourceRecords = await datasource.fetchByUri(uri)
+        if (sourceRecords && sourceRecords.length) {
+          const entities = (
+            await Promise.all(
+              sourceRecords.map((sourceRecord) =>
+                datasource.mapSourceRecord(sourceRecord),
+              ),
+            )
+          ).flat()
           fetched.push(...entities)
           found = true
           break
@@ -157,16 +177,24 @@ export async function ingestUpdatesFromDataSource(
   let count = 0
   let cursor = await fetchCursor(repo.prisma, datasource)
   while (--maxIterations >= 0) {
-    // console.time('fetchUpdates:' + datasource.definition.uid)
-    const batch: EntityBatch = await datasource.fetchUpdates(cursor)
-    // console.timeEnd('fetchUpdates:' + datasource.definition.uid)
-    if (!batch.entities.length) break
-    count += batch.entities.length
-    cursor = batch.cursor
-    // console.time('saveUpdates:' + datasource.definition.uid)
-    await repo.saveBatch('me', batch.entities) // TODO: Agent
-    await saveCursor(repo.prisma, datasource, cursor)
-    // console.timeEnd('saveUpdates:' + datasource.definition.uid)
+    const { cursor: nextCursor, records } = await datasource.fetchUpdates(
+      cursor,
+    )
+    if (!records.length) break
+
+    const entities = []
+    for (const sourceRecord of records) {
+      const entitiesFromSourceRecord = await datasource.mapSourceRecord(
+        sourceRecord,
+      )
+      entities.push(...entitiesFromSourceRecord)
+      // const containedEntityUris = entitiesFromSourceRecord.map(e => e.entityUris || []).flat()
+    }
+
+    await repo.saveBatch('me', entities) // TODO: Agent
+    await saveCursor(repo.prisma, datasource, nextCursor)
+    cursor = nextCursor
+    count += entities.length
   }
   return {
     count,

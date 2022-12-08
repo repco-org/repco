@@ -1,12 +1,37 @@
 import test from 'brittle'
 import { setup } from './util/setup.js'
-import { DataSource, EntityForm, Repo } from '../lib.js'
+import { DataSource, Repo } from '../lib.js'
 import {
   BaseDataSource,
   DataSourceDefinition,
+  FetchUpdatesResult,
   ingestUpdatesFromDataSources,
+  SourceRecordForm,
 } from '../src/datasource.js'
-import { EntityBatch } from '../src/entity.js'
+import { EntityForm } from '../src/entity.js'
+import { DataSourcePlugin, DataSourcePluginRegistry } from '../src/plugins.js'
+
+const intoSourceRecord = (body: EntityForm): SourceRecordForm => ({
+  body: JSON.stringify(body),
+  sourceType: 'entity',
+  sourceUri: 'test:foo',
+  contentType: 'text/repco-entity',
+})
+
+const fromSourceRecord = (record: SourceRecordForm) =>
+  JSON.parse(record.body) as EntityForm
+
+class TestDataSourcePlugin implements DataSourcePlugin {
+  createInstance(_config: any) {
+    return new TestDataSource()
+  }
+  get definition() {
+    return {
+      name: 'test',
+      uid: 'ds:test',
+    }
+  }
+}
 
 class TestDataSource extends BaseDataSource implements DataSource {
   get definition(): DataSourceDefinition {
@@ -22,13 +47,13 @@ class TestDataSource extends BaseDataSource implements DataSource {
     return false
   }
 
-  async fetchUpdates(cursor: string | null): Promise<EntityBatch> {
+  async fetchUpdates(cursor: string | null): Promise<FetchUpdatesResult> {
     if (cursor === '1') {
-      return { cursor, entities: [] }
+      return { cursor, records: [] }
     }
     const nextCursor = '1'
-    const entities: EntityForm[] = []
-    entities.push({
+    const bodies: EntityForm[] = []
+    bodies.push({
       type: 'ContentItem',
       content: {
         title: 'Test1',
@@ -40,24 +65,24 @@ class TestDataSource extends BaseDataSource implements DataSource {
     })
     return {
       cursor: nextCursor,
-      entities,
+      records: bodies.map(intoSourceRecord),
     }
   }
-  async fetchByUri(uid: string): Promise<EntityForm[] | null> {
+  async fetchByUri(uid: string): Promise<SourceRecordForm[] | null> {
     if (uid === 'urn:test:file:1') {
       return [
-        {
+        intoSourceRecord({
           type: 'File',
           content: {
             contentUrl: 'http://example.org/file1.mp3',
           },
           entityUris: ['urn:test:file:1'],
-        },
+        }),
       ]
     }
     if (uid === 'urn:test:media:1') {
       return [
-        {
+        intoSourceRecord({
           type: 'MediaAsset',
           content: {
             title: 'Media1',
@@ -65,18 +90,23 @@ class TestDataSource extends BaseDataSource implements DataSource {
             File: { uri: 'urn:test:file:1' },
           },
           entityUris: ['urn:test:media:1'],
-        },
+        }),
       ]
     }
     return null
+  }
+
+  async mapSourceRecord(record: SourceRecordForm): Promise<EntityForm[]> {
+    return [fromSourceRecord(record)]
   }
 }
 
 test('datasource', async (assert) => {
   const prisma = await setup(assert)
   const repo = await Repo.create(prisma, 'test')
-  const datasource = new TestDataSource()
-  repo.registerDataSource(datasource)
+  const plugins = new DataSourcePluginRegistry()
+  plugins.register(new TestDataSourcePlugin())
+  await repo.dsr.create(repo.prisma, plugins, 'ds:test', {})
   await ingestUpdatesFromDataSources(repo)
   const uri = 'urn:test:content:1'
   const entities = await prisma.contentItem.findMany({

@@ -1,17 +1,21 @@
-import { form } from 'repco-prisma'
 import * as zod from 'zod'
+import { form } from 'repco-prisma'
 import { fetch } from 'undici'
 import { CbaPost, CbaSeries } from './cba/types.js'
 import {
   DataSource,
   DataSourceDefinition,
   DataSourcePlugin,
+  FetchUpdatesResult,
+  SourceRecordForm,
 } from '../datasource.js'
-import { ContentGroupingVariant, EntityBatch, EntityForm } from '../entity.js'
-import { extractCursorAndMap, FetchOpts } from '../util/datamapping.js'
+import { ContentGroupingVariant, EntityForm } from '../entity.js'
+import { FetchOpts } from '../util/datamapping.js'
 import { HttpError } from '../util/error.js'
 
 const DEFAULT_ENDPOINT = 'https://cba.fro.at/wp-json/wp/v2'
+
+const CONTENT_TYPE_JSON = 'application/json'
 
 // series:
 // https://cba.fro.at/wp-json/wp/v2/series?page=1&per_page=1&_embed&orderby=modified&order=asc&modified_after=2021-07-27T10:29:04
@@ -42,7 +46,7 @@ function parseUrn(urn: string) {
 
 const configSchema = zod.object({
   endpoint: zod.string().url().optional(),
-  apiKey: zod.string().optional()
+  apiKey: zod.string().optional(),
 })
 type ConfigSchema = zod.infer<typeof configSchema>
 
@@ -84,49 +88,92 @@ export class CbaDataSource implements DataSource {
     return false
   }
 
-  async fetchByUri(uid: string): Promise<EntityForm[]> {
+  async fetchByUri(uid: string): Promise<SourceRecordForm[]> {
     const parsed = parseUrn(uid)
     if (parsed.datasource !== 'cba.media') throw new Error('Not a CBA URN')
     switch (parsed.type) {
       case 'post': {
-        const post = await this._fetch<CbaPost>(`/post/${parsed.path}`)
-        const entities = this._mapPost(post)
-        return entities
+        const url = this._url(`/post/${parsed.path}`)
+        const body = await this._fetch<CbaPost>(url)
+        return [
+          {
+            body: JSON.stringify(body),
+            contentType: CONTENT_TYPE_JSON,
+            sourceType: 'post',
+            sourceUri: url,
+          },
+        ]
       }
       case 'media': {
-        const media = await this._fetchMedia(parsed.path)
-        return media.entities
+        const url = this._url(`/media/${parsed.path}`)
+        const body = await this._fetch(url)
+        return [
+          {
+            body: JSON.stringify(body),
+            contentType: CONTENT_TYPE_JSON,
+            sourceType: 'media',
+            sourceUri: url,
+          },
+        ]
       }
       case 'series': {
-        const series = await this._fetchSeries(parsed.path)
-        return series
+        const url = this._url(`/series/${parsed.path}`)
+        const body = await this._fetch(url)
+        return [
+          {
+            body: JSON.stringify(body),
+            contentType: CONTENT_TYPE_JSON,
+            sourceType: 'media',
+            sourceUri: url,
+          },
+        ]
       }
     }
     throw new Error('Unsupported CBA data type: ' + parsed.type)
   }
 
-  async fetchUpdates(cursorString: string | null): Promise<EntityBatch> {
+  async fetchUpdates(cursorString: string | null): Promise<FetchUpdatesResult> {
     const cursor = cursorString ? JSON.parse(cursorString) : {}
-    const entities = []
+    const records = []
     {
-      const res = await this._fetchPosts(cursor.posts)
-      if (res) {
-        cursor.posts = res.cursor
-        entities.push(...res.entities)
-      }
+      let postsCursor = cursor.posts
+      if (!postsCursor) postsCursor = '1970-01-01T01:00:00'
+      const perPage = 2
+      const url = this._url(
+        `/posts?page=1&per_page=${perPage}&_embed&orderby=modified&order=asc&modified_after=${postsCursor}`,
+      )
+      const posts = await this._fetch<CbaPost[]>(url)
+      const body = JSON.stringify(posts)
+      const lastPost = posts[posts.length - 1]
+      if (lastPost) cursor.posts = lastPost.modified
+      records.push({
+        body: JSON.stringify(body),
+        contentType: CONTENT_TYPE_JSON,
+        sourceType: 'posts',
+        sourceUri: url,
+      })
     }
-    {
-      // const res = await this._fetchSeriesUpdates(cursor.series)
-      // if (res) {
-      //   cursor.series = res.cursor
-      //   entities.push(...res.entities)
-      // }
-    }
-    const batch = {
+
+    return {
       cursor: JSON.stringify(cursor),
-      entities,
+      records,
     }
-    return batch
+  }
+
+  async mapSourceRecord(record: SourceRecordForm): Promise<EntityForm[]> {
+    const body = JSON.parse(record.body)
+    switch (record.sourceType) {
+      case 'post':
+        return this._mapPost(body as CbaPost)
+      case 'media':
+        return this._mapMedia(body)
+      case 'series':
+        return this._mapSeries(body)
+      case 'posts':
+        return (body as CbaPost[]).map((post) => this._mapPost(post)).flat()
+      default:
+        throw new Error('Unknown source type: ' + record.sourceType)
+    }
   }
 
   private _urn(type: string, id: string | number): string {
@@ -141,65 +188,65 @@ export class CbaDataSource implements DataSource {
     return `urn:repco:cba.media:revision:${type}:${id}:${revisionId}`
   }
 
-  private async _fetchSeriesUpdates(cursor?: string) {
-    if (!cursor) cursor = '1970-01-01T01:00:00'
-    const perPage = 2
-    const url = `/series?page=1&per_page=${perPage}&_embed&orderby=modified&order=asc&modified_after=${cursor}`
-    const series = await this._fetch<CbaSeries[]>(url)
+  // private async _fetchSeriesUpdates(cursor?: string) {
+  //   if (!cursor) cursor = '1970-01-01T01:00:00'
+  //   const perPage = 2
+  //   const url = `/series?page=1&per_page=${perPage}&_embed&orderby=modified&order=asc&modified_after=${cursor}`
+  //   const series = await this._fetch<CbaSeries[]>(url)
+  //
+  //   return extractCursorAndMap(
+  //     series,
+  //     (x) => this._mapSeries(x),
+  //     (x) => x.modified.toString(),
+  //   )
+  // }
 
-    return extractCursorAndMap(
-      series,
-      (x) => this._mapSeries(x),
-      (x) => x.modified.toString(),
-    )
-  }
+  // private async _fetchPosts(cursor?: string) {
+  //   if (!cursor) cursor = '1970-01-01T01:00:00'
+  //   const perPage = 2
+  //   const url = `/posts?page=1&per_page=${perPage}&_embed&orderby=modified&order=asc&modified_after=${cursor}`
+  //   const posts = await this._fetch<CbaPost[]>(url)
+  //   const otherEntities: EntityForm[] = []
+  //   if (!posts.length) return null
+  //   for (const post of posts) {
+  //     if (!post._links['wp:attachment'].length) continue
+  //     const mediaUids = []
+  //     for (const attachement of post._links['wp:attachment']) {
+  //       const { href } = attachement
+  //       const { uid, entities } = await this._fetchMedias(href)
+  //       otherEntities.push(...entities)
+  //       mediaUids.push(uid)
+  //     }
+  //     post.mediaAssets = mediaUids
+  //   }
+  //   const mappedPosts = extractCursorAndMap(
+  //     posts,
+  //     (x) => this._mapPost(x),
+  //     (x) => x.modified.toString(),
+  //   )
+  //   if (mappedPosts) mappedPosts.entities.unshift(...otherEntities)
+  //   return mappedPosts
+  // }
+  //
+  // private async _fetchMedias(url: string): Promise<FormsWithUid> {
+  //   url = url.replace(this.endpoint, '')
+  //   const medias = await this._fetch(url)
+  //   if (!medias.length) throw new Error('Media not found')
+  //   const media = medias[0]
+  //   return this._mapMedia(media)
+  // }
 
-  private async _fetchPosts(cursor?: string) {
-    if (!cursor) cursor = '1970-01-01T01:00:00'
-    const perPage = 2
-    const url = `/posts?page=1&per_page=${perPage}&_embed&orderby=modified&order=asc&modified_after=${cursor}`
-    const posts = await this._fetch<CbaPost[]>(url)
-    const otherEntities: EntityForm[] = []
-    if (!posts.length) return null
-    for (const post of posts) {
-      if (!post._links['wp:attachment'].length) continue
-      const mediaUids = []
-      for (const attachement of post._links['wp:attachment']) {
-        const { href } = attachement
-        const { uid, entities } = await this._fetchMedias(href)
-        otherEntities.push(...entities)
-        mediaUids.push(uid)
-      }
-      post.mediaAssets = mediaUids
-    }
-    const mappedPosts = extractCursorAndMap(
-      posts,
-      (x) => this._mapPost(x),
-      (x) => x.modified.toString(),
-    )
-    if (mappedPosts) mappedPosts.entities.unshift(...otherEntities)
-    return mappedPosts
-  }
+  // private async _fetchMedia(id: string): Promise<FormsWithUid> {
+  //   const media = await this._fetch(`/media/${id}`)
+  //   return this._mapMedia(media)
+  // }
+  //
+  // private async _fetchSeries(id: string) {
+  //   const series = await this._fetch(`/series/${id}`)
+  //   return this._mapSeries(series)
+  // }
 
-  private async _fetchMedias(url: string): Promise<FormsWithUid> {
-    url = url.replace(this.endpoint, '')
-    const medias = await this._fetch(url)
-    if (!medias.length) throw new Error('Media not found')
-    const media = medias[0]
-    return this._mapMedia(media)
-  }
-
-  private async _fetchMedia(id: string): Promise<FormsWithUid> {
-    const media = await this._fetch(`/media/${id}`)
-    return this._mapMedia(media)
-  }
-
-  private async _fetchSeries(id: string) {
-    const series = await this._fetch(`/series/${id}`)
-    return this._mapSeries(series)
-  }
-
-  private _mapMedia(media: any): FormsWithUid {
+  private _mapMedia(media: any): EntityForm[] {
     if (!media.source_url) throw new Error('Missing media source URL')
     const fileId = this._urn('file', media.id)
     const mediaId = this._urn('media', media.id)
@@ -234,10 +281,7 @@ export class CbaDataSource implements DataSource {
       content: asset,
       entityUris: [mediaId],
     }
-    return {
-      uid: mediaId,
-      entities: [fileEntity, mediaEntity],
-    }
+    return [fileEntity, mediaEntity]
   }
 
   private _mapSeries(series: CbaSeries): EntityForm[] {
@@ -266,7 +310,7 @@ export class CbaDataSource implements DataSource {
   }
 
   private _mapPost(post: CbaPost): EntityForm[] {
-    const content: form.ContentItemInput  = {
+    const content: form.ContentItemInput = {
       content: post.content.rendered,
       contentFormat: 'text/html',
       title: post.title.rendered,
@@ -274,8 +318,8 @@ export class CbaDataSource implements DataSource {
       // primaryGroupingUid: null,
       subtitle: 'missing',
       summary: post.excerpt.rendered,
-      MediaAssets: post.mediaAssets.map(uri => ({ uri })),
-      PrimaryGrouping: { uri: this._urn('series', post.post_parent) }
+      MediaAssets: post.mediaAssets.map((uri) => ({ uri })),
+      PrimaryGrouping: { uri: this._urn('series', post.post_parent) },
     }
     const revisionId = this._revisionUrn(
       'post',
@@ -290,10 +334,7 @@ export class CbaDataSource implements DataSource {
     return [{ type: 'ContentItem', content, ...headers }]
   }
 
-  private async _fetch<T = any>(
-    urlString: string,
-    opts: FetchOpts = {},
-  ): Promise<T> {
+  private _url(urlString: string, opts: FetchOpts = {}) {
     const url = new URL(this.endpoint + urlString)
     if (opts.params) {
       for (const [key, value] of Object.entries(opts.params)) {
@@ -301,6 +342,14 @@ export class CbaDataSource implements DataSource {
       }
       opts.params = undefined
     }
+    return url.toString()
+  }
+
+  private async _fetch<T = any>(
+    urlString: string,
+    opts: FetchOpts = {},
+  ): Promise<T> {
+    const url = new URL(urlString)
     if (this.apiKey) {
       url.searchParams.set('api_key', this.apiKey)
     }
