@@ -28,13 +28,13 @@ export interface DataSource {
   get definition(): DataSourceDefinition
   get config(): any
   fetchUpdates(cursor: string | null): Promise<EntityBatch>
-  fetchByURN(uid: string): Promise<EntityForm[] | null>
-  canFetchURN(uid: string): boolean
+  fetchByUri(uid: string): Promise<EntityForm[] | null>
+  canFetchUri(uid: string): boolean
 }
 
 export abstract class BaseDataSource {
   get config() { return null }
-  canFetchURN(_uid: string): boolean {
+  canFetchUri(_uid: string): boolean {
     return false
   }
   async fetchUpdates(_cursor: string | null): Promise<EntityBatch> {
@@ -47,18 +47,18 @@ type FailedHydrates = { err: Error; row: any }
 export class DataSourceRegistry extends Registry<DataSource> {
   _hydrating?: Promise<{ failed: FailedHydrates[] }>
 
-  allForURN(urn: string): DataSource[] {
-    return this.filtered((ds) => ds.canFetchURN(urn))
+  allForUri(urn: string): DataSource[] {
+    return this.filtered((ds) => ds.canFetchUri(urn))
   }
 
   async fetchEntities(uris: string[]) {
     const fetched: EntityForm[] = []
     const notFound = uris
     for (const uri of uris) {
-      const matchingSources = this.allForURN(uri)
+      const matchingSources = this.allForUri(uri)
       let found = false
       for (const datasource of matchingSources) {
-        const entities = await datasource.fetchByURN(uri)
+        const entities = await datasource.fetchByUri(uri)
         if (entities && entities.length) {
           fetched.push(...entities)
           found = true

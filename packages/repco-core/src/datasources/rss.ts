@@ -99,11 +99,11 @@ export class RssDataSource implements DataSource {
     }
   }
 
-  canFetchURN(uid: string): boolean {
+  canFetchUri(uid: string): boolean {
     return false
   }
 
-  async fetchByURN(uid: string): Promise<EntityForm[]> {
+  async fetchByUri(uid: string): Promise<EntityForm[]> {
     return []
   }
 

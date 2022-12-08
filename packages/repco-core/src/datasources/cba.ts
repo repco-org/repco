@@ -79,12 +79,12 @@ export class CbaDataSource implements DataSource {
     }
   }
 
-  canFetchURN(uid: string): boolean {
+  canFetchUri(uid: string): boolean {
     if (uid.startsWith('urn:repco:cba.media:')) return true
     return false
   }
 
-  async fetchByURN(uid: string): Promise<EntityForm[]> {
+  async fetchByUri(uid: string): Promise<EntityForm[]> {
     const parsed = parseUrn(uid)
     if (parsed.datasource !== 'cba.media') throw new Error('Not a CBA URN')
     switch (parsed.type) {

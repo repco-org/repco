@@ -17,7 +17,7 @@ class TestDataSource extends BaseDataSource implements DataSource {
     }
   }
 
-  canFetchURN(uid: string): boolean {
+  canFetchUri(uid: string): boolean {
     if (uid.startsWith('urn:test:')) return true
     return false
   }
@@ -43,7 +43,7 @@ class TestDataSource extends BaseDataSource implements DataSource {
       entities,
     }
   }
-  async fetchByURN(uid: string): Promise<EntityForm[] | null> {
+  async fetchByUri(uid: string): Promise<EntityForm[] | null> {
     if (uid === 'urn:test:file:1') {
       return [
         {
