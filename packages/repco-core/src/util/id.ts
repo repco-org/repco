@@ -21,6 +21,10 @@ export function createEntityId(timestamp?: Date | number): string {
   return 'e' + MultiID.createTimeAndRandom(timestamp).toString()
 }
 
+export function createSourceRecordId(timestamp?: Date | number): string {
+  return 's' + MultiID.createTimeAndRandom(timestamp).toString()
+}
+
 export enum IDFormats {
   TimeAndRandom = 'r',
   TimeAndHash = 'h',

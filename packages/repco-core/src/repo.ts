@@ -81,6 +81,7 @@ const REVISION_SELECT = {
   entityType: true,
   dateCreated: true,
   uid: true,
+  contentCid: true
 }
 
 function defaultBlockStore(
@@ -448,6 +449,7 @@ export class Repo {
       })
     }
 
+    let prevContentCid
     if (prevRevision) {
       if (prevRevision.entityType !== entity.type) {
         throw new Error(
@@ -463,6 +465,7 @@ export class Repo {
       headers.dateCreated = prevRevision.dateCreated
       headers.prevRevisionId = prevRevision.id
       uid = prevRevision.uid
+      prevContentCid = prevRevision.contentCid
     } else {
       headers.prevRevisionId = null
       uid = createEntityId()
@@ -470,7 +473,8 @@ export class Repo {
 
     setUid(entity, uid)
 
-    return { ...entity, headers }
+
+    return { ...entity, headers, prevContentCid }
   }
 
   private async ensureAgent(did: string) {
@@ -590,7 +594,9 @@ export class IpldRepo {
     const revisions = []
     for (const entity of entities) {
       const revision = await this.createRevision(agentDid, entity)
-      revisions.push({ ...revision, parsedContent: entity })
+      if (revision) {
+        revisions.push({ ...revision, parsedContent: entity })
+      }
     }
 
     // save commit ipld
@@ -625,9 +631,10 @@ export class IpldRepo {
   private async createRevision(
     agentDid: string,
     entity: EntityInputWithHeaders,
-  ): Promise<RevisionWithUnknownContent> {
+  ): Promise<RevisionWithUnknownContent | null> {
     const headers = entity.headers
     const contentCid = await this.blockstore.put(entity.content)
+    if (contentCid.toString() === entity.prevContentCid) return null
     const id = createRevisionId()
     if (!headers.dateModified) headers.dateModified = new Date()
     if (!headers.dateCreated) headers.dateCreated = new Date()
@@ -789,7 +796,7 @@ export class RelationFinder {
       }
 
       // try to fetch them from the datasources
-      const { fetched, notFound } = await this.repo.dsr.fetchEntities([
+      const { fetched, notFound } = await this.repo.dsr.fetchEntities(this.repo, [
         ...this.pendingUris,
       ])
       notFound.forEach((uri) => {

@@ -6,6 +6,7 @@ import {
   DataSourceDefinition,
   FetchUpdatesResult,
   ingestUpdatesFromDataSources,
+  remapDataSource,
   SourceRecordForm,
 } from '../src/datasource.js'
 import { EntityForm } from '../src/entity.js'
@@ -17,6 +18,8 @@ const intoSourceRecord = (body: EntityForm): SourceRecordForm => ({
   sourceUri: 'test:foo',
   contentType: 'text/repco-entity',
 })
+
+const DS_UID = 'urn:repco:datasource:test'
 
 const fromSourceRecord = (record: SourceRecordForm) =>
   JSON.parse(record.body) as EntityForm
@@ -34,10 +37,12 @@ class TestDataSourcePlugin implements DataSourcePlugin {
 }
 
 class TestDataSource extends BaseDataSource implements DataSource {
+  mapUppercase = false
+
   get definition(): DataSourceDefinition {
     return {
       name: 'TestDataSource',
-      uid: 'urn:repco:datasource:test',
+      uid: DS_UID,
       pluginUid: 'urn:repco:datasource:test',
     }
   }
@@ -97,7 +102,13 @@ class TestDataSource extends BaseDataSource implements DataSource {
   }
 
   async mapSourceRecord(record: SourceRecordForm): Promise<EntityForm[]> {
-    return [fromSourceRecord(record)]
+    const form = JSON.parse(record.body) as EntityForm
+    if (this.mapUppercase) {
+      if (form.type === 'ContentItem') {
+        form.content.title = form.content.title.toUpperCase()
+      }
+    }
+    return [form]
   }
 }
 
@@ -124,4 +135,60 @@ test('datasource', async (assert) => {
     entity.MediaAssets[0].File.contentUrl,
     'http://example.org/file1.mp3',
   )
+})
+
+test('remap', async (assert) => {
+  const prisma = await setup(assert)
+  const repo = await Repo.create(prisma, 'test')
+  const plugins = new DataSourcePluginRegistry()
+  plugins.register(new TestDataSourcePlugin())
+  await repo.dsr.create(repo.prisma, plugins, 'ds:test', {})
+  await ingestUpdatesFromDataSources(repo)
+  const uri = 'urn:test:content:1'
+  const entities = await prisma.contentItem.findMany({
+    where: { Revision: { entityUris: { has: uri } } },
+    include: {
+      MediaAssets: {
+        include: { File: true },
+      },
+    },
+  })
+  assert.is(entities.length, 1)
+  const entity = entities[0]
+  assert.is(entity.MediaAssets.length, 1)
+  assert.is(
+    entity.MediaAssets[0].File.contentUrl,
+    'http://example.org/file1.mp3',
+  )
+
+  const head = await repo.getHead()
+  console.log('HEAD after ingest', head)
+  let len = await prisma.revision.count()
+  console.log('revs after ingest', len)
+
+  const datasource = repo.dsr.get(DS_UID)
+
+  assert.is(!!datasource, true)
+
+  await remapDataSource(repo, datasource!)
+  const head2 = await repo.getHead()
+  console.log('HEAD after remap without changes', head2)
+  assert.is(head!.toString(), head2!.toString())
+
+  len = await prisma.revision.count()
+  console.log('revs after remap1', len)
+
+  // @ts-ignore
+  datasource.mapUppercase = true
+
+  await remapDataSource(repo, datasource!)
+  const head3 = await repo.getHead()
+  console.log('HEAD after remap with changes', head3)
+  assert.not(head2!.toString(), head3!.toString())
+
+  len = await prisma.revision.count()
+  console.log('revs after remap2', len)
+
+  const entitiesAfter = await prisma.contentItem.findMany()
+  console.log(entitiesAfter)
 })

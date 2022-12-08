@@ -2,6 +2,7 @@ import { EntityForm } from './entity.js'
 import { DataSourcePluginRegistry } from './plugins.js'
 import { Prisma, PrismaCore } from './prisma.js'
 import { Repo } from './repo.js'
+import { createSourceRecordId } from './util/id.js'
 import { Registry } from './util/registry.js'
 
 export type { DataSourcePlugin } from './plugins.js'
@@ -64,7 +65,7 @@ export class DataSourceRegistry extends Registry<DataSource> {
     return this.filtered((ds) => ds.canFetchUri(urn))
   }
 
-  async fetchEntities(uris: string[]) {
+  async fetchEntities(repo: Repo, uris: string[]) {
     const fetched: EntityForm[] = []
     const notFound = uris
     for (const uri of uris) {
@@ -73,13 +74,7 @@ export class DataSourceRegistry extends Registry<DataSource> {
       for (const datasource of matchingSources) {
         const sourceRecords = await datasource.fetchByUri(uri)
         if (sourceRecords && sourceRecords.length) {
-          const entities = (
-            await Promise.all(
-              sourceRecords.map((sourceRecord) =>
-                datasource.mapSourceRecord(sourceRecord),
-              ),
-            )
-          ).flat()
+          const entities = await mapAndPersistSourceRecord(repo, datasource, sourceRecords)
           fetched.push(...entities)
           found = true
           break
@@ -182,15 +177,7 @@ export async function ingestUpdatesFromDataSource(
     )
     if (!records.length) break
 
-    const entities = []
-    for (const sourceRecord of records) {
-      const entitiesFromSourceRecord = await datasource.mapSourceRecord(
-        sourceRecord,
-      )
-      entities.push(...entitiesFromSourceRecord)
-      // const containedEntityUris = entitiesFromSourceRecord.map(e => e.entityUris || []).flat()
-    }
-
+    const entities = await mapAndPersistSourceRecord(repo, datasource, records)
     await repo.saveBatch('me', entities) // TODO: Agent
     await saveCursor(repo.prisma, datasource, nextCursor)
     cursor = nextCursor
@@ -199,6 +186,69 @@ export async function ingestUpdatesFromDataSource(
   return {
     count,
     cursor,
+  }
+}
+
+// Take a batch of source records, map them to repco entities,
+// save the source record into the database and return the entities.
+//
+// Important: Caller has to ensure that all source records have been
+// created by the datasource passed into this function.
+async function mapAndPersistSourceRecord(repo: Repo, datasource: DataSource, sourceRecords: SourceRecordForm[]) {
+  const entities = []
+  const date = new Date()
+  for (const sourceRecord of sourceRecords) {
+    const entitiesFromSourceRecord = await datasource.mapSourceRecord(
+      sourceRecord,
+    )
+    const containedEntityUris = entitiesFromSourceRecord
+      .map((e) => e.entityUris || [])
+      .flat()
+
+    const sourceRecordId = createSourceRecordId()
+    // save source record
+    await repo.prisma.sourceRecord.create({
+      data: {
+        uid: sourceRecordId,
+        contentType: sourceRecord.contentType,
+        body: sourceRecord.body,
+        sourceType: sourceRecord.sourceType,
+        sourceUri: sourceRecord.sourceUri,
+        timestamp: date,
+        dataSourceUid: datasource.definition.uid,
+        containedEntityUris,
+      },
+    })
+
+    for (const entity of entitiesFromSourceRecord) {
+      entity.derivedFromUid = sourceRecordId
+      entities.push(entity)
+    }
+  }
+  return entities
+}
+
+export async function remapDataSource(repo: Repo, datasource: DataSource) {
+  const dataSourceUid = datasource.definition.uid
+  const batchSize = 10
+
+  let cursor: string | undefined = undefined
+  while (true) {
+    let findCursor = undefined
+    if (cursor) {
+      findCursor = { uid: cursor }
+    }
+    const records = await repo.prisma.sourceRecord.findMany({
+      skip: cursor ? 1 : 0,
+      where: { dataSourceUid },
+      cursor: findCursor,
+      take: batchSize,
+      orderBy: { uid: 'asc' }
+    })
+    if (!records.length) break
+    cursor = records[records.length - 1].uid
+    const entities = await mapAndPersistSourceRecord(repo, datasource, records)
+    await repo.saveBatch('me', entities)
   }
 }
 

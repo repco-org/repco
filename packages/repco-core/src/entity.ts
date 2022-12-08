@@ -30,6 +30,7 @@ export type EntityForm = repco.EntityInput & Headers
 
 export type EntityInputWithHeaders = repco.EntityInputWithUid & {
   headers: Headers
+  prevContentCid?: string
 }
 
 export type EntityInputWithRevision = repco.EntityInputWithUid & {
