@@ -7062,13 +7062,6 @@ type PublicationServiceContentItemsByBroadcastEventBroadcastServiceUidAndContent
     A condition to be used in determining which values should be returned by the collection.
     """
     condition: BroadcastEventCondition
-<<<<<<< HEAD
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: BroadcastEventFilter
-=======
 
     """
     A filter to be used in determining which values should be returned by the collection.
@@ -7271,7 +7264,6 @@ type PublicationServicesConnection {
   """
   totalCount: Int!
 }
->>>>>>> schema change RDDM
 
 """A `PublicationService` edge in the connection."""
 type PublicationServicesEdge {
@@ -7282,118 +7274,6 @@ type PublicationServicesEdge {
   node: PublicationService!
 }
 
-<<<<<<< HEAD
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `BroadcastEvent`."""
-    orderBy: [BroadcastEventsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): BroadcastEventsConnection!
-
-  """A cursor for use in pagination."""
-  cursor: Cursor
-
-  """The `ContentItem` at the end of the edge."""
-  node: ContentItem!
-}
-
-"""
-A filter to be used against `PublicationService` object types. All fields are combined with a logical ‘and.’
-"""
-input PublicationServiceFilter {
-  """Filter by the object’s `address` field."""
-  address: StringFilter
-
-  """Checks for all expressions in this list."""
-  and: [PublicationServiceFilter!]
-
-  """Filter by the object’s `broadcastEventsByBroadcastService` relation."""
-  broadcastEventsByBroadcastService: PublicationServiceToManyBroadcastEventFilter
-
-  """Some related `broadcastEventsByBroadcastService` exist."""
-  broadcastEventsByBroadcastServiceExist: Boolean
-
-  """Filter by the object’s `medium` field."""
-  medium: StringFilter
-
-  """Filter by the object’s `name` field."""
-  name: StringFilter
-
-  """Negates the expression."""
-  not: PublicationServiceFilter
-
-  """Checks for any expressions in this list."""
-  or: [PublicationServiceFilter!]
-
-  """Filter by the object’s `publisher` relation."""
-  publisher: ContributerFilter
-
-  """Filter by the object’s `publisherUid` field."""
-  publisherUid: StringFilter
-
-  """Filter by the object’s `revision` relation."""
-  revision: RevisionFilter
-
-  """Filter by the object’s `revisionId` field."""
-  revisionId: StringFilter
-
-  """Filter by the object’s `uid` field."""
-  uid: StringFilter
-}
-
-"""
-A filter to be used against many `BroadcastEvent` object types. All fields are combined with a logical ‘and.’
-"""
-input PublicationServiceToManyBroadcastEventFilter {
-  """
-  Every related `BroadcastEvent` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  every: BroadcastEventFilter
-
-  """
-  No related `BroadcastEvent` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  none: BroadcastEventFilter
-
-  """
-  Some related `BroadcastEvent` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  some: BroadcastEventFilter
-}
-
-"""A connection to a list of `PublicationService` values."""
-type PublicationServicesConnection {
-  """
-  A list of edges which contains the `PublicationService` and cursor to aid in pagination.
-  """
-  edges: [PublicationServicesEdge!]!
-
-  """A list of `PublicationService` objects."""
-  nodes: [PublicationService!]!
-
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """
-  The count of *all* `PublicationService` you could get from the connection.
-  """
-  totalCount: Int!
-}
-
-"""A `PublicationService` edge in the connection."""
-type PublicationServicesEdge {
-  """A cursor for use in pagination."""
-  cursor: Cursor
-
-  """The `PublicationService` at the end of the edge."""
-  node: PublicationService!
-}
-
-=======
->>>>>>> schema change RDDM
 """Methods to use when ordering `PublicationService`."""
 enum PublicationServicesOrderBy {
   ADDRESS_ASC
@@ -8742,7 +8622,6 @@ type Revision {
     """The method to use when ordering `BroadcastEvent`."""
     orderBy: [BroadcastEventsOrderBy!] = [PRIMARY_KEY_ASC]
   ): BroadcastEventsConnection!
-<<<<<<< HEAD
 
   """Reads and enables pagination through a set of `Chapter`."""
   chapters(
@@ -8811,8 +8690,6 @@ type Revision {
     """The method to use when ordering `Commit`."""
     orderBy: [CommitsOrderBy!] = [PRIMARY_KEY_ASC]
   ): RevisionCommitsByRevisionToCommitBAndAManyToManyConnection!
-=======
->>>>>>> schema change RDDM
 
   """Reads and enables pagination through a set of `Concept`."""
   concepts(
@@ -9088,11 +8965,7 @@ type Revision {
   ): ContributersConnection!
 
   """Reads and enables pagination through a set of `Contributer`."""
-<<<<<<< HEAD
   contributersByPublicationServiceRevisionIdAndPublisherUid(
-=======
-  contributers(
->>>>>>> schema change RDDM
     """Read all values in the set after (below) this cursor."""
     after: Cursor
 
@@ -9121,57 +8994,6 @@ type Revision {
     """
     offset: Int
 
-    """The method to use when ordering `Contributer`."""
-    orderBy: [ContributersOrderBy!] = [PRIMARY_KEY_ASC]
-<<<<<<< HEAD
-  ): RevisionContributersByPublicationServiceRevisionIdAndPublisherUidManyToManyConnection!
-
-  """Reads and enables pagination through a set of `Contribution`."""
-  contributions(
-=======
-  ): ContributersConnection!
-
-  """Reads and enables pagination through a set of `Contributer`."""
-  contributersByPublicationServiceRevisionIdAndPublisherUid(
->>>>>>> schema change RDDM
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-<<<<<<< HEAD
-    condition: ContributionCondition
-=======
-    condition: ContributerCondition
->>>>>>> schema change RDDM
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-<<<<<<< HEAD
-    filter: ContributionFilter
-=======
-    filter: ContributerFilter
->>>>>>> schema change RDDM
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-<<<<<<< HEAD
-=======
     """The method to use when ordering `Contributer`."""
     orderBy: [ContributersOrderBy!] = [PRIMARY_KEY_ASC]
   ): RevisionContributersByPublicationServiceRevisionIdAndPublisherUidManyToManyConnection!
@@ -9206,7 +9028,6 @@ type Revision {
     """
     offset: Int
 
->>>>>>> schema change RDDM
     """The method to use when ordering `Contribution`."""
     orderBy: [ContributionsOrderBy!] = [PRIMARY_KEY_ASC]
   ): ContributionsConnection!
@@ -9669,7 +9490,6 @@ type Revision {
 
   """Reads and enables pagination through a set of `PublicationService`."""
   publicationServices(
-<<<<<<< HEAD
     """Read all values in the set after (below) this cursor."""
     after: Cursor
 
@@ -9704,8 +9524,6 @@ type Revision {
 
   """Reads and enables pagination through a set of `PublicationService`."""
   publicationServicesByBroadcastEventRevisionIdAndBroadcastServiceUid(
-=======
->>>>>>> schema change RDDM
     """Read all values in the set after (below) this cursor."""
     after: Cursor
 
@@ -9736,7 +9554,6 @@ type Revision {
 
     """The method to use when ordering `PublicationService`."""
     orderBy: [PublicationServicesOrderBy!] = [PRIMARY_KEY_ASC]
-<<<<<<< HEAD
   ): RevisionPublicationServicesByBroadcastEventRevisionIdAndBroadcastServiceUidManyToManyConnection!
 
   """Reads and enables pagination through a set of `PublicationService`."""
@@ -9781,12 +9598,6 @@ type Revision {
 
   """Reads and enables pagination through a set of `Revision`."""
   revisionsByPrevRevisionId(
-=======
-  ): PublicationServicesConnection!
-
-  """Reads and enables pagination through a set of `PublicationService`."""
-  publicationServicesByBroadcastEventRevisionIdAndBroadcastServiceUid(
->>>>>>> schema change RDDM
     """Read all values in the set after (below) this cursor."""
     after: Cursor
 
@@ -9796,20 +9607,12 @@ type Revision {
     """
     A condition to be used in determining which values should be returned by the collection.
     """
-<<<<<<< HEAD
     condition: RevisionCondition
-=======
-    condition: PublicationServiceCondition
->>>>>>> schema change RDDM
 
     """
     A filter to be used in determining which values should be returned by the collection.
     """
-<<<<<<< HEAD
     filter: RevisionFilter
-=======
-    filter: PublicationServiceFilter
->>>>>>> schema change RDDM
 
     """Only read the first `n` values of the set."""
     first: Int
@@ -9823,7 +9626,6 @@ type Revision {
     """
     offset: Int
 
-<<<<<<< HEAD
     """The method to use when ordering `Revision`."""
     orderBy: [RevisionsOrderBy!] = [PRIMARY_KEY_ASC]
   ): RevisionsConnection!
@@ -9853,20 +9655,6 @@ type RevisionCommitsByRevisionToCommitBAndAManyToManyConnection {
 type RevisionCommitsByRevisionToCommitBAndAManyToManyEdge {
   """Reads and enables pagination through a set of `_RevisionToCommit`."""
   _revisionToCommitsByA(
-=======
-    """The method to use when ordering `PublicationService`."""
-    orderBy: [PublicationServicesOrderBy!] = [PRIMARY_KEY_ASC]
-  ): RevisionPublicationServicesByBroadcastEventRevisionIdAndBroadcastServiceUidManyToManyConnection!
-
-  """Reads a single `Repo` that is related to this `Revision`."""
-  repoByRepoDid: Repo
-  repoDid: String!
-  revisionCid: String!
-  revisionUris: [String]
-
-  """Reads and enables pagination through a set of `Revision`."""
-  revisionsByPrevRevisionId(
->>>>>>> schema change RDDM
     """Read all values in the set after (below) this cursor."""
     after: Cursor
 
@@ -9876,20 +9664,12 @@ type RevisionCommitsByRevisionToCommitBAndAManyToManyEdge {
     """
     A condition to be used in determining which values should be returned by the collection.
     """
-<<<<<<< HEAD
     condition: _RevisionToCommitCondition
-=======
-    condition: RevisionCondition
->>>>>>> schema change RDDM
 
     """
     A filter to be used in determining which values should be returned by the collection.
     """
-<<<<<<< HEAD
     filter: _RevisionToCommitFilter
-=======
-    filter: RevisionFilter
->>>>>>> schema change RDDM
 
     """Only read the first `n` values of the set."""
     first: Int
@@ -9903,7 +9683,6 @@ type RevisionCommitsByRevisionToCommitBAndAManyToManyEdge {
     """
     offset: Int
 
-<<<<<<< HEAD
     """The method to use when ordering `_RevisionToCommit`."""
     orderBy: [_RevisionToCommitsOrderBy!] = [NATURAL]
   ): _RevisionToCommitsConnection!
@@ -9913,72 +9692,6 @@ type RevisionCommitsByRevisionToCommitBAndAManyToManyEdge {
 
   """The `Commit` at the end of the edge."""
   node: Commit!
-=======
-    """The method to use when ordering `Revision`."""
-    orderBy: [RevisionsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): RevisionsConnection!
-  uid: String!
->>>>>>> schema change RDDM
-}
-
-"""A connection to a list of `Concept` values, with data from `Concept`."""
-type RevisionConceptsByConceptRevisionIdAndParentUidManyToManyConnection {
-  """
-  A list of edges which contains the `Concept`, info from the `Concept`, and the cursor to aid in pagination.
-  """
-  edges: [RevisionConceptsByConceptRevisionIdAndParentUidManyToManyEdge!]!
-
-  """A list of `Concept` objects."""
-  nodes: [Concept!]!
-
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """The count of *all* `Concept` you could get from the connection."""
-  totalCount: Int!
-}
-
-"""A `Concept` edge in the connection, with data from `Concept`."""
-type RevisionConceptsByConceptRevisionIdAndParentUidManyToManyEdge {
-  """Reads and enables pagination through a set of `Concept`."""
-  childConcepts(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: ConceptCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: ConceptFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `Concept`."""
-    orderBy: [ConceptsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): ConceptsConnection!
-
-  """A cursor for use in pagination."""
-  cursor: Cursor
-
-  """The `Concept` at the end of the edge."""
-  node: Concept!
 }
 
 """A connection to a list of `Concept` values, with data from `Concept`."""
