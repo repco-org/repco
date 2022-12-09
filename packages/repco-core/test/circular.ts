@@ -1,6 +1,6 @@
 import test from 'brittle'
 import { setup } from './util/setup.js'
-import { EntityForm, Repo } from '../lib.js'
+import { ConceptKind, EntityForm, Repo } from '../lib.js'
 import {
   BaseDataSource,
   DataSource,
@@ -52,6 +52,7 @@ class TestDataSource extends BaseDataSource implements DataSource {
         type: 'Concept',
         content: {
           name: 'concept1',
+          kind: ConceptKind.CATEGORY,
           SameAs: { uri: 'urn:repco:concept:2' },
         },
         entityUris: ['urn:repco:concept:1'],
@@ -60,6 +61,7 @@ class TestDataSource extends BaseDataSource implements DataSource {
         type: 'Concept',
         content: {
           name: 'concept2',
+          kind: ConceptKind.CATEGORY,
           // SameAs: { uri: 'urn:repco:concept:1' },
         },
         entityUris: ['urn:repco:concept:2'],

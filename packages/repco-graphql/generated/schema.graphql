@@ -1278,6 +1278,108 @@ enum CommitsOrderBy {
 
 type Concept {
   """Reads and enables pagination through a set of `Concept`."""
+  childConcepts(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ConceptCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ConceptFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Concept`."""
+    orderBy: [ConceptsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ConceptsConnection!
+
+  """Reads and enables pagination through a set of `Concept`."""
+  conceptsByConceptParentUidAndSameAsUid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ConceptCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ConceptFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Concept`."""
+    orderBy: [ConceptsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ConceptConceptsByConceptParentUidAndSameAsUidManyToManyConnection!
+
+  """Reads and enables pagination through a set of `Concept`."""
+  conceptsByConceptSameAsUidAndParentUid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ConceptCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ConceptFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Concept`."""
+    orderBy: [ConceptsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ConceptConceptsByConceptSameAsUidAndParentUidManyToManyConnection!
+
+  """Reads and enables pagination through a set of `Concept`."""
   conceptsBySameAs(
     """Read all values in the set after (below) this cursor."""
     after: Cursor
@@ -1345,6 +1447,7 @@ type Concept {
     orderBy: [ContentItemsOrderBy!] = [PRIMARY_KEY_ASC]
   ): ConceptContentItemsByConceptToContentItemAAndBManyToManyConnection!
   description: String
+  kind: ConceptKind!
 
   """Reads and enables pagination through a set of `MediaAsset`."""
   mediaAssets(
@@ -1382,6 +1485,10 @@ type Concept {
   name: String!
   originNamespace: String
 
+  """Reads a single `Concept` that is related to this `Concept`."""
+  parent: Concept
+  parentUid: String
+
   """Reads a single `Revision` that is related to this `Concept`."""
   revision: Revision
   revisionId: String!
@@ -1394,6 +1501,126 @@ type Concept {
   wikidataIdentifier: String
 }
 
+"""A connection to a list of `Concept` values, with data from `Concept`."""
+type ConceptConceptsByConceptParentUidAndSameAsUidManyToManyConnection {
+  """
+  A list of edges which contains the `Concept`, info from the `Concept`, and the cursor to aid in pagination.
+  """
+  edges: [ConceptConceptsByConceptParentUidAndSameAsUidManyToManyEdge!]!
+
+  """A list of `Concept` objects."""
+  nodes: [Concept!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Concept` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Concept` edge in the connection, with data from `Concept`."""
+type ConceptConceptsByConceptParentUidAndSameAsUidManyToManyEdge {
+  """Reads and enables pagination through a set of `Concept`."""
+  conceptsBySameAs(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ConceptCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ConceptFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Concept`."""
+    orderBy: [ConceptsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ConceptsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Concept` at the end of the edge."""
+  node: Concept!
+}
+
+"""A connection to a list of `Concept` values, with data from `Concept`."""
+type ConceptConceptsByConceptSameAsUidAndParentUidManyToManyConnection {
+  """
+  A list of edges which contains the `Concept`, info from the `Concept`, and the cursor to aid in pagination.
+  """
+  edges: [ConceptConceptsByConceptSameAsUidAndParentUidManyToManyEdge!]!
+
+  """A list of `Concept` objects."""
+  nodes: [Concept!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Concept` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Concept` edge in the connection, with data from `Concept`."""
+type ConceptConceptsByConceptSameAsUidAndParentUidManyToManyEdge {
+  """Reads and enables pagination through a set of `Concept`."""
+  childConcepts(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ConceptCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ConceptFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Concept`."""
+    orderBy: [ConceptsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ConceptsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Concept` at the end of the edge."""
+  node: Concept!
+}
+
 """
 A condition to be used against `Concept` object types. All fields are tested for equality and combined with a logical ‘and.’
 """
@@ -1401,11 +1628,17 @@ input ConceptCondition {
   """Checks for equality with the object’s `description` field."""
   description: String
 
+  """Checks for equality with the object’s `kind` field."""
+  kind: ConceptKind
+
   """Checks for equality with the object’s `name` field."""
   name: String
 
   """Checks for equality with the object’s `originNamespace` field."""
   originNamespace: String
+
+  """Checks for equality with the object’s `parentUid` field."""
+  parentUid: String
 
   """Checks for equality with the object’s `revisionId` field."""
   revisionId: String
@@ -1494,6 +1727,12 @@ input ConceptFilter {
   """Checks for all expressions in this list."""
   and: [ConceptFilter!]
 
+  """Filter by the object’s `childConcepts` relation."""
+  childConcepts: ConceptToManyConceptFilter
+
+  """Some related `childConcepts` exist."""
+  childConceptsExist: Boolean
+
   """Filter by the object’s `conceptsBySameAs` relation."""
   conceptsBySameAs: ConceptToManyConceptFilter
 
@@ -1502,6 +1741,9 @@ input ConceptFilter {
 
   """Filter by the object’s `description` field."""
   description: StringFilter
+
+  """Filter by the object’s `kind` field."""
+  kind: ConceptKindFilter
 
   """Filter by the object’s `name` field."""
   name: StringFilter
@@ -1514,6 +1756,15 @@ input ConceptFilter {
 
   """Filter by the object’s `originNamespace` field."""
   originNamespace: StringFilter
+
+  """Filter by the object’s `parent` relation."""
+  parent: ConceptFilter
+
+  """A related `parent` exists."""
+  parentExists: Boolean
+
+  """Filter by the object’s `parentUid` field."""
+  parentUid: StringFilter
 
   """Filter by the object’s `revision` relation."""
   revision: RevisionFilter
@@ -1538,6 +1789,53 @@ input ConceptFilter {
 
   """Filter by the object’s `wikidataIdentifier` field."""
   wikidataIdentifier: StringFilter
+}
+
+enum ConceptKind {
+  CATEGORY
+  TAG
+}
+
+"""
+A filter to be used against ConceptKind fields. All fields are combined with a logical ‘and.’
+"""
+input ConceptKindFilter {
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: ConceptKind
+
+  """Equal to the specified value."""
+  equalTo: ConceptKind
+
+  """Greater than the specified value."""
+  greaterThan: ConceptKind
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: ConceptKind
+
+  """Included in the specified list."""
+  in: [ConceptKind!]
+
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Less than the specified value."""
+  lessThan: ConceptKind
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: ConceptKind
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: ConceptKind
+
+  """Not equal to the specified value."""
+  notEqualTo: ConceptKind
+
+  """Not included in the specified list."""
+  notIn: [ConceptKind!]
 }
 
 """
@@ -1654,11 +1952,15 @@ type ConceptsEdge {
 enum ConceptsOrderBy {
   DESCRIPTION_ASC
   DESCRIPTION_DESC
+  KIND_ASC
+  KIND_DESC
   NAME_ASC
   NAME_DESC
   NATURAL
   ORIGIN_NAMESPACE_ASC
   ORIGIN_NAMESPACE_DESC
+  PARENT_UID_ASC
+  PARENT_UID_DESC
   PRIMARY_KEY_ASC
   PRIMARY_KEY_DESC
   REVISION_ID_ASC
@@ -7945,6 +8247,40 @@ type Revision {
   ): ConceptsConnection!
 
   """Reads and enables pagination through a set of `Concept`."""
+  conceptsByConceptRevisionIdAndParentUid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ConceptCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ConceptFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Concept`."""
+    orderBy: [ConceptsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): RevisionConceptsByConceptRevisionIdAndParentUidManyToManyConnection!
+
+  """Reads and enables pagination through a set of `Concept`."""
   conceptsByConceptRevisionIdAndSameAsUid(
     """Read all values in the set after (below) this cursor."""
     after: Cursor
@@ -8843,6 +9179,66 @@ type RevisionCommitsByRevisionToCommitBAndAManyToManyEdge {
 
   """The `Commit` at the end of the edge."""
   node: Commit!
+}
+
+"""A connection to a list of `Concept` values, with data from `Concept`."""
+type RevisionConceptsByConceptRevisionIdAndParentUidManyToManyConnection {
+  """
+  A list of edges which contains the `Concept`, info from the `Concept`, and the cursor to aid in pagination.
+  """
+  edges: [RevisionConceptsByConceptRevisionIdAndParentUidManyToManyEdge!]!
+
+  """A list of `Concept` objects."""
+  nodes: [Concept!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Concept` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Concept` edge in the connection, with data from `Concept`."""
+type RevisionConceptsByConceptRevisionIdAndParentUidManyToManyEdge {
+  """Reads and enables pagination through a set of `Concept`."""
+  childConcepts(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ConceptCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ConceptFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Concept`."""
+    orderBy: [ConceptsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ConceptsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Concept` at the end of the edge."""
+  node: Concept!
 }
 
 """A connection to a list of `Concept` values, with data from `Concept`."""

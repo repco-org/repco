@@ -8,6 +8,7 @@ import {
   Repo as RepoRecord,
   Revision,
 } from 'repco-prisma'
+import { ZodError } from 'zod'
 import { DataSource, DataSourceRegistry } from './datasource.js'
 import {
   EntityInputWithHeaders,
@@ -46,6 +47,7 @@ import {
   RootIpld,
 } from './repo/types.js'
 import { MapList } from './util/collections.js'
+import { ParseError } from './util/error.js'
 import { createEntityId, createRevisionId } from './util/id.js'
 import { Mutex } from './util/mutex.js'
 
@@ -464,52 +466,64 @@ export class Repo {
   }
 
   async parseAndAssignUid(input: unknown): Promise<EntityInputWithHeaders> {
-    const headers = headersForm.parse(input)
-    const parsed = entityForm.parse(input)
-    const entity = repco.parseEntity(parsed.type, parsed.content)
+    try {
+      const headers = headersForm.parse(input)
+      const parsed = entityForm.parse(input)
+      const entity = repco.parseEntity(parsed.type, parsed.content)
 
-    // check for previous revision
-    let prevRevision
-    let uid = entity.content.uid
-    if (uid) {
-      prevRevision = await this.prisma.revision.findFirst({
-        where: { uid },
-        select: REVISION_SELECT,
-        orderBy: { id: 'desc' },
-      })
-    } else if (headers.entityUris?.length) {
-      prevRevision = await this.prisma.revision.findFirst({
-        where: { entityUris: { hasSome: headers.entityUris } },
-        select: REVISION_SELECT,
-        orderBy: { id: 'desc' },
-      })
-    }
-
-    let prevContentCid
-    if (prevRevision) {
-      if (prevRevision.entityType !== entity.type) {
-        throw new Error(
-          `Type mismatch: Previous revision has type ${prevRevision.entityType} and input has type ${entity.type}`,
-        )
-      }
-      if (uid && uid !== prevRevision.uid) {
-        throw new Error(
-          `Uid mismatch: Previous revision has uid ${prevRevision.uid} and input has uid ${entity.content.uid}`,
-        )
+      // check for previous revision
+      let prevRevision
+      let uid = entity.content.uid
+      if (uid) {
+        prevRevision = await this.prisma.revision.findFirst({
+          where: { uid },
+          select: REVISION_SELECT,
+          orderBy: { id: 'desc' },
+        })
+      } else if (headers.entityUris?.length) {
+        prevRevision = await this.prisma.revision.findFirst({
+          where: { entityUris: { hasSome: headers.entityUris } },
+          select: REVISION_SELECT,
+          orderBy: { id: 'desc' },
+        })
       }
 
-      headers.dateCreated = prevRevision.dateCreated
-      headers.prevRevisionId = prevRevision.id
-      uid = prevRevision.uid
-      prevContentCid = prevRevision.contentCid
-    } else {
-      headers.prevRevisionId = null
-      uid = createEntityId()
-    }
+      let prevContentCid
+      if (prevRevision) {
+        if (prevRevision.entityType !== entity.type) {
+          throw new Error(
+            `Type mismatch: Previous revision has type ${prevRevision.entityType} and input has type ${entity.type}`,
+          )
+        }
+        if (uid && uid !== prevRevision.uid) {
+          throw new Error(
+            `Uid mismatch: Previous revision has uid ${prevRevision.uid} and input has uid ${entity.content.uid}`,
+          )
+        }
 
-    setUid(entity, uid)
+        headers.dateCreated = prevRevision.dateCreated
+        headers.prevRevisionId = prevRevision.id
+        uid = prevRevision.uid
+        prevContentCid = prevRevision.contentCid
+      } else {
+        headers.prevRevisionId = null
+        uid = createEntityId()
+      }
 
+<<<<<<< HEAD
     return { ...entity, headers, prevContentCid }
+=======
+      setUid(entity, uid)
+
+      return { ...entity, headers, prevContentCid }
+    } catch (err) {
+      if (err instanceof ZodError) {
+        throw new ParseError(err, (input as any).type)
+      } else {
+        throw err
+      }
+    }
+>>>>>>> wip cba
   }
 
   private async ensureAgent(did: string) {
@@ -714,7 +728,7 @@ function setUid(
   input: repco.EntityInput,
   uid: string,
 ): asserts input is repco.EntityInputWithUid {
-  ; (input as any).uid = uid
+  ;(input as any).uid = uid
   input.content.uid = uid
 }
 

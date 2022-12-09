@@ -410,23 +410,33 @@ model File {
   Contributers  Contributer[]
 }
 
+enum ConceptKind {
+  TAG
+  CATEGORY
+}
+
 /// @repco(Entity)
 model Concept {
   uid        String @id @unique
   revisionId String @unique
 
   originNamespace    String?
+  kind               ConceptKind
   name               String
   summary            String?
   description        String?
   wikidataIdentifier String?
-  sameAsUid          String? @unique
+  sameAsUid          String?     @unique
+  parentUid          String?
 
-  Revision      Revision      @relation(fields: [revisionId], references: [id])
-  SameAs        Concept?      @relation("isSameAs", fields: [sameAsUid], references: [uid])
-  SameAsReverse Concept?      @relation("isSameAs")
-  ContentItems  ContentItem[]
-  MediaAssets   MediaAsset[]
+  Revision         Revision  @relation(fields: [revisionId], references: [id])
+  SameAs           Concept?  @relation("isSameAs", fields: [sameAsUid], references: [uid])
+  SameAsReverse    Concept?  @relation("isSameAs")
+  ParentConcept    Concept?  @relation("parentConcept", fields: [parentUid], references: [uid])
+  ChildrenConcepts Concept[] @relation("parentConcept")
+
+  ContentItems ContentItem[]
+  MediaAssets  MediaAsset[]
 }
 
 /// @repco(Entity)

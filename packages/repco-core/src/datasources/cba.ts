@@ -3,7 +3,7 @@
 import * as zod from 'zod'
 import { form } from 'repco-prisma'
 import { fetch } from 'undici'
-import { CbaPost, CbaSeries } from './cba/types.js'
+import { CbaCategory, CbaPost, CbaSeries, CbaTag } from './cba/types.js'
 import {
   DataSource,
   DataSourceDefinition,
@@ -11,7 +11,7 @@ import {
   FetchUpdatesResult,
   SourceRecordForm,
 } from '../datasource.js'
-import { ContentGroupingVariant, EntityForm } from '../entity.js'
+import { ConceptKind, ContentGroupingVariant, EntityForm } from '../entity.js'
 import { FetchOpts } from '../util/datamapping.js'
 import { HttpError } from '../util/error.js'
 
@@ -85,6 +85,7 @@ export class CbaDataSource implements DataSource {
   }
 
   async fetchByUri(uri: string): Promise<SourceRecordForm[]> {
+    console.log('fetchByUri', uri)
     const parsed = this.parseUri(uri)
     if (!parsed) throw new Error('Invalid URI')
     switch (parsed.type) {
@@ -125,6 +126,30 @@ export class CbaDataSource implements DataSource {
           },
         ]
       }
+      case 'category': {
+        const url = this._url(`/categories/${parsed.id}`)
+        const body = await this._fetch(url)
+        return [
+          {
+            body: JSON.stringify(body),
+            contentType: CONTENT_TYPE_JSON,
+            sourceType: 'category',
+            sourceUri: url,
+          },
+        ]
+      }
+      case 'tag': {
+        const url = this._url(`/tags/${parsed.id}`)
+        const body = await this._fetch(url)
+        return [
+          {
+            body: JSON.stringify(body),
+            contentType: CONTENT_TYPE_JSON,
+            sourceType: 'tag',
+            sourceUri: url,
+          },
+        ]
+      }
     }
     throw new Error('Unsupported CBA data type: ' + parsed.type)
   }
@@ -146,7 +171,7 @@ export class CbaDataSource implements DataSource {
     {
       let postsCursor = cursor.posts
       if (!postsCursor) postsCursor = '1970-01-01T01:00:00'
-      const perPage = 100
+      const perPage = 2
       const url = this._url(
         `/posts?page=1&per_page=${perPage}&_embed&orderby=modified&order=asc&modified_after=${postsCursor}`,
       )
@@ -181,6 +206,10 @@ export class CbaDataSource implements DataSource {
         return this._mapMedia(body)
       case 'series':
         return this._mapSeries(body)
+      case 'category':
+        return this._mapCategory(body)
+      case 'tag':
+        return this._mapTag(body)
       case 'posts':
         return (body as CbaPost[]).map((post) => this._mapPost(post)).flat()
       default:
@@ -286,10 +315,12 @@ export class CbaDataSource implements DataSource {
     const fileId = this._uri('file', media.id)
     const mediaId = this._uri('media', media.id)
     const details = media.media_details
+    let bitrate = null
+    if (details?.bitrate) bitrate = parseInt(details.bitrate)
     const file: form.FileInput = {
       // uid: fileId,
       contentUrl: media.source_url,
-      bitrate: details?.bitrate || null,
+      bitrate,
       // additionalMetadata: null,
       codec: null,
       // contentSize: null,
@@ -317,6 +348,43 @@ export class CbaDataSource implements DataSource {
       entityUris: [mediaId],
     }
     return [fileEntity, mediaEntity]
+  }
+
+  private _mapCategory(category: CbaCategory): EntityForm[] {
+    const content: form.ConceptInput = {
+      name: category.name,
+      description: category.description,
+      kind: ConceptKind.CATEGORY,
+    }
+    if (category.parent) {
+      content.ParentConcept = { uri: this._uri('category', category.parent) }
+    }
+    const revisionId = this._revisionUri(
+      'category',
+      category.id,
+      new Date().getTime(),
+    )
+    const uri = this._uri('category', category.id)
+    const headers = {
+      revisionUris: [revisionId],
+      entityUris: [uri],
+    }
+    return [{ type: 'Concept', content, ...headers }]
+  }
+
+  private _mapTag(tag: CbaTag): EntityForm[] {
+    const content: form.ConceptInput = {
+      name: tag.name,
+      description: tag.description,
+      kind: ConceptKind.TAG,
+    }
+    const revisionId = this._revisionUri('tag', tag.id, new Date().getTime())
+    const uri = this._uri('tag', tag.id)
+    const headers = {
+      revisionUris: [revisionId],
+      entityUris: [uri],
+    }
+    return [{ type: 'Concept', content, ...headers }]
   }
 
   private _mapSeries(series: CbaSeries): EntityForm[] {
@@ -353,7 +421,17 @@ export class CbaDataSource implements DataSource {
       .map((x) => x.entityUris || [])
       .flat()
 
+    const categories = post.categories.map((cbaId) => ({
+      uri: this._uri('category', cbaId),
+    }))
+    const tags = post.tags.map((cbaId) => ({
+      uri: this._uri('tag', cbaId),
+    }))
+
+    const conceptsUris = categories.concat(tags)
+    console.log('concepts', conceptsUris)
     const content: form.ContentItemInput = {
+      pubDate: new Date(post.date),
       content: post.content.rendered,
       contentFormat: 'text/html',
       title: post.title.rendered,
@@ -361,6 +439,11 @@ export class CbaDataSource implements DataSource {
       // primaryGroupingUid: null,
       subtitle: 'missing',
       summary: post.excerpt.rendered,
+      //Contributions: { uri: this_uri() },
+      //AdditionalGroupings: {}
+      //License
+      //BroadcastEvents
+      Concepts: conceptsUris,
       MediaAssets: mediaAssetUris.map((uri) => ({ uri })),
       PrimaryGrouping: { uri: this._uri('series', post.post_parent) },
     }
@@ -370,6 +453,7 @@ export class CbaDataSource implements DataSource {
       new Date(post.modified).getTime(),
     )
     const entityUri = this._uri('post', post.id)
+
     const headers = {
       revisionUris: [revisionId],
       entityUris: [entityUri],
@@ -401,7 +485,7 @@ export class CbaDataSource implements DataSource {
     }
     const res = await fetch(url.toString(), opts)
     if (!res.ok) {
-      throw await HttpError.fromResponseJson(res)
+      throw await HttpError.fromResponseJson(res, url)
     }
     const json = await res.json()
     return json as T
