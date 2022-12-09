@@ -50,6 +50,14 @@ import { createEntityId, createRevisionId } from './util/id.js'
 
 export * from './repo/types.js'
 
+export type SaveBatchOpts = {
+  commitEmpty: boolean,
+}
+
+export const SAVE_BATCH_DEFAULTS = {
+  commitEmpty: false
+}
+
 export type RevisionWithoutCid = Omit<Revision, 'revisionCid'>
 export type RevisionWithUnknownContent = {
   content: unknown
@@ -149,7 +157,9 @@ export class Repo {
         name,
       },
     })
-    return Repo.open(prisma, did)
+    const repo = await Repo.open(prisma, did)
+    await repo.saveBatch('_me', [], { commitEmpty: true })
+    return repo
   }
 
   static async open(prisma: PrismaClient, didOrName: string): Promise<Repo> {
@@ -303,11 +313,17 @@ export class Repo {
   }
 
   async getHead(): Promise<common.CID> {
+    const head = await this.getHeadMaybe()
+    if (!head) throw new Error('Repo is empty')
+    return head
+  }
+
+  async getHeadMaybe(): Promise<common.CID | null> {
     const row = await this.prisma.repo.findUnique({
       where: { did: this.did },
       select: { head: true },
     })
-    if (!row || !row.head) throw new Error('Repo may not be empty')
+    if (!row || !row.head) return null
     return common.parseCid(row.head)
   }
 
@@ -347,8 +363,9 @@ export class Repo {
     return importRepoFromCar(this, stream, onProgress)
   }
 
-  async saveBatch(_agentDid: string, inputs: unknown[]) {
+  async saveBatch(_agentDid: string, inputs: unknown[], opts: Partial<SaveBatchOpts> = {}) {
     if (!this.writeable) throw new Error('Repo is not writeable')
+    const fullOpts: SaveBatchOpts = { ...opts, ...SAVE_BATCH_DEFAULTS }
     // Parse and assign uids.
     const parsedInputs = await Promise.all(
       inputs.map((input) => this.parseAndAssignUid(input)),
@@ -357,23 +374,24 @@ export class Repo {
     // Resolve missing relations.
     const entities = await RelationFinder.resolve(this, parsedInputs)
 
-    if (!entities.length) return []
+    if (!fullOpts.commitEmpty && !entities.length) return null
 
     // Save the batch in one transaction.
     return this.$transaction(async (repo) => {
-      const res = await repo.saveBatchInner(entities)
+      const res = await repo.saveBatchInner(entities, fullOpts)
       return res
     })
   }
 
-  private async saveBatchInner(entities: EntityInputWithHeaders[]) {
+  private async saveBatchInner(entities: EntityInputWithHeaders[], opts: SaveBatchOpts) {
     if (!this.publishingCapability) throw new Error('Repo is not writable')
     const agentKeypair = await getInstanceKeypair(this.prisma)
-    const parent = await this.getHead()
+    const parent = await this.getHeadMaybe()
     const bundle = await this.ipld.createCommit(
       entities,
       agentKeypair,
       this.publishingCapability,
+      opts,
       parent,
     )
     if (!bundle) return null
@@ -585,7 +603,8 @@ export class IpldRepo {
     entities: EntityInputWithHeaders[],
     agentKeypair: ucans.EdKeypair,
     publishingCapability: string,
-    parentCommit?: CID,
+    opts: SaveBatchOpts,
+    parentCommit?: CID | null,
   ) {
     const agentDid = agentKeypair.did()
     const timestamp = new Date()
@@ -600,7 +619,7 @@ export class IpldRepo {
       }
     }
 
-    if (!revisions.length) return null
+    if (!opts.commitEmpty && !revisions.length) return null
 
     // save commit ipld
     const commit: CommitIpld = {
@@ -631,6 +650,7 @@ export class IpldRepo {
     }
     return bundle
   }
+
   private async createRevision(
     agentDid: string,
     entity: EntityInputWithHeaders,
