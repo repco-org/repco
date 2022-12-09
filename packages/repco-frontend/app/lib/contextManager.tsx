@@ -39,10 +39,12 @@ function assertNever(x: never): never {
 
 export class ContextManager {
   private static instance: ContextManager
-  private contexts: Map<string, React.Context<Context<any>>>
+  private listContexts: Map<string, React.Context<Context<any>>>
+  private mapContexts: Map<string, React.Context<Context<any>>>
 
   private constructor() {
-    this.contexts = new Map<string, any>()
+    this.listContexts = new Map<string, any>()
+    this.mapContexts = new Map<string, any>()
   }
 
   public static getInstance(): ContextManager {
@@ -52,23 +54,21 @@ export class ContextManager {
     return ContextManager.instance
   }
 
-  public addContext<T>(name: string, initial: Context<T>) {
-    const context = createContext(initial)
-    this.contexts.set(name, context)
+  public addListContext<T>(name: string) {
+    const context = createContext({} as Context<T>)
+    this.listContexts.set(name, context)
     const ContextProvider = ({ children }: PropsWithChildren) => {
       const hydrated = typeof window !== 'undefined'
       const [state, dispatch] = useReducer(
-        this.reducer,
-        { ...initial.state },
+        createLocalStorageReducer(name),
+        {
+          store: [] as Entity<T>[],
+          error: null,
+        },
         (state) => {
           const persistedData = hydrated && window.localStorage.getItem(name)
           const items = persistedData ? JSON.parse(persistedData) : state.store
-          const store =
-            state.store instanceof Map
-              ? new Map<string, Entity<T>>(Object.entries(items))
-              : state.store instanceof Array
-              ? [...items]
-              : items
+          const store = [...items]
           return {
             ...state,
             store: store,
@@ -76,14 +76,39 @@ export class ContextManager {
         },
       )
 
-      hydrated
-        ? state.store instanceof Map
-          ? window.localStorage.setItem(
-              name,
-              JSON.stringify(Object.fromEntries(state.store.entries())),
-            )
-          : window.localStorage.setItem(name, JSON.stringify(state.store))
-        : null
+      return (
+        <context.Provider value={{ state, dispatch } as Context<T>}>
+          {children}
+        </context.Provider>
+      )
+    }
+    this.listContexts.set(name, context)
+    return ContextProvider
+  }
+
+  public addMapContext<T>(name: string) {
+    const context = createContext({} as Context<T>)
+    this.mapContexts.set(name, context)
+    const ContextProvider = ({ children }: PropsWithChildren) => {
+      const [state, dispatch] = useReducer(
+        createLocalStorageReducer(name),
+        {
+          store: new Map<string, T>(),
+          error: null,
+        },
+        (state) => {
+          const data =
+            (Object.entries(getPersistentData(name)) as [
+              string,
+              Entity<T>,
+            ][]) || state.store
+          const store = new Map<string, Entity<T>>(data)
+          return {
+            ...state,
+            store: store,
+          }
+        },
+      )
 
       return (
         <context.Provider value={{ state, dispatch } as Context<T>}>
@@ -91,39 +116,24 @@ export class ContextManager {
         </context.Provider>
       )
     }
-
+    this.mapContexts.set(name, context)
     return ContextProvider
   }
 
-  public getContext<T>(name: string) {
-    return this.contexts.get(name) as React.Context<Context<T>>
+  public getListContext<T>(name: string) {
+    return this.listContexts.get(name) as React.Context<Context<T>>
   }
 
-  private reducer<T>(state: State<T>, action: Action<T>): State<T> {
-    switch (action.type) {
-      case 'CREATE':
-        if (action.payload.id in state.store) {
-          return { ...state, error: 'ID already exists' }
-        }
-
-      case 'UPDATE':
-        let result = saveEntity(state.store, action.payload)
-        return { ...state, ...result }
-
-      case 'DELETE':
-        if (state.store instanceof Map) {
-          state.store.delete(action.payload.id)
-        } else if (Array.isArray(state.store)) {
-          state.store = state.store.filter((e) => e.id !== action.payload.id)
-        }
-        return { ...state }
-
-      case 'FAILURE':
-        return { ...state, error: action.payload }
-      default:
-        return assertNever(action)
-    }
+  public getMapContext<T>(name: string) {
+    return this.mapContexts.get(name) as React.Context<Context<T>>
   }
+}
+
+function getPersistentData(name: string) {
+  const hydrated = typeof window !== 'undefined'
+  const persistedData = hydrated && window.localStorage.getItem(name)
+  const items = persistedData && JSON.parse(persistedData)
+  return items
 }
 
 function saveEntity<T>(
@@ -138,4 +148,51 @@ function saveEntity<T>(
     return { error: new Error('Store is not a Map or Array').message }
   }
   return { store }
+}
+
+function createLocalStorageReducer<T>(name: string) {
+  return (state: State<T>, action: Action<T>): State<T> => {
+    const hydrated = typeof window !== 'undefined'
+    const nextState = reducerInner(state, action)
+    if (nextState !== state) {
+      hydrated
+        ? state.store instanceof Map
+          ? window.localStorage.setItem(
+              name,
+              JSON.stringify(Object.fromEntries(state.store.entries())),
+            )
+          : window.localStorage.setItem(name, JSON.stringify(state.store))
+        : null
+    }
+    return nextState
+  }
+}
+
+function reducerInner<T>(state: State<T>, action: Action<T>): State<T> {
+  switch (action.type) {
+    case 'CREATE': {
+      if (action.payload.id in state.store) {
+        return { ...state, error: 'ID already exists' }
+      }
+      const result = saveEntity(state.store, action.payload)
+      return { ...state, ...result }
+    }
+
+    case 'UPDATE':
+      const result = saveEntity(state.store, action.payload)
+      return { ...state, ...result }
+
+    case 'DELETE':
+      if (state.store instanceof Map) {
+        state.store.delete(action.payload.id)
+      } else if (Array.isArray(state.store)) {
+        state.store = state.store.filter((e) => e.id !== action.payload.id)
+      }
+      return { ...state }
+
+    case 'FAILURE':
+      return { ...state, error: action.payload }
+    default:
+      return assertNever(action)
+  }
 }
