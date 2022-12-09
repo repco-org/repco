@@ -1,13 +1,18 @@
-import { Link } from 'repco-common/zod'
 import RssParser from 'rss-parser'
 import zod from 'zod'
+import { Link } from 'repco-common/zod'
+import { fetch } from 'undici'
 import {
   DataSource,
   DataSourceDefinition,
   DataSourcePlugin,
+  FetchUpdatesResult,
+  SourceRecordForm,
 } from '../datasource.js'
-import { EntityBatch, EntityForm } from '../entity.js'
+import { EntityForm } from '../entity.js'
 import { createHash, createJsonHash } from '../util/hash.js'
+
+type ParsedFeed = RssParser.Output<any>
 
 export class RssDataSourcePlugin implements DataSourcePlugin {
   createInstance(config: any) {
@@ -86,6 +91,10 @@ export class RssDataSource implements DataSource {
     this.baseUid = 'urn:repco:rss:' + this.endpoint.hostname
   }
 
+  get config() {
+    return { endpoint: this.endpoint }
+  }
+
   get definition(): DataSourceDefinition {
     const uid = this.baseUid
     return {
@@ -95,19 +104,19 @@ export class RssDataSource implements DataSource {
     }
   }
 
-  canFetchUID(uid: string): boolean {
+  canFetchUri(_uid: string): boolean {
     return false
   }
 
-  async fetchByUID(uid: string): Promise<EntityForm[]> {
+  async fetchByUri(_uid: string): Promise<SourceRecordForm[]> {
     return []
   }
 
   // The algorithm works as follows:
   // 1. Fetch most recent page
-  async _crawlNewestUntil(
+  private async _crawlNewestUntil(
     cursor: CursorNewest,
-  ): Promise<{ entities: EntityForm[]; cursor: CursorNewest }> {
+  ): Promise<{ xml: string; cursor: CursorNewest }> {
     const url = new URL(this.endpoint)
 
     // TODO: Make configurable
@@ -124,8 +133,16 @@ export class RssDataSource implements DataSource {
       (page * pagination.limit).toString(),
     )
 
-    const { feed, entities } = await this.fetchPage(url)
-    if (!feed.items.length) return { entities: [], cursor }
+    const xml = await this.fetchPage(url)
+    // TODO: Try to prevent double-parsing
+    const feed = await this.parser.parseString(xml)
+    const nextCursor = this.extractNextCursor(cursor, feed)
+    return { xml, cursor: nextCursor }
+  }
+
+  private extractNextCursor(cursor: CursorNewest, feed: ParsedFeed) {
+    if (!feed.items.length) return cursor
+    const page = cursor.pageNumber || 0
 
     const [newestPubDate, oldestPubDate] = getDateRangeFromFeed(feed)
 
@@ -171,10 +188,7 @@ export class RssDataSource implements DataSource {
       }
     }
 
-    return {
-      entities,
-      cursor: nextCursor,
-    }
+    return nextCursor
   }
 
   // TODO: Implement
@@ -199,29 +213,48 @@ export class RssDataSource implements DataSource {
     // const nextCursor = { ...cursor }
   }
 
-  async fetchPage(
-    url: URL,
-  ): Promise<{ feed: RssParser.Output<any>; entities: EntityForm[] }> {
-    const feed = await this.parser.parseURL(url.toString())
+  async fetchPage(url: URL): Promise<string> {
+    const res = await fetch(url)
+    const text = await res.text()
+    return text
+  }
+
+  async mapPage(feed: ParsedFeed) {
     const entities = []
     for (const item of feed.items) {
       entities.push(...(await this._mapItem(item)))
     }
-    return { entities, feed }
+    return entities
   }
 
-  async fetchUpdates(cursorInput: string | null): Promise<EntityBatch> {
+  async fetchUpdates(cursorInput: string | null): Promise<FetchUpdatesResult> {
     const cursor = parseCursor(cursorInput)
-    const entities = []
     const nextCursor = cursor
-    const res = await this._crawlNewestUntil(cursor.newest)
-    entities.push(...res.entities)
-    nextCursor.newest = res.cursor
-    const batch = {
+    const { cursor: nextNewestCursor, xml } = await this._crawlNewestUntil(
+      cursor.newest,
+    )
+    nextCursor.newest = nextNewestCursor
+    const sourceUri = new URL(this.endpoint)
+    sourceUri.hash = new Date().toISOString()
+    return {
       cursor: JSON.stringify(nextCursor),
-      entities,
+      records: [
+        {
+          contentType: 'application/rss+xml',
+          sourceUri: sourceUri.toString(),
+          sourceType: 'feedPage',
+          body: xml,
+        },
+      ],
     }
-    return batch
+  }
+
+  async mapSourceRecord(record: SourceRecordForm): Promise<EntityForm[]> {
+    if (record.sourceType !== 'feedPage')
+      throw new Error('Invalid source type: ' + record.sourceType)
+    const feed = await this.parser.parseString(record.body)
+    const entities = await this.mapPage(feed)
+    return entities
   }
 
   _urn(...parts: string[]): string {

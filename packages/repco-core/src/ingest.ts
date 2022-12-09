@@ -1,9 +1,9 @@
 import {
-  DataSourcePluginRegistry,
   DataSourceRegistry,
   ingestUpdatesFromDataSource,
 } from './datasource.js'
 import { EntityWithRevision } from './entity.js'
+import { DataSourcePluginRegistry } from './plugins.js'
 import { Repo } from './repo.js'
 
 // export type WorkerConstructor
@@ -12,21 +12,25 @@ export enum WorkerStatus {
   Stopped = 'stopped',
 }
 
-export abstract class Worker<Conf = void> {
-  constructor(public plugins: DataSourcePluginRegistry, public repo: Repo) { }
+export abstract class Worker {
+  constructor() { }
   abstract start(): Promise<void>
   // abstract status(): WorkerStatus
   async stop(): Promise<void> { }
 }
 
-export abstract class Indexer<Conf = void> extends Worker<Conf> {
+export abstract class Indexer extends Worker {
   abstract onRevisions(revisions: EntityWithRevision[]): Promise<void>
 }
 
-export class Ingester extends Worker<void> {
+export class Ingester extends Worker {
   interval = 1000 * 60
-  constructor(plugins: DataSourcePluginRegistry, public repo: Repo) {
-    super(plugins, repo)
+  plugins: DataSourcePluginRegistry
+  repo: Repo
+  constructor(plugins: DataSourcePluginRegistry, repo: Repo) {
+    super()
+    this.plugins = plugins
+    this.repo = repo
   }
 
   get datasources(): DataSourceRegistry {
@@ -34,16 +38,7 @@ export class Ingester extends Worker<void> {
   }
 
   async init() {
-    const savedDataSources = await this.repo.prisma.dataSource.findMany()
-    for (const model of savedDataSources) {
-      if (!model.pluginUid || !this.plugins.has(model.pluginUid)) {
-        console.error(
-          `Skip init of data source ${model.uid}: Unknown plugin ${model.pluginUid}`,
-        )
-      }
-      const ds = this.plugins.createInstance(model.pluginUid!, model.config)
-      this.datasources.register(ds)
-    }
+    await this.repo.dsr.hydrate(this.repo.prisma, this.plugins)
   }
 
   async start(): Promise<void> {
