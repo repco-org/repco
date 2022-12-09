@@ -239,17 +239,19 @@ model ContentItem {
   content       String
   contentFormat String
 
-  primaryGroupingUid String?
-  licenseUid         String?
+  primaryGroupingUid    String?
+  publicationServiceUid String?
+  licenseUid            String?
 
-  Revision            Revision          @relation(fields: [revisionId], references: [id])
+  Revision            Revision            @relation(fields: [revisionId], references: [id])
   AdditionalGroupings ContentGrouping[]
   BroadcastEvents     BroadcastEvent[]
   Concepts            Concept[]
   Contributions       Contribution[]
-  License             License?          @relation(fields: [licenseUid], references: [uid])
+  License             License?            @relation(fields: [licenseUid], references: [uid])
   MediaAssets         MediaAsset[]
-  PrimaryGrouping     ContentGrouping?  @relation("primaryGrouping", fields: [primaryGroupingUid], references: [uid])
+  PrimaryGrouping     ContentGrouping?    @relation("primaryGrouping", fields: [primaryGroupingUid], references: [uid])
+  PublicationService  PublicationService? @relation(fields: [publicationServiceUid], references: [uid])
 }
 
 /// @repco(Entity)
@@ -363,6 +365,7 @@ model PublicationService {
 
   Revision        Revision         @relation(fields: [revisionId], references: [id])
   BroadcastEvents BroadcastEvent[]
+  ContentItem     ContentItem[]
 }
 
 /// @repco(Entity)
