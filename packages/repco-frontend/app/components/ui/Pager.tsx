@@ -11,7 +11,6 @@ export function Pager({
   includes: string[]
 }) {
   if (!pageInfo) return null
-
   return (
     <div className="py-4 flex justify-center flex-row mx-auto">
       {pageInfo?.hasPreviousPage && (

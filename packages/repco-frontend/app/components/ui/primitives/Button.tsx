@@ -3,33 +3,36 @@ import { NavLink } from '@remix-run/react'
 import type { VariantProps } from 'class-variance-authority'
 import { cva, cx } from 'class-variance-authority'
 import type { ClassProp } from 'class-variance-authority/dist/types'
+import { forwardRef } from 'react'
 
-export const stylesButton = cva('', {
-  variants: {
-    disabled: {
-      true: 'opacity-70 pointer-events-none cursor-not-allowed',
-    },
-    variantSize: {
-      icon: '!p-1',
-      md: 'py-1 px-3 text-base ',
-      sm: 'py-1 px-2 text-sm',
-    },
-    variant: {
-      default: [
-        'border rounded-md items-center transition-colors duration-100 cursor-default disabled:opacity-50',
-        'text-blue-700',
-        'bg-white-700 hover:text-purple-500 placeholder:focus:ring-purple-500',
-        'focus:ring-2 focus:outline-none inline-flex',
-      ],
+export const stylesButton = cva(
+  'border rounded-md items-center transition-colors duration-100 cursor-default disabled:opacity-50',
+  {
+    variants: {
+      disabled: {
+        true: 'opacity-70 pointer-events-none cursor-not-allowed',
+      },
+      variantSize: {
+        icon: '!p-1',
+        md: 'py-1 px-3 text-base ',
+        sm: 'py-1 px-2 text-sm',
+      },
+      variant: {
+        default: [
+          'text-blue-700',
+          'bg-white-700 hover:text-purple-500 placeholder:focus:ring-purple-500',
+          'focus:ring-2 focus:outline-none inline-flex',
+        ],
 
-      bare: '',
+        bare: '',
+      },
+    },
+    defaultVariants: {
+      variantSize: 'sm',
+      variant: 'default',
     },
   },
-  defaultVariants: {
-    variantSize: 'sm',
-    variant: 'default',
-  },
-})
+)
 
 export interface ButtonBaseProps extends VariantProps<typeof stylesButton> {}
 
@@ -37,15 +40,43 @@ export type ButtonProps = ButtonBaseProps &
   React.ButtonHTMLAttributes<HTMLButtonElement> &
   ClassProp
 
+export type IconButtonProps = ButtonBaseProps &
+  React.ButtonHTMLAttributes<HTMLButtonElement> &
+  ClassProp & {
+    icon?: JSX.Element
+  }
+
 export type NavButtonProps = ButtonBaseProps &
   React.ButtonHTMLAttributes<HTMLButtonElement> &
   NavLinkProps &
   ClassProp
 
-export function Button(props: ButtonProps) {
-  const className = cx(stylesButton(props))
-  return <button className={className} {...props} />
-}
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  (props, ref) => {
+    const className = cx(stylesButton(props))
+    return <button ref={ref} className={className} {...props} />
+  },
+)
+
+export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
+  (props, ref) => {
+    const className = cx(stylesButton(props))
+    const icon = props.icon
+    return (
+      <button
+        ref={ref}
+        className={className}
+        {...props}
+        style={{ minWidth: '2rem' }}
+      >
+        <div className="py-2 px-4 rounded inline-flex items-center">
+          <div className="mr-2">{props.children}</div>
+          {icon ? icon : null}
+        </div>
+      </button>
+    )
+  },
+)
 
 export function NavButton(props: NavButtonProps) {
   const className = cx(stylesButton(props))

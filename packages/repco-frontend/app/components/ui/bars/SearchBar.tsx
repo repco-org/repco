@@ -1,6 +1,6 @@
 import { Form, useSubmit } from '@remix-run/react'
 import { CollapsibleFilter } from '../Collapsible'
-import { IconSearchInput } from '../primitives/Input'
+import { InputWithIcon } from '../primitives/Input'
 
 export function SearchBar({ path }: { path: string }) {
   const submit = useSubmit()
@@ -13,12 +13,12 @@ export function SearchBar({ path }: { path: string }) {
       }}
     >
       <div className="flex">
-        <IconSearchInput
+        <InputWithIcon
           name="includes"
           type="search"
           variant="icon"
-          variantSize="sm"
           placeholder="Search Titles..."
+          icon="search"
         />
       </div>
 

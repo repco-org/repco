@@ -8,7 +8,6 @@ import {
 } from '@radix-ui/react-icons'
 import { NavLink } from '@remix-run/react'
 import { useEffect, useState } from 'react'
-import { getStorage, setStorage } from '~/lib/helpers'
 import { NewPlaylistBar } from './bars/NewPlaylistBar'
 import { Input } from './primitives/Input'
 
@@ -63,15 +62,15 @@ export function CollapsiblePlaylist(props: Props) {
   const [added, setAdded] = useState('')
 
   function addToPlaylist(playlist: string, node: string) {
-    setStorage(playlist, node)
-    setPlaylists(getStorage('playlists'))
+    // setStorage(playlist, node)
+    // setPlaylists(getStorage('playlists'))
     setAdded(playlist)
   }
 
   useEffect(() => {
     if (!showData) return
     if (typeof window !== 'undefined') {
-      setPlaylists(getStorage('playlists'))
+      // SET PLAYLIST
       setShowData(false)
     }
   }, [showData])
