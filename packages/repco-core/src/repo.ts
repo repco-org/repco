@@ -51,11 +51,11 @@ import { createEntityId, createRevisionId } from './util/id.js'
 export * from './repo/types.js'
 
 export type SaveBatchOpts = {
-  commitEmpty: boolean,
+  commitEmpty: boolean
 }
 
 export const SAVE_BATCH_DEFAULTS = {
-  commitEmpty: false
+  commitEmpty: false,
 }
 
 export type RevisionWithoutCid = Omit<Revision, 'revisionCid'>
@@ -89,7 +89,7 @@ const REVISION_SELECT = {
   entityType: true,
   dateCreated: true,
   uid: true,
-  contentCid: true
+  contentCid: true,
 }
 
 function defaultBlockStore(
@@ -363,7 +363,11 @@ export class Repo {
     return importRepoFromCar(this, stream, onProgress)
   }
 
-  async saveBatch(_agentDid: string, inputs: unknown[], opts: Partial<SaveBatchOpts> = {}) {
+  async saveBatch(
+    _agentDid: string,
+    inputs: unknown[],
+    opts: Partial<SaveBatchOpts> = {},
+  ) {
     if (!this.writeable) throw new Error('Repo is not writeable')
     const fullOpts: SaveBatchOpts = { ...opts, ...SAVE_BATCH_DEFAULTS }
     // Parse and assign uids.
@@ -383,7 +387,10 @@ export class Repo {
     })
   }
 
-  private async saveBatchInner(entities: EntityInputWithHeaders[], opts: SaveBatchOpts) {
+  private async saveBatchInner(
+    entities: EntityInputWithHeaders[],
+    opts: SaveBatchOpts,
+  ) {
     if (!this.publishingCapability) throw new Error('Repo is not writable')
     const agentKeypair = await getInstanceKeypair(this.prisma)
     const parent = await this.getHeadMaybe()
@@ -492,7 +499,6 @@ export class Repo {
 
     setUid(entity, uid)
 
-
     return { ...entity, headers, prevContentCid }
   }
 
@@ -595,7 +601,7 @@ export class Repo {
 }
 
 export class IpldRepo {
-  constructor(public record: RepoRecord, public blockstore: IpldBlockStore) {}
+  constructor(public record: RepoRecord, public blockstore: IpldBlockStore) { }
   get did() {
     return this.record.did
   }
@@ -819,9 +825,10 @@ export class RelationFinder {
       }
 
       // try to fetch them from the datasources
-      const { fetched, notFound } = await this.repo.dsr.fetchEntities(this.repo, [
-        ...this.pendingUris,
-      ])
+      const { fetched, notFound } = await this.repo.dsr.fetchEntities(
+        this.repo,
+        [...this.pendingUris],
+      )
       notFound.forEach((uri) => {
         this.missingUris.add(uri)
         this.pendingUris.delete(uri)

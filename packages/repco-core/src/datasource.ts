@@ -9,12 +9,32 @@ export type { DataSourcePlugin } from './plugins.js'
 
 type UID = string
 
+const kParsedBody = Symbol.for('parsedBody')
+type ParseBodyFn<T> = (form: SourceRecordForm) => Promise<T>;
+
+export async function parseBodyCached<T>(form: SourceRecordForm, parserFn: ParseBodyFn<T>) {
+  let parsedBody = getParsedBody(form)
+  if (!parsedBody) {
+    parsedBody = await parserFn(form)
+    setParsedBody(form, parsedBody)
+  }
+  return parsedBody as T
+}
+export function setParsedBody(form: SourceRecordForm, parsedBody: any) {
+  form[kParsedBody] = parsedBody
+}
+export function getParsedBody(form: SourceRecordForm): undefined | any {
+  return form[kParsedBody]
+}
+
+
 export type SourceRecordForm = {
   sourceUri: string
   contentType: string
   body: string
   sourceType: string
   meta?: any
+  [kParsedBody]?: any
 }
 
 export type FetchUpdatesResult = { cursor: string; records: SourceRecordForm[] }
@@ -245,6 +265,11 @@ export async function remapDataSource(repo: Repo, datasource: DataSource) {
   const batchSize = 10
 
   let cursor: string | undefined = undefined
+  const state = {
+    savedRevisions: 0,
+    processedSourceRecords: 0,
+    processedEntities: 0,
+  }
   while (true) {
     const records: SourceRecord[] = await fetchSourceRecords(
       repo.prisma,
@@ -252,16 +277,20 @@ export async function remapDataSource(repo: Repo, datasource: DataSource) {
       batchSize,
       cursor,
     )
+    state.processedSourceRecords += 1
     if (!records.length) break
 
     const nextCursor = records[records.length - 1].uid
     if (nextCursor === cursor) break
 
     const entities = await mapAndPersistSourceRecord(repo, datasource, records)
-    await repo.saveBatch('me', entities)
+    state.processedEntities += entities.length
+    const ret = await repo.saveBatch('me', entities)
+    if (ret) state.savedRevisions += ret.length
 
     cursor = nextCursor
   }
+  return state
 }
 
 async function fetchSourceRecords(

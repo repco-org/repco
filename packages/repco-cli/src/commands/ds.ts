@@ -1,14 +1,22 @@
 import Table from 'cli-table3'
 import pc from 'picocolors'
-import { createCommand, createCommandGroup } from '../parse.js'
-import { Ingester, Repo, defaultDataSourcePlugins as plugins } from 'repco-core'
+import {
+  defaultDataSourcePlugins as plugins,
+  Ingester,
+  remapDataSource,
+  Repo,
+} from 'repco-core'
+import { CliError, createCommand, createCommandGroup } from '../parse.js'
 
 export const listPlugins = createCommand({
   name: 'list-plugins',
   help: 'List datasource plugins',
   async run() {
     const head = ['Uid', 'Name'].map(pc.red)
-    const data = plugins.all().map(plugin => plugin.definition).map(d => [d.uid, d.name])
+    const data = plugins
+      .all()
+      .map((plugin) => plugin.definition)
+      .map((d) => [d.uid, d.name])
     const table = new Table({ head })
     table.push(...data)
     console.log(table.toString())
@@ -20,12 +28,14 @@ export const list = createCommand({
   help: 'Show configured datasources in a repo',
   options: {
     repo: { type: 'string', short: 'r', help: 'Repo name or DID' },
-    json: { type: 'boolean', short: 'j', help: 'Output as JSON'}
+    json: { type: 'boolean', short: 'j', help: 'Output as JSON' },
   },
   async run(opts) {
     const repo = await Repo.openWithDefaults(opts.repo)
     await repo.dsr.hydrate(repo.prisma, plugins)
-    const data = repo.dsr.all().map(ds => ({ ...ds.definition, config: ds.config }))
+    const data = repo.dsr
+      .all()
+      .map((ds) => ({ ...ds.definition, config: ds.config }))
     if (opts.json) {
       console.log(JSON.stringify(data))
     } else {
@@ -40,7 +50,7 @@ export const list = createCommand({
         const table = new Table({
           wordWrap: true,
           wrapOnWordBoundary: false,
-          colWidths: [max + 2, process.stdout.columns - 6 - max]
+          colWidths: [max + 2, process.stdout.columns - 6 - max],
         })
         table.push(...data)
         console.log(table.toString())
@@ -63,7 +73,12 @@ export const add = createCommand({
     const repo = await Repo.openWithDefaults(opts.repo)
     const prisma = repo.prisma
     const config = { endpoint: args.endpoint }
-    const instance = await repo.dsr.create(repo.prisma, plugins, args.plugin, config)
+    const instance = await repo.dsr.create(
+      repo.prisma,
+      plugins,
+      args.plugin,
+      config,
+    )
     const def = instance.definition
     console.log(`Created datasource ${def.uid} for plugin ${def.pluginUid}`)
   },
@@ -85,8 +100,25 @@ export const ingest = createCommand({
   },
 })
 
+export const remap = createCommand({
+  name: 'remap',
+  help: 'Remap all content from a datasource',
+  options: {
+    repo: { type: 'string', short: 'r', help: 'Repo name or DID' },
+  },
+  arguments: [{ name: 'datasource', required: true, help: 'Datasource UID' }],
+  async run(opts, args) {
+    const repo = await Repo.openWithDefaults(opts.repo)
+    await repo.dsr.hydrate(repo.prisma, plugins)
+    const ds = repo.dsr.get(args.datasource)
+    if (!ds) throw new CliError('Datasource does not exist')
+    const result = await remapDataSource(repo, ds)
+    console.log(result)
+  },
+})
+
 export const command = createCommandGroup({
   name: 'ds',
   help: 'Manage datasources',
-  commands: [add, list, ingest, listPlugins],
+  commands: [add, list, ingest, listPlugins, remap],
 })
