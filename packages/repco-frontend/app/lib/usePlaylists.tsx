@@ -1,99 +1,115 @@
 import { useContext, useEffect, useState } from 'react'
 import { ContextManager } from '~/lib/contextManager'
 
-interface Track {
+export interface Track {
   uid: string
   title: string
+  description?: string
 }
 
 export interface Playlist {
+  id: string
   tracks: Track[]
+  description?: string
 }
 
 export function usePlaylists() {
-  const contextManager = ContextManager.getInstance()
-  const context = contextManager.getContext<Playlist>('playlists')
+  const context =
+    ContextManager.getInstance().getMapContext<Playlist>('playlists')
   if (!context) {
     throw new Error('No store context found')
   }
-  const [playlists, setPlaylists] = useState<string[]>()
+  const [playlists, setPlaylists] = useState<Playlist[]>()
   const { state, dispatch } = useContext(context)
-  const { error, store } = state
+  const { error, store } = state as {
+    error: string
+    store: Map<string, Playlist>
+  }
 
   useEffect(() => {
     if (error) {
       console.error(error)
     }
-    setPlaylists(() => {
-      return store instanceof Map
-        ? Array.from(store.keys())
-        : store instanceof Array
-        ? store.map((p) => p.id)
-        : undefined
-    })
+    setPlaylists(Array.from(store.values()))
   }, [state])
 
-  function newPlaylist(name: string) {
+  function createPlaylist(
+    name: string | undefined,
+    data?: Playlist | undefined,
+  ) {
+    if (name === undefined) return
     dispatch({
       type: 'CREATE',
-      payload: { id: name, data: { tracks: [] } },
+      payload: {
+        id: name,
+        data: {
+          id: name,
+          tracks: data?.tracks || [],
+          description: data?.description,
+        },
+      },
+    })
+  }
+
+  function updatePlaylist(name: string, data: Playlist) {
+    dispatch({
+      type: 'UPDATE',
+      payload: { id: name, data },
     })
   }
 
   function deletePlaylist(name: string) {
     dispatch({
       type: 'DELETE',
-      payload: { id: name, data: { tracks: [] } },
+      payload: { id: name, data: { id: name, tracks: [] } },
     })
   }
 
   function getPlaylist(name: string) {
     function addTrack(uid: string, title: string) {
-      let tracks =
-        (store instanceof Map
-          ? store.get(name)?.tracks
-          : store instanceof Array
-          ? store.find((p) => p.id === name)?.data.tracks
-          : []) || []
+      const playlist = store.get(name) || { tracks: [] }
       dispatch({
         type: 'UPDATE',
         payload: {
           id: name,
           data: {
-            tracks: [...tracks, { uid, title }],
+            id: name,
+            tracks: [...playlist?.tracks, { uid, title }],
           },
         },
       })
     }
     function removeTrack(uid: string) {
-      let tracks =
-        (store instanceof Map
-          ? store.get(name)?.tracks
-          : store instanceof Array
-          ? store.find((p) => p.id === name)?.data.tracks
-          : []) || []
+      let tracks = store.get(name)?.tracks || []
+
       dispatch({
         type: 'UPDATE',
         payload: {
           id: name,
           data: {
+            id: name,
             tracks: tracks.filter((t) => t.uid !== uid),
           },
         },
       })
     }
-    function listTracks() {
-      return (
-        (store instanceof Map
-          ? store.get(name)?.tracks
-          : store instanceof Array
-          ? store.find((p) => p.id === name)?.data.tracks
-          : []) || []
-      )
-    }
 
-    return [addTrack, removeTrack, listTracks] as const
+    const [tracks, setTracks] = useState<Track[]>()
+    useEffect(() => {
+      if (error) {
+        console.error(error)
+      }
+      setTracks(store.get(name)?.tracks || [])
+    }, [state])
+
+    return [addTrack, removeTrack, tracks] as const
   }
 
-  return [playlists, getPlaylist, newPlaylist, deletePlaylist] as const
+  return [
+    playlists,
+    getPlaylist,
+    createPlaylist,
+    updatePlaylist,
+    deletePlaylist,
+  ] as const
 }

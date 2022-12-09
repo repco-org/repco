@@ -9,6 +9,8 @@ import {
 } from '@remix-run/react'
 import styles from './styles/app.css'
 import { Layout } from './components/layout.js'
+import { ContextManager } from './lib/contextManager'
+import { Playlist } from './lib/usePlaylists'
 
 export function links() {
   return [{ rel: 'stylesheet', href: styles }]
@@ -19,6 +21,9 @@ export const meta: MetaFunction = () => ({
   viewport: 'width=device-width,initial-scale=1',
 })
 
+const contextManager = ContextManager.getInstance()
+const PlaylistProvider = contextManager.addMapContext<Playlist>('playlists')
+
 export default function App() {
   return (
     <html lang="en">
@@ -27,9 +32,12 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <Layout>
-          <Outlet />
-        </Layout>
+        <PlaylistProvider>
+          <Layout>
+            <Outlet />
+          </Layout>
+        </PlaylistProvider>
+
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
