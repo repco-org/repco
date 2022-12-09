@@ -8,6 +8,7 @@
 import { repco } from 'repco-prisma'
 import { Headers } from './mod.js'
 import {
+  ConceptKind,
   ContentGrouping,
   ContentGroupingVariant,
   ContentItem,
@@ -16,7 +17,7 @@ import {
 } from './prisma.js'
 
 export type { ContentItem, MediaAsset, ContentGrouping, Revision }
-export { ContentGroupingVariant }
+export { ContentGroupingVariant, ConceptKind }
 
 export type AnyEntityContent = { uid: string }
 export type AllEntityTypes = repco.EntityOutput['type']

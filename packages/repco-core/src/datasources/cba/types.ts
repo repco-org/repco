@@ -96,6 +96,32 @@ export interface CbaSeries {
   _links: Links
 }
 
+export interface CbaCategory {
+  id: number
+  count: number
+  description: string
+  link: string
+  name: string
+  slug: string
+  taxonomy: string
+  parent: number
+  meta: any[]
+  acf: any[]
+  _links: CategoryLinks
+}
+
+export interface CbaTag {
+  id: number
+  count: number
+  description: string
+  link: string
+  name: string
+  slug: string
+  taxonomy: string
+  meta: any[]
+  acf: any[]
+  _links: CategoryLinks
+}
 export interface Links {
   self: About[]
   collection: About[]
@@ -110,6 +136,14 @@ export interface Links {
   'wp:attachment': About[]
   'wp:featuredmedia': EmbeddedLink[]
   'wp:term': WpTerm[]
+  curies: Cury[]
+}
+
+export interface CategoryLinks {
+  self: About[]
+  collection: About[]
+  about: About[]
+  'wp:post_type': About[]
   curies: Cury[]
 }
 export interface EmbeddedLink {

@@ -32,6 +32,8 @@ export const entityForm = z.object({
   headers: headersForm.nullish(),
 })
 
+export interface ZodEntityForm extends z.infer<typeof entityForm> {}
+
 export const revisionIpld = z.object({
   kind: z.literal('revision'),
   id: z.string(),
@@ -71,7 +73,7 @@ export const rootIpld = z.object({
   sig: common.bytes,
   commit: common.cid,
   cap: z.string(),
-  agent: z.string()
+  agent: z.string(),
 })
 
 export type RootIpld = {
