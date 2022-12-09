@@ -31,9 +31,10 @@ export const list = createCommand({
     } else {
       for (const row of data) {
         const data = []
-        for (let [key, value] of Object.entries(row)) {
-          if (key === 'config') value = JSON.stringify(value)
-          data.push([key, value])
+        for (const [key, value] of Object.entries(row)) {
+          let stringValue = value
+          if (key === 'config') stringValue = JSON.stringify(value)
+          data.push([key, stringValue])
         }
         const max = data.reduce((sum, [k]) => Math.max(k.length, sum), 0)
         const table = new Table({
