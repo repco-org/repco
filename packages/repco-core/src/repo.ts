@@ -391,8 +391,8 @@ export class Repo {
       if (!fullOpts.commitEmpty && !entities.length) return null
 
       // Create the actual commit as a single prisma transaction
-      return await this.$transaction((repo) => 
-        repo.saveBatchInner(entities, fullOpts)
+      return await this.$transaction((repo) =>
+        repo.saveBatchInner(entities, fullOpts),
       )
     } finally {
       release()
@@ -510,9 +510,6 @@ export class Repo {
         uid = createEntityId()
       }
 
-<<<<<<< HEAD
-    return { ...entity, headers, prevContentCid }
-=======
       setUid(entity, uid)
 
       return { ...entity, headers, prevContentCid }
@@ -523,7 +520,6 @@ export class Repo {
         throw err
       }
     }
->>>>>>> wip cba
   }
 
   private async ensureAgent(did: string) {
@@ -625,7 +621,7 @@ export class Repo {
 }
 
 export class IpldRepo {
-  constructor(public record: RepoRecord, public blockstore: IpldBlockStore) { }
+  constructor(public record: RepoRecord, public blockstore: IpldBlockStore) {}
   get did() {
     return this.record.did
   }
@@ -853,6 +849,7 @@ export class RelationFinder {
         this.repo,
         [...this.pendingUris],
       )
+
       notFound.forEach((uri) => {
         this.missingUris.add(uri)
         this.pendingUris.delete(uri)

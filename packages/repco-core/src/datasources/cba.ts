@@ -1,10 +1,8 @@
 //********************************************************************************************************************************************* */
-// TO DO: add contributions - right now there is a problem with fetching the /users endpoint but I don't know why - there are authors and editors
-// TO DO: don't know what to do with the Station may we use it as additional Grouping, add them as Contribution or make a schema change so Contentitems are in relation with publischingServices
-// TO DO: License has no endpoint not sure how we should handle this, medias have a license but not the contentitems
+// TO DO: contributions are missing - only wp-users
+// TO DO: License handling
 
 // Some Notes:
-
 // series:
 // https://cba.fro.at/wp-json/wp/v2/series?page=1&per_page=1&_embed&orderby=modified&order=asc&modified_after=2021-07-27T10:29:04
 // stations:
@@ -154,7 +152,6 @@ export class CbaDataSource implements DataSource {
           },
         ]
       }
-
       case 'series': {
         const url = this._url(`/series/${parsed.id}`)
         const body = await this._fetch(url)
@@ -192,6 +189,7 @@ export class CbaDataSource implements DataSource {
         ]
       }
       case 'station': {
+        //Radiostation
         const url = this._url(`/station/${parsed.id}`)
         const body = await this._fetch(url)
         return [
@@ -214,7 +212,6 @@ export class CbaDataSource implements DataSource {
    */
   async expandAttachements(post: CbaPost) {
     post._fetchedAttachements = []
-
     const fetchedAttachements = await Promise.all(
       post._links['wp:attachment'].map(async (attachement) => {
         const { href } = attachement
@@ -222,7 +219,6 @@ export class CbaDataSource implements DataSource {
         return medias
       }),
     )
-
     post._fetchedAttachements = fetchedAttachements.flat()
   }
 
@@ -237,7 +233,6 @@ export class CbaDataSource implements DataSource {
         `/posts?page=1&per_page=${perPage}&_embed&orderby=modified&order=asc&modified_after=${postsCursor}`,
       )
       const posts = await this._fetch<CbaPost[]>(url)
-
       await Promise.all(posts.map((post) => this.expandAttachements(post)))
 
       const lastPost = posts[posts.length - 1]
@@ -249,7 +244,6 @@ export class CbaDataSource implements DataSource {
         sourceUri: url,
       })
     }
-
     return {
       cursor: JSON.stringify(cursor),
       records,
@@ -373,7 +367,6 @@ export class CbaDataSource implements DataSource {
       title: media.title.rendered,
       description: media.description?.rendered,
       mediaType: 'image',
-
       //License: null,
       //Contribution
       Concepts: media.media_tag.map((cbaId) => ({
@@ -501,25 +494,23 @@ export class CbaDataSource implements DataSource {
     }))
     const conceptsUris = categories.concat(tags)
 
-    const contributions = []
-
-    const station = { uri: this._uri('station', post.meta.station_id) }
     const content: form.ContentItemInput = {
       pubDate: new Date(post.date),
       content: post.content.rendered,
       contentFormat: 'text/html',
       title: post.title.rendered,
-      // licenseUid: null,
-      // primaryGroupingUid: null,
       subtitle: 'missing',
       summary: post.excerpt.rendered,
-      //Contributions: { uri: this._uri('contributer', ) },
-      // AdditionalGroupings: station,
-      //License
-      //BroadcastEvents
+      PublicationService: { uri: this._uri('station', post.meta.station_id) },
       Concepts: conceptsUris,
       MediaAssets: mappedMediaAssets,
       PrimaryGrouping: { uri: this._uri('series', post.post_parent) },
+      //licenseUid
+      //primaryGroupingUid
+      //Contributions
+      //AdditionalGroupings
+      //License
+      //BroadcastEvents
     }
     const revisionId = this._revisionUri(
       'post',

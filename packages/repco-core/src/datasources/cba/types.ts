@@ -122,6 +122,32 @@ export interface CbaTag {
   acf: any[]
   _links: CategoryLinks
 }
+export interface CbaCategory {
+  id: number
+  count: number
+  description: string
+  link: string
+  name: string
+  slug: string
+  taxonomy: string
+  parent: number
+  meta: any[]
+  acf: any[]
+  _links: CategoryLinks
+}
+
+export interface CbaTag {
+  id: number
+  count: number
+  description: string
+  link: string
+  name: string
+  slug: string
+  taxonomy: string
+  meta: any[]
+  acf: any[]
+  _links: CategoryLinks
+}
 export interface Links {
   self: About[]
   collection: About[]
