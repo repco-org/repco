@@ -98,7 +98,7 @@ export class ContextManager {
         },
         (state) => {
           const data =
-            (Object.entries(getPersistentData(name)) as [
+            (Object.entries(getPersistentData(name) || {}) as [
               string,
               Entity<T>,
             ][]) || state.store
