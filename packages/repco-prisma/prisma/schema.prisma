@@ -31,7 +31,7 @@ enum AgentType {
 // Core data model
 
 model Repo {
-  did  String @id @unique
+  did  String  @id @unique
   name String? @unique
   head String? @unique
   tail String? @unique
@@ -49,12 +49,12 @@ model Commit {
   timestamp DateTime
   parent    String?  @unique
 
-  Parent      Commit?    @relation("CommitHistory", fields: [parent], references: [rootCid])
-  Next        Commit?    @relation("CommitHistory")
-  Revisions   Revision[] @relation("RevisionToCommit")
-  Agent       Agent      @relation(fields: [agentDid], references: [did])
-  IsHeadOf    Repo?      @relation("RepoToHead")
-  Repo        Repo       @relation(fields: [repoDid], references: [did])
+  Parent    Commit?    @relation("CommitHistory", fields: [parent], references: [rootCid])
+  Next      Commit?    @relation("CommitHistory")
+  Revisions Revision[] @relation("RevisionToCommit")
+  Agent     Agent      @relation(fields: [agentDid], references: [did])
+  IsHeadOf  Repo?      @relation("RepoToHead")
+  Repo      Repo       @relation(fields: [repoDid], references: [did])
   // CommitBlock Block      @relation("CommitBlock", fields: [commitCid], references: [cid])
   // RootBlock   Block      @relation("RootBlock", fields: [rootCid], references: [cid])
 }
@@ -81,11 +81,11 @@ model User {
 // }
 
 model Ucans {
-  scope String 
+  scope    String
   audience String
   resource String
-  token String
-  cid String @id @unique
+  token    String
+  cid      String @id @unique
 }
 
 model DataSource {
@@ -104,7 +104,7 @@ enum KeypairScope {
 }
 
 model Keypair {
-  did    String @id @unique
+  did    String       @id @unique
   scope  KeypairScope
   name   String?
   secret String
@@ -115,8 +115,8 @@ model Keypair {
 // }
 
 model Block {
-  cid      String    @id @unique
-  bytes    Bytes
+  cid   String @id @unique
+  bytes Bytes
   // Revision Revision? @relation("RevisionBlock")
   // Content  Revision? @relation("ContentBlock")
   // Commit   Commit?   @relation("CommitBlock")
@@ -150,51 +150,50 @@ model Revision {
   revisionUris String[]
 
   // core derived fields
-  contentCid  String         // cid of content block
+  contentCid  String // cid of content block
   revisionCid String @unique // cid of revision block
 
   // core relations
-  Repo          Repo      @relation(fields: [repoDid], references: [did])
-  Agent         Agent     @relation(fields: [agentDid], references: [did])
+  Repo         Repo      @relation(fields: [repoDid], references: [did])
+  Agent        Agent     @relation(fields: [agentDid], references: [did])
   // ContentBlock  Block     @relation("ContentBlock", fields: [contentCid], references: [cid])
   // RevisionBlock Block     @relation("RevisionBlock", fields: [revisionCid], references: [cid])
-  PrevRevision  Revision? @relation("RevisionHistory", fields: [prevRevisionId], references: [id])
-  NextRevision  Revision? @relation("RevisionHistory")
-  Entity        Entity?
-  Commit        Commit[]  @relation("RevisionToCommit")
+  PrevRevision Revision? @relation("RevisionHistory", fields: [prevRevisionId], references: [id])
+  NextRevision Revision? @relation("RevisionHistory")
+  Entity       Entity?
+  Commit       Commit[]  @relation("RevisionToCommit")
   // Commit        Commit    @relation("RevisionToCommit", fields: [commitCid], references: [cid])
 
   derivedFromUid String?
-  DerivedFrom SourceRecord? @relation("DerivedRevisions", fields: [derivedFromUid], references: [uid])
+  DerivedFrom    SourceRecord? @relation("DerivedRevisions", fields: [derivedFromUid], references: [uid])
 
   // entity relations
-  ContentGrouping  ContentGrouping?
-  ContentItem      ContentItem?
-  License          License?
-  MediaAsset       MediaAsset?
-  File             File?
-  Concept          Concept?
-  Actor            Actor?
-  BroadcastEvent   BroadcastEvent?
-  BroadcastService BroadcastService?
-  Chapter          Chapter?
-  Contribution     Contribution?
-  Metadata         Metadata?
+  ContentGrouping    ContentGrouping?
+  ContentItem        ContentItem?
+  License            License?
+  MediaAsset         MediaAsset?
+  File               File?
+  Concept            Concept?
+  Contributer        Contributer?
+  BroadcastEvent     BroadcastEvent?
+  PublicationService PublicationService?
+  Chapter            Chapter?
+  Contribution       Contribution?
+  Metadata           Metadata?
 }
 
-
 model SourceRecord {
-  uid         String @id @unique
+  uid String @id @unique
 
   timestamp DateTime
 
-  sourceUri String
+  sourceUri           String
   containedEntityUris String[]
 
   /// MIME type
   contentType String
   /// Domain data model type identifier (any string)
-  sourceType String
+  sourceType  String
   body        String
   meta        Json?
 
@@ -282,11 +281,12 @@ model MediaAsset {
   File          File           @relation("file", fields: [fileUid], references: [uid])
   ContentItems  ContentItem[]
   Transcripts   Transcript[]
-  Chapters      Chapter[]      
+  Chapters      Chapter[]
   TeaserImage   File?          @relation("thumbnail", fields: [teaserImageUid], references: [uid])
   License       License?       @relation(fields: [licenseUid], references: [uid])
   Contributions Contribution[]
   Concepts      Concept[]
+  Translation   Translation[]
 }
 
 /// @repco(Entity)
@@ -295,14 +295,14 @@ model Contribution {
   revisionId String @unique
   role       String
 
-  Actors       Actor[]
+  Contributers Contributer[]
   ContentItems ContentItem[]
   MediaAssets  MediaAsset[]
   Revision     Revision      @relation(fields: [revisionId], references: [id])
 }
 
 /// @repco(Entity)
-model Actor {
+model Contributer {
   uid                  String @id @unique
   revisionId           String @unique
   name                 String
@@ -311,10 +311,10 @@ model Actor {
 
   profilePictureUid String
 
-  Revision         Revision           @relation(fields: [revisionId], references: [id])
-  BroadcastService BroadcastService[]
+  Revision         Revision             @relation(fields: [revisionId], references: [id])
+  BroadcastService PublicationService[]
   Contributions    Contribution[]
-  ProfilePicture   File?              @relation(fields: [profilePictureUid], references: [uid])
+  ProfilePicture   File?                @relation(fields: [profilePictureUid], references: [uid])
 }
 
 /// @repco(Entity)
@@ -344,18 +344,18 @@ model BroadcastEvent {
   broadcastServiceUid String
   contentItemUid      String
 
-  Revision         Revision         @relation(fields: [revisionId], references: [id])
-  ContentItem      ContentItem      @relation(fields: [contentItemUid], references: [uid])
-  BroadcastService BroadcastService @relation(fields: [broadcastServiceUid], references: [uid])
+  Revision         Revision           @relation(fields: [revisionId], references: [id])
+  ContentItem      ContentItem        @relation(fields: [contentItemUid], references: [uid])
+  BroadcastService PublicationService @relation(fields: [broadcastServiceUid], references: [uid])
 }
 
 /// @repco(Entity)
-model BroadcastService {
+model PublicationService {
   uid        String @id @unique
   revisionId String @unique
 
   name      String
-  publisher Actor  @relation(fields: [publisherUid], references: [uid])
+  publisher Contributer @relation(fields: [publisherUid], references: [uid])
   medium    String // FM, Web, ...
   address   String
 
@@ -367,6 +367,18 @@ model BroadcastService {
 
 /// @repco(Entity)
 model Transcript {
+  uid      String @id @unique
+  language String
+  text     String
+  engine   String
+
+  mediaAssetUid String
+
+  MediaAsset MediaAsset @relation(fields: [mediaAssetUid], references: [uid])
+}
+
+/// @repco(Entity)
+model Translation {
   uid      String @id @unique
   language String
   text     String
@@ -392,10 +404,10 @@ model File {
   resolution         String?
   additionalMetadata String?
 
-  Revision      Revision     @relation(fields: [revisionId], references: [id])
-  AsMediaAssets MediaAsset[] @relation("file")
-  AsThumbnail   MediaAsset[] @relation("thumbnail")
-  Actors        Actor[]
+  Revision      Revision      @relation(fields: [revisionId], references: [id])
+  AsMediaAssets MediaAsset[]  @relation("file")
+  AsThumbnail   MediaAsset[]  @relation("thumbnail")
+  Contributers  Contributer[]
 }
 
 /// @repco(Entity)
