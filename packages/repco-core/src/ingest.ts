@@ -2,7 +2,6 @@ import {
   DataSourceRegistry,
   ingestUpdatesFromDataSource,
 } from './datasource.js'
-import { EntityWithRevision } from './entity.js'
 import { DataSourcePluginRegistry } from './plugins.js'
 import { Repo } from './repo.js'
 
@@ -12,23 +11,18 @@ export enum WorkerStatus {
   Stopped = 'stopped',
 }
 
-export abstract class Worker {
-  constructor() { }
-  abstract start(): Promise<void>
-  // abstract status(): WorkerStatus
-  async stop(): Promise<void> { }
+const POLL_INTERVAL = 10000
+
+export type WorkOpts = {
+  pollInterval?: number
 }
 
-export abstract class Indexer extends Worker {
-  abstract onRevisions(revisions: EntityWithRevision[]): Promise<void>
-}
-
-export class Ingester extends Worker {
+export class Ingester {
   interval = 1000 * 60
   plugins: DataSourcePluginRegistry
   repo: Repo
+  hydrated = false
   constructor(plugins: DataSourcePluginRegistry, repo: Repo) {
-    super()
     this.plugins = plugins
     this.repo = repo
   }
@@ -38,27 +32,53 @@ export class Ingester extends Worker {
   }
 
   async init() {
+    if (this.hydrated) return
     await this.repo.dsr.hydrate(this.repo.prisma, this.plugins)
+    this.hydrated = true
   }
 
-  async start(): Promise<void> {
-    await this.init()
-    while (true) {
-      console.log('start work...')
-      await this.work()
-      console.log('wait...')
-      await new Promise((resolve) => setTimeout(resolve, this.interval))
+  async ingest(uid: string, wait?: number) {
+    if (!this.hydrated) await this.init()
+    const ds = this.datasources.get(uid)
+    if (!ds)
+      return {
+        uid,
+        ok: false,
+        finished: true,
+        error: new Error(`Datasource \`${uid}\` not found`),
+      }
+    if (wait) await new Promise((resolve) => setTimeout(resolve, wait))
+    try {
+      const res = await ingestUpdatesFromDataSource(this.repo, ds)
+      const finished = res.count === 0
+      return { uid, ok: true, finished, ...res }
+    } catch (error) {
+      return { uid, ok: false, finished: true, error }
     }
   }
 
-  async work(): Promise<void> {
-    const results = await Promise.all(
-      this.datasources.all().map((ds) =>
-        ingestUpdatesFromDataSource(this.repo, ds)
-          .then((result) => ({ uid: ds.definition.uid, ok: false, ...result }))
-          .catch((error) => ({ uid: ds.definition.uid, ok: false, error })),
-      ),
+  async ingestAll() {
+    if (!this.hydrated) await this.init()
+    return await Promise.all(
+      this.datasources.ids().map((uid) => this.ingest(uid)),
     )
-    console.log('results', results)
+  }
+
+  async *workLoop(opts: WorkOpts = {}) {
+    if (!this.hydrated) await this.init()
+    const pending = new Map(
+      this.datasources.ids().map((uid) => [uid, this.ingest(uid)]),
+    )
+    while (pending.size) {
+      const res = await Promise.race(pending.values())
+      yield res
+      pending.delete(res.uid)
+      if (res.ok) {
+        const wait = res.finished
+          ? opts.pollInterval || POLL_INTERVAL
+          : undefined
+        pending.set(res.uid, this.ingest(res.uid, wait))
+      }
+    }
   }
 }

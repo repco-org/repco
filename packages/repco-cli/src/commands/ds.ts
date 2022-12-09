@@ -90,13 +90,20 @@ export const ingest = createCommand({
   arguments: [],
   options: {
     repo: { type: 'string', short: 'r', help: 'Repo name or DID' },
+    loop: { type: 'boolean', short: 'r', help: 'Keep running in a loop'}
   },
   async run(opts, _args) {
     const repo = await Repo.openWithDefaults(opts.repo)
     const ingester = new Ingester(plugins, repo)
-    await ingester.init()
-    const result = await ingester.work()
-    console.log('finished', result)
+    if (opts.loop) {
+      const queue = ingester.workLoop()
+      for await (const result of queue) {
+        console.log(result)
+      }
+    } else {
+      const result = await ingester.ingestAll()
+      console.log(result)
+    }
   },
 })
 

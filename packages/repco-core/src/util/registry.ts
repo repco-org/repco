@@ -15,6 +15,10 @@ export class Registry<T extends PluginLike> {
     return [...this.inner.values()]
   }
 
+  ids(): string[] {
+    return this.all().map(x => x.definition.uid)
+  }
+
   has(uid: string): boolean {
     return !!this.inner.has(uid)
   }

@@ -115,6 +115,9 @@ export class Repo {
   public static CACHE: Map<string, Repo> = new Map()
   public static cache = true
 
+  private txqueue: (() => void)[] = []
+  private txlock = false
+
   static async createOrOpen(prisma: PrismaClient, name: string, did?: string) {
     try {
       return await Repo.open(prisma, did || name)
@@ -223,19 +226,34 @@ export class Repo {
     this.ipld = new IpldRepo(record, this.blockstore)
   }
 
-  private $transaction<R>(fn: (repo: Repo) => Promise<R>) {
+  private async $transaction<R>(fn: (repo: Repo) => Promise<R>) {
     assertFullClient(this.prisma)
-    return this.prisma.$transaction(async (tx) => {
-      const self = new Repo(
-        tx,
-        this.record,
-        this.publishingCapability,
-        this.dsr,
-        this.blockstore,
-      )
-      const res = await fn(self)
+
+    if (this.txlock || this.txqueue.length) {
+      await new Promise<void>((resolve) => {
+        this.txqueue.push(resolve)
+      })
+    }
+    this.txlock = true
+
+    try {
+      const res = await this.prisma.$transaction(async (tx) => {
+        const self = new Repo(
+          tx,
+          this.record,
+          this.publishingCapability,
+          this.dsr,
+          this.blockstore,
+        )
+        const res = await fn(self)
+        return res
+      })
       return res
-    })
+    } finally {
+      this.txlock = false
+      const next = this.txqueue.shift()
+      if (next) next()
+    }
   }
 
   get name() {
@@ -370,18 +388,17 @@ export class Repo {
   ) {
     if (!this.writeable) throw new Error('Repo is not writeable')
     const fullOpts: SaveBatchOpts = { ...opts, ...SAVE_BATCH_DEFAULTS }
-    // Parse and assign uids.
-    const parsedInputs = await Promise.all(
-      inputs.map((input) => this.parseAndAssignUid(input)),
-    )
-
-    // Resolve missing relations.
-    const entities = await RelationFinder.resolve(this, parsedInputs)
-
-    if (!fullOpts.commitEmpty && !entities.length) return null
-
     // Save the batch in one transaction.
     return this.$transaction(async (repo) => {
+      // Parse and assign uids.
+      const parsedInputs = await Promise.all(
+        inputs.map((input) => this.parseAndAssignUid(input)),
+      )
+
+      // Resolve missing relations.
+      const entities = await RelationFinder.resolve(this, parsedInputs)
+
+      if (!fullOpts.commitEmpty && !entities.length) return null
       const res = await repo.saveBatchInner(entities, fullOpts)
       return res
     })
