@@ -1,9 +1,6 @@
 import type { VariantProps } from 'class-variance-authority'
 import { cva, cx } from 'class-variance-authority'
 import type { ClassProp } from 'class-variance-authority/dist/types'
-import { NavButton } from './Button'
-import { CollapsiblePlaylist } from '../Collapsible'
-import { DropdownMenuCards } from '../Dropdown'
 
 const styles = cva('p-4 rounded-lg border shadow-xs', {
   variants: {
@@ -35,15 +32,6 @@ export function ContentItemCard(props: CardProps) {
       <div className="flex flex-row">
         <div className="w-full px-4">
           <div>{props.children}</div>
-          <div>
-            <NavButton to={`item/${props.node}`} prefetch="render">
-              show more
-            </NavButton>
-            <CollapsiblePlaylist node={props.node} />
-          </div>
-        </div>
-        <div className="items-start">
-          <DropdownMenuCards node={props.node} />
         </div>
       </div>
     </div>

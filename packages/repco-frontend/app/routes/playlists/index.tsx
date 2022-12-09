@@ -1,26 +1,20 @@
-import type { ActionFunction, LoaderFunction } from '@remix-run/node'
+import type { LoaderFunction } from '@remix-run/node'
 import { NavLink } from '@remix-run/react'
+import { IconButton } from '~/components/ui/primitives/Button'
 import { usePlaylists } from '~/lib/usePlaylists'
 
-export const loader: LoaderFunction = ({ request }) => {
-  // TODO: query playlists from repco db
-  const data = ''
-  return data
-}
-
-//TODO mutation query to repco db, some better ui maybe with sorting
-export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData()
-  const data = (formData.get('create-playlist') || '').toString()
-  const timestamp = Date.now()
-  const date = new Date(timestamp)
-  const dd_mm_yyyy = date.toLocaleDateString()
-  const time = date.toLocaleTimeString()
-  return data + ' ' + dd_mm_yyyy + ' ' + time
+export const loader: LoaderFunction = async () => {
+  return { status: 200 }
 }
 
 export default function PlaylistIndex() {
-  const [playlists, store] = usePlaylists()
+  const [
+    playlists,
+    getPlaylist,
+    createPlaylist,
+    updatePlaylist,
+    deletePlaylist,
+  ] = usePlaylists()
 
   if (!playlists) return <div>loading...</div>
 
@@ -28,15 +22,18 @@ export default function PlaylistIndex() {
     <main className="px-2">
       <div className="px-2 ">
         {playlists.length !== 0 ? (
-          playlists.map((e) => (
-            <div key={e} className="card">
+          playlists.map((p) => (
+            <div key={p.id} className="card">
               <NavLink
-                className="text-sm"
+                className="text-lg font-medium leading-tight text-gray-900"
                 prefetch="render"
-                to={`/playlists/playlist/${e}`}
+                to={`/playlists/${p.id}`}
               >
-                {e}
+                {p.id} ({p.tracks.length}){p.description}{' '}
               </NavLink>
+              <IconButton onClick={() => deletePlaylist(p.id)}>
+                delete
+              </IconButton>
             </div>
           ))
         ) : (
