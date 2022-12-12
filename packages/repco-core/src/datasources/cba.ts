@@ -22,7 +22,6 @@ import { fetch } from 'undici'
 import {
   CbaAudio,
   CbaCategory,
-  CbaImage,
   CbaPost,
   CbaSeries,
   CbaStation,
@@ -152,6 +151,7 @@ export class CbaDataSource implements DataSource {
           },
         ]
       }
+
       case 'series': {
         const url = this._url(`/series/${parsed.id}`)
         const body = await this._fetch(url)
@@ -255,18 +255,28 @@ export class CbaDataSource implements DataSource {
 
     switch (record.sourceType) {
       case 'post':
+        console.log('CASE post')
+
         return this._mapPost(body as CbaPost)
       case 'audio':
         return this._mapAudio(body)
       case 'image':
         return this._mapImage(body)
       case 'series':
+        console.log('CASE Series')
+
         return this._mapSeries(body)
+
       case 'category':
+        console.log('CASE Category')
+
         return this._mapCategory(body)
       case 'tag':
+        console.log('CASE Tag')
         return this._mapTag(body)
       case 'posts':
+        console.log('CASE posts')
+
         return (body as CbaPost[]).map((post) => this._mapPost(post)).flat()
       case 'station':
         return this._mapStation(body)
@@ -471,6 +481,7 @@ export class CbaDataSource implements DataSource {
   }
 
   private _mapPost(post: CbaPost): EntityForm[] {
+    console.log(post.id)
     const mediaAssetsAndFiles = post._fetchedAttachements
       .map((attachement) => this._mapAudio(attachement))
       .flat()
