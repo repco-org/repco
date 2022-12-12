@@ -60,9 +60,34 @@ export type DataSourceDefinition = {
 export interface DataSource {
   get definition(): DataSourceDefinition
   get config(): any
+  /**
+   * Fetches updates from the data source.
+   *
+   * @param cursor - The cursor that points to the position from where updates should be fetched.
+   *                 If this value is `null`, updates should be fetched from the beginning.
+   * @returns A `Promise` that resolves to the result of the fetch operation.
+   */
   fetchUpdates(cursor: string | null): Promise<FetchUpdatesResult>
+  /**
+   * Fetches a record from the data source by its unique identifier (UID).
+   *
+   * @param uid - The UID of the record to fetch.
+   * @returns A `Promise` that resolves to the fetched record, or `null` if no record was found.
+   */
   fetchByUri(uid: string): Promise<SourceRecordForm[] | null>
+  /**
+   * Determines whether the data source is capable of fetching records by UID.
+   *
+   * @param uid - The UID of the record to fetch.
+   * @returns `true` if the data source can fetch the record, `false` otherwise.
+   */
   canFetchUri(uid: string): boolean
+  /**
+   * Maps a record from the data source to the corresponding entity form.
+   *
+   * @param record - The record to map.
+   * @returns A `Promise` that resolves to the mapped entity form.
+   */
   mapSourceRecord(record: SourceRecordForm): Promise<EntityForm[]>
 }
 

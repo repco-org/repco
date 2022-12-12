@@ -355,11 +355,11 @@ model PublicationService {
   revisionId String @unique
 
   name      String
-  publisher Contributer @relation(fields: [publisherUid], references: [uid])
-  medium    String // FM, Web, ...
+  publisher Contributer? @relation(fields: [publisherUid], references: [uid])
+  medium    String? // FM, Web, ...
   address   String
 
-  publisherUid String
+  publisherUid String?
 
   Revision        Revision         @relation(fields: [revisionId], references: [id])
   BroadcastEvents BroadcastEvent[]
