@@ -1,23 +1,9 @@
-// A datasource that uses the Wordpress API of https://cba.media
+//********************************************************************************************************************************************* */
+// TO DO: add contributions - right now there is a problem with fetching the /users endpoint but I don't know why - there are authors and editors
+// TO DO: don't know what to do with the Station may we use it as additional Grouping, add them as Contribution or make a schema change so Contentitems are in relation with publischingServices
+// TO DO: License has no endpoint not sure how we should handle this, medias have a license but not the contentitems
 
-import * as zod from 'zod'
-import { form } from 'repco-prisma'
-import { fetch } from 'undici'
-import { CbaCategory, CbaPost, CbaSeries, CbaTag } from './cba/types.js'
-import {
-  DataSource,
-  DataSourceDefinition,
-  DataSourcePlugin,
-  FetchUpdatesResult,
-  SourceRecordForm,
-} from '../datasource.js'
-import { ConceptKind, ContentGroupingVariant, EntityForm } from '../entity.js'
-import { FetchOpts } from '../util/datamapping.js'
-import { HttpError } from '../util/error.js'
-
-const DEFAULT_ENDPOINT = 'https://cba.fro.at/wp-json/wp/v2'
-
-const CONTENT_TYPE_JSON = 'application/json'
+// Some Notes:
 
 // series:
 // https://cba.fro.at/wp-json/wp/v2/series?page=1&per_page=1&_embed&orderby=modified&order=asc&modified_after=2021-07-27T10:29:04
@@ -30,6 +16,36 @@ const CONTENT_TYPE_JSON = 'application/json'
 // posts:
 // https://cba.fro.at/wp-json/wp/v2/posts
 
+//********************************************************************************************************************************************* */
+
+import * as zod from 'zod'
+import { form } from 'repco-prisma'
+import { fetch } from 'undici'
+import {
+  CbaAudio,
+  CbaCategory,
+  CbaImage,
+  CbaPost,
+  CbaSeries,
+  CbaStation,
+  CbaTag,
+} from './cba/types.js'
+import {
+  DataSource,
+  DataSourceDefinition,
+  DataSourcePlugin,
+  FetchUpdatesResult,
+  SourceRecordForm,
+} from '../datasource.js'
+import { ConceptKind, ContentGroupingVariant, EntityForm } from '../entity.js'
+import { FetchOpts } from '../util/datamapping.js'
+import { HttpError } from '../util/error.js'
+
+// Endpoint of the Datasource
+const DEFAULT_ENDPOINT = 'https://cba.fro.at/wp-json/wp/v2'
+
+const CONTENT_TYPE_JSON = 'application/json'
+
 export type FormsWithUid = {
   uid: string
   entities: EntityForm[]
@@ -41,11 +57,24 @@ const configSchema = zod.object({
 })
 type ConfigSchema = zod.infer<typeof configSchema>
 
+/**
+ * A plugin for the CbaDataSource class, which implements the DataSourcePlugin interface.
+ */
 export class CbaDataSourcePlugin implements DataSourcePlugin {
+  /**
+   * Creates an instance of the CbaDataSource class, initialized with the given configuration.
+   * @param config The configuration object to use for creating the CbaDataSource instance.
+   * @returns An instance of the CbaDataSource class.
+   */
   createInstance(config: any) {
     const parsedConfig = configSchema.parse(config)
     return new CbaDataSource(parsedConfig)
   }
+
+  /**
+   * Returns the definition of the plugin.
+   * @returns An object containing the `uid` and `name` of the plugin.
+   */
   get definition() {
     return {
       uid: 'urn:repco:datasource:cba',
@@ -85,7 +114,6 @@ export class CbaDataSource implements DataSource {
   }
 
   async fetchByUri(uri: string): Promise<SourceRecordForm[]> {
-    console.log('fetchByUri', uri)
     const parsed = this.parseUri(uri)
     if (!parsed) throw new Error('Invalid URI')
     switch (parsed.type) {
@@ -102,18 +130,31 @@ export class CbaDataSource implements DataSource {
           },
         ]
       }
-      case 'media': {
+      case 'audio': {
         const url = this._url(`/media/${parsed.id}`)
         const body = await this._fetch(url)
         return [
           {
             body: JSON.stringify(body),
             contentType: CONTENT_TYPE_JSON,
-            sourceType: 'media',
+            sourceType: 'audio',
             sourceUri: url,
           },
         ]
       }
+      case 'image': {
+        const url = this._url(`/media/${parsed.id}`)
+        const body = await this._fetch(url)
+        return [
+          {
+            body: JSON.stringify(body),
+            contentType: CONTENT_TYPE_JSON,
+            sourceType: 'image',
+            sourceUri: url,
+          },
+        ]
+      }
+
       case 'series': {
         const url = this._url(`/series/${parsed.id}`)
         const body = await this._fetch(url)
@@ -150,19 +191,39 @@ export class CbaDataSource implements DataSource {
           },
         ]
       }
+      case 'station': {
+        const url = this._url(`/station/${parsed.id}`)
+        const body = await this._fetch(url)
+        return [
+          {
+            body: JSON.stringify(body),
+            contentType: CONTENT_TYPE_JSON,
+            sourceType: 'station',
+            sourceUri: url,
+          },
+        ]
+      }
     }
     throw new Error('Unsupported CBA data type: ' + parsed.type)
   }
 
+  /**
+   * Expands the attachment links for a given post and stores the attachment media in the post object.
+   *
+   * @param post The post for which to expand the attachment links.
+   */
   async expandAttachements(post: CbaPost) {
     post._fetchedAttachements = []
-    for (const attachement of post._links['wp:attachment']) {
-      const { href } = attachement
-      const medias = await this._fetch(href)
-      for (const media of medias) {
-        post._fetchedAttachements.push(media)
-      }
-    }
+
+    const fetchedAttachements = await Promise.all(
+      post._links['wp:attachment'].map(async (attachement) => {
+        const { href } = attachement
+        const medias = await this._fetch(href)
+        return medias
+      }),
+    )
+
+    post._fetchedAttachements = fetchedAttachements.flat()
   }
 
   async fetchUpdates(cursorString: string | null): Promise<FetchUpdatesResult> {
@@ -177,7 +238,6 @@ export class CbaDataSource implements DataSource {
       )
       const posts = await this._fetch<CbaPost[]>(url)
 
-      // fetch wp:attachement resources
       await Promise.all(posts.map((post) => this.expandAttachements(post)))
 
       const lastPost = posts[posts.length - 1]
@@ -201,17 +261,37 @@ export class CbaDataSource implements DataSource {
 
     switch (record.sourceType) {
       case 'post':
+        console.log('CASE post')
+
         return this._mapPost(body as CbaPost)
-      case 'media':
-        return this._mapMedia(body)
+
+      case 'audio':
+        console.log('CASE Audio')
+        return this._mapAudio(body)
+      case 'image':
+        console.log('CASE Image')
+        return this._mapImage(body)
       case 'series':
+        console.log('CASE Series')
+
         return this._mapSeries(body)
+
       case 'category':
+        console.log('CASE Category')
+
         return this._mapCategory(body)
       case 'tag':
+        console.log('CASE Tag')
         return this._mapTag(body)
       case 'posts':
+        console.log('CASE posts')
+
         return (body as CbaPost[]).map((post) => this._mapPost(post)).flat()
+      case 'station':
+        console.log('CASE station')
+
+        return this._mapStation(body)
+
       default:
         throw new Error('Unknown source type: ' + record.sourceType)
     }
@@ -253,88 +333,29 @@ export class CbaDataSource implements DataSource {
     return `${this.uriPrefix}:r:${type}:${id}:${revisionId}`
   }
 
-  // private async _fetchSeriesUpdates(cursor?: string) {
-  //   if (!cursor) cursor = '1970-01-01T01:00:00'
-  //   const perPage = 2
-  //   const url = `/series?page=1&per_page=${perPage}&_embed&orderby=modified&order=asc&modified_after=${cursor}`
-  //   const series = await this._fetch<CbaSeries[]>(url)
-  //
-  //   return extractCursorAndMap(
-  //     series,
-  //     (x) => this._mapSeries(x),
-  //     (x) => x.modified.toString(),
-  //   )
-  // }
-
-  // private async _fetchPosts(cursor?: string) {
-  //   if (!cursor) cursor = '1970-01-01T01:00:00'
-  //   const perPage = 2
-  //   const url = `/posts?page=1&per_page=${perPage}&_embed&orderby=modified&order=asc&modified_after=${cursor}`
-  //   const posts = await this._fetch<CbaPost[]>(url)
-  //   const otherEntities: EntityForm[] = []
-  //   if (!posts.length) return null
-  //   for (const post of posts) {
-  //     if (!post._links['wp:attachment'].length) continue
-  //     const mediaUids = []
-  //     for (const attachement of post._links['wp:attachment']) {
-  //       const { href } = attachement
-  //       const { uid, entities } = await this._fetchMedias(href)
-  //       otherEntities.push(...entities)
-  //       mediaUids.push(uid)
-  //     }
-  //     post.mediaAssets = mediaUids
-  //   }
-  //   const mappedPosts = extractCursorAndMap(
-  //     posts,
-  //     (x) => this._mapPost(x),
-  //     (x) => x.modified.toString(),
-  //   )
-  //   if (mappedPosts) mappedPosts.entities.unshift(...otherEntities)
-  //   return mappedPosts
-  // }
-  //
-  // private async _fetchMedias(url: string): Promise<FormsWithUid> {
-  //   url = url.replace(this.endpoint, '')
-  //   const medias = await this._fetch(url)
-  //   if (!medias.length) throw new Error('Media not found')
-  //   const media = medias[0]
-  //   return this._mapMedia(media)
-  // }
-
-  // private async _fetchMedia(id: string): Promise<FormsWithUid> {
-  //   const media = await this._fetch(`/media/${id}`)
-  //   return this._mapMedia(media)
-  // }
-  //
-  // private async _fetchSeries(id: string) {
-  //   const series = await this._fetch(`/series/${id}`)
-  //   return this._mapSeries(series)
-  // }
-
-  private _mapMedia(media: any): EntityForm[] {
+  private _mapAudio(media: CbaAudio): EntityForm[] {
     const fileId = this._uri('file', media.id)
-    const mediaId = this._uri('media', media.id)
-    const details = media.media_details
-    let bitrate = null
-    if (details?.bitrate) bitrate = parseInt(details.bitrate)
+    const audioId = this._uri('audio', media.id)
+
     const file: form.FileInput = {
-      // uid: fileId,
       contentUrl: media.source_url,
-      bitrate,
-      // additionalMetadata: null,
-      codec: null,
-      // contentSize: null,
-      duration: details?.duration || null,
+      bitrate: media.media_details.bitrate,
+      codec: media.media_details.codec,
+      duration: media.media_details.length,
       mimeType: media.mime_type,
       cid: null,
-      resolution: null,
+      resolution: media.media_details.bitrate.toString(),
     }
     const asset: form.MediaAssetInput = {
-      // uid: mediaId,
       title: media.title.rendered,
-      duration: file.duration,
-      description: media.description?.rendered || null,
+      description: media.description?.rendered,
       mediaType: 'audio',
+      duration: media.media_details.length,
+      //License: null,
+      //Contribution
+      Concepts: media.media_tag.map((cbaId) => ({
+        uri: this._uri('tag', cbaId),
+      })),
       File: { uri: fileId },
     }
     const fileEntity: EntityForm = {
@@ -345,7 +366,45 @@ export class CbaDataSource implements DataSource {
     const mediaEntity: EntityForm = {
       type: 'MediaAsset',
       content: asset,
-      entityUris: [mediaId],
+      entityUris: [audioId],
+    }
+    return [fileEntity, mediaEntity]
+  }
+
+  private _mapImage(media: CbaImage): EntityForm[] {
+    const fileId = this._uri('file', media.id)
+    const imageId = this._uri('image', media.id)
+
+    const file: form.FileInput = {
+      contentUrl: media.source_url,
+      contentSize: media.media_details.filesize,
+      mimeType: media.mime_type,
+      resolution:
+        media.media_details.height.toString() +
+        'x' +
+        media.media_details.width.toString(),
+    }
+    const asset: form.MediaAssetInput = {
+      title: media.title.rendered,
+      description: media.description?.rendered,
+      mediaType: 'image',
+
+      //License: null,
+      //Contribution
+      Concepts: media.media_tag.map((cbaId) => ({
+        uri: this._uri('tag', cbaId),
+      })),
+      File: { uri: fileId },
+    }
+    const fileEntity: EntityForm = {
+      type: 'File',
+      content: file,
+      entityUris: [fileId],
+    }
+    const mediaEntity: EntityForm = {
+      type: 'MediaAsset',
+      content: asset,
+      entityUris: [imageId],
     }
     return [fileEntity, mediaEntity]
   }
@@ -355,6 +414,7 @@ export class CbaDataSource implements DataSource {
       name: category.name,
       description: category.description,
       kind: ConceptKind.CATEGORY,
+      originNamespace: 'https://cba.fro.at/wp-json/wp/v2/categories',
     }
     if (category.parent) {
       content.ParentConcept = { uri: this._uri('category', category.parent) }
@@ -377,6 +437,7 @@ export class CbaDataSource implements DataSource {
       name: tag.name,
       description: tag.description,
       kind: ConceptKind.TAG,
+      originNamespace: 'https://cba.fro.at/wp-json/wp/v2/tags',
     }
     const revisionId = this._revisionUri('tag', tag.id, new Date().getTime())
     const uri = this._uri('tag', tag.id)
@@ -385,6 +446,25 @@ export class CbaDataSource implements DataSource {
       entityUris: [uri],
     }
     return [{ type: 'Concept', content, ...headers }]
+  }
+
+  private _mapStation(station: CbaStation): EntityForm[] {
+    const content: form.PublicationServiceInput = {
+      medium: station.type,
+      address: station.link,
+      name: station.title.rendered,
+    }
+    const revisionId = this._revisionUri(
+      'station',
+      station.id,
+      new Date(station.modified).getTime(),
+    )
+    const uri = this._uri('station', station.id)
+    const headers = {
+      revisionUris: [revisionId],
+      entityUris: [uri],
+    }
+    return [{ type: 'PublicationService', content, ...headers }]
   }
 
   private _mapSeries(series: CbaSeries): EntityForm[] {
@@ -413,13 +493,21 @@ export class CbaDataSource implements DataSource {
   }
 
   private _mapPost(post: CbaPost): EntityForm[] {
+    console.log(post.id)
     const mediaAssetsAndFiles = post._fetchedAttachements
-      .map((attachement) => this._mapMedia(attachement))
+      .map((attachement) => this._mapAudio(attachement))
       .flat()
+
     const mediaAssetUris = mediaAssetsAndFiles
       .filter((entity) => entity.type === 'MediaAsset')
       .map((x) => x.entityUris || [])
       .flat()
+
+    const mappedMediaAssets = mediaAssetUris.map((uri) => ({ uri }))
+    mediaAssetUris.forEach((e) => this.fetchByUri(e))
+
+    const featured_image = { uri: this._uri('image', post.featured_image) }
+    mappedMediaAssets.push(featured_image)
 
     const categories = post.categories.map((cbaId) => ({
       uri: this._uri('category', cbaId),
@@ -427,9 +515,11 @@ export class CbaDataSource implements DataSource {
     const tags = post.tags.map((cbaId) => ({
       uri: this._uri('tag', cbaId),
     }))
-
     const conceptsUris = categories.concat(tags)
-    console.log('concepts', conceptsUris)
+
+    const contributions = []
+
+    const station = { uri: this._uri('station', post.meta.station_id) }
     const content: form.ContentItemInput = {
       pubDate: new Date(post.date),
       content: post.content.rendered,
@@ -439,12 +529,12 @@ export class CbaDataSource implements DataSource {
       // primaryGroupingUid: null,
       subtitle: 'missing',
       summary: post.excerpt.rendered,
-      //Contributions: { uri: this_uri() },
-      //AdditionalGroupings: {}
+      //Contributions: { uri: this._uri('contributer', ) },
+      // AdditionalGroupings: station,
       //License
       //BroadcastEvents
       Concepts: conceptsUris,
-      MediaAssets: mediaAssetUris.map((uri) => ({ uri })),
+      MediaAssets: mappedMediaAssets,
       PrimaryGrouping: { uri: this._uri('series', post.post_parent) },
     }
     const revisionId = this._revisionUri(

@@ -139,6 +139,28 @@ export interface Links {
   curies: Cury[]
 }
 
+export interface StationLinks {
+  self: About[]
+  collection: About[]
+  about: About[]
+  author: EmbeddedLink[]
+  replies: EmbeddedLink[]
+  'wp:attachment': About[]
+  'wp:featuredmedia': EmbeddedLink[]
+  'wp:term': WpTerm[]
+  curies: Cury[]
+}
+
+export interface MediaLinks {
+  self: About[]
+  collection: About[]
+  about: About[]
+  author: EmbeddedLink[]
+  replies: EmbeddedLink[]
+  'wp:term': WpTerm[]
+  curies: Cury[]
+}
+
 export interface CategoryLinks {
   self: About[]
   collection: About[]
@@ -149,4 +171,138 @@ export interface CategoryLinks {
 export interface EmbeddedLink {
   embeddable: boolean
   href: string
+}
+
+export interface CbaStation {
+  id: number
+  date: Date
+  date_gmt: Date
+  guid: number
+  modified: Date
+  modified_gmt: Date
+  slug: string
+  status: string
+  type: string
+  link: string
+  title: GUID
+  content: Content
+  featured_media: string
+  comment_status: string
+  ping_status: string
+  template: string
+  acf: any[]
+  livestream_urls: any[]
+  _links: StationLinks
+}
+
+export interface CbaAudio {
+  id: number
+  date: Date
+  date_gmt: Date
+  guid: string
+  modified: Date
+  modified_gmt: Date
+  slug: string
+  status: string
+  type: string
+  link: string
+  title: GUID
+  author: number
+  comment_status: string
+  ping_status: string
+  template: string
+  meta: {
+    station_id: number
+  }
+  media_tag: any[]
+  acf: any[]
+  originators: any[]
+  source_url: string
+  license: {
+    license_image: string
+    license: string
+    version: string
+    conditions: string
+    license_link: string
+  }
+  description: {
+    rendered: string
+  }
+  caption: {
+    rendered: string
+  }
+  alt_text: string
+  media_type: string
+  mime_type: string
+  media_details: {
+    dataformat: string
+    channels: number
+    sample_rate: number
+    bitrate: number
+    channelmode: string
+    bitrate_mode: string
+    codec: string
+    encoder: string
+    lossless: boolean
+    encoder_options: string
+    compression_ratio: number
+    fileformat: string
+    filesize: number
+    mime_type: string
+    length: number
+    length_formatted: string
+    sizes: string
+  }
+  post: number
+  _links: MediaLinks
+}
+
+export interface CbaImage {
+  id: number
+  date: Date
+  date_gmt: Date
+  guid: string
+  modified: Date
+  modified_gmt: Date
+  slug: string
+  status: string
+  type: string
+  link: string
+  title: GUID
+  author: number
+  comment_status: string
+  ping_status: string
+  template: string
+  meta: {
+    station_id: number
+  }
+  media_tag: any[]
+  acf: any[]
+  originators: any[]
+  source_url: string
+  license: {
+    license_image: string
+    license: string
+    version: string
+    conditions: string
+    license_link: string
+  }
+  description: {
+    rendered: string
+  }
+  caption: {
+    rendered: string
+  }
+  alt_text: string
+  media_type: string
+  mime_type: string
+  media_details: {
+    width: number
+    height: number
+    file: string
+    filesize: number
+    //there is much more info
+  }
+  post: number
+  _links: MediaLinks
 }
