@@ -2086,6 +2086,40 @@ type ContentGrouping {
     orderBy: [LicensesOrderBy!] = [PRIMARY_KEY_ASC]
   ): ContentGroupingLicensesByContentItemPrimaryGroupingUidAndLicenseUidManyToManyConnection!
 
+  """Reads and enables pagination through a set of `PublicationService`."""
+  publicationServicesByContentItemPrimaryGroupingUidAndPublicationServiceUid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PublicationServiceCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PublicationServiceFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PublicationService`."""
+    orderBy: [PublicationServicesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ContentGroupingPublicationServicesByContentItemPrimaryGroupingUidAndPublicationServiceUidManyToManyConnection!
+
   """Reads a single `Revision` that is related to this `ContentGrouping`."""
   revision: Revision
   revisionId: String!
@@ -2331,6 +2365,72 @@ type ContentGroupingLicensesByContentItemPrimaryGroupingUidAndLicenseUidManyToMa
 
   """The `License` at the end of the edge."""
   node: License!
+}
+
+"""
+A connection to a list of `PublicationService` values, with data from `ContentItem`.
+"""
+type ContentGroupingPublicationServicesByContentItemPrimaryGroupingUidAndPublicationServiceUidManyToManyConnection {
+  """
+  A list of edges which contains the `PublicationService`, info from the `ContentItem`, and the cursor to aid in pagination.
+  """
+  edges: [ContentGroupingPublicationServicesByContentItemPrimaryGroupingUidAndPublicationServiceUidManyToManyEdge!]!
+
+  """A list of `PublicationService` objects."""
+  nodes: [PublicationService!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `PublicationService` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""
+A `PublicationService` edge in the connection, with data from `ContentItem`.
+"""
+type ContentGroupingPublicationServicesByContentItemPrimaryGroupingUidAndPublicationServiceUidManyToManyEdge {
+  """Reads and enables pagination through a set of `ContentItem`."""
+  contentItems(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ContentItemCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ContentItemFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `ContentItem`."""
+    orderBy: [ContentItemsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ContentItemsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `PublicationService` at the end of the edge."""
+  node: PublicationService!
 }
 
 """
@@ -2643,6 +2743,12 @@ type ContentItem {
   primaryGroupingUid: String
   pubDate: Datetime
 
+  """
+  Reads a single `PublicationService` that is related to this `ContentItem`.
+  """
+  publicationService: PublicationService
+  publicationServiceUid: String
+
   """Reads and enables pagination through a set of `PublicationService`."""
   publicationServicesByBroadcastEventContentItemUidAndBroadcastServiceUid(
     """Read all values in the set after (below) this cursor."""
@@ -2769,6 +2875,9 @@ input ContentItemCondition {
 
   """Checks for equality with the object’s `pubDate` field."""
   pubDate: Datetime
+
+  """Checks for equality with the object’s `publicationServiceUid` field."""
+  publicationServiceUid: String
 
   """Checks for equality with the object’s `revisionId` field."""
   revisionId: String
@@ -2965,6 +3074,15 @@ input ContentItemFilter {
 
   """Filter by the object’s `pubDate` field."""
   pubDate: DatetimeFilter
+
+  """Filter by the object’s `publicationService` relation."""
+  publicationService: PublicationServiceFilter
+
+  """A related `publicationService` exists."""
+  publicationServiceExists: Boolean
+
+  """Filter by the object’s `publicationServiceUid` field."""
+  publicationServiceUid: StringFilter
 
   """Filter by the object’s `revision` relation."""
   revision: RevisionFilter
@@ -3176,6 +3294,8 @@ enum ContentItemsOrderBy {
   PRIMARY_GROUPING_UID_DESC
   PRIMARY_KEY_ASC
   PRIMARY_KEY_DESC
+  PUBLICATION_SERVICE_UID_ASC
+  PUBLICATION_SERVICE_UID_DESC
   PUB_DATE_ASC
   PUB_DATE_DESC
   REVISION_ID_ASC
@@ -5409,6 +5529,40 @@ type License {
   ): MediaAssetsConnection!
   name: String!
 
+  """Reads and enables pagination through a set of `PublicationService`."""
+  publicationServicesByContentItemLicenseUidAndPublicationServiceUid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PublicationServiceCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PublicationServiceFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PublicationService`."""
+    orderBy: [PublicationServicesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): LicensePublicationServicesByContentItemLicenseUidAndPublicationServiceUidManyToManyConnection!
+
   """Reads a single `Revision` that is related to this `License`."""
   revision: Revision
   revisionId: String!
@@ -5657,6 +5811,72 @@ input LicenseFilter {
 
   """Filter by the object’s `uid` field."""
   uid: StringFilter
+}
+
+"""
+A connection to a list of `PublicationService` values, with data from `ContentItem`.
+"""
+type LicensePublicationServicesByContentItemLicenseUidAndPublicationServiceUidManyToManyConnection {
+  """
+  A list of edges which contains the `PublicationService`, info from the `ContentItem`, and the cursor to aid in pagination.
+  """
+  edges: [LicensePublicationServicesByContentItemLicenseUidAndPublicationServiceUidManyToManyEdge!]!
+
+  """A list of `PublicationService` objects."""
+  nodes: [PublicationService!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `PublicationService` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""
+A `PublicationService` edge in the connection, with data from `ContentItem`.
+"""
+type LicensePublicationServicesByContentItemLicenseUidAndPublicationServiceUidManyToManyEdge {
+  """Reads and enables pagination through a set of `ContentItem`."""
+  contentItems(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ContentItemCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ContentItemFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `ContentItem`."""
+    orderBy: [ContentItemsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ContentItemsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `PublicationService` at the end of the edge."""
+  node: PublicationService!
 }
 
 """
@@ -6565,6 +6785,74 @@ type PublicationService {
     orderBy: [BroadcastEventsOrderBy!] = [PRIMARY_KEY_ASC]
   ): BroadcastEventsConnection!
 
+  """Reads and enables pagination through a set of `ContentGrouping`."""
+  contentGroupingsByContentItemPublicationServiceUidAndPrimaryGroupingUid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ContentGroupingCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ContentGroupingFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `ContentGrouping`."""
+    orderBy: [ContentGroupingsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PublicationServiceContentGroupingsByContentItemPublicationServiceUidAndPrimaryGroupingUidManyToManyConnection!
+
+  """Reads and enables pagination through a set of `ContentItem`."""
+  contentItems(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ContentItemCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ContentItemFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `ContentItem`."""
+    orderBy: [ContentItemsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ContentItemsConnection!
+
   """Reads and enables pagination through a set of `ContentItem`."""
   contentItemsByBroadcastEventBroadcastServiceUidAndContentItemUid(
     """Read all values in the set after (below) this cursor."""
@@ -6598,14 +6886,48 @@ type PublicationService {
     """The method to use when ordering `ContentItem`."""
     orderBy: [ContentItemsOrderBy!] = [PRIMARY_KEY_ASC]
   ): PublicationServiceContentItemsByBroadcastEventBroadcastServiceUidAndContentItemUidManyToManyConnection!
-  medium: String!
+
+  """Reads and enables pagination through a set of `License`."""
+  licensesByContentItemPublicationServiceUidAndLicenseUid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: LicenseCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: LicenseFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `License`."""
+    orderBy: [LicensesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PublicationServiceLicensesByContentItemPublicationServiceUidAndLicenseUidManyToManyConnection!
+  medium: String
   name: String!
 
   """
   Reads a single `Contributer` that is related to this `PublicationService`.
   """
   publisher: Contributer
-  publisherUid: String!
+  publisherUid: String
 
   """
   Reads a single `Revision` that is related to this `PublicationService`.
@@ -6637,6 +6959,72 @@ input PublicationServiceCondition {
 
   """Checks for equality with the object’s `uid` field."""
   uid: String
+}
+
+"""
+A connection to a list of `ContentGrouping` values, with data from `ContentItem`.
+"""
+type PublicationServiceContentGroupingsByContentItemPublicationServiceUidAndPrimaryGroupingUidManyToManyConnection {
+  """
+  A list of edges which contains the `ContentGrouping`, info from the `ContentItem`, and the cursor to aid in pagination.
+  """
+  edges: [PublicationServiceContentGroupingsByContentItemPublicationServiceUidAndPrimaryGroupingUidManyToManyEdge!]!
+
+  """A list of `ContentGrouping` objects."""
+  nodes: [ContentGrouping!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `ContentGrouping` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""
+A `ContentGrouping` edge in the connection, with data from `ContentItem`.
+"""
+type PublicationServiceContentGroupingsByContentItemPublicationServiceUidAndPrimaryGroupingUidManyToManyEdge {
+  """Reads and enables pagination through a set of `ContentItem`."""
+  contentItemsByPrimaryGrouping(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ContentItemCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ContentItemFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `ContentItem`."""
+    orderBy: [ContentItemsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ContentItemsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `ContentGrouping` at the end of the edge."""
+  node: ContentGrouping!
 }
 
 """
@@ -6719,6 +7107,12 @@ input PublicationServiceFilter {
   """Some related `broadcastEventsByBroadcastService` exist."""
   broadcastEventsByBroadcastServiceExist: Boolean
 
+  """Filter by the object’s `contentItems` relation."""
+  contentItems: PublicationServiceToManyContentItemFilter
+
+  """Some related `contentItems` exist."""
+  contentItemsExist: Boolean
+
   """Filter by the object’s `medium` field."""
   medium: StringFilter
 
@@ -6734,6 +7128,9 @@ input PublicationServiceFilter {
   """Filter by the object’s `publisher` relation."""
   publisher: ContributerFilter
 
+  """A related `publisher` exists."""
+  publisherExists: Boolean
+
   """Filter by the object’s `publisherUid` field."""
   publisherUid: StringFilter
 
@@ -6745,6 +7142,68 @@ input PublicationServiceFilter {
 
   """Filter by the object’s `uid` field."""
   uid: StringFilter
+}
+
+"""
+A connection to a list of `License` values, with data from `ContentItem`.
+"""
+type PublicationServiceLicensesByContentItemPublicationServiceUidAndLicenseUidManyToManyConnection {
+  """
+  A list of edges which contains the `License`, info from the `ContentItem`, and the cursor to aid in pagination.
+  """
+  edges: [PublicationServiceLicensesByContentItemPublicationServiceUidAndLicenseUidManyToManyEdge!]!
+
+  """A list of `License` objects."""
+  nodes: [License!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `License` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `License` edge in the connection, with data from `ContentItem`."""
+type PublicationServiceLicensesByContentItemPublicationServiceUidAndLicenseUidManyToManyEdge {
+  """Reads and enables pagination through a set of `ContentItem`."""
+  contentItems(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ContentItemCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ContentItemFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `ContentItem`."""
+    orderBy: [ContentItemsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ContentItemsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `License` at the end of the edge."""
+  node: License!
 }
 
 """
@@ -6765,6 +7224,26 @@ input PublicationServiceToManyBroadcastEventFilter {
   Some related `BroadcastEvent` matches the filter criteria. All fields are combined with a logical ‘and.’
   """
   some: BroadcastEventFilter
+}
+
+"""
+A filter to be used against many `ContentItem` object types. All fields are combined with a logical ‘and.’
+"""
+input PublicationServiceToManyContentItemFilter {
+  """
+  Every related `ContentItem` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: ContentItemFilter
+
+  """
+  No related `ContentItem` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: ContentItemFilter
+
+  """
+  Some related `ContentItem` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: ContentItemFilter
 }
 
 """A connection to a list of `PublicationService` values."""
@@ -9077,6 +9556,40 @@ type Revision {
     orderBy: [PublicationServicesOrderBy!] = [PRIMARY_KEY_ASC]
   ): RevisionPublicationServicesByBroadcastEventRevisionIdAndBroadcastServiceUidManyToManyConnection!
 
+  """Reads and enables pagination through a set of `PublicationService`."""
+  publicationServicesByContentItemRevisionIdAndPublicationServiceUid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PublicationServiceCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PublicationServiceFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PublicationService`."""
+    orderBy: [PublicationServicesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): RevisionPublicationServicesByContentItemRevisionIdAndPublicationServiceUidManyToManyConnection!
+
   """Reads a single `Repo` that is related to this `Revision`."""
   repoByRepoDid: Repo
   repoDid: String!
@@ -10247,6 +10760,72 @@ type RevisionPublicationServicesByBroadcastEventRevisionIdAndBroadcastServiceUid
     """The method to use when ordering `BroadcastEvent`."""
     orderBy: [BroadcastEventsOrderBy!] = [PRIMARY_KEY_ASC]
   ): BroadcastEventsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `PublicationService` at the end of the edge."""
+  node: PublicationService!
+}
+
+"""
+A connection to a list of `PublicationService` values, with data from `ContentItem`.
+"""
+type RevisionPublicationServicesByContentItemRevisionIdAndPublicationServiceUidManyToManyConnection {
+  """
+  A list of edges which contains the `PublicationService`, info from the `ContentItem`, and the cursor to aid in pagination.
+  """
+  edges: [RevisionPublicationServicesByContentItemRevisionIdAndPublicationServiceUidManyToManyEdge!]!
+
+  """A list of `PublicationService` objects."""
+  nodes: [PublicationService!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `PublicationService` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""
+A `PublicationService` edge in the connection, with data from `ContentItem`.
+"""
+type RevisionPublicationServicesByContentItemRevisionIdAndPublicationServiceUidManyToManyEdge {
+  """Reads and enables pagination through a set of `ContentItem`."""
+  contentItems(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ContentItemCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ContentItemFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `ContentItem`."""
+    orderBy: [ContentItemsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ContentItemsConnection!
 
   """A cursor for use in pagination."""
   cursor: Cursor

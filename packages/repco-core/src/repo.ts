@@ -55,11 +55,9 @@ export * from './repo/types.js'
 
 export type SaveBatchOpts = {
   commitEmpty: boolean
-  commitEmpty: boolean
 }
 
 export const SAVE_BATCH_DEFAULTS = {
-  commitEmpty: false,
   commitEmpty: false,
 }
 
@@ -376,11 +374,6 @@ export class Repo {
     return importRepoFromCar(this, stream, onProgress)
   }
 
-  async saveBatch(
-    _agentDid: string,
-    inputs: unknown[],
-    opts: Partial<SaveBatchOpts> = {},
-  ) {
   async saveBatch(
     _agentDid: string,
     inputs: unknown[],
@@ -854,10 +847,7 @@ export class RelationFinder {
         this.repo,
         [...this.pendingUris],
       )
-      const { fetched, notFound } = await this.repo.dsr.fetchEntities(
-        this.repo,
-        [...this.pendingUris],
-      )
+
       notFound.forEach((uri) => {
         this.missingUris.add(uri)
         this.pendingUris.delete(uri)
