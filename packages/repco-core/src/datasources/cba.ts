@@ -151,7 +151,6 @@ export class CbaDataSource implements DataSource {
           },
         ]
       }
-
       case 'series': {
         const url = this._url(`/series/${parsed.id}`)
         const body = await this._fetch(url)
