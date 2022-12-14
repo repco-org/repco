@@ -1,4 +1,4 @@
-import Table from 'cli-table'
+import Table from 'cli-table3'
 import pc from 'picocolors'
 import fs from 'fs/promises'
 import fmtBytes from 'pretty-bytes'

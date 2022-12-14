@@ -16,10 +16,8 @@ import {
 } from './entity.js'
 import {
   createRepoKeypair,
-  getInstanceDid,
   getInstanceKeypair,
   getPublishingUcanForInstance,
-  instanceSignPayload,
 } from './instance.js'
 import {
   IpldBlockStore,
@@ -52,6 +50,14 @@ import { createEntityId, createRevisionId } from './util/id.js'
 
 export * from './repo/types.js'
 
+export type SaveBatchOpts = {
+  commitEmpty: boolean
+}
+
+export const SAVE_BATCH_DEFAULTS = {
+  commitEmpty: false,
+}
+
 export type RevisionWithoutCid = Omit<Revision, 'revisionCid'>
 export type RevisionWithUnknownContent = {
   content: unknown
@@ -83,6 +89,7 @@ const REVISION_SELECT = {
   entityType: true,
   dateCreated: true,
   uid: true,
+  contentCid: true,
 }
 
 function defaultBlockStore(
@@ -107,6 +114,9 @@ export class Repo {
 
   public static CACHE: Map<string, Repo> = new Map()
   public static cache = true
+
+  private txqueue: (() => void)[] = []
+  private txlock = false
 
   static async createOrOpen(prisma: PrismaClient, name: string, did?: string) {
     try {
@@ -150,7 +160,9 @@ export class Repo {
         name,
       },
     })
-    return Repo.open(prisma, did)
+    const repo = await Repo.open(prisma, did)
+    await repo.saveBatch('_me', [], { commitEmpty: true })
+    return repo
   }
 
   static async open(prisma: PrismaClient, didOrName: string): Promise<Repo> {
@@ -214,19 +226,34 @@ export class Repo {
     this.ipld = new IpldRepo(record, this.blockstore)
   }
 
-  private $transaction<R>(fn: (repo: Repo) => Promise<R>) {
+  private async $transaction<R>(fn: (repo: Repo) => Promise<R>) {
     assertFullClient(this.prisma)
-    return this.prisma.$transaction(async (tx) => {
-      const self = new Repo(
-        tx,
-        this.record,
-        this.publishingCapability,
-        this.dsr,
-        this.blockstore,
-      )
-      const res = await fn(self)
+
+    if (this.txlock || this.txqueue.length) {
+      await new Promise<void>((resolve) => {
+        this.txqueue.push(resolve)
+      })
+    }
+    this.txlock = true
+
+    try {
+      const res = await this.prisma.$transaction(async (tx) => {
+        const self = new Repo(
+          tx,
+          this.record,
+          this.publishingCapability,
+          this.dsr,
+          this.blockstore,
+        )
+        const res = await fn(self)
+        return res
+      })
       return res
-    })
+    } finally {
+      this.txlock = false
+      const next = this.txqueue.shift()
+      if (next) next()
+    }
   }
 
   get name() {
@@ -303,12 +330,18 @@ export class Repo {
     return common.parseCid(row.tail)
   }
 
-  async getHead(): Promise<common.CID | undefined> {
+  async getHead(): Promise<common.CID> {
+    const head = await this.getHeadMaybe()
+    if (!head) throw new Error('Repo is empty')
+    return head
+  }
+
+  async getHeadMaybe(): Promise<common.CID | null> {
     const row = await this.prisma.repo.findUnique({
       where: { did: this.did },
       select: { head: true },
     })
-    if (!row || !row.head) return undefined
+    if (!row || !row.head) return null
     return common.parseCid(row.head)
   }
 
@@ -316,10 +349,10 @@ export class Repo {
     agentDid: string,
     input: any,
     headers: any = {},
-  ): Promise<EntityInputWithRevision> {
+  ): Promise<EntityInputWithRevision | null> {
     const data = { ...input, ...headers }
     const res = await this.saveBatch(agentDid, [data])
-    if (!res.length) throw new Error('Expected a result')
+    if (!res) return null
     return res[0]
   }
 
@@ -348,38 +381,44 @@ export class Repo {
     return importRepoFromCar(this, stream, onProgress)
   }
 
-  async saveBatch(agentDid: string, inputs: unknown[]) {
+  async saveBatch(
+    _agentDid: string,
+    inputs: unknown[],
+    opts: Partial<SaveBatchOpts> = {},
+  ) {
     if (!this.writeable) throw new Error('Repo is not writeable')
-    // Parse and assign uids.
-    const parsedInputs = await Promise.all(
-      inputs.map((input) => this.parseAndAssignUid(input)),
-    )
-
-    // Resolve missing relations.
-    const entities = await RelationFinder.resolve(this, parsedInputs)
-
-    if (!entities.length) return []
-
+    const fullOpts: SaveBatchOpts = { ...opts, ...SAVE_BATCH_DEFAULTS }
     // Save the batch in one transaction.
     return this.$transaction(async (repo) => {
-      const res = await repo.saveBatchInner(agentDid, entities)
+      // Parse and assign uids.
+      const parsedInputs = await Promise.all(
+        inputs.map((input) => this.parseAndAssignUid(input)),
+      )
+
+      // Resolve missing relations.
+      const entities = await RelationFinder.resolve(this, parsedInputs)
+
+      if (!fullOpts.commitEmpty && !entities.length) return null
+      const res = await repo.saveBatchInner(entities, fullOpts)
       return res
     })
   }
 
   private async saveBatchInner(
-    _agentDid: string,
     entities: EntityInputWithHeaders[],
+    opts: SaveBatchOpts,
   ) {
     if (!this.publishingCapability) throw new Error('Repo is not writable')
     const agentKeypair = await getInstanceKeypair(this.prisma)
-    const parent = await this.getHead()
+    const parent = await this.getHeadMaybe()
     const bundle = await this.ipld.createCommit(
       entities,
       agentKeypair,
       this.publishingCapability,
+      opts,
       parent,
     )
+    if (!bundle) return null
     const ret = await this.saveFromIpld(bundle)
     return ret
   }
@@ -453,6 +492,7 @@ export class Repo {
       })
     }
 
+    let prevContentCid
     if (prevRevision) {
       if (prevRevision.entityType !== entity.type) {
         throw new Error(
@@ -468,6 +508,7 @@ export class Repo {
       headers.dateCreated = prevRevision.dateCreated
       headers.prevRevisionId = prevRevision.id
       uid = prevRevision.uid
+      prevContentCid = prevRevision.contentCid
     } else {
       headers.prevRevisionId = null
       uid = createEntityId()
@@ -475,7 +516,7 @@ export class Repo {
 
     setUid(entity, uid)
 
-    return { ...entity, headers }
+    return { ...entity, headers, prevContentCid }
   }
 
   private async ensureAgent(did: string) {
@@ -577,7 +618,7 @@ export class Repo {
 }
 
 export class IpldRepo {
-  constructor(public record: RepoRecord, public blockstore: IpldBlockStore) {}
+  constructor(public record: RepoRecord, public blockstore: IpldBlockStore) { }
   get did() {
     return this.record.did
   }
@@ -585,7 +626,8 @@ export class IpldRepo {
     entities: EntityInputWithHeaders[],
     agentKeypair: ucans.EdKeypair,
     publishingCapability: string,
-    parentCommit?: CID,
+    opts: SaveBatchOpts,
+    parentCommit?: CID | null,
   ) {
     const agentDid = agentKeypair.did()
     const timestamp = new Date()
@@ -595,8 +637,12 @@ export class IpldRepo {
     const revisions = []
     for (const entity of entities) {
       const revision = await this.createRevision(agentDid, entity)
-      revisions.push({ ...revision, parsedContent: entity })
+      if (revision) {
+        revisions.push({ ...revision, parsedContent: entity })
+      }
     }
+
+    if (!opts.commitEmpty && !revisions.length) return null
 
     // save commit ipld
     const commit: CommitIpld = {
@@ -627,12 +673,14 @@ export class IpldRepo {
     }
     return bundle
   }
+
   private async createRevision(
     agentDid: string,
     entity: EntityInputWithHeaders,
-  ): Promise<RevisionWithUnknownContent> {
+  ): Promise<RevisionWithUnknownContent | null> {
     const headers = entity.headers
     const contentCid = await this.blockstore.put(entity.content)
+    if (contentCid.toString() === entity.prevContentCid) return null
     const id = createRevisionId()
     if (!headers.dateModified) headers.dateModified = new Date()
     if (!headers.dateCreated) headers.dateCreated = new Date()
@@ -794,9 +842,10 @@ export class RelationFinder {
       }
 
       // try to fetch them from the datasources
-      const { fetched, notFound } = await this.repo.dsr.fetchEntities([
-        ...this.pendingUris,
-      ])
+      const { fetched, notFound } = await this.repo.dsr.fetchEntities(
+        this.repo,
+        [...this.pendingUris],
+      )
       notFound.forEach((uri) => {
         this.missingUris.add(uri)
         this.pendingUris.delete(uri)

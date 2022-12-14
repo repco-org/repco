@@ -169,7 +169,6 @@ model Revision {
 
   // entity relations
   ContentGrouping  ContentGrouping?
-  SourceRecord     SourceRecord?
   ContentItem      ContentItem?
   License          License?
   MediaAsset       MediaAsset?
@@ -184,23 +183,25 @@ model Revision {
 }
 
 
-/// @repco(Entity)
 model SourceRecord {
   uid         String @id @unique
-  revisionId  String @unique
+
+  timestamp DateTime
+
+  sourceUri String
+  containedEntityUris String[]
 
   /// MIME type
   contentType String
-  /// Domain data model type identifier (URN)
-  domainType  String
+  /// Domain data model type identifier (any string)
+  sourceType String
   body        String
   meta        Json?
 
   dataSourceUid String?
   DataSource    DataSource? @relation(fields: [dataSourceUid], references: [uid])
-  /// @repco(skip)
+
   DerivedRevisions Revision[] @relation("DerivedRevisions")
-  Revision               Revision      @relation(fields: [revisionId], references: [id])
 }
 
 // Domain data model
