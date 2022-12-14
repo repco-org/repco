@@ -1,6 +1,11 @@
 import RssParser from 'rss-parser'
 import zod from 'zod'
 import { Link } from 'repco-common/zod'
+import { ContentGroupingVariant } from 'repco-prisma'
+import {
+  ContentGroupingInput,
+  ContentItemInput,
+} from 'repco-prisma/generated/repco/zod.js'
 import { fetch } from 'undici'
 import {
   DataSource,
@@ -109,11 +114,23 @@ export class RssDataSource implements DataSource {
     }
   }
 
-  canFetchUri(_uid: string): boolean {
+  canFetchUri(uri: string): boolean {
+    if (uri === this.endpoint.toString()) return true
     return false
   }
 
-  async fetchByUri(_uid: string): Promise<SourceRecordForm[]> {
+  async fetchByUri(uri: string): Promise<SourceRecordForm[]> {
+    if (uri === this.endpoint.toString()) {
+      const body = await this.fetchPage(this.endpoint)
+      return [
+        {
+          sourceType: 'primaryFeed',
+          contentType: 'application/rss+xml',
+          sourceUri: uri,
+          body,
+        },
+      ]
+    }
     return []
   }
 
@@ -252,13 +269,32 @@ export class RssDataSource implements DataSource {
   }
 
   async mapSourceRecord(record: SourceRecordForm): Promise<EntityForm[]> {
-    if (record.sourceType !== 'feedPage')
-      throw new Error('Invalid source type: ' + record.sourceType)
-    const feed = await parseBodyCached(record, async (record) =>
-      this.parser.parseString(record.body),
-    )
-    const entities = await this.mapPage(feed)
-    return entities
+    if (record.sourceType === 'feedPage') {
+      const feed = await parseBodyCached(record, async (record) =>
+        this.parser.parseString(record.body),
+      )
+      const entities = await this.mapPage(feed)
+      return entities
+    }
+    if (record.sourceType === 'primaryFeed') {
+      const feed = await parseBodyCached(record, async (record) =>
+        this.parser.parseString(record.body),
+      )
+      const entity: ContentGroupingInput = {
+        groupingType: 'feed',
+        title: feed.title || feed.feedUrl || 'unknown',
+        variant: ContentGroupingVariant.EPISODIC,
+        description: feed.description,
+      }
+      return [
+        {
+          type: 'ContentGrouping',
+          content: entity,
+          entityUris: [this.endpoint.toString()],
+        },
+      ]
+    }
+    throw new Error('Invalid source type: ' + record.sourceType)
   }
 
   async _extractMediaAssets(
@@ -308,13 +344,14 @@ export class RssDataSource implements DataSource {
       itemUri,
       item,
     )
-    const content = {
+    const content: ContentItemInput = {
       title: item.title || item.guid || 'missing',
       summary: item.contentSnippet,
       content: item.content || '',
       contentFormat: 'text/plain',
       pubDate: item.pubDate ? new Date(item.pubDate) : null,
-      MediaAssets: mediaAssets
+      PrimaryGrouping: { uri: this.endpoint.toString() },
+      MediaAssets: mediaAssets,
     }
     const headers = {
       entityUris: [itemUri],
