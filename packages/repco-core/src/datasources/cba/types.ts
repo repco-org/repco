@@ -1,3 +1,5 @@
+//typescript types for the cba datasource
+
 export interface CbaPost {
   id: number
   date: Date

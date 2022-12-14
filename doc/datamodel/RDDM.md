@@ -1,3 +1,6 @@
+_This document is a work in progress. In this case it is about a discussion process for the RDDM. It is not up to date, but it contains findings about the relations of the entities._
+
+
 # repco data model
 
 repco defines a data model for the exchange of community media. This represenation is developed to suit a number of domains: Podcasts, community radio and television, conference recordings, collections of cultural heritage, arts.
@@ -18,10 +21,10 @@ class ContentGrouping {
     description
     variant [episodic, serial]
     broadcastSchedule [channel, rrule]
-    
+
     beginningDate
     terminationDate
-    
+
     ➜teaserImage
     ➜contributors
     ➜concepts
@@ -84,7 +87,7 @@ class BroadcastEvent {
 }
 class BroadcastService {
     name
-    organization 
+    organization
     publications[web,fm,..]
 }
 class Organization {
@@ -104,6 +107,7 @@ MediaAsset --> Chapter
 ```
 
 actors and contributions:
+
 ```mermaid
 classDiagram
 direction LR
@@ -131,6 +135,7 @@ end
 
 
 ```
+
 Some relations are left out in the diagram to keep things clearer. Relations not in the diagram but part of the datamodel are:
 
 `License` is linked from `MediaAsset`, `ContentItem`, `Show`, `PublicationChannel`
@@ -151,7 +156,7 @@ class Concept {
     originNamespace
     name
     summary
-    description    
+    description
     type[subject,person,event]
     wikidataID
     ➜hasParentConcept
@@ -167,11 +172,10 @@ Concept --> Actor
 
 ```
 
-
 ### IDs, headers and changes
 
-* all entities have an `id` property. Q: Will this be an internal or external id?
-* all entities have an `alternativeIDs` property with a list of alternative IDs
-* more metadata for tracking changes in a `header` property?
+- all entities have an `id` property. Q: Will this be an internal or external id?
+- all entities have an `alternativeIDs` property with a list of alternative IDs
+- more metadata for tracking changes in a `header` property?
 
-*tbd*
+_tbd_

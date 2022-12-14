@@ -1,3 +1,5 @@
+// A datasource that uses the Wordpress API of https://cba.media
+
 import * as zod from 'zod'
 import { form } from 'repco-prisma'
 import { fetch } from 'undici'

@@ -1,10 +1,4 @@
-# repco-core
-
-Core modules for a Repco node.
-
-Contains the whole logic of repco and provides corresponding functions for it. here are currently implemented the datasources examples can be found for [cba](https://cba.fro.at/explore), [xrcb](https://xrcb.cat/en/) with different wp apis as well as [frn](https://www.freie-radios.net/) with rss feeds
-
-## Implementing a Datasource
+# Implementing a Datasource
 
 A DataSource is an external provider for repco data. The interface is implemented for individual providers (like CBA, XRCB, media.cccc.de). The DataSource includes methods to fetch data from the external source and converts this data into the repco data model.
 
@@ -39,7 +33,3 @@ The algorithm works as follows:
 - Case A: Oldest date of the page is older than the most recent date of the last fetch. This means that we have caught up with the new elements. We reset to page 0. We are done if this fetch was already on page 0.
 
 - Case B: The oldest date from this page is still newer than the most recent date of the last complete fetch. This means: increase the page number to continue the fetch until we reach the most recent publication date.
-
-## Tests & Benchmarks
-
-To run unit tests you can use `yarn test`. the tests are implemented using [brittle](https://github.com/holepunchto/brittle) an appropriate environment is provided using docker-compose. Further a small benchmark tool is provided.
