@@ -16,7 +16,7 @@ export class Registry<T extends PluginLike> {
   }
 
   ids(): string[] {
-    return this.all().map(x => x.definition.uid)
+    return this.all().map((x) => x.definition.uid)
   }
 
   has(uid: string): boolean {

@@ -90,7 +90,7 @@ export const ingest = createCommand({
   arguments: [],
   options: {
     repo: { type: 'string', short: 'r', help: 'Repo name or DID' },
-    loop: { type: 'boolean', short: 'r', help: 'Keep running in a loop'}
+    loop: { type: 'boolean', short: 'r', help: 'Keep running in a loop' },
   },
   async run(opts, _args) {
     const repo = await Repo.openWithDefaults(opts.repo)

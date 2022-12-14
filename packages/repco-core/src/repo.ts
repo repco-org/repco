@@ -47,6 +47,7 @@ import {
 } from './repo/types.js'
 import { MapList } from './util/collections.js'
 import { createEntityId, createRevisionId } from './util/id.js'
+import { Mutex } from './util/mutex.js'
 
 export * from './repo/types.js'
 
@@ -115,8 +116,7 @@ export class Repo {
   public static CACHE: Map<string, Repo> = new Map()
   public static cache = true
 
-  private txqueue: (() => void)[] = []
-  private txlock = false
+  private txlock = new Mutex()
 
   static async createOrOpen(prisma: PrismaClient, name: string, did?: string) {
     try {
@@ -229,15 +229,10 @@ export class Repo {
   private async $transaction<R>(fn: (repo: Repo) => Promise<R>) {
     assertFullClient(this.prisma)
 
-    if (this.txlock || this.txqueue.length) {
-      await new Promise<void>((resolve) => {
-        this.txqueue.push(resolve)
-      })
-    }
-    this.txlock = true
+    const release = await this.txlock.lock()
 
     try {
-      const res = await this.prisma.$transaction(async (tx) => {
+      return await this.prisma.$transaction(async (tx) => {
         const self = new Repo(
           tx,
           this.record,
@@ -245,14 +240,10 @@ export class Repo {
           this.dsr,
           this.blockstore,
         )
-        const res = await fn(self)
-        return res
+        return await fn(self)
       })
-      return res
     } finally {
-      this.txlock = false
-      const next = this.txqueue.shift()
-      if (next) next()
+      release()
     }
   }
 
