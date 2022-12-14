@@ -9,12 +9,34 @@ export type { DataSourcePlugin } from './plugins.js'
 
 type UID = string
 
+const kParsedBody = Symbol.for('parsedBody')
+type ParseBodyFn<T> = (form: SourceRecordForm) => Promise<T>
+
+export async function parseBodyCached<T>(
+  form: SourceRecordForm,
+  parserFn: ParseBodyFn<T>,
+) {
+  let parsedBody = getParsedBody(form)
+  if (!parsedBody) {
+    parsedBody = await parserFn(form)
+    setParsedBody(form, parsedBody)
+  }
+  return parsedBody as T
+}
+export function setParsedBody(form: SourceRecordForm, parsedBody: any) {
+  form[kParsedBody] = parsedBody
+}
+export function getParsedBody(form: SourceRecordForm): undefined | any {
+  return form[kParsedBody]
+}
+
 export type SourceRecordForm = {
   sourceUri: string
   contentType: string
   body: string
   sourceType: string
   meta?: any
+  [kParsedBody]?: any
 }
 
 export type FetchUpdatesResult = { cursor: string; records: SourceRecordForm[] }
@@ -150,11 +172,10 @@ export type IngestResult = Record<
 
 export async function ingestUpdatesFromDataSources(
   repo: Repo,
-  maxIterations = 1,
 ): Promise<IngestResult> {
   const res: IngestResult = {}
   for (const ds of repo.dsr.all()) {
-    const ret = await ingestUpdatesFromDataSource(repo, ds, maxIterations)
+    const ret = await ingestUpdatesFromDataSource(repo, ds)
     res[ds.definition.uid] = ret
   }
   return res
@@ -171,24 +192,18 @@ export async function ingestUpdatesFromDataSources(
 export async function ingestUpdatesFromDataSource(
   repo: Repo,
   datasource: DataSource,
-  maxIterations = 1,
 ) {
-  let count = 0
-  let cursor = await fetchCursor(repo.prisma, datasource)
-  while (--maxIterations >= 0) {
-    const { cursor: nextCursor, records } = await datasource.fetchUpdates(
-      cursor,
-    )
-    if (!records.length) break
+  const cursor = await fetchCursor(repo.prisma, datasource)
 
-    const entities = await mapAndPersistSourceRecord(repo, datasource, records)
-    await repo.saveBatch('me', entities) // TODO: Agent
-    await saveCursor(repo.prisma, datasource, nextCursor)
-    cursor = nextCursor
-    count += entities.length
-  }
+  const { cursor: nextCursor, records } = await datasource.fetchUpdates(cursor)
+  if (!records.length) return { cursor, count: 0 }
+
+  const entities = await mapAndPersistSourceRecord(repo, datasource, records)
+  await repo.saveBatch('me', entities) // TODO: Agent
+  await saveCursor(repo.prisma, datasource, nextCursor)
+
   return {
-    count,
+    count: entities.length,
     cursor,
   }
 }
@@ -245,6 +260,11 @@ export async function remapDataSource(repo: Repo, datasource: DataSource) {
   const batchSize = 10
 
   let cursor: string | undefined = undefined
+  const state = {
+    savedRevisions: 0,
+    processedSourceRecords: 0,
+    processedEntities: 0,
+  }
   while (true) {
     const records: SourceRecord[] = await fetchSourceRecords(
       repo.prisma,
@@ -252,16 +272,20 @@ export async function remapDataSource(repo: Repo, datasource: DataSource) {
       batchSize,
       cursor,
     )
+    state.processedSourceRecords += 1
     if (!records.length) break
 
     const nextCursor = records[records.length - 1].uid
     if (nextCursor === cursor) break
 
     const entities = await mapAndPersistSourceRecord(repo, datasource, records)
-    await repo.saveBatch('me', entities)
+    state.processedEntities += entities.length
+    const ret = await repo.saveBatch('me', entities)
+    if (ret) state.savedRevisions += ret.length
 
     cursor = nextCursor
   }
+  return state
 }
 
 async function fetchSourceRecords(
