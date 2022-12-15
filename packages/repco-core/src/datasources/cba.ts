@@ -22,6 +22,7 @@ import { fetch } from 'undici'
 import {
   CbaAudio,
   CbaCategory,
+  CbaImage,
   CbaPost,
   CbaSeries,
   CbaStation,
@@ -478,12 +479,6 @@ export class CbaDataSource implements DataSource {
       .filter((entity) => entity.type === 'MediaAsset')
       .map((x) => x.entityUris || [])
       .flat()
-
-    const mappedMediaAssets = mediaAssetUris.map((uri) => ({ uri }))
-    mediaAssetUris.forEach((e) => this.fetchByUri(e))
-
-    const featured_image = { uri: this._uri('image', post.featured_image) }
-    mappedMediaAssets.push(featured_image)
 
     const mappedMediaAssets = mediaAssetUris.map((uri) => ({ uri }))
     mediaAssetUris.forEach((e) => this.fetchByUri(e))
