@@ -167,37 +167,13 @@ export class XrcbDataSource implements DataSource {
         ]
       }
       case 'tag': {
-        const url = this._url(`/podcast_tags/${parsed.id}`)
+        const url = this._url(`/podcast_tag/${parsed.id}`)
         const body = await this._fetch(url)
         return [
           {
             body: JSON.stringify(body),
             contentType: CONTENT_TYPE_JSON,
             sourceType: 'tag',
-            sourceUri: url,
-          },
-        ]
-      }
-      case 'audio': {
-        const url = this._url(`/podcasts/${parsed.id}`)
-        const body = await this._fetch(url)
-        return [
-          {
-            body: JSON.stringify(body),
-            contentType: CONTENT_TYPE_JSON,
-            sourceType: 'audio',
-            sourceUri: url,
-          },
-        ]
-      }
-      case 'image': {
-        const url = this._url(`/podcasts/${parsed.id}`)
-        const body = await this._fetch(url)
-        return [
-          {
-            body: JSON.stringify(body),
-            contentType: CONTENT_TYPE_JSON,
-            sourceType: 'image',
             sourceUri: url,
           },
         ]
@@ -211,8 +187,8 @@ export class XrcbDataSource implements DataSource {
     const records = []
     {
       let postsCursor = cursor.posts
-      if (!postsCursor) postsCursor = '1970-01-01T01:00:00'
-      const perPage = 2
+      if (!postsCursor) postsCursor = '2022-01-01T01:00:00'
+      const perPage = 10
       const url = this._url(
         `/podcasts?page=1&per_page=${perPage}&_embed&orderby=modified&order=asc&modified_after=${postsCursor}`,
       )
@@ -240,10 +216,6 @@ export class XrcbDataSource implements DataSource {
     switch (record.sourceType) {
       case 'post':
         return this._mapPost(body as XrcbPost)
-      case 'audio':
-        return this._mapAudio(body)
-      // case 'image':
-      //   return this._mapImage(body)
       case 'series':
         return this._mapSeries(body)
       case 'category':
@@ -296,71 +268,6 @@ export class XrcbDataSource implements DataSource {
     return `${this.uriPrefix}:r:${type}:${id}:${revisionId}`
   }
 
-  private _mapAudio(media: XrcbPost): EntityForm[] {
-    const fileId = this._uri('file', media.acf.file_mp3.ID)
-    const audioId = this._uri('audio', media.acf.file_mp3.ID)
-
-    const file: form.FileInput = {
-      contentUrl: media.acf.file_mp3.url,
-      codec: media.acf.file_mp3.subtype,
-      mimeType: media.acf.file_mp3.mime_type,
-      cid: null,
-    }
-    const asset: form.MediaAssetInput = {
-      title: media.acf.file_mp3.title,
-      description: media.acf.file_mp3.description,
-      mediaType: 'audio',
-      //License: null,
-      //Contribution
-      File: { uri: fileId },
-    }
-    const fileEntity: EntityForm = {
-      type: 'File',
-      content: file,
-      entityUris: [fileId],
-    }
-    const mediaEntity: EntityForm = {
-      type: 'MediaAsset',
-      content: asset,
-      entityUris: [audioId],
-    }
-    return [fileEntity, mediaEntity]
-  }
-
-  private _mapImage(media: XrcbPost): EntityForm[] {
-    const fileId = this._uri('file', media.acf.img_podcast.ID)
-    const imageId = this._uri('image', media.acf.img_podcast.ID)
-
-    const file: form.FileInput = {
-      contentUrl: media.acf.img_podcast.url,
-      contentSize: media.acf.img_podcast.filesize,
-      mimeType: media.acf.img_podcast.mime_type,
-      resolution:
-        media.acf.img_podcast.height.toString() +
-        'x' +
-        media.acf.img_podcast.width.toString(),
-    }
-    const asset: form.MediaAssetInput = {
-      title: media.acf.img_podcast.title,
-      mediaType: 'image',
-
-      //License: null,
-      //Contribution
-      File: { uri: fileId },
-    }
-    const fileEntity: EntityForm = {
-      type: 'File',
-      content: file,
-      entityUris: [fileId],
-    }
-    const mediaEntity: EntityForm = {
-      type: 'MediaAsset',
-      content: asset,
-      entityUris: [imageId],
-    }
-    return [fileEntity, mediaEntity]
-  }
-
   private _mapCategory(category: XrcbCategory): EntityForm[] {
     const content: form.ConceptInput = {
       name: category.name,
@@ -401,7 +308,13 @@ export class XrcbDataSource implements DataSource {
   private _mapStation(station: XrcbStation): EntityForm[] {
     const content: form.PublicationServiceInput = {
       name: station.title.rendered,
-      address: station.acf.location.address,
+      address: 'missing',
+      //NOTE:   xrcb provides further interesting information like
+      //        the history of the radio station, detailed address etc.
+      //        Maybe we will update this at a later time.
+    }
+    if (station.acf.location.address) {
+      content.address = station.acf.location.address
     }
     const revisionId = this._revisionUri(
       'station',
@@ -437,67 +350,133 @@ export class XrcbDataSource implements DataSource {
   }
 
   private _mapPost(post: XrcbPost): EntityForm[] {
-    // const mediaAssetUris = []
-    // const mediaAssetAudio = { uri: this._uri('audio', post.acf.file_mp3.ID) }
-    // if (post.acf.img_podcast) {
-    //   const mediaAssetImage = {
-    //     uri: this._uri('image', post.acf.img_podcast.ID),
-    //   }
-    //   mediaAssetUris.push(mediaAssetImage)
-    // }
-    // mediaAssetUris.push(mediaAssetAudio)
-    const mediaAssetUris = [
-      { uri: this._uri('audio', post.id) },
-      //{ uri: this._uri('image', post.id) },
-    ]
+    const entities: EntityForm[] = []
+
+    const postEntity: EntityForm = {
+      type: 'ContentItem',
+      content: {
+        pubDate: new Date(post.date),
+        content: post.content.rendered,
+        contentFormat: 'text/html',
+        title: post.title.rendered,
+        subtitle: 'missing',
+        summary: 'misisng',
+      },
+      entityUris: [this._uri('post', post.id)],
+      revisionUris: [
+        this._revisionUri('post', post.id, new Date(post.modified).getTime()),
+      ],
+    }
+
     const conceptsUris = []
-    const tags = post.podcast_tag.map((xrcbId) => ({
-      uri: this._uri('tag', xrcbId),
-    }))
-    const categories = post.podcast_category.map((xrcbId) => ({
-      uri: this._uri('category', xrcbId),
-    }))
 
-    conceptsUris.push(...tags)
-    conceptsUris.push(...categories)
-
-    const station = { uri: this._uri('station', post.acf.radio.ID) }
-
-    const primaryGroupingUris = []
-    const primaryGrouping = post.podcast_programa.map((xrcbId) => ({
-      uri: this._uri('series', xrcbId),
-    }))
-    primaryGroupingUris.push(...primaryGrouping)
-
-    const content: form.ContentItemInput = {
-      pubDate: new Date(post.date),
-      content: post.content.rendered,
-      contentFormat: 'text/html',
-      title: post.title.rendered,
-      // licenseUid: null,
-      // primaryGroupingUid: null,
-      subtitle: 'missing',
-      summary: 'misisng',
-      //Contributions: { uri: this._uri('contributer', ) },
-      // AdditionalGroupings: station,
-      //License
-      //BroadcastEvents
-      Concepts: conceptsUris,
-      MediaAssets: mediaAssetUris,
-      PrimaryGrouping: primaryGroupingUris[0],
+    if (post.podcast_tag) {
+      const tags = post.podcast_tag.map((xrcbId) => ({
+        uri: this._uri('tag', xrcbId),
+      }))
+      conceptsUris.push(...tags)
     }
-    const revisionId = this._revisionUri(
-      'post',
-      post.id,
-      new Date(post.modified).getTime(),
-    )
-    const entityUri = this._uri('post', post.id)
-
-    const headers = {
-      revisionUris: [revisionId],
-      entityUris: [entityUri],
+    if (post.podcast_category) {
+      const categories = post.podcast_category.map((xrcbId) => ({
+        uri: this._uri('category', xrcbId),
+      }))
+      conceptsUris.push(...categories)
     }
-    return [{ type: 'ContentItem', content, ...headers }]
+    postEntity.content.Concepts = conceptsUris
+
+    if (post.acf.radio && post.acf.radio.ID) {
+      const station = { uri: this._uri('station', post.acf.radio.ID) }
+      postEntity.content.PublicationService = station
+    }
+
+    if (post.podcast_programa) {
+      const primaryGroupingUris = []
+      const primaryGrouping = post.podcast_programa.map((xrcbId) => ({
+        uri: this._uri('series', xrcbId),
+      }))
+      primaryGroupingUris.push(...primaryGrouping)
+      postEntity.content.PrimaryGrouping = primaryGroupingUris[0]
+    }
+
+    if (post.acf.file_mp3 && post.acf.file_mp3.id) {
+      const fileId = this._uri('file', post.acf.file_mp3.id)
+      const audioId = this._uri('audio', post.acf.file_mp3.id)
+
+      const audioFileContent: form.FileInput = {
+        contentUrl: post.acf.file_mp3.url,
+        codec: post.acf.file_mp3.subtype,
+        mimeType: post.acf.file_mp3.mime_type,
+        cid: null,
+      }
+
+      const audioContent: form.MediaAssetInput = {
+        title: post.acf.file_mp3.title,
+        description: post.acf.file_mp3.description,
+        mediaType: 'audio',
+        //License: null,
+        //Contribution
+        File: { uri: fileId },
+      }
+
+      const audioFileEntity: EntityForm = {
+        type: 'File',
+        content: audioFileContent,
+        entityUris: [fileId],
+      }
+      const audioEntity: EntityForm = {
+        type: 'MediaAsset',
+        content: audioContent,
+        entityUris: [audioId],
+      }
+      postEntity.content.MediaAssets = [
+        ...(postEntity.content.MediaAssets || []),
+        { uri: audioId },
+      ]
+      entities.push(audioFileEntity, audioEntity)
+    }
+
+    if (post.acf.img_podcast && post.acf.img_podcast.ID) {
+      const imageId = this._uri('image', post.acf.img_podcast.ID)
+      const fileId = this._uri('file', post.acf.img_podcast.ID)
+
+      const imageFileContent: form.FileInput = {
+        contentUrl: post.acf.img_podcast.url,
+        contentSize: post.acf.img_podcast.filesize,
+        mimeType: post.acf.img_podcast.mime_type,
+        resolution:
+          post.acf.img_podcast.height.toString() +
+          'x' +
+          post.acf.img_podcast.width.toString(),
+      }
+
+      const imageContent: form.MediaAssetInput = {
+        title: post.acf.img_podcast.title,
+        mediaType: 'image',
+        //License: null,
+        //Contribution
+        File: { uri: imageId },
+      }
+
+      const imageFileEntity: EntityForm = {
+        type: 'File',
+        content: imageFileContent,
+        entityUris: [fileId],
+      }
+      const imageEntity: EntityForm = {
+        type: 'MediaAsset',
+        content: imageContent,
+        entityUris: [fileId],
+      }
+
+      postEntity.content.MediaAssets = [
+        ...(postEntity.content.MediaAssets || []),
+        { uri: imageId },
+      ]
+      entities.push(imageFileEntity, imageEntity)
+    }
+    entities.push(postEntity)
+    console.log(post.id)
+    return entities
   }
 
   private _url(urlString: string, opts: FetchOpts = {}) {
