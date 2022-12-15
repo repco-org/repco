@@ -437,7 +437,6 @@ export class XrcbDataSource implements DataSource {
 
     if (post.acf.img_podcast && post.acf.img_podcast.ID) {
       const imageId = this._uri('image', post.acf.img_podcast.ID)
-      const fileId = this._uri('file', post.acf.img_podcast.ID)
 
       const imageFileContent: form.FileInput = {
         contentUrl: post.acf.img_podcast.url,
