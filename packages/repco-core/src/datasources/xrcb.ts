@@ -188,7 +188,7 @@ export class XrcbDataSource implements DataSource {
     {
       let postsCursor = cursor.posts
       if (!postsCursor) postsCursor = '2022-01-01T01:00:00'
-      const perPage = 10
+      const perPage = 2
       const url = this._url(
         `/podcasts?page=1&per_page=${perPage}&_embed&orderby=modified&order=asc&modified_after=${postsCursor}`,
       )
@@ -308,7 +308,7 @@ export class XrcbDataSource implements DataSource {
   private _mapStation(station: XrcbStation): EntityForm[] {
     const content: form.PublicationServiceInput = {
       name: station.title.rendered,
-      address: 'missing',
+      address: station.acf.location.address,
       //NOTE:   xrcb provides further interesting information like
       //        the history of the radio station, detailed address etc.
       //        Maybe we will update this at a later time.
@@ -437,6 +437,7 @@ export class XrcbDataSource implements DataSource {
 
     if (post.acf.img_podcast && post.acf.img_podcast.ID) {
       const imageId = this._uri('image', post.acf.img_podcast.ID)
+      const fileId = this._uri('imageFile', post.acf.img_podcast.ID)
 
       const imageFileContent: form.FileInput = {
         contentUrl: post.acf.img_podcast.url,
@@ -453,7 +454,7 @@ export class XrcbDataSource implements DataSource {
         mediaType: 'image',
         //License: null,
         //Contribution
-        File: { uri: imageId },
+        File: { uri: fileId },
       }
 
       const imageFileEntity: EntityForm = {
@@ -464,7 +465,7 @@ export class XrcbDataSource implements DataSource {
       const imageEntity: EntityForm = {
         type: 'MediaAsset',
         content: imageContent,
-        entityUris: [fileId],
+        entityUris: [imageId],
       }
 
       postEntity.content.MediaAssets = [
