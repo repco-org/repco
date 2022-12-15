@@ -228,23 +228,16 @@ export class Repo {
 
   private async $transaction<R>(fn: (repo: Repo) => Promise<R>) {
     assertFullClient(this.prisma)
-
-    const release = await this.txlock.lock()
-
-    try {
-      return await this.prisma.$transaction(async (tx) => {
-        const self = new Repo(
-          tx,
-          this.record,
-          this.publishingCapability,
-          this.dsr,
-          this.blockstore,
-        )
-        return await fn(self)
-      })
-    } finally {
-      release()
-    }
+    return await this.prisma.$transaction(async (tx) => {
+      const self = new Repo(
+        tx,
+        this.record,
+        this.publishingCapability,
+        this.dsr,
+        this.blockstore,
+      )
+      return await fn(self)
+    })
   }
 
   get name() {
@@ -379,9 +372,12 @@ export class Repo {
   ) {
     if (!this.writeable) throw new Error('Repo is not writeable')
     const fullOpts: SaveBatchOpts = { ...opts, ...SAVE_BATCH_DEFAULTS }
+
     // Save the batch in one transaction.
-    return this.$transaction(async (repo) => {
-      // Parse and assign uids.
+    const release = await this.txlock.lock()
+
+    try {
+      // Assign UIDs to all entities
       const parsedInputs = await Promise.all(
         inputs.map((input) => this.parseAndAssignUid(input)),
       )
@@ -389,10 +385,16 @@ export class Repo {
       // Resolve missing relations.
       const entities = await RelationFinder.resolve(this, parsedInputs)
 
+      // Abort early if there's nothing to save.
       if (!fullOpts.commitEmpty && !entities.length) return null
-      const res = await repo.saveBatchInner(entities, fullOpts)
-      return res
-    })
+
+      // Create the actual commit as a single prisma transaction
+      return await this.$transaction((repo) => 
+        repo.saveBatchInner(entities, fullOpts)
+      )
+    } finally {
+      release()
+    }
   }
 
   private async saveBatchInner(
