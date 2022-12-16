@@ -1,8 +1,12 @@
 //********************************************************************************************************************************************* */
-// TO DO: contributions are missing - only wp-users
-// TO DO: License handling
+// The CbaDataSourcePlugin is a class that implements the DataSourcePlugin interface,
+// which allows it to be used as a plugin for the Repco data integration system.
+// It provides a way to access data from the CBA WordPress API, which exposes data about
+// radio stations, podcasts, categories, and tags and so on. The plugin allows you to specify the endpoint
+// of the API and an optional API key in the configuration. It provides methods for fetching
+// updates to the data, as well as for transforming the data into forms that can be used in Repco.
 
-// Some Notes:
+// Endpoints e.g.:
 // series:
 // https://cba.fro.at/wp-json/wp/v2/series?page=1&per_page=1&_embed&orderby=modified&order=asc&modified_after=2021-07-27T10:29:04
 // stations:
