@@ -1,35 +1,20 @@
 //********************************************************************************************************************************************* */
-// TO DO: add contributions - right now there is a problem with fetching the /users endpoint but I don't know why - there are authors and editors
-// TO DO: don't know what to do with the Station may we use it as additional Grouping, add them as Contribution or make a schema change so Contentitems are in relation with publischingServices
-// TO DO: License has no endpoint not sure how we should handle this, medias have a license but not the contentitems
+// The XrcbDataSourcePlugin is a class that implements the DataSourcePlugin interface,
+// which allows it to be used as a plugin for the Repco data integration system.
+// It provides a way to access data from the XRCB WordPress API, which exposes data about
+// radio stations, podcasts, categories, and tags. The plugin allows you to specify the endpoint
+// of the API and an optional API key in the configuration. It provides methods for fetching
+// updates to the data, as well as for transforming the data into forms that can be used in Repco.
 
-// Some Notes:
-
+// Endpoints:
 // WP API Basepath: https://xrcb.cat/wp-json/wp/v2
 // Custom API Basepath: https://xrcb.cat/wp-json/xrcb/v1
 
-// Die StandardAPI sollte funktionieren, alle von uns definierten Felder werden unter "acf" exposed. Intern (web und app) verwenden wir aber nur die selbstgebaute. Leider haben wir keine aktuelle Doku (nur ein kleines UML: https://guifi-exo.gitlab.io/xrcb/xrcb-docs/dev/dev_wordpress/#uml-diagram), und blöderweisse haben auch viele felder katalanische Namen, die muss ich dir wahrscheinlich übersetzen.
-
-// Folgendermassen kommst du an die Daten:
-
-// 1. Entpoint Radios, was in Neusprech Podcasts entspricht: https://xrcb.cat/ca/wp-json/xrcb/v1/radios
-
-// (Oder alternativ über unsere API, da heissen halt die felder etwas anders: https://xrcb.cat/ca/wp-json/wp/v2/radios)
-
-// 2. Radios haben categories und taxonomies:
+// https://xrcb.cat/ca/wp-json/wp/v2/radios
 // https://xrcb.cat/wp-json/wp/v2/radio_category
 // https://xrcb.cat/wp-json/wp/v2/radio_tag
-
-// 3. Mit der Radio ID kommst du zu den einzelnen Episoden, die bei uns verwirrenderweise Podcasts heissen. Am einfachsten über https://xrcb.cat/ca/wp-json/xrcb/v1/podcasts?radio_id=<radio_id>
-
-// (Alternativ über die standard API, die radio_id ist unter acf.radio.ID: https://xrcb.cat/wp-json/wp/v2/podcasts)
-
-// 4. Podcasts haben categories und taxonomies:
-// https://xrcb.cat/wp-json/wp/v2/podcast_category
+// https://xrcb.cat/wp-json/wp/v2/podcasts
 // https://xrcb.cat/wp-json/wp/v2/podcast_tag
-
-// 5. Podcasts können auch zu einem Programm gehören, das wäre etwa sowas wie
-// <podcast:season>:
 // https://xrcb.cat/wp-json/wp/v2/podcast_programa
 
 //********************************************************************************************************************************************* */
@@ -55,7 +40,9 @@ import { ConceptKind, ContentGroupingVariant, EntityForm } from '../entity.js'
 import { FetchOpts } from '../util/datamapping.js'
 import { HttpError } from '../util/error.js'
 
-// Endpoint of the Datasource
+/**
+ * The default endpoint for the XRCB WordPress API.
+ */
 const DEFAULT_ENDPOINT = 'https://xrcb.cat/wp-json/wp/v2'
 
 const CONTENT_TYPE_JSON = 'application/json'
@@ -65,12 +52,21 @@ export type FormsWithUid = {
   entities: EntityForm[]
 }
 
+/**
+ * The schema for the config object for this plugin.
+ */
 const configSchema = zod.object({
   endpoint: zod.string().url().optional(),
   apiKey: zod.string().optional(),
 })
 type ConfigSchema = zod.infer<typeof configSchema>
 
+/**
+ * Creates a new instance of the plugin.
+ *
+ * @param config - The configuration object for the plugin.
+ * @returns A new instance of the plugin.
+ */
 export class XrcbDataSourcePlugin implements DataSourcePlugin {
   createInstance(config: any) {
     const parsedConfig = configSchema.parse(config)
@@ -84,6 +80,14 @@ export class XrcbDataSourcePlugin implements DataSourcePlugin {
   }
 }
 
+/**
+ * A plugin for accessing data from the XRCB WordPress API
+ * which maps the data to the repco RDDM.
+ * The Constructer creates a new instance of the plugin.
+ *
+ * @param config - The configuration object for the plugin.
+ * @returns A new instance of the plugin.
+ */
 export class XrcbDataSource implements DataSource {
   endpoint: string
   endpointOrigin: string
@@ -114,6 +118,13 @@ export class XrcbDataSource implements DataSource {
     return !!parsed
   }
 
+  /**
+   * Fetches data from the XRCB WordPress API by URI.
+   *
+   * @param uri - The URI of the data to fetch.
+   * @returns An array of source record forms containing the fetched data.
+   * @throws An error if the URI is invalid or if the data type is not supported.
+   */
   async fetchByUri(uri: string): Promise<SourceRecordForm[]> {
     const parsed = this.parseUri(uri)
     if (!parsed) throw new Error('Invalid URI')
@@ -182,6 +193,12 @@ export class XrcbDataSource implements DataSource {
     throw new Error('Unsupported XRCB data type: ' + parsed.type)
   }
 
+  /**
+   * Fetches updates to the data from the XRCB WordPress API.
+   *
+   * @param since - The timestamp to use as the lower bound for the update search.
+   * @returns An object containing the updated data and the timestamp of the latest update.
+   */
   async fetchUpdates(cursorString: string | null): Promise<FetchUpdatesResult> {
     const cursor = cursorString ? JSON.parse(cursorString) : {}
     const records = []
@@ -210,6 +227,13 @@ export class XrcbDataSource implements DataSource {
     }
   }
 
+  /**
+   * Maps a source record form to an array of entity forms.
+   *
+   * @param record - The source record form to map.
+   * @returns An array of entity forms representing the data in the source record form.
+   * @throws An error if the source type is unknown.
+   */
   async mapSourceRecord(record: SourceRecordForm): Promise<EntityForm[]> {
     const body = JSON.parse(record.body)
 
@@ -349,6 +373,14 @@ export class XrcbDataSource implements DataSource {
     return [{ type: 'ContentGrouping', content, ...headers }]
   }
 
+  /**
+   * Maps a post object to an array of EntityForm objects.
+   * The post Object is a Podcast Post from the xrcb API.
+   * Extracts further Entities from the post and adds them to the array.
+   *
+   * @param post - The post object to map.
+   * @returns An array of EntityForm objects that represent the post.
+   */
   private _mapPost(post: XrcbPost): EntityForm[] {
     const entities: EntityForm[] = []
 
