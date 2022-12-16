@@ -71,7 +71,7 @@ While this is an in progress project may this is not the last standing.
 Repco is organized as a monorepro. In the individual packages a TypeDoc documentation can be generated with `yarn docs`.
 Most and most important functions, types, interfaces etc. are provided with appropriate comments. Each package usually contains a README.md with a short description. Additionally in each package a diagram folder can be created which contains a visualization of classes or processes.
 
-The documentation is available at [/doc]
+The documentation is available at `yarn docs`
 
 # Contribution
 

@@ -13,6 +13,7 @@
     "build:prisma-generate": "yarn --cwd packages/repco-prisma-generate build",
     "build:prisma": "yarn --cwd packages/repco-prisma build",
     "build:cli-bundle": "yarn --cwd packages/repco-cli build:bundle",
+    "build:docs": "yarn --cwd packages/repco-docs build",
     "dev:server": "yarn --cwd packages/repco-server dev",
     "watch": "run-p watch:*",
     "watch:tsc": "tsc --build --watch",
@@ -27,7 +28,8 @@
     "cli": "node packages/repco-cli/bin.js",
     "lint": "eslint packages",
     "lint:fix": "eslint packages --fix",
-    "update-ts-references": "node scripts/update-ts-references.js"
+    "update-ts-references": "node scripts/update-ts-references.js",
+    "docs": "yarn --cwd packages/repco-docs start"
   },
   "devDependencies": {
     "@mattinton/prettier-plugin-tidy-imports": "^1.1.12",
