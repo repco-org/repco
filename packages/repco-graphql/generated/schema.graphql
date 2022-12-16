@@ -2086,6 +2086,40 @@ type ContentGrouping {
     orderBy: [LicensesOrderBy!] = [PRIMARY_KEY_ASC]
   ): ContentGroupingLicensesByContentItemPrimaryGroupingUidAndLicenseUidManyToManyConnection!
 
+  """Reads and enables pagination through a set of `PublicationService`."""
+  publicationServicesByContentItemPrimaryGroupingUidAndPublicationServiceUid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PublicationServiceCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PublicationServiceFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PublicationService`."""
+    orderBy: [PublicationServicesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ContentGroupingPublicationServicesByContentItemPrimaryGroupingUidAndPublicationServiceUidManyToManyConnection!
+
   """Reads a single `Revision` that is related to this `ContentGrouping`."""
   revision: Revision
   revisionId: String!
@@ -3276,288 +3310,6 @@ enum ContentItemsOrderBy {
   UID_DESC
 }
 
-type Contributer {
-  contactInformation: String!
-
-  """Reads and enables pagination through a set of `Contribution`."""
-  contributions(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: ContributionCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: ContributionFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `Contribution`."""
-    orderBy: [ContributionsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): ContributerContributionsByContributerToContributionAAndBManyToManyConnection!
-  name: String!
-  personOrOrganization: String!
-
-  """Reads a single `File` that is related to this `Contributer`."""
-  profilePicture: File
-  profilePictureUid: String!
-
-  """Reads and enables pagination through a set of `PublicationService`."""
-  publicationServicesByPublisher(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: PublicationServiceCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: PublicationServiceFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `PublicationService`."""
-    orderBy: [PublicationServicesOrderBy!] = [PRIMARY_KEY_ASC]
-  ): PublicationServicesConnection!
-
-  """Reads a single `Revision` that is related to this `Contributer`."""
-  revision: Revision
-  revisionId: String!
-  uid: String!
-}
-
-"""
-A condition to be used against `Contributer` object types. All fields are tested
-for equality and combined with a logical ‘and.’
-"""
-input ContributerCondition {
-  """Checks for equality with the object’s `contactInformation` field."""
-  contactInformation: String
-
-  """Checks for equality with the object’s `name` field."""
-  name: String
-
-  """Checks for equality with the object’s `personOrOrganization` field."""
-  personOrOrganization: String
-
-  """Checks for equality with the object’s `profilePictureUid` field."""
-  profilePictureUid: String
-
-  """Checks for equality with the object’s `revisionId` field."""
-  revisionId: String
-
-  """Checks for equality with the object’s `uid` field."""
-  uid: String
-}
-
-"""
-A connection to a list of `Contribution` values, with data from `_ContributerToContribution`.
-"""
-type ContributerContributionsByContributerToContributionAAndBManyToManyConnection {
-  """
-  A list of edges which contains the `Contribution`, info from the `_ContributerToContribution`, and the cursor to aid in pagination.
-  """
-  edges: [ContributerContributionsByContributerToContributionAAndBManyToManyEdge!]!
-
-  """A list of `Contribution` objects."""
-  nodes: [Contribution!]!
-
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """The count of *all* `Contribution` you could get from the connection."""
-  totalCount: Int!
-}
-
-"""
-A `Contribution` edge in the connection, with data from `_ContributerToContribution`.
-"""
-type ContributerContributionsByContributerToContributionAAndBManyToManyEdge {
-  """
-  Reads and enables pagination through a set of `_ContributerToContribution`.
-  """
-  _contributerToContributionsByB(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: _ContributerToContributionCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: _ContributerToContributionFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `_ContributerToContribution`."""
-    orderBy: [_ContributerToContributionsOrderBy!] = [NATURAL]
-  ): _ContributerToContributionsConnection!
-
-  """A cursor for use in pagination."""
-  cursor: Cursor
-
-  """The `Contribution` at the end of the edge."""
-  node: Contribution!
-}
-
-"""
-A filter to be used against `Contributer` object types. All fields are combined with a logical ‘and.’
-"""
-input ContributerFilter {
-  """Checks for all expressions in this list."""
-  and: [ContributerFilter!]
-
-  """Filter by the object’s `contactInformation` field."""
-  contactInformation: StringFilter
-
-  """Filter by the object’s `name` field."""
-  name: StringFilter
-
-  """Negates the expression."""
-  not: ContributerFilter
-
-  """Checks for any expressions in this list."""
-  or: [ContributerFilter!]
-
-  """Filter by the object’s `personOrOrganization` field."""
-  personOrOrganization: StringFilter
-
-  """Filter by the object’s `profilePicture` relation."""
-  profilePicture: FileFilter
-
-  """Filter by the object’s `profilePictureUid` field."""
-  profilePictureUid: StringFilter
-
-  """Filter by the object’s `publicationServicesByPublisher` relation."""
-  publicationServicesByPublisher: ContributerToManyPublicationServiceFilter
-
-  """Some related `publicationServicesByPublisher` exist."""
-  publicationServicesByPublisherExist: Boolean
-
-  """Filter by the object’s `revision` relation."""
-  revision: RevisionFilter
-
-  """Filter by the object’s `revisionId` field."""
-  revisionId: StringFilter
-
-  """Filter by the object’s `uid` field."""
-  uid: StringFilter
-}
-
-"""
-A filter to be used against many `PublicationService` object types. All fields are combined with a logical ‘and.’
-"""
-input ContributerToManyPublicationServiceFilter {
-  """
-  Every related `PublicationService` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  every: PublicationServiceFilter
-
-  """
-  No related `PublicationService` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  none: PublicationServiceFilter
-
-  """
-  Some related `PublicationService` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  some: PublicationServiceFilter
-}
-
-"""A connection to a list of `Contributer` values."""
-type ContributersConnection {
-  """
-  A list of edges which contains the `Contributer` and cursor to aid in pagination.
-  """
-  edges: [ContributersEdge!]!
-
-  """A list of `Contributer` objects."""
-  nodes: [Contributer!]!
-
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """The count of *all* `Contributer` you could get from the connection."""
-  totalCount: Int!
-}
-
-"""A `Contributer` edge in the connection."""
-type ContributersEdge {
-  """A cursor for use in pagination."""
-  cursor: Cursor
-
-  """The `Contributer` at the end of the edge."""
-  node: Contributer!
-}
-
-"""Methods to use when ordering `Contributer`."""
-enum ContributersOrderBy {
-  CONTACT_INFORMATION_ASC
-  CONTACT_INFORMATION_DESC
-  NAME_ASC
-  NAME_DESC
-  NATURAL
-  PERSON_OR_ORGANIZATION_ASC
-  PERSON_OR_ORGANIZATION_DESC
-  PRIMARY_KEY_ASC
-  PRIMARY_KEY_DESC
-  PROFILE_PICTURE_UID_ASC
-  PROFILE_PICTURE_UID_DESC
-  REVISION_ID_ASC
-  REVISION_ID_DESC
-  UID_ASC
-  UID_DESC
-}
-
 type Contribution {
   """Reads and enables pagination through a set of `ContentItem`."""
   contentItems(
@@ -3593,8 +3345,8 @@ type Contribution {
     orderBy: [ContentItemsOrderBy!] = [PRIMARY_KEY_ASC]
   ): ContributionContentItemsByContentItemToContributionBAndAManyToManyConnection!
 
-  """Reads and enables pagination through a set of `Contributer`."""
-  contributers(
+  """Reads and enables pagination through a set of `Contributor`."""
+  contributors(
     """Read all values in the set after (below) this cursor."""
     after: Cursor
 
@@ -3604,12 +3356,12 @@ type Contribution {
     """
     A condition to be used in determining which values should be returned by the collection.
     """
-    condition: ContributerCondition
+    condition: ContributorCondition
 
     """
     A filter to be used in determining which values should be returned by the collection.
     """
-    filter: ContributerFilter
+    filter: ContributorFilter
 
     """Only read the first `n` values of the set."""
     first: Int
@@ -3623,9 +3375,9 @@ type Contribution {
     """
     offset: Int
 
-    """The method to use when ordering `Contributer`."""
-    orderBy: [ContributersOrderBy!] = [PRIMARY_KEY_ASC]
-  ): ContributionContributersByContributerToContributionBAndAManyToManyConnection!
+    """The method to use when ordering `Contributor`."""
+    orderBy: [ContributorsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ContributionContributorsByContributionToContributorAAndBManyToManyConnection!
 
   """Reads and enables pagination through a set of `MediaAsset`."""
   mediaAssets(
@@ -3750,32 +3502,32 @@ type ContributionContentItemsByContentItemToContributionBAndAManyToManyEdge {
 }
 
 """
-A connection to a list of `Contributer` values, with data from `_ContributerToContribution`.
+A connection to a list of `Contributor` values, with data from `_ContributionToContributor`.
 """
-type ContributionContributersByContributerToContributionBAndAManyToManyConnection {
+type ContributionContributorsByContributionToContributorAAndBManyToManyConnection {
   """
-  A list of edges which contains the `Contributer`, info from the `_ContributerToContribution`, and the cursor to aid in pagination.
+  A list of edges which contains the `Contributor`, info from the `_ContributionToContributor`, and the cursor to aid in pagination.
   """
-  edges: [ContributionContributersByContributerToContributionBAndAManyToManyEdge!]!
+  edges: [ContributionContributorsByContributionToContributorAAndBManyToManyEdge!]!
 
-  """A list of `Contributer` objects."""
-  nodes: [Contributer!]!
+  """A list of `Contributor` objects."""
+  nodes: [Contributor!]!
 
   """Information to aid in pagination."""
   pageInfo: PageInfo!
 
-  """The count of *all* `Contributer` you could get from the connection."""
+  """The count of *all* `Contributor` you could get from the connection."""
   totalCount: Int!
 }
 
 """
-A `Contributer` edge in the connection, with data from `_ContributerToContribution`.
+A `Contributor` edge in the connection, with data from `_ContributionToContributor`.
 """
-type ContributionContributersByContributerToContributionBAndAManyToManyEdge {
+type ContributionContributorsByContributionToContributorAAndBManyToManyEdge {
   """
-  Reads and enables pagination through a set of `_ContributerToContribution`.
+  Reads and enables pagination through a set of `_ContributionToContributor`.
   """
-  _contributerToContributionsByA(
+  _contributionToContributorsByB(
     """Read all values in the set after (below) this cursor."""
     after: Cursor
 
@@ -3785,12 +3537,12 @@ type ContributionContributersByContributerToContributionBAndAManyToManyEdge {
     """
     A condition to be used in determining which values should be returned by the collection.
     """
-    condition: _ContributerToContributionCondition
+    condition: _ContributionToContributorCondition
 
     """
     A filter to be used in determining which values should be returned by the collection.
     """
-    filter: _ContributerToContributionFilter
+    filter: _ContributionToContributorFilter
 
     """Only read the first `n` values of the set."""
     first: Int
@@ -3804,15 +3556,15 @@ type ContributionContributersByContributerToContributionBAndAManyToManyEdge {
     """
     offset: Int
 
-    """The method to use when ordering `_ContributerToContribution`."""
-    orderBy: [_ContributerToContributionsOrderBy!] = [NATURAL]
-  ): _ContributerToContributionsConnection!
+    """The method to use when ordering `_ContributionToContributor`."""
+    orderBy: [_ContributionToContributorsOrderBy!] = [NATURAL]
+  ): _ContributionToContributorsConnection!
 
   """A cursor for use in pagination."""
   cursor: Cursor
 
-  """The `Contributer` at the end of the edge."""
-  node: Contributer!
+  """The `Contributor` at the end of the edge."""
+  node: Contributor!
 }
 
 """
@@ -3942,6 +3694,288 @@ enum ContributionsOrderBy {
   REVISION_ID_DESC
   ROLE_ASC
   ROLE_DESC
+  UID_ASC
+  UID_DESC
+}
+
+type Contributor {
+  contactInformation: String!
+
+  """Reads and enables pagination through a set of `Contribution`."""
+  contributions(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ContributionCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ContributionFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Contribution`."""
+    orderBy: [ContributionsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ContributorContributionsByContributionToContributorBAndAManyToManyConnection!
+  name: String!
+  personOrOrganization: String!
+
+  """Reads a single `File` that is related to this `Contributor`."""
+  profilePicture: File
+  profilePictureUid: String!
+
+  """Reads and enables pagination through a set of `PublicationService`."""
+  publicationServicesByPublisher(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PublicationServiceCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PublicationServiceFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PublicationService`."""
+    orderBy: [PublicationServicesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PublicationServicesConnection!
+
+  """Reads a single `Revision` that is related to this `Contributor`."""
+  revision: Revision
+  revisionId: String!
+  uid: String!
+}
+
+"""
+A condition to be used against `Contributor` object types. All fields are tested
+for equality and combined with a logical ‘and.’
+"""
+input ContributorCondition {
+  """Checks for equality with the object’s `contactInformation` field."""
+  contactInformation: String
+
+  """Checks for equality with the object’s `name` field."""
+  name: String
+
+  """Checks for equality with the object’s `personOrOrganization` field."""
+  personOrOrganization: String
+
+  """Checks for equality with the object’s `profilePictureUid` field."""
+  profilePictureUid: String
+
+  """Checks for equality with the object’s `revisionId` field."""
+  revisionId: String
+
+  """Checks for equality with the object’s `uid` field."""
+  uid: String
+}
+
+"""
+A connection to a list of `Contribution` values, with data from `_ContributionToContributor`.
+"""
+type ContributorContributionsByContributionToContributorBAndAManyToManyConnection {
+  """
+  A list of edges which contains the `Contribution`, info from the `_ContributionToContributor`, and the cursor to aid in pagination.
+  """
+  edges: [ContributorContributionsByContributionToContributorBAndAManyToManyEdge!]!
+
+  """A list of `Contribution` objects."""
+  nodes: [Contribution!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Contribution` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""
+A `Contribution` edge in the connection, with data from `_ContributionToContributor`.
+"""
+type ContributorContributionsByContributionToContributorBAndAManyToManyEdge {
+  """
+  Reads and enables pagination through a set of `_ContributionToContributor`.
+  """
+  _contributionToContributorsByA(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: _ContributionToContributorCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: _ContributionToContributorFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `_ContributionToContributor`."""
+    orderBy: [_ContributionToContributorsOrderBy!] = [NATURAL]
+  ): _ContributionToContributorsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Contribution` at the end of the edge."""
+  node: Contribution!
+}
+
+"""
+A filter to be used against `Contributor` object types. All fields are combined with a logical ‘and.’
+"""
+input ContributorFilter {
+  """Checks for all expressions in this list."""
+  and: [ContributorFilter!]
+
+  """Filter by the object’s `contactInformation` field."""
+  contactInformation: StringFilter
+
+  """Filter by the object’s `name` field."""
+  name: StringFilter
+
+  """Negates the expression."""
+  not: ContributorFilter
+
+  """Checks for any expressions in this list."""
+  or: [ContributorFilter!]
+
+  """Filter by the object’s `personOrOrganization` field."""
+  personOrOrganization: StringFilter
+
+  """Filter by the object’s `profilePicture` relation."""
+  profilePicture: FileFilter
+
+  """Filter by the object’s `profilePictureUid` field."""
+  profilePictureUid: StringFilter
+
+  """Filter by the object’s `publicationServicesByPublisher` relation."""
+  publicationServicesByPublisher: ContributorToManyPublicationServiceFilter
+
+  """Some related `publicationServicesByPublisher` exist."""
+  publicationServicesByPublisherExist: Boolean
+
+  """Filter by the object’s `revision` relation."""
+  revision: RevisionFilter
+
+  """Filter by the object’s `revisionId` field."""
+  revisionId: StringFilter
+
+  """Filter by the object’s `uid` field."""
+  uid: StringFilter
+}
+
+"""
+A filter to be used against many `PublicationService` object types. All fields are combined with a logical ‘and.’
+"""
+input ContributorToManyPublicationServiceFilter {
+  """
+  Every related `PublicationService` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: PublicationServiceFilter
+
+  """
+  No related `PublicationService` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: PublicationServiceFilter
+
+  """
+  Some related `PublicationService` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: PublicationServiceFilter
+}
+
+"""A connection to a list of `Contributor` values."""
+type ContributorsConnection {
+  """
+  A list of edges which contains the `Contributor` and cursor to aid in pagination.
+  """
+  edges: [ContributorsEdge!]!
+
+  """A list of `Contributor` objects."""
+  nodes: [Contributor!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Contributor` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Contributor` edge in the connection."""
+type ContributorsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Contributor` at the end of the edge."""
+  node: Contributor!
+}
+
+"""Methods to use when ordering `Contributor`."""
+enum ContributorsOrderBy {
+  CONTACT_INFORMATION_ASC
+  CONTACT_INFORMATION_DESC
+  NAME_ASC
+  NAME_DESC
+  NATURAL
+  PERSON_OR_ORGANIZATION_ASC
+  PERSON_OR_ORGANIZATION_DESC
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  PROFILE_PICTURE_UID_ASC
+  PROFILE_PICTURE_UID_DESC
+  REVISION_ID_ASC
+  REVISION_ID_DESC
   UID_ASC
   UID_DESC
 }
@@ -4313,8 +4347,8 @@ type File {
   contentSize: Int
   contentUrl: String!
 
-  """Reads and enables pagination through a set of `Contributer`."""
-  contributersByProfilePicture(
+  """Reads and enables pagination through a set of `Contributor`."""
+  contributorsByProfilePicture(
     """Read all values in the set after (below) this cursor."""
     after: Cursor
 
@@ -4324,12 +4358,12 @@ type File {
     """
     A condition to be used in determining which values should be returned by the collection.
     """
-    condition: ContributerCondition
+    condition: ContributorCondition
 
     """
     A filter to be used in determining which values should be returned by the collection.
     """
-    filter: ContributerFilter
+    filter: ContributorFilter
 
     """Only read the first `n` values of the set."""
     first: Int
@@ -4343,9 +4377,9 @@ type File {
     """
     offset: Int
 
-    """The method to use when ordering `Contributer`."""
-    orderBy: [ContributersOrderBy!] = [PRIMARY_KEY_ASC]
-  ): ContributersConnection!
+    """The method to use when ordering `Contributor`."""
+    orderBy: [ContributorsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ContributorsConnection!
   duration: Float
 
   """Reads and enables pagination through a set of `File`."""
@@ -4743,11 +4777,11 @@ input FileFilter {
   """Filter by the object’s `contentUrl` field."""
   contentUrl: StringFilter
 
-  """Filter by the object’s `contributersByProfilePicture` relation."""
-  contributersByProfilePicture: FileToManyContributerFilter
+  """Filter by the object’s `contributorsByProfilePicture` relation."""
+  contributorsByProfilePicture: FileToManyContributorFilter
 
-  """Some related `contributersByProfilePicture` exist."""
-  contributersByProfilePictureExist: Boolean
+  """Some related `contributorsByProfilePicture` exist."""
+  contributorsByProfilePictureExist: Boolean
 
   """Filter by the object’s `duration` field."""
   duration: FloatFilter
@@ -4911,23 +4945,23 @@ type FileLicensesByMediaAssetTeaserImageUidAndLicenseUidManyToManyEdge {
 }
 
 """
-A filter to be used against many `Contributer` object types. All fields are combined with a logical ‘and.’
+A filter to be used against many `Contributor` object types. All fields are combined with a logical ‘and.’
 """
-input FileToManyContributerFilter {
+input FileToManyContributorFilter {
   """
-  Every related `Contributer` matches the filter criteria. All fields are combined with a logical ‘and.’
+  Every related `Contributor` matches the filter criteria. All fields are combined with a logical ‘and.’
   """
-  every: ContributerFilter
+  every: ContributorFilter
 
   """
-  No related `Contributer` matches the filter criteria. All fields are combined with a logical ‘and.’
+  No related `Contributor` matches the filter criteria. All fields are combined with a logical ‘and.’
   """
-  none: ContributerFilter
+  none: ContributorFilter
 
   """
-  Some related `Contributer` matches the filter criteria. All fields are combined with a logical ‘and.’
+  Some related `Contributor` matches the filter criteria. All fields are combined with a logical ‘and.’
   """
-  some: ContributerFilter
+  some: ContributorFilter
 }
 
 """
@@ -6890,9 +6924,9 @@ type PublicationService {
   name: String!
 
   """
-  Reads a single `Contributer` that is related to this `PublicationService`.
+  Reads a single `Contributor` that is related to this `PublicationService`.
   """
-  publisher: Contributer
+  publisher: Contributor
   publisherUid: String
 
   """
@@ -7092,7 +7126,7 @@ input PublicationServiceFilter {
   or: [PublicationServiceFilter!]
 
   """Filter by the object’s `publisher` relation."""
-  publisher: ContributerFilter
+  publisher: ContributorFilter
 
   """A related `publisher` exists."""
   publisherExists: Boolean
@@ -7541,41 +7575,6 @@ type Query {
     """The method to use when ordering `ContentItem`."""
     orderBy: [ContentItemsOrderBy!] = [PRIMARY_KEY_ASC]
   ): ContentItemsConnection
-  contributer(uid: String!): Contributer
-
-  """Reads and enables pagination through a set of `Contributer`."""
-  contributers(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: ContributerCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: ContributerFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `Contributer`."""
-    orderBy: [ContributersOrderBy!] = [PRIMARY_KEY_ASC]
-  ): ContributersConnection
   contribution(uid: String!): Contribution
 
   """Reads and enables pagination through a set of `Contribution`."""
@@ -7611,6 +7610,41 @@ type Query {
     """The method to use when ordering `Contribution`."""
     orderBy: [ContributionsOrderBy!] = [PRIMARY_KEY_ASC]
   ): ContributionsConnection
+  contributor(uid: String!): Contributor
+
+  """Reads and enables pagination through a set of `Contributor`."""
+  contributors(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ContributorCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ContributorFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Contributor`."""
+    orderBy: [ContributorsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ContributorsConnection
   dataSource(uid: String!): DataSource
 
   """Reads and enables pagination through a set of `DataSource`."""
@@ -8896,74 +8930,6 @@ type Revision {
     orderBy: [ContentItemsOrderBy!] = [PRIMARY_KEY_ASC]
   ): RevisionContentItemsByBroadcastEventRevisionIdAndContentItemUidManyToManyConnection!
 
-  """Reads and enables pagination through a set of `Contributer`."""
-  contributers(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: ContributerCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: ContributerFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `Contributer`."""
-    orderBy: [ContributersOrderBy!] = [PRIMARY_KEY_ASC]
-  ): ContributersConnection!
-
-  """Reads and enables pagination through a set of `Contributer`."""
-  contributersByPublicationServiceRevisionIdAndPublisherUid(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: ContributerCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: ContributerFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `Contributer`."""
-    orderBy: [ContributersOrderBy!] = [PRIMARY_KEY_ASC]
-  ): RevisionContributersByPublicationServiceRevisionIdAndPublisherUidManyToManyConnection!
-
   """Reads and enables pagination through a set of `Contribution`."""
   contributions(
     """Read all values in the set after (below) this cursor."""
@@ -8997,6 +8963,74 @@ type Revision {
     """The method to use when ordering `Contribution`."""
     orderBy: [ContributionsOrderBy!] = [PRIMARY_KEY_ASC]
   ): ContributionsConnection!
+
+  """Reads and enables pagination through a set of `Contributor`."""
+  contributors(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ContributorCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ContributorFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Contributor`."""
+    orderBy: [ContributorsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ContributorsConnection!
+
+  """Reads and enables pagination through a set of `Contributor`."""
+  contributorsByPublicationServiceRevisionIdAndPublisherUid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ContributorCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ContributorFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Contributor`."""
+    orderBy: [ContributorsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): RevisionContributorsByPublicationServiceRevisionIdAndPublisherUidManyToManyConnection!
   dateCreated: Datetime!
   dateModified: Datetime!
 
@@ -9109,7 +9143,7 @@ type Revision {
   ): FilesConnection!
 
   """Reads and enables pagination through a set of `File`."""
-  filesByContributerRevisionIdAndProfilePictureUid(
+  filesByContributorRevisionIdAndProfilePictureUid(
     """Read all values in the set after (below) this cursor."""
     after: Cursor
 
@@ -9140,7 +9174,7 @@ type Revision {
 
     """The method to use when ordering `File`."""
     orderBy: [FilesOrderBy!] = [PRIMARY_KEY_ASC]
-  ): RevisionFilesByContributerRevisionIdAndProfilePictureUidManyToManyConnection!
+  ): RevisionFilesByContributorRevisionIdAndProfilePictureUidManyToManyConnection!
 
   """Reads and enables pagination through a set of `File`."""
   filesByMediaAssetRevisionIdAndFileUid(
@@ -9959,33 +9993,33 @@ type RevisionContentItemsByBroadcastEventRevisionIdAndContentItemUidManyToManyEd
 }
 
 """
-A connection to a list of `Contributer` values, with data from `PublicationService`.
+A connection to a list of `Contributor` values, with data from `PublicationService`.
 """
-type RevisionContributersByPublicationServiceRevisionIdAndPublisherUidManyToManyConnection {
+type RevisionContributorsByPublicationServiceRevisionIdAndPublisherUidManyToManyConnection {
   """
-  A list of edges which contains the `Contributer`, info from the `PublicationService`, and the cursor to aid in pagination.
+  A list of edges which contains the `Contributor`, info from the `PublicationService`, and the cursor to aid in pagination.
   """
-  edges: [RevisionContributersByPublicationServiceRevisionIdAndPublisherUidManyToManyEdge!]!
+  edges: [RevisionContributorsByPublicationServiceRevisionIdAndPublisherUidManyToManyEdge!]!
 
-  """A list of `Contributer` objects."""
-  nodes: [Contributer!]!
+  """A list of `Contributor` objects."""
+  nodes: [Contributor!]!
 
   """Information to aid in pagination."""
   pageInfo: PageInfo!
 
-  """The count of *all* `Contributer` you could get from the connection."""
+  """The count of *all* `Contributor` you could get from the connection."""
   totalCount: Int!
 }
 
 """
-A `Contributer` edge in the connection, with data from `PublicationService`.
+A `Contributor` edge in the connection, with data from `PublicationService`.
 """
-type RevisionContributersByPublicationServiceRevisionIdAndPublisherUidManyToManyEdge {
+type RevisionContributorsByPublicationServiceRevisionIdAndPublisherUidManyToManyEdge {
   """A cursor for use in pagination."""
   cursor: Cursor
 
-  """The `Contributer` at the end of the edge."""
-  node: Contributer!
+  """The `Contributor` at the end of the edge."""
+  node: Contributor!
 
   """Reads and enables pagination through a set of `PublicationService`."""
   publicationServicesByPublisher(
@@ -10082,12 +10116,12 @@ type RevisionEntitiesByMetadatumRevisionIdAndTargetUidManyToManyEdge {
   node: Entity!
 }
 
-"""A connection to a list of `File` values, with data from `Contributer`."""
-type RevisionFilesByContributerRevisionIdAndProfilePictureUidManyToManyConnection {
+"""A connection to a list of `File` values, with data from `Contributor`."""
+type RevisionFilesByContributorRevisionIdAndProfilePictureUidManyToManyConnection {
   """
-  A list of edges which contains the `File`, info from the `Contributer`, and the cursor to aid in pagination.
+  A list of edges which contains the `File`, info from the `Contributor`, and the cursor to aid in pagination.
   """
-  edges: [RevisionFilesByContributerRevisionIdAndProfilePictureUidManyToManyEdge!]!
+  edges: [RevisionFilesByContributorRevisionIdAndProfilePictureUidManyToManyEdge!]!
 
   """A list of `File` objects."""
   nodes: [File!]!
@@ -10099,10 +10133,10 @@ type RevisionFilesByContributerRevisionIdAndProfilePictureUidManyToManyConnectio
   totalCount: Int!
 }
 
-"""A `File` edge in the connection, with data from `Contributer`."""
-type RevisionFilesByContributerRevisionIdAndProfilePictureUidManyToManyEdge {
-  """Reads and enables pagination through a set of `Contributer`."""
-  contributersByProfilePicture(
+"""A `File` edge in the connection, with data from `Contributor`."""
+type RevisionFilesByContributorRevisionIdAndProfilePictureUidManyToManyEdge {
+  """Reads and enables pagination through a set of `Contributor`."""
+  contributorsByProfilePicture(
     """Read all values in the set after (below) this cursor."""
     after: Cursor
 
@@ -10112,12 +10146,12 @@ type RevisionFilesByContributerRevisionIdAndProfilePictureUidManyToManyEdge {
     """
     A condition to be used in determining which values should be returned by the collection.
     """
-    condition: ContributerCondition
+    condition: ContributorCondition
 
     """
     A filter to be used in determining which values should be returned by the collection.
     """
-    filter: ContributerFilter
+    filter: ContributorFilter
 
     """Only read the first `n` values of the set."""
     first: Int
@@ -10131,9 +10165,9 @@ type RevisionFilesByContributerRevisionIdAndProfilePictureUidManyToManyEdge {
     """
     offset: Int
 
-    """The method to use when ordering `Contributer`."""
-    orderBy: [ContributersOrderBy!] = [PRIMARY_KEY_ASC]
-  ): ContributersConnection!
+    """The method to use when ordering `Contributor`."""
+    orderBy: [ContributorsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ContributorsConnection!
 
   """A cursor for use in pagination."""
   cursor: Cursor
@@ -10308,17 +10342,17 @@ input RevisionFilter {
   """Some related `contentItems` exist."""
   contentItemsExist: Boolean
 
-  """Filter by the object’s `contributers` relation."""
-  contributers: RevisionToManyContributerFilter
-
-  """Some related `contributers` exist."""
-  contributersExist: Boolean
-
   """Filter by the object’s `contributions` relation."""
   contributions: RevisionToManyContributionFilter
 
   """Some related `contributions` exist."""
   contributionsExist: Boolean
+
+  """Filter by the object’s `contributors` relation."""
+  contributors: RevisionToManyContributorFilter
+
+  """Some related `contributors` exist."""
+  contributorsExist: Boolean
 
   """Filter by the object’s `dateCreated` field."""
   dateCreated: DatetimeFilter
@@ -10901,26 +10935,6 @@ input RevisionToManyContentItemFilter {
 }
 
 """
-A filter to be used against many `Contributer` object types. All fields are combined with a logical ‘and.’
-"""
-input RevisionToManyContributerFilter {
-  """
-  Every related `Contributer` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  every: ContributerFilter
-
-  """
-  No related `Contributer` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  none: ContributerFilter
-
-  """
-  Some related `Contributer` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  some: ContributerFilter
-}
-
-"""
 A filter to be used against many `Contribution` object types. All fields are combined with a logical ‘and.’
 """
 input RevisionToManyContributionFilter {
@@ -10938,6 +10952,26 @@ input RevisionToManyContributionFilter {
   Some related `Contribution` matches the filter criteria. All fields are combined with a logical ‘and.’
   """
   some: ContributionFilter
+}
+
+"""
+A filter to be used against many `Contributor` object types. All fields are combined with a logical ‘and.’
+"""
+input RevisionToManyContributorFilter {
+  """
+  Every related `Contributor` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: ContributorFilter
+
+  """
+  No related `Contributor` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: ContributorFilter
+
+  """
+  Some related `Contributor` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: ContributorFilter
 }
 
 """
@@ -12384,26 +12418,26 @@ enum _ContentItemToMediaAssetsOrderBy {
   NATURAL
 }
 
-type _ContributerToContribution {
+type _ContributionToContributor {
   a: String!
   b: String!
 
   """
-  Reads a single `Contributer` that is related to this `_ContributerToContribution`.
+  Reads a single `Contribution` that is related to this `_ContributionToContributor`.
   """
-  contributerByA: Contributer
+  contributionByA: Contribution
 
   """
-  Reads a single `Contribution` that is related to this `_ContributerToContribution`.
+  Reads a single `Contributor` that is related to this `_ContributionToContributor`.
   """
-  contributionByB: Contribution
+  contributorByB: Contributor
 }
 
 """
-A condition to be used against `_ContributerToContribution` object types. All
+A condition to be used against `_ContributionToContributor` object types. All
 fields are tested for equality and combined with a logical ‘and.’
 """
-input _ContributerToContributionCondition {
+input _ContributionToContributorCondition {
   """Checks for equality with the object’s `a` field."""
   a: String
 
@@ -12412,61 +12446,61 @@ input _ContributerToContributionCondition {
 }
 
 """
-A filter to be used against `_ContributerToContribution` object types. All fields are combined with a logical ‘and.’
+A filter to be used against `_ContributionToContributor` object types. All fields are combined with a logical ‘and.’
 """
-input _ContributerToContributionFilter {
+input _ContributionToContributorFilter {
   """Filter by the object’s `a` field."""
   a: StringFilter
 
   """Checks for all expressions in this list."""
-  and: [_ContributerToContributionFilter!]
+  and: [_ContributionToContributorFilter!]
 
   """Filter by the object’s `b` field."""
   b: StringFilter
 
-  """Filter by the object’s `contributerByA` relation."""
-  contributerByA: ContributerFilter
+  """Filter by the object’s `contributionByA` relation."""
+  contributionByA: ContributionFilter
 
-  """Filter by the object’s `contributionByB` relation."""
-  contributionByB: ContributionFilter
+  """Filter by the object’s `contributorByB` relation."""
+  contributorByB: ContributorFilter
 
   """Negates the expression."""
-  not: _ContributerToContributionFilter
+  not: _ContributionToContributorFilter
 
   """Checks for any expressions in this list."""
-  or: [_ContributerToContributionFilter!]
+  or: [_ContributionToContributorFilter!]
 }
 
-"""A connection to a list of `_ContributerToContribution` values."""
-type _ContributerToContributionsConnection {
+"""A connection to a list of `_ContributionToContributor` values."""
+type _ContributionToContributorsConnection {
   """
-  A list of edges which contains the `_ContributerToContribution` and cursor to aid in pagination.
+  A list of edges which contains the `_ContributionToContributor` and cursor to aid in pagination.
   """
-  edges: [_ContributerToContributionsEdge!]!
+  edges: [_ContributionToContributorsEdge!]!
 
-  """A list of `_ContributerToContribution` objects."""
-  nodes: [_ContributerToContribution!]!
+  """A list of `_ContributionToContributor` objects."""
+  nodes: [_ContributionToContributor!]!
 
   """Information to aid in pagination."""
   pageInfo: PageInfo!
 
   """
-  The count of *all* `_ContributerToContribution` you could get from the connection.
+  The count of *all* `_ContributionToContributor` you could get from the connection.
   """
   totalCount: Int!
 }
 
-"""A `_ContributerToContribution` edge in the connection."""
-type _ContributerToContributionsEdge {
+"""A `_ContributionToContributor` edge in the connection."""
+type _ContributionToContributorsEdge {
   """A cursor for use in pagination."""
   cursor: Cursor
 
-  """The `_ContributerToContribution` at the end of the edge."""
-  node: _ContributerToContribution!
+  """The `_ContributionToContributor` at the end of the edge."""
+  node: _ContributionToContributor!
 }
 
-"""Methods to use when ordering `_ContributerToContribution`."""
-enum _ContributerToContributionsOrderBy {
+"""Methods to use when ordering `_ContributionToContributor`."""
+enum _ContributionToContributorsOrderBy {
   A_ASC
   A_DESC
   B_ASC

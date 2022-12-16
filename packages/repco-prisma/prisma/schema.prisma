@@ -174,7 +174,7 @@ model Revision {
   MediaAsset         MediaAsset?
   File               File?
   Concept            Concept?
-  Contributer        Contributer?
+  Contributor        Contributor?
   BroadcastEvent     BroadcastEvent?
   PublicationService PublicationService?
   Chapter            Chapter?
@@ -297,14 +297,14 @@ model Contribution {
   revisionId String @unique
   role       String
 
-  Contributers Contributer[]
+  Contributor  Contributor[]
   ContentItems ContentItem[]
   MediaAssets  MediaAsset[]
   Revision     Revision      @relation(fields: [revisionId], references: [id])
 }
 
 /// @repco(Entity)
-model Contributer {
+model Contributor {
   uid                  String @id @unique
   revisionId           String @unique
   name                 String
@@ -357,7 +357,7 @@ model PublicationService {
   revisionId String @unique
 
   name      String
-  publisher Contributer? @relation(fields: [publisherUid], references: [uid])
+  publisher Contributor? @relation(fields: [publisherUid], references: [uid])
   medium    String? // FM, Web, ...
   address   String
 
@@ -410,7 +410,7 @@ model File {
   Revision      Revision      @relation(fields: [revisionId], references: [id])
   AsMediaAssets MediaAsset[]  @relation("file")
   AsThumbnail   MediaAsset[]  @relation("thumbnail")
-  Contributers  Contributer[]
+  contributors  Contributor[]
 }
 
 enum ConceptKind {

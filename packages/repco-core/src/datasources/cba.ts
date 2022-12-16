@@ -20,28 +20,14 @@
 
 //********************************************************************************************************************************************* */
 
-import * as zod from 'zod'
-import { form } from 'repco-prisma'
-import { fetch } from 'undici'
-import {
-  CbaAudio,
-  CbaCategory,
-  CbaImage,
-  CbaPost,
-  CbaSeries,
-  CbaStation,
-  CbaTag,
-} from './cba/types.js'
-import {
-  DataSource,
-  DataSourceDefinition,
-  DataSourcePlugin,
-  FetchUpdatesResult,
-  SourceRecordForm,
-} from '../datasource.js'
-import { ConceptKind, ContentGroupingVariant, EntityForm } from '../entity.js'
-import { FetchOpts } from '../util/datamapping.js'
-import { HttpError } from '../util/error.js'
+import * as zod from "zod";
+import { form } from "repco-prisma";
+import { fetch } from "undici";
+import { CbaAudio, CbaCategory, CbaImage, CbaPost, CbaSeries, CbaStation, CbaTag } from "./cba/types.js";
+import { DataSource, DataSourceDefinition, DataSourcePlugin, FetchUpdatesResult, SourceRecordForm } from "../datasource.js";
+import { ConceptKind, ContentGroupingVariant, EntityForm } from "../entity.js";
+import { FetchOpts } from "../util/datamapping.js";
+import { HttpError } from "../util/error.js";
 
 // Endpoint of the Datasource
 const DEFAULT_ENDPOINT = 'https://cba.fro.at/wp-json/wp/v2'
@@ -335,7 +321,7 @@ export class CbaDataSource implements DataSource {
       mediaType: 'audio',
       duration: media.media_details.length,
       //License: null,
-      //Contribution
+      //contributor
       Concepts: media.media_tag.map((cbaId) => ({
         uri: this._uri('tag', cbaId),
       })),
@@ -372,7 +358,7 @@ export class CbaDataSource implements DataSource {
       description: media.description?.rendered,
       mediaType: 'image',
       //License: null,
-      //Contribution
+      //contributor
       Concepts: media.media_tag.map((cbaId) => ({
         uri: this._uri('tag', cbaId),
       })),
@@ -511,7 +497,7 @@ export class CbaDataSource implements DataSource {
       PrimaryGrouping: { uri: this._uri('series', post.post_parent) },
       //licenseUid
       //primaryGroupingUid
-      //Contributions
+      //contributor
       //AdditionalGroupings
       //License
       //BroadcastEvents

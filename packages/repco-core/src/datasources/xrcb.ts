@@ -19,26 +19,14 @@
 
 //********************************************************************************************************************************************* */
 
-import * as zod from 'zod'
-import { form } from 'repco-prisma'
-import { fetch } from 'undici'
-import {
-  XrcbCategory,
-  XrcbPost,
-  XrcbPrograma,
-  XrcbStation,
-  XrcbTag,
-} from './xrcb/types.js'
-import {
-  DataSource,
-  DataSourceDefinition,
-  DataSourcePlugin,
-  FetchUpdatesResult,
-  SourceRecordForm,
-} from '../datasource.js'
-import { ConceptKind, ContentGroupingVariant, EntityForm } from '../entity.js'
-import { FetchOpts } from '../util/datamapping.js'
-import { HttpError } from '../util/error.js'
+import * as zod from "zod";
+import { form } from "repco-prisma";
+import { fetch } from "undici";
+import { XrcbCategory, XrcbPost, XrcbPrograma, XrcbStation, XrcbTag } from "./xrcb/types.js";
+import { DataSource, DataSourceDefinition, DataSourcePlugin, FetchUpdatesResult, SourceRecordForm } from "../datasource.js";
+import { ConceptKind, ContentGroupingVariant, EntityForm } from "../entity.js";
+import { FetchOpts } from "../util/datamapping.js";
+import { HttpError } from "../util/error.js";
 
 /**
  * The default endpoint for the XRCB WordPress API.
@@ -446,7 +434,7 @@ export class XrcbDataSource implements DataSource {
         description: post.acf.file_mp3.description,
         mediaType: 'audio',
         //License: null,
-        //Contribution
+        //contributor
         File: { uri: fileId },
       }
 
@@ -485,7 +473,7 @@ export class XrcbDataSource implements DataSource {
         title: post.acf.img_podcast.title,
         mediaType: 'image',
         //License: null,
-        //Contribution
+        //contributor
         File: { uri: fileId },
       }
 
