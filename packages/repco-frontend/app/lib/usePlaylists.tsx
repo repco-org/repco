@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useContext, useEffect, useState } from 'react'
 import { ContextManager } from '~/lib/contextManager'
 
@@ -31,7 +32,7 @@ export function usePlaylists() {
       console.error(error)
     }
     setPlaylists(Array.from(store.values()))
-  }, [state])
+  }, [error, state, store])
 
   function createPlaylist(
     name: string | undefined,
@@ -52,6 +53,7 @@ export function usePlaylists() {
   }
 
   function updatePlaylist(name: string, data: Playlist) {
+    console.log(name, data)
     dispatch({
       type: 'UPDATE',
       payload: { id: name, data },
@@ -65,7 +67,7 @@ export function usePlaylists() {
     })
   }
 
-  function getPlaylist(name: string) {
+  function usePlaylist(name: string) {
     function addTrack(uid: string, title: string) {
       const playlist = store.get(name) || { tracks: [] }
       dispatch({
@@ -74,13 +76,13 @@ export function usePlaylists() {
           id: name,
           data: {
             id: name,
-            tracks: [...playlist?.tracks, { uid, title }],
+            tracks: [...playlist.tracks, { uid, title }],
           },
         },
       })
     }
     function removeTrack(uid: string) {
-      let tracks = store.get(name)?.tracks || []
+      const tracks = store.get(name)?.tracks || []
 
       dispatch({
         type: 'UPDATE',
@@ -107,7 +109,7 @@ export function usePlaylists() {
 
   return [
     playlists,
-    getPlaylist,
+    usePlaylist,
     createPlaylist,
     updatePlaylist,
     deletePlaylist,
