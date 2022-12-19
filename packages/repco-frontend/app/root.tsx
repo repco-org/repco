@@ -10,7 +10,7 @@ import {
 import styles from './styles/app.css'
 import { Layout } from './components/layout.js'
 import { ContextManager } from './lib/contextManager'
-import { Playlist } from './lib/usePlaylists'
+import type { Playlist } from './lib/usePlaylists'
 
 export function links() {
   return [{ rel: 'stylesheet', href: styles }]

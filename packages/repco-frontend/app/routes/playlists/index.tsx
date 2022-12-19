@@ -38,9 +38,8 @@ export default function PlaylistIndex() {
           ))
         ) : (
           <div className="px-2 ">
-            <h1 className="font-medium leading-tight text-2xl mt-0 mb-2 text-red-600">
-              Create at least one Playlist
-            </h1>
+            Ohh, right now there is no playlist, if you want to create one there
+            is a form in the left sidebar.
           </div>
         )}
       </div>

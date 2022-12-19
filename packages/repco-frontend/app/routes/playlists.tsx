@@ -3,7 +3,7 @@ import {
   ArrowUpIcon,
   ListBulletIcon,
 } from '@radix-ui/react-icons'
-import { Outlet, useSearchParams, useSubmit } from '@remix-run/react'
+import { Outlet, useSearchParams } from '@remix-run/react'
 import { useState } from 'react'
 import { Button, IconButton } from '~/components/ui/primitives/Button'
 import { InputWithIcon } from '~/components/ui/primitives/Input'
@@ -13,7 +13,7 @@ export default function ItemsMenuWrapper() {
   const [searchParams] = useSearchParams()
   const orderBy = searchParams.get('orderBy')
   const [name, setName] = useState<string>()
-  const submit = useSubmit()
+
   const [
     playlists,
     getPlaylist,
@@ -24,7 +24,7 @@ export default function ItemsMenuWrapper() {
 
   return (
     <div className="flex">
-      <div className="flex flex-col px-4 py-8 overflow-y-auto border-r w-80 ">
+      <div className="flex flex-col p-4 overflow-y-auto border-r w-80 ">
         <div className="flex flex-col justify-between mt-6 ">
           <aside>
             <form className="inline">

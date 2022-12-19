@@ -17,7 +17,7 @@ export default function ItemsMenuWrapper() {
       <div className="flex flex-col px-4 py-8 overflow-y-auto border-r w-80 ">
         <div className="flex flex-col justify-between mt-6 ">
           <aside>
-            <Form action="." method="get">
+            <Form action={'.'} method="get">
               <InputWithIcon
                 name="includes"
                 id="includes"
@@ -27,9 +27,16 @@ export default function ItemsMenuWrapper() {
                 icon={<MagnifyingGlassIcon />}
                 defaultValue={searchParams.get('includes') || ''}
                 onChange={(e) => {
-                  submit(e.currentTarget.form)
+                  if (e.currentTarget.value !== '') {
+                    searchParams.set('includes', e.currentTarget.value)
+                  } else {
+                    searchParams.delete('includes')
+                  }
+                  submit(searchParams)
+                  e.stopPropagation()
                 }}
               />
+
               <h2 className="text-lg pt-2 w-full border-b-2 border-gray-200">
                 {' '}
                 Sort by{' '}

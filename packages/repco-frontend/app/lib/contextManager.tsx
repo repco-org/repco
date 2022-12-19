@@ -1,4 +1,5 @@
-import { createContext, Dispatch, PropsWithChildren, useReducer } from 'react'
+import type { Dispatch, PropsWithChildren } from 'react'
+import { createContext, useReducer } from 'react'
 
 export type Context<T> = { state: State<T>; dispatch: Dispatch<Action<T>> }
 type Action<T> = Create<T> | Delete<T> | Update<T> | Failure
@@ -154,15 +155,14 @@ function createLocalStorageReducer<T>(name: string) {
   return (state: State<T>, action: Action<T>): State<T> => {
     const hydrated = typeof window !== 'undefined'
     const nextState = reducerInner(state, action)
-    if (nextState !== state) {
-      hydrated
-        ? state.store instanceof Map
-          ? window.localStorage.setItem(
-              name,
-              JSON.stringify(Object.fromEntries(state.store.entries())),
-            )
-          : window.localStorage.setItem(name, JSON.stringify(state.store))
-        : null
+
+    if (hydrated && nextState !== state) {
+      state.store instanceof Map
+        ? window.localStorage.setItem(
+            name,
+            JSON.stringify(Object.fromEntries(state.store.entries())),
+          )
+        : window.localStorage.setItem(name, JSON.stringify(state.store))
     }
     return nextState
   }
@@ -178,9 +178,10 @@ function reducerInner<T>(state: State<T>, action: Action<T>): State<T> {
       return { ...state, ...result }
     }
 
-    case 'UPDATE':
+    case 'UPDATE': {
       const result = saveEntity(state.store, action.payload)
       return { ...state, ...result }
+    }
 
     case 'DELETE':
       if (state.store instanceof Map) {

@@ -7,11 +7,11 @@ import { ContentItemCard } from '~/components/ui/primitives/Card'
 import { ContentItemsQuery } from '~/graphql/queries/contentItems'
 import type {
   ContentItemFilter,
+  ContentItemsOrderBy,
   LoadContentItemsQuery,
   LoadContentItemsQueryVariables,
   StringFilter,
 } from '~/graphql/types.js'
-import { ContentItemsOrderBy } from '~/graphql/types.js'
 import { graphqlQuery, parsePagination } from '~/lib/graphql.server'
 
 interface Node {
