@@ -8,7 +8,6 @@ import {
   ScrollRestoration,
 } from '@remix-run/react'
 import styles from './styles/app.css'
-import { Layout } from './components/layout.js'
 import { ContextManager } from './lib/contextManager'
 import type { Playlist } from './lib/usePlaylists'
 
@@ -26,16 +25,14 @@ const PlaylistProvider = contextManager.addMapContext<Playlist>('playlists')
 
 export default function App() {
   return (
-    <html lang="en">
+    <html lang="en" className="h-full">
       <head>
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className="min-h-full p-0">
         <PlaylistProvider>
-          <Layout>
-            <Outlet />
-          </Layout>
+          <Outlet />
         </PlaylistProvider>
 
         <ScrollRestoration />

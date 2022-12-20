@@ -5,10 +5,17 @@ import { cva, cx } from 'class-variance-authority'
 import type { ClassProp } from 'class-variance-authority/dist/types'
 import { forwardRef } from 'react'
 
-export const stylesButton = cva(
+export const buttonStyles = cva(
   'border rounded-md items-center transition-colors duration-100 cursor-default disabled:opacity-50',
   {
     variants: {
+      intent: {
+        primary: '',
+        danger: 'bg-red-500',
+      },
+      fullWidth: {
+        true: 'w-full',
+      },
       disabled: {
         true: 'opacity-70 pointer-events-none cursor-not-allowed',
       },
@@ -17,24 +24,14 @@ export const stylesButton = cva(
         md: 'py-1 px-3 text-base ',
         sm: 'py-1 px-2 text-sm',
       },
-      variant: {
-        default: [
-          'text-blue-700',
-          'bg-white-700 hover:text-purple-500 placeholder:focus:ring-purple-500',
-          'focus:ring-2 focus:outline-none inline-flex',
-        ],
-
-        bare: '',
-      },
     },
     defaultVariants: {
       variantSize: 'sm',
-      variant: 'default',
     },
   },
 )
 
-export interface ButtonBaseProps extends VariantProps<typeof stylesButton> {}
+export interface ButtonBaseProps extends VariantProps<typeof buttonStyles> {}
 
 export type ButtonProps = ButtonBaseProps &
   React.ButtonHTMLAttributes<HTMLButtonElement> &
@@ -53,14 +50,14 @@ export type NavButtonProps = ButtonBaseProps &
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (props, ref) => {
-    const className = cx(stylesButton(props))
+    const className = cx(buttonStyles(props))
     return <button ref={ref} className={className} {...props} />
   },
 )
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
   (props, ref) => {
-    const className = cx(stylesButton(props))
+    const className = cx(buttonStyles(props))
     const icon = props.icon
     return (
       <button
@@ -79,7 +76,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
 )
 
 export function NavButton(props: NavButtonProps) {
-  const className = cx(stylesButton(props))
+  const className = cx(buttonStyles(props))
   return (
     <NavLink {...props}>
       <button className={className} {...props} />
@@ -131,3 +128,6 @@ export function PrevButton(props: NavButtonProps) {
     </NavButton>
   )
 }
+
+Button.displayName = 'Button'
+IconButton.displayName = 'IconButton'
