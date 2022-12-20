@@ -11,7 +11,7 @@ export function DropdownMenuCards(props: Props) {
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger>
-        <Button variantSize={'icon'}>
+        <Button>
           <HamburgerMenuIcon />
         </Button>
       </DropdownMenu.Trigger>
@@ -19,12 +19,7 @@ export function DropdownMenuCards(props: Props) {
       <DropdownMenu.Portal>
         <DropdownMenu.Content className="bg-white" align="end" sideOffset={5}>
           <Form method="post" action="/playlists/add">
-            <Button
-              variant="bare"
-              name="add-item"
-              type="submit"
-              value={props.node}
-            >
+            <Button name="add-item" type="submit" value={props.node}>
               add to playlist
             </Button>
           </Form>
