@@ -51,7 +51,6 @@ export function PlaylistDialog(props: DialogProps) {
           <Dialog.Close asChild>
             <Button
               onClick={(e) => {
-                console.log('ONCLICK', playlist)
                 e.preventDefault()
                 if (playlist) {
                   updatePlaylist(playlist.id, {
