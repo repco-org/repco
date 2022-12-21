@@ -1,0 +1,30 @@
+version: '3.1'
+
+services:
+  app:
+    image: arsoxyz/repco:latest
+    expose:
+      - 8765
+    ports:
+      - 8765:8765
+    environment:
+      - DATABASE_URL=postgresql://repco:repco@db:5432/repco
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres
+    volumes:
+        - repco-db:/var/lib/postgresql/data"
+    expose:
+      - 5432
+    environment:
+      POSTGRES_PASSWORD: repco
+      POSTGRES_USER: repco
+      POSTGRES_DB: repco
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
