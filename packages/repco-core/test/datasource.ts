@@ -1,15 +1,18 @@
+/* eslint-disable  @typescript-eslint/no-non-null-assertion */
+
 import test from 'brittle'
 import { setup } from './util/setup.js'
-import { DataSource, Repo } from '../lib.js'
+import { DataSource, Ingester, Repo } from '../lib.js'
 import {
   BaseDataSource,
   DataSourceDefinition,
   FetchUpdatesResult,
   ingestUpdatesFromDataSources,
+  ingestUpdatesFromDataSource,
   remapDataSource,
   SourceRecordForm,
 } from '../src/datasource.js'
-import { EntityForm } from '../src/entity.js'
+import { EntityForm, TypedEntityForm } from '../src/entity.js'
 import { DataSourcePlugin, DataSourcePluginRegistry } from '../src/plugins.js'
 
 const intoSourceRecord = (body: EntityForm): SourceRecordForm => ({
@@ -38,6 +41,8 @@ class TestDataSourcePlugin implements DataSourcePlugin {
 
 class TestDataSource extends BaseDataSource implements DataSource {
   mapUppercase = false
+  insertMissing = false
+  resolveMissing = false
 
   get definition(): DataSourceDefinition {
     return {
@@ -58,7 +63,7 @@ class TestDataSource extends BaseDataSource implements DataSource {
     }
     const nextCursor = '1'
     const bodies: EntityForm[] = []
-    bodies.push({
+    const contentItem: TypedEntityForm<'ContentItem'> = {
       type: 'ContentItem',
       content: {
         title: 'Test1',
@@ -67,7 +72,11 @@ class TestDataSource extends BaseDataSource implements DataSource {
         contentFormat: 'text/plain',
       },
       entityUris: ['urn:test:content:1'],
-    })
+    }
+    if (this.insertMissing) {
+      contentItem.content.MediaAssets!.push({ uri: 'urn:test:media:fail' })
+    }
+    bodies.push(contentItem)
     return {
       cursor: nextCursor,
       records: bodies.map(intoSourceRecord),
@@ -98,7 +107,20 @@ class TestDataSource extends BaseDataSource implements DataSource {
         }),
       ]
     }
-    return null
+    if (this.resolveMissing && uid === 'urn:test:media:fail') {
+      return [
+        intoSourceRecord({
+          type: 'MediaAsset',
+          content: {
+            title: 'MediaMissingResolved',
+            mediaType: 'audio/mp3',
+            File: { uri: 'urn:test:file:1' },
+          },
+          entityUris: ['urn:test:media:fail'],
+        }),
+      ]
+    }
+    throw new Error('Not found: ' + uid)
   }
 
   async mapSourceRecord(record: SourceRecordForm): Promise<EntityForm[]> {
@@ -137,7 +159,7 @@ test('datasource', async (assert) => {
   )
 })
 
-test.solo('remap', async (assert) => {
+test('remap', async (assert) => {
   const prisma = await setup(assert)
   const repo = await Repo.create(prisma, 'test')
 
@@ -174,4 +196,47 @@ test.solo('remap', async (assert) => {
   const entitiesAfter = await prisma.contentItem.findMany()
   assert.is(entitiesAfter.length, 1)
   assert.is(entitiesAfter[0].title, 'TEST1')
+})
+
+test.solo('failed fetches', async (assert) => {
+  const prisma = await setup(assert)
+  const repo = await Repo.create(prisma, 'test')
+
+  const plugins = new DataSourcePluginRegistry()
+  plugins.register(new TestDataSourcePlugin())
+  await repo.dsr.create(repo.prisma, plugins, 'ds:test', {})
+  const datasource = repo.dsr.get(DS_UID)! as TestDataSource
+  datasource.insertMissing = true
+
+  {
+    const res = await ingestUpdatesFromDataSource(repo, datasource)
+    assert.is(res.count, 1)
+    const revisions = await repo.prisma.revision.count()
+    assert.is(revisions, 3)
+    const entities = await repo.prisma.entity.count()
+    assert.is(entities, 3)
+    const fails = await repo.prisma.failedDatasourceFetches.findMany()
+    assert.is(fails.length, 1)
+    assert.is(fails[0].uri, 'urn:test:media:fail')
+  }
+
+  datasource.resolveMissing = true
+
+  await remapDataSource(repo, datasource)
+
+  {
+    const revisions = await repo.prisma.revision.count()
+    assert.is(revisions, 5)
+    const entities = await repo.prisma.entity.count()
+    assert.is(entities, 4)
+  }
+
+  {
+    const res = await ingestUpdatesFromDataSource(repo, datasource)
+    assert.is(res.count, 0)
+    const revisions = await repo.prisma.revision.count()
+    assert.is(revisions, 5)
+    const entities = await repo.prisma.entity.count()
+    assert.is(entities, 4)
+  }
 })

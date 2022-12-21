@@ -110,6 +110,16 @@ model Keypair {
   secret String
 }
 
+model FailedDatasourceFetches {
+  uri String
+  datasourceUid String
+  timestamp DateTime
+  errorMessage String
+  errorDetails Json?
+
+  @@id([uri, datasourceUid])
+}
+
 // model Cursor {
 //   uid String @id @unique
 // }

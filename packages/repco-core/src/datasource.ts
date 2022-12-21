@@ -80,6 +80,10 @@ export abstract class BaseDataSource {
 
 type FailedHydrates = { err: Error; row: any }
 
+function errToSerializable(err: Error): Prisma.InputJsonValue {
+  return Object.fromEntries(Object.entries(err))
+}
+
 export class DataSourceRegistry extends Registry<DataSource> {
   _hydrating?: Promise<{ failed: FailedHydrates[] }>
 
@@ -89,21 +93,43 @@ export class DataSourceRegistry extends Registry<DataSource> {
 
   async fetchEntities(repo: Repo, uris: string[]) {
     const fetched: EntityForm[] = []
-    const notFound = uris
+    const notFound = []
     for (const uri of uris) {
       const matchingSources = this.allForUri(uri)
       let found = false
       for (const datasource of matchingSources) {
-        const sourceRecords = await datasource.fetchByUri(uri)
-        if (sourceRecords && sourceRecords.length) {
-          const entities = await mapAndPersistSourceRecord(
-            repo,
-            datasource,
-            sourceRecords,
-          )
-          fetched.push(...entities)
-          found = true
-          break
+        try {
+          const sourceRecords = await datasource.fetchByUri(uri)
+          if (sourceRecords && sourceRecords.length) {
+            const entities = await mapAndPersistSourceRecord(
+              repo,
+              datasource,
+              sourceRecords,
+            )
+            fetched.push(...entities)
+            found = true
+            break
+          }
+        } catch (err) {
+          // The datasource failed to fetch the entity.
+          // Log the error and proceed.
+          const fail = {
+            uri,
+            datasourceUid: datasource.definition.uid,
+            timestamp: new Date(),
+            errorMessage: (err as Error).message,
+            errorDetails: errToSerializable(err as Error)
+          }
+          await repo.prisma.failedDatasourceFetches.upsert({
+            create: { ...fail },
+            update: { ...fail },
+            where: {
+              uri_datasourceUid: {
+                uri: fail.uri,
+                datasourceUid: fail.datasourceUid,
+              },
+            },
+          })
         }
       }
       if (!found) notFound.push(uri)

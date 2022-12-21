@@ -56,6 +56,10 @@ export type TypedEntity<T extends EntityType> = Extract<
   repco.EntityInput,
   { type: T }
 >
+export type TypedEntityForm<T extends EntityType> = Extract<
+  EntityForm,
+  { type: T }
+>
 export type TypedEntityWithRevision<T extends EntityType> = TypedEntity<T> & {
   revision: Revision
   uid: string
