@@ -118,7 +118,7 @@ export class DataSourceRegistry extends Registry<DataSource> {
             datasourceUid: datasource.definition.uid,
             timestamp: new Date(),
             errorMessage: (err as Error).message,
-            errorDetails: errToSerializable(err as Error)
+            errorDetails: errToSerializable(err as Error),
           }
           await repo.prisma.failedDatasourceFetches.upsert({
             create: { ...fail },

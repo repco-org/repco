@@ -198,7 +198,7 @@ test('remap', async (assert) => {
   assert.is(entitiesAfter[0].title, 'TEST1')
 })
 
-test.solo('failed fetches', async (assert) => {
+test('failed fetches', async (assert) => {
   const prisma = await setup(assert)
   const repo = await Repo.create(prisma, 'test')
 
