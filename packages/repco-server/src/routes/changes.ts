@@ -16,6 +16,16 @@ type RequestT = Request<any, any, any, any, Record<string, any>>
 
 router.get('/', async (req, res) => {})
 
+router.head('/sync/:repoDid', async (req, res) => {
+  const { prisma } = getLocals(res)
+  const { repoDid } = req.params
+  const repo = await Repo.open(prisma, repoDid)
+  const cid = await repo.getHead()
+  res.header('x-repco-head', cid.toString())
+  res.status(204)
+  res.send()
+})
+
 router.get('/sync/:repoDid/:tail?', async (req, res) => {
   const { prisma } = getLocals(res)
   const { repoDid, tail: tailStr } = req.params

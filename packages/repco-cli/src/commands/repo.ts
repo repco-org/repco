@@ -40,6 +40,7 @@ export const join = createCommand({
   options: {
     gateway: {
       type: 'string',
+      multiple: true,
       short: 'g',
       help: 'Primary gateway URL for this repo',
     },
@@ -48,9 +49,10 @@ export const join = createCommand({
     { name: 'name', required: true, help: 'Local name for the repo' },
     { name: 'did', required: true, help: 'DID (identity string) of the repo' },
   ] as const,
-  async run(_opts, args) {
+  async run(opts, args) {
     const prisma = new PrismaClient()
     const repo = await Repo.create(prisma, args.name, args.did)
+    if (opts.gateway) await repo.setGateways(opts.gateway)
     print(`Created mirror repo ${repo.name} and DID`)
     print(`  ${pc.yellow(repo.did)}`)
   },
@@ -261,8 +263,20 @@ export const logRevisions = createCommand({
   },
 })
 
+export const syncCommand = createCommand({
+  name: 'sync',
+  help: 'Sync (pull) a mirrored repos',
+  arguments: [
+    { name: 'repo', required: true, help: 'DID or name of repo' },
+  ] as const,
+  async run(_opts, args) {
+    const repo = await Repo.openWithDefaults(args.repo)
+    await repo.pullFromGateways()
+  },
+})
+
 export const command = createCommandGroup({
   name: 'repo',
   help: 'Manage repco repositories',
-  commands: [create, join, list, info, carImport, carExport, logRevisions],
+  commands: [create, join, list, info, carImport, carExport, logRevisions, syncCommand],
 })

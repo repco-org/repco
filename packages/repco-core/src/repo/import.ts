@@ -38,7 +38,7 @@ export async function importRepoFromCar(
     reader,
     repo,
   )) {
-    if (await repo.blockstore.has(bundle.root.cid)) {
+    if (await repo.hasRoot(bundle.root.cid)) {
       updateCounter(skipped, bundle, blocks)
     } else {
       await repo.blockstore.putBytesBatch(blocks)

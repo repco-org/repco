@@ -35,6 +35,7 @@ model Repo {
   name String? @unique
   head String? @unique
   tail String? @unique
+  gateways String[]
 
   Head     Commit?    @relation("RepoToHead", fields: [head], references: [rootCid])
   Revision Revision[]
@@ -165,7 +166,9 @@ model Revision {
   // Commit        Commit    @relation("RevisionToCommit", fields: [commitCid], references: [cid])
 
   derivedFromUid String?
-  DerivedFrom SourceRecord? @relation("DerivedRevisions", fields: [derivedFromUid], references: [uid])
+  // TODO: This would have to be a lose relation as SourceRecords are not synced currently.
+  // As this is not possible with prismma we skip defining the relation for now and have to query manually.
+  // DerivedFrom SourceRecord? @relation("DerivedRevisions", fields: [derivedFromUid], references: [uid])
 
   // entity relations
   ContentGrouping  ContentGrouping?
@@ -201,7 +204,7 @@ model SourceRecord {
   dataSourceUid String?
   DataSource    DataSource? @relation(fields: [dataSourceUid], references: [uid])
 
-  DerivedRevisions Revision[] @relation("DerivedRevisions")
+  // DerivedRevisions Revision[] @relation("DerivedRevisions")
 }
 
 // Domain data model
