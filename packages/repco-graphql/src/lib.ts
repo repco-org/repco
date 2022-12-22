@@ -1,3 +1,4 @@
+import pg from 'pg'
 import PgManyToManyPlugin from '@graphile-contrib/pg-many-to-many'
 import SimplifyInflectorPlugin from '@graphile-contrib/pg-simplify-inflector'
 import ConnectionFilterPlugin from 'postgraphile-plugin-connection-filter'
@@ -16,10 +17,13 @@ export { getSDL } from './plugins/export-schema.js'
 
 const PG_SCHEMA = 'public'
 
+export function createPoolFromUrl(databaseUrl: string) {
+  return new pg.Pool({ connectionString: databaseUrl })
+}
 // Create an GraphQL express middleware with Postgraphile
 // for a repco database.
-export function createGraphqlHandler(databaseUrl: string) {
-  return postgraphile(databaseUrl, PG_SCHEMA, getPostGraphileOptions())
+export function createGraphqlHandler(databaseUrlOrPool: string | pg.Pool) {
+  return postgraphile(databaseUrlOrPool, PG_SCHEMA, getPostGraphileOptions())
 }
 
 export async function createGraphQlSchema(databaseUrl: string) {

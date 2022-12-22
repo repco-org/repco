@@ -13,7 +13,8 @@
     "dev": "run-p watch start:watch",
     "docs": "typedoc src/mod.ts --out ./docs",
     "start": "node dist/bin.js",
-    "start:watch": "nodemon -r source-map-support/register --watch dist --watch ../repco-core/dist dist/bin.js"
+    "start:watch": "nodemon -r source-map-support/register --watch dist --watch ../repco-core/dist dist/bin.js",
+    "test": "brittle dist/test/*.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -22,13 +23,16 @@
     "multiformats": "^9.9.0",
     "pino": "^8.7.0",
     "pino-pretty": "^9.1.1",
+    "repco-common": "0.1.0",
     "repco-core": "0.1.0",
-    "repco-graphql": "0.1.0",
-    "repco-common": "0.1.0"
+    "repco-graphql": "0.1.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.12",
     "@types/express": "^4.17.13",
+    "@urql/core": "^3.0.3",
+    "brittle": "^2.4.0",
+    "http-terminator": "^3.2.0",
     "nodemon": "^2.0.19"
   }
 }
