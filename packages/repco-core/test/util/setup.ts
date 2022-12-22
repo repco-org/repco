@@ -129,7 +129,7 @@ function spawn(
   args: string[],
   opts: SpawnOptions & { log?: Test['comment']; verbose?: boolean } = {},
 ): Promise<void> & { child: ChildProcess } {
-  opts.verbose = opts.verbose || !!process.env.VERBOSE || false
+  opts.verbose = opts.verbose || process.env.VERBOSE === '1' || false
   if (!opts.stdio) opts.stdio = 'pipe'
   const log = opts.log || ((msg: string) => console.error(`# ${msg}`))
   log(`spawn: ${command} ${args.map((x) => `${x}`).join(' ')}`)
