@@ -6,12 +6,13 @@ import type { ClassProp } from 'class-variance-authority/dist/types'
 import { forwardRef } from 'react'
 
 export const buttonStyles = cva(
-  'border rounded-md items-center transition-colors duration-100 cursor-default disabled:opacity-50',
+  '  text-white font-bold shrink-0 items-center transition-colors duration-100 cursor-default disabled:opacity-50',
   {
     variants: {
       intent: {
-        primary: '',
-        danger: 'bg-red-500',
+        primary: ' bg-brand-primary  hover:bg-brand-secondary',
+        secondary: 'bg-brand-contrast hover:bg-slate-400',
+        danger: 'bg-red-500 hover:bg-red-300 ',
       },
       fullWidth: {
         true: 'w-full',
@@ -20,13 +21,13 @@ export const buttonStyles = cva(
         true: 'opacity-70 pointer-events-none cursor-not-allowed',
       },
       variantSize: {
-        icon: '!p-1',
         md: 'py-1 px-3 text-base ',
-        sm: 'py-1 px-2 text-sm',
+        sm: 'py-1 px-2 text-sm h-8',
       },
     },
     defaultVariants: {
       variantSize: 'sm',
+      intent: 'primary',
     },
   },
 )
@@ -49,16 +50,20 @@ export type NavButtonProps = ButtonBaseProps &
   ClassProp
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  (props, ref) => {
-    const className = cx(buttonStyles(props))
+  ({ fullWidth, variantSize, intent, ...props }, ref) => {
+    const className = cx(
+      buttonStyles({ fullWidth, variantSize, intent, ...props }),
+    )
     return <button ref={ref} className={className} {...props} />
   },
 )
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
-  (props, ref) => {
-    const className = cx(buttonStyles(props))
-    const icon = props.icon
+  ({ icon, fullWidth, variantSize, intent, ...props }, ref) => {
+    const className = cx(
+      buttonStyles({ fullWidth, variantSize, intent, ...props }),
+    )
+
     return (
       <button
         ref={ref}
@@ -66,7 +71,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
         {...props}
         style={{ minWidth: '2rem' }}
       >
-        <div className="py-2 px-4 rounded inline-flex items-center">
+        <div className="rounded inline-flex items-center">
           <div className="mr-2">{props.children}</div>
           {icon ? icon : null}
         </div>

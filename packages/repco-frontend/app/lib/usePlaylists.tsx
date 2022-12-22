@@ -28,9 +28,6 @@ export function usePlaylists() {
   }
 
   useEffect(() => {
-    if (error) {
-      console.error(error)
-    }
     setPlaylists(Array.from(store.values()))
   }, [error, state, store])
 
@@ -53,7 +50,7 @@ export function usePlaylists() {
   }
 
   function updatePlaylist(name: string, data: Playlist) {
-    console.log(name, data)
+    console.log('UPDATE', name, data)
     dispatch({
       type: 'UPDATE',
       payload: { id: name, data },
@@ -113,5 +110,6 @@ export function usePlaylists() {
     createPlaylist,
     updatePlaylist,
     deletePlaylist,
+    error,
   ] as const
 }

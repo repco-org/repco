@@ -1,9 +1,9 @@
 import type { LoaderFunction } from '@remix-run/node'
 import { NavLink } from '@remix-run/react'
-import { IconButton } from '~/components/ui/primitives/Button'
+import { Button } from '@ui/primitives/Button'
 import { usePlaylists } from '~/lib/usePlaylists'
 
-export const loader: LoaderFunction = async () => {
+export const loader: LoaderFunction = async ({ request }) => {
   return { status: 200 }
 }
 
@@ -20,20 +20,31 @@ export default function PlaylistIndex() {
 
   return (
     <main className="px-2">
-      <div className="px-2 ">
+      <div className="px-2 space-y-2 w-full">
         {playlists.length !== 0 ? (
           playlists.map((p) => (
-            <div key={p.id} className="card">
+            <div
+              key={p.id}
+              className="w-full items-center align-middle justify-between flex border-b-2 pb-2"
+            >
               <NavLink
                 className="text-lg font-medium leading-tight text-gray-900"
-                prefetch="render"
                 to={`/playlists/${p.id}`}
               >
-                {p.id} ({p.tracks.length}){p.description}{' '}
+                {p.id}{' '}
+                <span className="text-xs">
+                  ({p.tracks.length}
+                  {p.tracks.length < 2 ? ' item' : ' items'})
+                </span>
+                {p.description}{' '}
               </NavLink>
-              <IconButton onClick={() => deletePlaylist(p.id)}>
+              <Button
+                intent="danger"
+                variantSize={'sm'}
+                onClick={() => deletePlaylist(p.id)}
+              >
                 delete
-              </IconButton>
+              </Button>
             </div>
           ))
         ) : (

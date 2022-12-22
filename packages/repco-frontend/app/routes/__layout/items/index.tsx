@@ -81,7 +81,7 @@ export default function ItemsIndex() {
             <div>
               <div className="inline-flex w-full justify-between">
                 <NavLink to={`/items/${node.uid}`}>
-                  <h5 className="break-words  font-medium leading-tight text-xl text-blue-600">
+                  <h5 className="break-words  font-medium leading-tight text-xl text-brand-primary">
                     {node.title}
                   </h5>
                 </NavLink>
