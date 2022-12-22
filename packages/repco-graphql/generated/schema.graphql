@@ -1,281 +1,3 @@
-type Actor {
-  """Reads and enables pagination through a set of `BroadcastService`."""
-  broadcastServicesByPublisher(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: BroadcastServiceCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: BroadcastServiceFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `BroadcastService`."""
-    orderBy: [BroadcastServicesOrderBy!] = [PRIMARY_KEY_ASC]
-  ): BroadcastServicesConnection!
-  contactInformation: String!
-
-  """Reads and enables pagination through a set of `Contribution`."""
-  contributions(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: ContributionCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: ContributionFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `Contribution`."""
-    orderBy: [ContributionsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): ActorContributionsByActorToContributionAAndBManyToManyConnection!
-  name: String!
-  personOrOrganization: String!
-
-  """Reads a single `File` that is related to this `Actor`."""
-  profilePicture: File
-  profilePictureUid: String!
-
-  """Reads a single `Revision` that is related to this `Actor`."""
-  revision: Revision
-  revisionId: String!
-  uid: String!
-}
-
-"""
-A condition to be used against `Actor` object types. All fields are tested for equality and combined with a logical ‘and.’
-"""
-input ActorCondition {
-  """Checks for equality with the object’s `contactInformation` field."""
-  contactInformation: String
-
-  """Checks for equality with the object’s `name` field."""
-  name: String
-
-  """Checks for equality with the object’s `personOrOrganization` field."""
-  personOrOrganization: String
-
-  """Checks for equality with the object’s `profilePictureUid` field."""
-  profilePictureUid: String
-
-  """Checks for equality with the object’s `revisionId` field."""
-  revisionId: String
-
-  """Checks for equality with the object’s `uid` field."""
-  uid: String
-}
-
-"""
-A connection to a list of `Contribution` values, with data from `_ActorToContribution`.
-"""
-type ActorContributionsByActorToContributionAAndBManyToManyConnection {
-  """
-  A list of edges which contains the `Contribution`, info from the `_ActorToContribution`, and the cursor to aid in pagination.
-  """
-  edges: [ActorContributionsByActorToContributionAAndBManyToManyEdge!]!
-
-  """A list of `Contribution` objects."""
-  nodes: [Contribution!]!
-
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """The count of *all* `Contribution` you could get from the connection."""
-  totalCount: Int!
-}
-
-"""
-A `Contribution` edge in the connection, with data from `_ActorToContribution`.
-"""
-type ActorContributionsByActorToContributionAAndBManyToManyEdge {
-  """Reads and enables pagination through a set of `_ActorToContribution`."""
-  _actorToContributionsByB(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: _ActorToContributionCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: _ActorToContributionFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `_ActorToContribution`."""
-    orderBy: [_ActorToContributionsOrderBy!] = [NATURAL]
-  ): _ActorToContributionsConnection!
-
-  """A cursor for use in pagination."""
-  cursor: Cursor
-
-  """The `Contribution` at the end of the edge."""
-  node: Contribution!
-}
-
-"""
-A filter to be used against `Actor` object types. All fields are combined with a logical ‘and.’
-"""
-input ActorFilter {
-  """Checks for all expressions in this list."""
-  and: [ActorFilter!]
-
-  """Filter by the object’s `broadcastServicesByPublisher` relation."""
-  broadcastServicesByPublisher: ActorToManyBroadcastServiceFilter
-
-  """Some related `broadcastServicesByPublisher` exist."""
-  broadcastServicesByPublisherExist: Boolean
-
-  """Filter by the object’s `contactInformation` field."""
-  contactInformation: StringFilter
-
-  """Filter by the object’s `name` field."""
-  name: StringFilter
-
-  """Negates the expression."""
-  not: ActorFilter
-
-  """Checks for any expressions in this list."""
-  or: [ActorFilter!]
-
-  """Filter by the object’s `personOrOrganization` field."""
-  personOrOrganization: StringFilter
-
-  """Filter by the object’s `profilePicture` relation."""
-  profilePicture: FileFilter
-
-  """Filter by the object’s `profilePictureUid` field."""
-  profilePictureUid: StringFilter
-
-  """Filter by the object’s `revision` relation."""
-  revision: RevisionFilter
-
-  """Filter by the object’s `revisionId` field."""
-  revisionId: StringFilter
-
-  """Filter by the object’s `uid` field."""
-  uid: StringFilter
-}
-
-"""
-A filter to be used against many `BroadcastService` object types. All fields are combined with a logical ‘and.’
-"""
-input ActorToManyBroadcastServiceFilter {
-  """
-  Every related `BroadcastService` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  every: BroadcastServiceFilter
-
-  """
-  No related `BroadcastService` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  none: BroadcastServiceFilter
-
-  """
-  Some related `BroadcastService` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  some: BroadcastServiceFilter
-}
-
-"""A connection to a list of `Actor` values."""
-type ActorsConnection {
-  """
-  A list of edges which contains the `Actor` and cursor to aid in pagination.
-  """
-  edges: [ActorsEdge!]!
-
-  """A list of `Actor` objects."""
-  nodes: [Actor!]!
-
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """The count of *all* `Actor` you could get from the connection."""
-  totalCount: Int!
-}
-
-"""A `Actor` edge in the connection."""
-type ActorsEdge {
-  """A cursor for use in pagination."""
-  cursor: Cursor
-
-  """The `Actor` at the end of the edge."""
-  node: Actor!
-}
-
-"""Methods to use when ordering `Actor`."""
-enum ActorsOrderBy {
-  CONTACT_INFORMATION_ASC
-  CONTACT_INFORMATION_DESC
-  NAME_ASC
-  NAME_DESC
-  NATURAL
-  PERSON_OR_ORGANIZATION_ASC
-  PERSON_OR_ORGANIZATION_DESC
-  PRIMARY_KEY_ASC
-  PRIMARY_KEY_DESC
-  PROFILE_PICTURE_UID_ASC
-  PROFILE_PICTURE_UID_DESC
-  REVISION_ID_ASC
-  REVISION_ID_DESC
-  UID_ASC
-  UID_DESC
-}
-
 type Agent {
   """Reads and enables pagination through a set of `Commit`."""
   commitsByAgentDid(
@@ -860,9 +582,9 @@ input BooleanFilter {
 
 type BroadcastEvent {
   """
-  Reads a single `BroadcastService` that is related to this `BroadcastEvent`.
+  Reads a single `PublicationService` that is related to this `BroadcastEvent`.
   """
-  broadcastService: BroadcastService
+  broadcastService: PublicationService
   broadcastServiceUid: String!
 
   """Reads a single `ContentItem` that is related to this `BroadcastEvent`."""
@@ -909,7 +631,7 @@ input BroadcastEventFilter {
   and: [BroadcastEventFilter!]
 
   """Filter by the object’s `broadcastService` relation."""
-  broadcastService: BroadcastServiceFilter
+  broadcastService: PublicationServiceFilter
 
   """Filter by the object’s `broadcastServiceUid` field."""
   broadcastServiceUid: StringFilter
@@ -983,288 +705,6 @@ enum BroadcastEventsOrderBy {
   REVISION_ID_DESC
   START_ASC
   START_DESC
-  UID_ASC
-  UID_DESC
-}
-
-type BroadcastService {
-  address: String!
-
-  """Reads and enables pagination through a set of `BroadcastEvent`."""
-  broadcastEvents(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: BroadcastEventCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: BroadcastEventFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `BroadcastEvent`."""
-    orderBy: [BroadcastEventsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): BroadcastEventsConnection!
-
-  """Reads and enables pagination through a set of `ContentItem`."""
-  contentItemsByBroadcastEventBroadcastServiceUidAndContentItemUid(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: ContentItemCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: ContentItemFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `ContentItem`."""
-    orderBy: [ContentItemsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): BroadcastServiceContentItemsByBroadcastEventBroadcastServiceUidAndContentItemUidManyToManyConnection!
-  medium: String!
-  name: String!
-
-  """Reads a single `Actor` that is related to this `BroadcastService`."""
-  publisher: Actor
-  publisherUid: String!
-
-  """Reads a single `Revision` that is related to this `BroadcastService`."""
-  revision: Revision
-  revisionId: String!
-  uid: String!
-}
-
-"""
-A condition to be used against `BroadcastService` object types. All fields are
-tested for equality and combined with a logical ‘and.’
-"""
-input BroadcastServiceCondition {
-  """Checks for equality with the object’s `address` field."""
-  address: String
-
-  """Checks for equality with the object’s `medium` field."""
-  medium: String
-
-  """Checks for equality with the object’s `name` field."""
-  name: String
-
-  """Checks for equality with the object’s `publisherUid` field."""
-  publisherUid: String
-
-  """Checks for equality with the object’s `revisionId` field."""
-  revisionId: String
-
-  """Checks for equality with the object’s `uid` field."""
-  uid: String
-}
-
-"""
-A connection to a list of `ContentItem` values, with data from `BroadcastEvent`.
-"""
-type BroadcastServiceContentItemsByBroadcastEventBroadcastServiceUidAndContentItemUidManyToManyConnection {
-  """
-  A list of edges which contains the `ContentItem`, info from the `BroadcastEvent`, and the cursor to aid in pagination.
-  """
-  edges: [BroadcastServiceContentItemsByBroadcastEventBroadcastServiceUidAndContentItemUidManyToManyEdge!]!
-
-  """A list of `ContentItem` objects."""
-  nodes: [ContentItem!]!
-
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """The count of *all* `ContentItem` you could get from the connection."""
-  totalCount: Int!
-}
-
-"""
-A `ContentItem` edge in the connection, with data from `BroadcastEvent`.
-"""
-type BroadcastServiceContentItemsByBroadcastEventBroadcastServiceUidAndContentItemUidManyToManyEdge {
-  """Reads and enables pagination through a set of `BroadcastEvent`."""
-  broadcastEvents(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: BroadcastEventCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: BroadcastEventFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `BroadcastEvent`."""
-    orderBy: [BroadcastEventsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): BroadcastEventsConnection!
-
-  """A cursor for use in pagination."""
-  cursor: Cursor
-
-  """The `ContentItem` at the end of the edge."""
-  node: ContentItem!
-}
-
-"""
-A filter to be used against `BroadcastService` object types. All fields are combined with a logical ‘and.’
-"""
-input BroadcastServiceFilter {
-  """Filter by the object’s `address` field."""
-  address: StringFilter
-
-  """Checks for all expressions in this list."""
-  and: [BroadcastServiceFilter!]
-
-  """Filter by the object’s `broadcastEvents` relation."""
-  broadcastEvents: BroadcastServiceToManyBroadcastEventFilter
-
-  """Some related `broadcastEvents` exist."""
-  broadcastEventsExist: Boolean
-
-  """Filter by the object’s `medium` field."""
-  medium: StringFilter
-
-  """Filter by the object’s `name` field."""
-  name: StringFilter
-
-  """Negates the expression."""
-  not: BroadcastServiceFilter
-
-  """Checks for any expressions in this list."""
-  or: [BroadcastServiceFilter!]
-
-  """Filter by the object’s `publisher` relation."""
-  publisher: ActorFilter
-
-  """Filter by the object’s `publisherUid` field."""
-  publisherUid: StringFilter
-
-  """Filter by the object’s `revision` relation."""
-  revision: RevisionFilter
-
-  """Filter by the object’s `revisionId` field."""
-  revisionId: StringFilter
-
-  """Filter by the object’s `uid` field."""
-  uid: StringFilter
-}
-
-"""
-A filter to be used against many `BroadcastEvent` object types. All fields are combined with a logical ‘and.’
-"""
-input BroadcastServiceToManyBroadcastEventFilter {
-  """
-  Every related `BroadcastEvent` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  every: BroadcastEventFilter
-
-  """
-  No related `BroadcastEvent` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  none: BroadcastEventFilter
-
-  """
-  Some related `BroadcastEvent` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  some: BroadcastEventFilter
-}
-
-"""A connection to a list of `BroadcastService` values."""
-type BroadcastServicesConnection {
-  """
-  A list of edges which contains the `BroadcastService` and cursor to aid in pagination.
-  """
-  edges: [BroadcastServicesEdge!]!
-
-  """A list of `BroadcastService` objects."""
-  nodes: [BroadcastService!]!
-
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """
-  The count of *all* `BroadcastService` you could get from the connection.
-  """
-  totalCount: Int!
-}
-
-"""A `BroadcastService` edge in the connection."""
-type BroadcastServicesEdge {
-  """A cursor for use in pagination."""
-  cursor: Cursor
-
-  """The `BroadcastService` at the end of the edge."""
-  node: BroadcastService!
-}
-
-"""Methods to use when ordering `BroadcastService`."""
-enum BroadcastServicesOrderBy {
-  ADDRESS_ASC
-  ADDRESS_DESC
-  MEDIUM_ASC
-  MEDIUM_DESC
-  NAME_ASC
-  NAME_DESC
-  NATURAL
-  PRIMARY_KEY_ASC
-  PRIMARY_KEY_DESC
-  PUBLISHER_UID_ASC
-  PUBLISHER_UID_DESC
-  REVISION_ID_ASC
-  REVISION_ID_DESC
   UID_ASC
   UID_DESC
 }
@@ -1838,6 +1278,108 @@ enum CommitsOrderBy {
 
 type Concept {
   """Reads and enables pagination through a set of `Concept`."""
+  childConcepts(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ConceptCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ConceptFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Concept`."""
+    orderBy: [ConceptsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ConceptsConnection!
+
+  """Reads and enables pagination through a set of `Concept`."""
+  conceptsByConceptParentUidAndSameAsUid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ConceptCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ConceptFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Concept`."""
+    orderBy: [ConceptsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ConceptConceptsByConceptParentUidAndSameAsUidManyToManyConnection!
+
+  """Reads and enables pagination through a set of `Concept`."""
+  conceptsByConceptSameAsUidAndParentUid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ConceptCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ConceptFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Concept`."""
+    orderBy: [ConceptsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ConceptConceptsByConceptSameAsUidAndParentUidManyToManyConnection!
+
+  """Reads and enables pagination through a set of `Concept`."""
   conceptsBySameAs(
     """Read all values in the set after (below) this cursor."""
     after: Cursor
@@ -1905,6 +1447,7 @@ type Concept {
     orderBy: [ContentItemsOrderBy!] = [PRIMARY_KEY_ASC]
   ): ConceptContentItemsByConceptToContentItemAAndBManyToManyConnection!
   description: String
+  kind: ConceptKind!
 
   """Reads and enables pagination through a set of `MediaAsset`."""
   mediaAssets(
@@ -1942,6 +1485,10 @@ type Concept {
   name: String!
   originNamespace: String
 
+  """Reads a single `Concept` that is related to this `Concept`."""
+  parent: Concept
+  parentUid: String
+
   """Reads a single `Revision` that is related to this `Concept`."""
   revision: Revision
   revisionId: String!
@@ -1954,6 +1501,126 @@ type Concept {
   wikidataIdentifier: String
 }
 
+"""A connection to a list of `Concept` values, with data from `Concept`."""
+type ConceptConceptsByConceptParentUidAndSameAsUidManyToManyConnection {
+  """
+  A list of edges which contains the `Concept`, info from the `Concept`, and the cursor to aid in pagination.
+  """
+  edges: [ConceptConceptsByConceptParentUidAndSameAsUidManyToManyEdge!]!
+
+  """A list of `Concept` objects."""
+  nodes: [Concept!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Concept` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Concept` edge in the connection, with data from `Concept`."""
+type ConceptConceptsByConceptParentUidAndSameAsUidManyToManyEdge {
+  """Reads and enables pagination through a set of `Concept`."""
+  conceptsBySameAs(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ConceptCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ConceptFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Concept`."""
+    orderBy: [ConceptsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ConceptsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Concept` at the end of the edge."""
+  node: Concept!
+}
+
+"""A connection to a list of `Concept` values, with data from `Concept`."""
+type ConceptConceptsByConceptSameAsUidAndParentUidManyToManyConnection {
+  """
+  A list of edges which contains the `Concept`, info from the `Concept`, and the cursor to aid in pagination.
+  """
+  edges: [ConceptConceptsByConceptSameAsUidAndParentUidManyToManyEdge!]!
+
+  """A list of `Concept` objects."""
+  nodes: [Concept!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Concept` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Concept` edge in the connection, with data from `Concept`."""
+type ConceptConceptsByConceptSameAsUidAndParentUidManyToManyEdge {
+  """Reads and enables pagination through a set of `Concept`."""
+  childConcepts(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ConceptCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ConceptFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Concept`."""
+    orderBy: [ConceptsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ConceptsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Concept` at the end of the edge."""
+  node: Concept!
+}
+
 """
 A condition to be used against `Concept` object types. All fields are tested for equality and combined with a logical ‘and.’
 """
@@ -1961,11 +1628,17 @@ input ConceptCondition {
   """Checks for equality with the object’s `description` field."""
   description: String
 
+  """Checks for equality with the object’s `kind` field."""
+  kind: ConceptKind
+
   """Checks for equality with the object’s `name` field."""
   name: String
 
   """Checks for equality with the object’s `originNamespace` field."""
   originNamespace: String
+
+  """Checks for equality with the object’s `parentUid` field."""
+  parentUid: String
 
   """Checks for equality with the object’s `revisionId` field."""
   revisionId: String
@@ -2054,6 +1727,12 @@ input ConceptFilter {
   """Checks for all expressions in this list."""
   and: [ConceptFilter!]
 
+  """Filter by the object’s `childConcepts` relation."""
+  childConcepts: ConceptToManyConceptFilter
+
+  """Some related `childConcepts` exist."""
+  childConceptsExist: Boolean
+
   """Filter by the object’s `conceptsBySameAs` relation."""
   conceptsBySameAs: ConceptToManyConceptFilter
 
@@ -2062,6 +1741,9 @@ input ConceptFilter {
 
   """Filter by the object’s `description` field."""
   description: StringFilter
+
+  """Filter by the object’s `kind` field."""
+  kind: ConceptKindFilter
 
   """Filter by the object’s `name` field."""
   name: StringFilter
@@ -2074,6 +1756,15 @@ input ConceptFilter {
 
   """Filter by the object’s `originNamespace` field."""
   originNamespace: StringFilter
+
+  """Filter by the object’s `parent` relation."""
+  parent: ConceptFilter
+
+  """A related `parent` exists."""
+  parentExists: Boolean
+
+  """Filter by the object’s `parentUid` field."""
+  parentUid: StringFilter
 
   """Filter by the object’s `revision` relation."""
   revision: RevisionFilter
@@ -2098,6 +1789,53 @@ input ConceptFilter {
 
   """Filter by the object’s `wikidataIdentifier` field."""
   wikidataIdentifier: StringFilter
+}
+
+enum ConceptKind {
+  CATEGORY
+  TAG
+}
+
+"""
+A filter to be used against ConceptKind fields. All fields are combined with a logical ‘and.’
+"""
+input ConceptKindFilter {
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: ConceptKind
+
+  """Equal to the specified value."""
+  equalTo: ConceptKind
+
+  """Greater than the specified value."""
+  greaterThan: ConceptKind
+
+  """Greater than or equal to the specified value."""
+  greaterThanOrEqualTo: ConceptKind
+
+  """Included in the specified list."""
+  in: [ConceptKind!]
+
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """Less than the specified value."""
+  lessThan: ConceptKind
+
+  """Less than or equal to the specified value."""
+  lessThanOrEqualTo: ConceptKind
+
+  """Equal to the specified value, treating null like an ordinary value."""
+  notDistinctFrom: ConceptKind
+
+  """Not equal to the specified value."""
+  notEqualTo: ConceptKind
+
+  """Not included in the specified list."""
+  notIn: [ConceptKind!]
 }
 
 """
@@ -2214,11 +1952,15 @@ type ConceptsEdge {
 enum ConceptsOrderBy {
   DESCRIPTION_ASC
   DESCRIPTION_DESC
+  KIND_ASC
+  KIND_DESC
   NAME_ASC
   NAME_DESC
   NATURAL
   ORIGIN_NAMESPACE_ASC
   ORIGIN_NAMESPACE_DESC
+  PARENT_UID_ASC
+  PARENT_UID_DESC
   PRIMARY_KEY_ASC
   PRIMARY_KEY_DESC
   REVISION_ID_ASC
@@ -2343,6 +2085,40 @@ type ContentGrouping {
     """The method to use when ordering `License`."""
     orderBy: [LicensesOrderBy!] = [PRIMARY_KEY_ASC]
   ): ContentGroupingLicensesByContentItemPrimaryGroupingUidAndLicenseUidManyToManyConnection!
+
+  """Reads and enables pagination through a set of `PublicationService`."""
+  publicationServicesByContentItemPrimaryGroupingUidAndPublicationServiceUid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PublicationServiceCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PublicationServiceFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PublicationService`."""
+    orderBy: [PublicationServicesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ContentGroupingPublicationServicesByContentItemPrimaryGroupingUidAndPublicationServiceUidManyToManyConnection!
 
   """Reads a single `Revision` that is related to this `ContentGrouping`."""
   revision: Revision
@@ -2592,6 +2368,72 @@ type ContentGroupingLicensesByContentItemPrimaryGroupingUidAndLicenseUidManyToMa
 }
 
 """
+A connection to a list of `PublicationService` values, with data from `ContentItem`.
+"""
+type ContentGroupingPublicationServicesByContentItemPrimaryGroupingUidAndPublicationServiceUidManyToManyConnection {
+  """
+  A list of edges which contains the `PublicationService`, info from the `ContentItem`, and the cursor to aid in pagination.
+  """
+  edges: [ContentGroupingPublicationServicesByContentItemPrimaryGroupingUidAndPublicationServiceUidManyToManyEdge!]!
+
+  """A list of `PublicationService` objects."""
+  nodes: [PublicationService!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `PublicationService` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""
+A `PublicationService` edge in the connection, with data from `ContentItem`.
+"""
+type ContentGroupingPublicationServicesByContentItemPrimaryGroupingUidAndPublicationServiceUidManyToManyEdge {
+  """Reads and enables pagination through a set of `ContentItem`."""
+  contentItems(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ContentItemCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ContentItemFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `ContentItem`."""
+    orderBy: [ContentItemsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ContentItemsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `PublicationService` at the end of the edge."""
+  node: PublicationService!
+}
+
+"""
 A filter to be used against many `ContentItem` object types. All fields are combined with a logical ‘and.’
 """
 input ContentGroupingToManyContentItemFilter {
@@ -2752,40 +2594,6 @@ type ContentItem {
     orderBy: [BroadcastEventsOrderBy!] = [PRIMARY_KEY_ASC]
   ): BroadcastEventsConnection!
 
-  """Reads and enables pagination through a set of `BroadcastService`."""
-  broadcastServicesByBroadcastEventContentItemUidAndBroadcastServiceUid(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: BroadcastServiceCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: BroadcastServiceFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `BroadcastService`."""
-    orderBy: [BroadcastServicesOrderBy!] = [PRIMARY_KEY_ASC]
-  ): ContentItemBroadcastServicesByBroadcastEventContentItemUidAndBroadcastServiceUidManyToManyConnection!
-
   """Reads and enables pagination through a set of `Concept`."""
   concepts(
     """Read all values in the set after (below) this cursor."""
@@ -2935,42 +2743,14 @@ type ContentItem {
   primaryGroupingUid: String
   pubDate: Datetime
 
-  """Reads a single `Revision` that is related to this `ContentItem`."""
-  revision: Revision
-  revisionId: String!
-  subtitle: String
-  summary: String
-  title: String!
-  uid: String!
-}
-
-"""
-A connection to a list of `BroadcastService` values, with data from `BroadcastEvent`.
-"""
-type ContentItemBroadcastServicesByBroadcastEventContentItemUidAndBroadcastServiceUidManyToManyConnection {
   """
-  A list of edges which contains the `BroadcastService`, info from the `BroadcastEvent`, and the cursor to aid in pagination.
+  Reads a single `PublicationService` that is related to this `ContentItem`.
   """
-  edges: [ContentItemBroadcastServicesByBroadcastEventContentItemUidAndBroadcastServiceUidManyToManyEdge!]!
+  publicationService: PublicationService
+  publicationServiceUid: String
 
-  """A list of `BroadcastService` objects."""
-  nodes: [BroadcastService!]!
-
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """
-  The count of *all* `BroadcastService` you could get from the connection.
-  """
-  totalCount: Int!
-}
-
-"""
-A `BroadcastService` edge in the connection, with data from `BroadcastEvent`.
-"""
-type ContentItemBroadcastServicesByBroadcastEventContentItemUidAndBroadcastServiceUidManyToManyEdge {
-  """Reads and enables pagination through a set of `BroadcastEvent`."""
-  broadcastEvents(
+  """Reads and enables pagination through a set of `PublicationService`."""
+  publicationServicesByBroadcastEventContentItemUidAndBroadcastServiceUid(
     """Read all values in the set after (below) this cursor."""
     after: Cursor
 
@@ -2980,12 +2760,12 @@ type ContentItemBroadcastServicesByBroadcastEventContentItemUidAndBroadcastServi
     """
     A condition to be used in determining which values should be returned by the collection.
     """
-    condition: BroadcastEventCondition
+    condition: PublicationServiceCondition
 
     """
     A filter to be used in determining which values should be returned by the collection.
     """
-    filter: BroadcastEventFilter
+    filter: PublicationServiceFilter
 
     """Only read the first `n` values of the set."""
     first: Int
@@ -2999,15 +2779,17 @@ type ContentItemBroadcastServicesByBroadcastEventContentItemUidAndBroadcastServi
     """
     offset: Int
 
-    """The method to use when ordering `BroadcastEvent`."""
-    orderBy: [BroadcastEventsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): BroadcastEventsConnection!
+    """The method to use when ordering `PublicationService`."""
+    orderBy: [PublicationServicesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ContentItemPublicationServicesByBroadcastEventContentItemUidAndBroadcastServiceUidManyToManyConnection!
 
-  """A cursor for use in pagination."""
-  cursor: Cursor
-
-  """The `BroadcastService` at the end of the edge."""
-  node: BroadcastService!
+  """Reads a single `Revision` that is related to this `ContentItem`."""
+  revision: Revision
+  revisionId: String!
+  subtitle: String
+  summary: String
+  title: String!
+  uid: String!
 }
 
 """
@@ -3093,6 +2875,9 @@ input ContentItemCondition {
 
   """Checks for equality with the object’s `pubDate` field."""
   pubDate: Datetime
+
+  """Checks for equality with the object’s `publicationServiceUid` field."""
+  publicationServiceUid: String
 
   """Checks for equality with the object’s `revisionId` field."""
   revisionId: String
@@ -3290,6 +3075,15 @@ input ContentItemFilter {
   """Filter by the object’s `pubDate` field."""
   pubDate: DatetimeFilter
 
+  """Filter by the object’s `publicationService` relation."""
+  publicationService: PublicationServiceFilter
+
+  """A related `publicationService` exists."""
+  publicationServiceExists: Boolean
+
+  """Filter by the object’s `publicationServiceUid` field."""
+  publicationServiceUid: StringFilter
+
   """Filter by the object’s `revision` relation."""
   revision: RevisionFilter
 
@@ -3376,6 +3170,72 @@ type ContentItemMediaAssetsByContentItemToMediaAssetAAndBManyToManyEdge {
 }
 
 """
+A connection to a list of `PublicationService` values, with data from `BroadcastEvent`.
+"""
+type ContentItemPublicationServicesByBroadcastEventContentItemUidAndBroadcastServiceUidManyToManyConnection {
+  """
+  A list of edges which contains the `PublicationService`, info from the `BroadcastEvent`, and the cursor to aid in pagination.
+  """
+  edges: [ContentItemPublicationServicesByBroadcastEventContentItemUidAndBroadcastServiceUidManyToManyEdge!]!
+
+  """A list of `PublicationService` objects."""
+  nodes: [PublicationService!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `PublicationService` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""
+A `PublicationService` edge in the connection, with data from `BroadcastEvent`.
+"""
+type ContentItemPublicationServicesByBroadcastEventContentItemUidAndBroadcastServiceUidManyToManyEdge {
+  """Reads and enables pagination through a set of `BroadcastEvent`."""
+  broadcastEventsByBroadcastService(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: BroadcastEventCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: BroadcastEventFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `BroadcastEvent`."""
+    orderBy: [BroadcastEventsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): BroadcastEventsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `PublicationService` at the end of the edge."""
+  node: PublicationService!
+}
+
+"""
 A filter to be used against many `BroadcastEvent` object types. All fields are combined with a logical ‘and.’
 """
 input ContentItemToManyBroadcastEventFilter {
@@ -3434,6 +3294,8 @@ enum ContentItemsOrderBy {
   PRIMARY_GROUPING_UID_DESC
   PRIMARY_KEY_ASC
   PRIMARY_KEY_DESC
+  PUBLICATION_SERVICE_UID_ASC
+  PUBLICATION_SERVICE_UID_DESC
   PUB_DATE_ASC
   PUB_DATE_DESC
   REVISION_ID_ASC
@@ -3449,40 +3311,6 @@ enum ContentItemsOrderBy {
 }
 
 type Contribution {
-  """Reads and enables pagination through a set of `Actor`."""
-  actors(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: ActorCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: ActorFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `Actor`."""
-    orderBy: [ActorsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): ContributionActorsByActorToContributionBAndAManyToManyConnection!
-
   """Reads and enables pagination through a set of `ContentItem`."""
   contentItems(
     """Read all values in the set after (below) this cursor."""
@@ -3516,6 +3344,40 @@ type Contribution {
     """The method to use when ordering `ContentItem`."""
     orderBy: [ContentItemsOrderBy!] = [PRIMARY_KEY_ASC]
   ): ContributionContentItemsByContentItemToContributionBAndAManyToManyConnection!
+
+  """Reads and enables pagination through a set of `Contributor`."""
+  contributors(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ContributorCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ContributorFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Contributor`."""
+    orderBy: [ContributorsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ContributionContributorsByContributionToContributorAAndBManyToManyConnection!
 
   """Reads and enables pagination through a set of `MediaAsset`."""
   mediaAssets(
@@ -3556,70 +3418,6 @@ type Contribution {
   revisionId: String!
   role: String!
   uid: String!
-}
-
-"""
-A connection to a list of `Actor` values, with data from `_ActorToContribution`.
-"""
-type ContributionActorsByActorToContributionBAndAManyToManyConnection {
-  """
-  A list of edges which contains the `Actor`, info from the `_ActorToContribution`, and the cursor to aid in pagination.
-  """
-  edges: [ContributionActorsByActorToContributionBAndAManyToManyEdge!]!
-
-  """A list of `Actor` objects."""
-  nodes: [Actor!]!
-
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """The count of *all* `Actor` you could get from the connection."""
-  totalCount: Int!
-}
-
-"""
-A `Actor` edge in the connection, with data from `_ActorToContribution`.
-"""
-type ContributionActorsByActorToContributionBAndAManyToManyEdge {
-  """Reads and enables pagination through a set of `_ActorToContribution`."""
-  _actorToContributionsByA(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: _ActorToContributionCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: _ActorToContributionFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `_ActorToContribution`."""
-    orderBy: [_ActorToContributionsOrderBy!] = [NATURAL]
-  ): _ActorToContributionsConnection!
-
-  """A cursor for use in pagination."""
-  cursor: Cursor
-
-  """The `Actor` at the end of the edge."""
-  node: Actor!
 }
 
 """
@@ -3701,6 +3499,72 @@ type ContributionContentItemsByContentItemToContributionBAndAManyToManyEdge {
 
   """The `ContentItem` at the end of the edge."""
   node: ContentItem!
+}
+
+"""
+A connection to a list of `Contributor` values, with data from `_ContributionToContributor`.
+"""
+type ContributionContributorsByContributionToContributorAAndBManyToManyConnection {
+  """
+  A list of edges which contains the `Contributor`, info from the `_ContributionToContributor`, and the cursor to aid in pagination.
+  """
+  edges: [ContributionContributorsByContributionToContributorAAndBManyToManyEdge!]!
+
+  """A list of `Contributor` objects."""
+  nodes: [Contributor!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Contributor` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""
+A `Contributor` edge in the connection, with data from `_ContributionToContributor`.
+"""
+type ContributionContributorsByContributionToContributorAAndBManyToManyEdge {
+  """
+  Reads and enables pagination through a set of `_ContributionToContributor`.
+  """
+  _contributionToContributorsByB(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: _ContributionToContributorCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: _ContributionToContributorFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `_ContributionToContributor`."""
+    orderBy: [_ContributionToContributorsOrderBy!] = [NATURAL]
+  ): _ContributionToContributorsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Contributor` at the end of the edge."""
+  node: Contributor!
 }
 
 """
@@ -3830,6 +3694,288 @@ enum ContributionsOrderBy {
   REVISION_ID_DESC
   ROLE_ASC
   ROLE_DESC
+  UID_ASC
+  UID_DESC
+}
+
+type Contributor {
+  contactInformation: String!
+
+  """Reads and enables pagination through a set of `Contribution`."""
+  contributions(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ContributionCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ContributionFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Contribution`."""
+    orderBy: [ContributionsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ContributorContributionsByContributionToContributorBAndAManyToManyConnection!
+  name: String!
+  personOrOrganization: String!
+
+  """Reads a single `File` that is related to this `Contributor`."""
+  profilePicture: File
+  profilePictureUid: String!
+
+  """Reads and enables pagination through a set of `PublicationService`."""
+  publicationServicesByPublisher(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PublicationServiceCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PublicationServiceFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PublicationService`."""
+    orderBy: [PublicationServicesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PublicationServicesConnection!
+
+  """Reads a single `Revision` that is related to this `Contributor`."""
+  revision: Revision
+  revisionId: String!
+  uid: String!
+}
+
+"""
+A condition to be used against `Contributor` object types. All fields are tested
+for equality and combined with a logical ‘and.’
+"""
+input ContributorCondition {
+  """Checks for equality with the object’s `contactInformation` field."""
+  contactInformation: String
+
+  """Checks for equality with the object’s `name` field."""
+  name: String
+
+  """Checks for equality with the object’s `personOrOrganization` field."""
+  personOrOrganization: String
+
+  """Checks for equality with the object’s `profilePictureUid` field."""
+  profilePictureUid: String
+
+  """Checks for equality with the object’s `revisionId` field."""
+  revisionId: String
+
+  """Checks for equality with the object’s `uid` field."""
+  uid: String
+}
+
+"""
+A connection to a list of `Contribution` values, with data from `_ContributionToContributor`.
+"""
+type ContributorContributionsByContributionToContributorBAndAManyToManyConnection {
+  """
+  A list of edges which contains the `Contribution`, info from the `_ContributionToContributor`, and the cursor to aid in pagination.
+  """
+  edges: [ContributorContributionsByContributionToContributorBAndAManyToManyEdge!]!
+
+  """A list of `Contribution` objects."""
+  nodes: [Contribution!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Contribution` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""
+A `Contribution` edge in the connection, with data from `_ContributionToContributor`.
+"""
+type ContributorContributionsByContributionToContributorBAndAManyToManyEdge {
+  """
+  Reads and enables pagination through a set of `_ContributionToContributor`.
+  """
+  _contributionToContributorsByA(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: _ContributionToContributorCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: _ContributionToContributorFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `_ContributionToContributor`."""
+    orderBy: [_ContributionToContributorsOrderBy!] = [NATURAL]
+  ): _ContributionToContributorsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Contribution` at the end of the edge."""
+  node: Contribution!
+}
+
+"""
+A filter to be used against `Contributor` object types. All fields are combined with a logical ‘and.’
+"""
+input ContributorFilter {
+  """Checks for all expressions in this list."""
+  and: [ContributorFilter!]
+
+  """Filter by the object’s `contactInformation` field."""
+  contactInformation: StringFilter
+
+  """Filter by the object’s `name` field."""
+  name: StringFilter
+
+  """Negates the expression."""
+  not: ContributorFilter
+
+  """Checks for any expressions in this list."""
+  or: [ContributorFilter!]
+
+  """Filter by the object’s `personOrOrganization` field."""
+  personOrOrganization: StringFilter
+
+  """Filter by the object’s `profilePicture` relation."""
+  profilePicture: FileFilter
+
+  """Filter by the object’s `profilePictureUid` field."""
+  profilePictureUid: StringFilter
+
+  """Filter by the object’s `publicationServicesByPublisher` relation."""
+  publicationServicesByPublisher: ContributorToManyPublicationServiceFilter
+
+  """Some related `publicationServicesByPublisher` exist."""
+  publicationServicesByPublisherExist: Boolean
+
+  """Filter by the object’s `revision` relation."""
+  revision: RevisionFilter
+
+  """Filter by the object’s `revisionId` field."""
+  revisionId: StringFilter
+
+  """Filter by the object’s `uid` field."""
+  uid: StringFilter
+}
+
+"""
+A filter to be used against many `PublicationService` object types. All fields are combined with a logical ‘and.’
+"""
+input ContributorToManyPublicationServiceFilter {
+  """
+  Every related `PublicationService` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: PublicationServiceFilter
+
+  """
+  No related `PublicationService` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: PublicationServiceFilter
+
+  """
+  Some related `PublicationService` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: PublicationServiceFilter
+}
+
+"""A connection to a list of `Contributor` values."""
+type ContributorsConnection {
+  """
+  A list of edges which contains the `Contributor` and cursor to aid in pagination.
+  """
+  edges: [ContributorsEdge!]!
+
+  """A list of `Contributor` objects."""
+  nodes: [Contributor!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Contributor` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Contributor` edge in the connection."""
+type ContributorsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Contributor` at the end of the edge."""
+  node: Contributor!
+}
+
+"""Methods to use when ordering `Contributor`."""
+enum ContributorsOrderBy {
+  CONTACT_INFORMATION_ASC
+  CONTACT_INFORMATION_DESC
+  NAME_ASC
+  NAME_DESC
+  NATURAL
+  PERSON_OR_ORGANIZATION_ASC
+  PERSON_OR_ORGANIZATION_DESC
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  PROFILE_PICTURE_UID_ASC
+  PROFILE_PICTURE_UID_DESC
+  REVISION_ID_ASC
+  REVISION_ID_DESC
   UID_ASC
   UID_DESC
 }
@@ -4297,8 +4443,15 @@ enum FailedDatasourceFetchesOrderBy {
 }
 
 type File {
-  """Reads and enables pagination through a set of `Actor`."""
-  actorsByProfilePicture(
+  additionalMetadata: String
+  bitrate: Int
+  cid: String
+  codec: String
+  contentSize: Int
+  contentUrl: String!
+
+  """Reads and enables pagination through a set of `Contributor`."""
+  contributorsByProfilePicture(
     """Read all values in the set after (below) this cursor."""
     after: Cursor
 
@@ -4308,12 +4461,12 @@ type File {
     """
     A condition to be used in determining which values should be returned by the collection.
     """
-    condition: ActorCondition
+    condition: ContributorCondition
 
     """
     A filter to be used in determining which values should be returned by the collection.
     """
-    filter: ActorFilter
+    filter: ContributorFilter
 
     """Only read the first `n` values of the set."""
     first: Int
@@ -4327,15 +4480,9 @@ type File {
     """
     offset: Int
 
-    """The method to use when ordering `Actor`."""
-    orderBy: [ActorsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): ActorsConnection!
-  additionalMetadata: String
-  bitrate: Int
-  cid: String
-  codec: String
-  contentSize: Int
-  contentUrl: String!
+    """The method to use when ordering `Contributor`."""
+    orderBy: [ContributorsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ContributorsConnection!
   duration: Float
 
   """Reads and enables pagination through a set of `File`."""
@@ -4712,12 +4859,6 @@ type FileFilesByMediaAssetTeaserImageUidAndFileUidManyToManyEdge {
 A filter to be used against `File` object types. All fields are combined with a logical ‘and.’
 """
 input FileFilter {
-  """Filter by the object’s `actorsByProfilePicture` relation."""
-  actorsByProfilePicture: FileToManyActorFilter
-
-  """Some related `actorsByProfilePicture` exist."""
-  actorsByProfilePictureExist: Boolean
-
   """Filter by the object’s `additionalMetadata` field."""
   additionalMetadata: StringFilter
 
@@ -4738,6 +4879,12 @@ input FileFilter {
 
   """Filter by the object’s `contentUrl` field."""
   contentUrl: StringFilter
+
+  """Filter by the object’s `contributorsByProfilePicture` relation."""
+  contributorsByProfilePicture: FileToManyContributorFilter
+
+  """Some related `contributorsByProfilePicture` exist."""
+  contributorsByProfilePictureExist: Boolean
 
   """Filter by the object’s `duration` field."""
   duration: FloatFilter
@@ -4901,23 +5048,23 @@ type FileLicensesByMediaAssetTeaserImageUidAndLicenseUidManyToManyEdge {
 }
 
 """
-A filter to be used against many `Actor` object types. All fields are combined with a logical ‘and.’
+A filter to be used against many `Contributor` object types. All fields are combined with a logical ‘and.’
 """
-input FileToManyActorFilter {
+input FileToManyContributorFilter {
   """
-  Every related `Actor` matches the filter criteria. All fields are combined with a logical ‘and.’
+  Every related `Contributor` matches the filter criteria. All fields are combined with a logical ‘and.’
   """
-  every: ActorFilter
+  every: ContributorFilter
 
   """
-  No related `Actor` matches the filter criteria. All fields are combined with a logical ‘and.’
+  No related `Contributor` matches the filter criteria. All fields are combined with a logical ‘and.’
   """
-  none: ActorFilter
+  none: ContributorFilter
 
   """
-  Some related `Actor` matches the filter criteria. All fields are combined with a logical ‘and.’
+  Some related `Contributor` matches the filter criteria. All fields are combined with a logical ‘and.’
   """
-  some: ActorFilter
+  some: ContributorFilter
 }
 
 """
@@ -5485,6 +5632,40 @@ type License {
   ): MediaAssetsConnection!
   name: String!
 
+  """Reads and enables pagination through a set of `PublicationService`."""
+  publicationServicesByContentItemLicenseUidAndPublicationServiceUid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PublicationServiceCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PublicationServiceFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PublicationService`."""
+    orderBy: [PublicationServicesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): LicensePublicationServicesByContentItemLicenseUidAndPublicationServiceUidManyToManyConnection!
+
   """Reads a single `Revision` that is related to this `License`."""
   revision: Revision
   revisionId: String!
@@ -5733,6 +5914,72 @@ input LicenseFilter {
 
   """Filter by the object’s `uid` field."""
   uid: StringFilter
+}
+
+"""
+A connection to a list of `PublicationService` values, with data from `ContentItem`.
+"""
+type LicensePublicationServicesByContentItemLicenseUidAndPublicationServiceUidManyToManyConnection {
+  """
+  A list of edges which contains the `PublicationService`, info from the `ContentItem`, and the cursor to aid in pagination.
+  """
+  edges: [LicensePublicationServicesByContentItemLicenseUidAndPublicationServiceUidManyToManyEdge!]!
+
+  """A list of `PublicationService` objects."""
+  nodes: [PublicationService!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `PublicationService` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""
+A `PublicationService` edge in the connection, with data from `ContentItem`.
+"""
+type LicensePublicationServicesByContentItemLicenseUidAndPublicationServiceUidManyToManyEdge {
+  """Reads and enables pagination through a set of `ContentItem`."""
+  contentItems(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ContentItemCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ContentItemFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `ContentItem`."""
+    orderBy: [ContentItemsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ContentItemsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `PublicationService` at the end of the edge."""
+  node: PublicationService!
 }
 
 """
@@ -6024,6 +6271,40 @@ type MediaAsset {
     """The method to use when ordering `Transcript`."""
     orderBy: [TranscriptsOrderBy!] = [PRIMARY_KEY_ASC]
   ): TranscriptsConnection!
+
+  """Reads and enables pagination through a set of `Translation`."""
+  translations(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: TranslationCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: TranslationFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Translation`."""
+    orderBy: [TranslationsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): TranslationsConnection!
   uid: String!
 }
 
@@ -6323,6 +6604,12 @@ input MediaAssetFilter {
   """Some related `transcripts` exist."""
   transcriptsExist: Boolean
 
+  """Filter by the object’s `translations` relation."""
+  translations: MediaAssetToManyTranslationFilter
+
+  """Some related `translations` exist."""
+  translationsExist: Boolean
+
   """Filter by the object’s `uid` field."""
   uid: StringFilter
 }
@@ -6365,6 +6652,26 @@ input MediaAssetToManyTranscriptFilter {
   Some related `Transcript` matches the filter criteria. All fields are combined with a logical ‘and.’
   """
   some: TranscriptFilter
+}
+
+"""
+A filter to be used against many `Translation` object types. All fields are combined with a logical ‘and.’
+"""
+input MediaAssetToManyTranslationFilter {
+  """
+  Every related `Translation` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: TranslationFilter
+
+  """
+  No related `Translation` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: TranslationFilter
+
+  """
+  Some related `Translation` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: TranslationFilter
 }
 
 """A connection to a list of `MediaAsset` values."""
@@ -6544,12 +6851,11 @@ type PageInfo {
   startCursor: Cursor
 }
 
-"""The root query type which gives access points into the data universe."""
-type Query {
-  actor(uid: String!): Actor
+type PublicationService {
+  address: String!
 
-  """Reads and enables pagination through a set of `Actor`."""
-  actors(
+  """Reads and enables pagination through a set of `BroadcastEvent`."""
+  broadcastEventsByBroadcastService(
     """Read all values in the set after (below) this cursor."""
     after: Cursor
 
@@ -6559,12 +6865,12 @@ type Query {
     """
     A condition to be used in determining which values should be returned by the collection.
     """
-    condition: ActorCondition
+    condition: BroadcastEventCondition
 
     """
     A filter to be used in determining which values should be returned by the collection.
     """
-    filter: ActorFilter
+    filter: BroadcastEventFilter
 
     """Only read the first `n` values of the set."""
     first: Int
@@ -6578,9 +6884,520 @@ type Query {
     """
     offset: Int
 
-    """The method to use when ordering `Actor`."""
-    orderBy: [ActorsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): ActorsConnection
+    """The method to use when ordering `BroadcastEvent`."""
+    orderBy: [BroadcastEventsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): BroadcastEventsConnection!
+
+  """Reads and enables pagination through a set of `ContentGrouping`."""
+  contentGroupingsByContentItemPublicationServiceUidAndPrimaryGroupingUid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ContentGroupingCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ContentGroupingFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `ContentGrouping`."""
+    orderBy: [ContentGroupingsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PublicationServiceContentGroupingsByContentItemPublicationServiceUidAndPrimaryGroupingUidManyToManyConnection!
+
+  """Reads and enables pagination through a set of `ContentItem`."""
+  contentItems(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ContentItemCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ContentItemFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `ContentItem`."""
+    orderBy: [ContentItemsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ContentItemsConnection!
+
+  """Reads and enables pagination through a set of `ContentItem`."""
+  contentItemsByBroadcastEventBroadcastServiceUidAndContentItemUid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ContentItemCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ContentItemFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `ContentItem`."""
+    orderBy: [ContentItemsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PublicationServiceContentItemsByBroadcastEventBroadcastServiceUidAndContentItemUidManyToManyConnection!
+
+  """Reads and enables pagination through a set of `License`."""
+  licensesByContentItemPublicationServiceUidAndLicenseUid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: LicenseCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: LicenseFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `License`."""
+    orderBy: [LicensesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PublicationServiceLicensesByContentItemPublicationServiceUidAndLicenseUidManyToManyConnection!
+  medium: String
+  name: String!
+
+  """
+  Reads a single `Contributor` that is related to this `PublicationService`.
+  """
+  publisher: Contributor
+  publisherUid: String
+
+  """
+  Reads a single `Revision` that is related to this `PublicationService`.
+  """
+  revision: Revision
+  revisionId: String!
+  uid: String!
+}
+
+"""
+A condition to be used against `PublicationService` object types. All fields are
+tested for equality and combined with a logical ‘and.’
+"""
+input PublicationServiceCondition {
+  """Checks for equality with the object’s `address` field."""
+  address: String
+
+  """Checks for equality with the object’s `medium` field."""
+  medium: String
+
+  """Checks for equality with the object’s `name` field."""
+  name: String
+
+  """Checks for equality with the object’s `publisherUid` field."""
+  publisherUid: String
+
+  """Checks for equality with the object’s `revisionId` field."""
+  revisionId: String
+
+  """Checks for equality with the object’s `uid` field."""
+  uid: String
+}
+
+"""
+A connection to a list of `ContentGrouping` values, with data from `ContentItem`.
+"""
+type PublicationServiceContentGroupingsByContentItemPublicationServiceUidAndPrimaryGroupingUidManyToManyConnection {
+  """
+  A list of edges which contains the `ContentGrouping`, info from the `ContentItem`, and the cursor to aid in pagination.
+  """
+  edges: [PublicationServiceContentGroupingsByContentItemPublicationServiceUidAndPrimaryGroupingUidManyToManyEdge!]!
+
+  """A list of `ContentGrouping` objects."""
+  nodes: [ContentGrouping!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `ContentGrouping` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""
+A `ContentGrouping` edge in the connection, with data from `ContentItem`.
+"""
+type PublicationServiceContentGroupingsByContentItemPublicationServiceUidAndPrimaryGroupingUidManyToManyEdge {
+  """Reads and enables pagination through a set of `ContentItem`."""
+  contentItemsByPrimaryGrouping(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ContentItemCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ContentItemFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `ContentItem`."""
+    orderBy: [ContentItemsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ContentItemsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `ContentGrouping` at the end of the edge."""
+  node: ContentGrouping!
+}
+
+"""
+A connection to a list of `ContentItem` values, with data from `BroadcastEvent`.
+"""
+type PublicationServiceContentItemsByBroadcastEventBroadcastServiceUidAndContentItemUidManyToManyConnection {
+  """
+  A list of edges which contains the `ContentItem`, info from the `BroadcastEvent`, and the cursor to aid in pagination.
+  """
+  edges: [PublicationServiceContentItemsByBroadcastEventBroadcastServiceUidAndContentItemUidManyToManyEdge!]!
+
+  """A list of `ContentItem` objects."""
+  nodes: [ContentItem!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `ContentItem` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""
+A `ContentItem` edge in the connection, with data from `BroadcastEvent`.
+"""
+type PublicationServiceContentItemsByBroadcastEventBroadcastServiceUidAndContentItemUidManyToManyEdge {
+  """Reads and enables pagination through a set of `BroadcastEvent`."""
+  broadcastEvents(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: BroadcastEventCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: BroadcastEventFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `BroadcastEvent`."""
+    orderBy: [BroadcastEventsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): BroadcastEventsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `ContentItem` at the end of the edge."""
+  node: ContentItem!
+}
+
+"""
+A filter to be used against `PublicationService` object types. All fields are combined with a logical ‘and.’
+"""
+input PublicationServiceFilter {
+  """Filter by the object’s `address` field."""
+  address: StringFilter
+
+  """Checks for all expressions in this list."""
+  and: [PublicationServiceFilter!]
+
+  """Filter by the object’s `broadcastEventsByBroadcastService` relation."""
+  broadcastEventsByBroadcastService: PublicationServiceToManyBroadcastEventFilter
+
+  """Some related `broadcastEventsByBroadcastService` exist."""
+  broadcastEventsByBroadcastServiceExist: Boolean
+
+  """Filter by the object’s `contentItems` relation."""
+  contentItems: PublicationServiceToManyContentItemFilter
+
+  """Some related `contentItems` exist."""
+  contentItemsExist: Boolean
+
+  """Filter by the object’s `medium` field."""
+  medium: StringFilter
+
+  """Filter by the object’s `name` field."""
+  name: StringFilter
+
+  """Negates the expression."""
+  not: PublicationServiceFilter
+
+  """Checks for any expressions in this list."""
+  or: [PublicationServiceFilter!]
+
+  """Filter by the object’s `publisher` relation."""
+  publisher: ContributorFilter
+
+  """A related `publisher` exists."""
+  publisherExists: Boolean
+
+  """Filter by the object’s `publisherUid` field."""
+  publisherUid: StringFilter
+
+  """Filter by the object’s `revision` relation."""
+  revision: RevisionFilter
+
+  """Filter by the object’s `revisionId` field."""
+  revisionId: StringFilter
+
+  """Filter by the object’s `uid` field."""
+  uid: StringFilter
+}
+
+"""
+A connection to a list of `License` values, with data from `ContentItem`.
+"""
+type PublicationServiceLicensesByContentItemPublicationServiceUidAndLicenseUidManyToManyConnection {
+  """
+  A list of edges which contains the `License`, info from the `ContentItem`, and the cursor to aid in pagination.
+  """
+  edges: [PublicationServiceLicensesByContentItemPublicationServiceUidAndLicenseUidManyToManyEdge!]!
+
+  """A list of `License` objects."""
+  nodes: [License!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `License` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `License` edge in the connection, with data from `ContentItem`."""
+type PublicationServiceLicensesByContentItemPublicationServiceUidAndLicenseUidManyToManyEdge {
+  """Reads and enables pagination through a set of `ContentItem`."""
+  contentItems(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ContentItemCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ContentItemFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `ContentItem`."""
+    orderBy: [ContentItemsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ContentItemsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `License` at the end of the edge."""
+  node: License!
+}
+
+"""
+A filter to be used against many `BroadcastEvent` object types. All fields are combined with a logical ‘and.’
+"""
+input PublicationServiceToManyBroadcastEventFilter {
+  """
+  Every related `BroadcastEvent` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: BroadcastEventFilter
+
+  """
+  No related `BroadcastEvent` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: BroadcastEventFilter
+
+  """
+  Some related `BroadcastEvent` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: BroadcastEventFilter
+}
+
+"""
+A filter to be used against many `ContentItem` object types. All fields are combined with a logical ‘and.’
+"""
+input PublicationServiceToManyContentItemFilter {
+  """
+  Every related `ContentItem` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: ContentItemFilter
+
+  """
+  No related `ContentItem` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: ContentItemFilter
+
+  """
+  Some related `ContentItem` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: ContentItemFilter
+}
+
+"""A connection to a list of `PublicationService` values."""
+type PublicationServicesConnection {
+  """
+  A list of edges which contains the `PublicationService` and cursor to aid in pagination.
+  """
+  edges: [PublicationServicesEdge!]!
+
+  """A list of `PublicationService` objects."""
+  nodes: [PublicationService!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `PublicationService` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""A `PublicationService` edge in the connection."""
+type PublicationServicesEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `PublicationService` at the end of the edge."""
+  node: PublicationService!
+}
+
+"""Methods to use when ordering `PublicationService`."""
+enum PublicationServicesOrderBy {
+  ADDRESS_ASC
+  ADDRESS_DESC
+  MEDIUM_ASC
+  MEDIUM_DESC
+  NAME_ASC
+  NAME_DESC
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  PUBLISHER_UID_ASC
+  PUBLISHER_UID_DESC
+  REVISION_ID_ASC
+  REVISION_ID_DESC
+  UID_ASC
+  UID_DESC
+}
+
+"""The root query type which gives access points into the data universe."""
+type Query {
   agent(did: String!): Agent
 
   """Reads and enables pagination through a set of `Agent`."""
@@ -6686,41 +7503,6 @@ type Query {
     """The method to use when ordering `BroadcastEvent`."""
     orderBy: [BroadcastEventsOrderBy!] = [PRIMARY_KEY_ASC]
   ): BroadcastEventsConnection
-  broadcastService(uid: String!): BroadcastService
-
-  """Reads and enables pagination through a set of `BroadcastService`."""
-  broadcastServices(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: BroadcastServiceCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: BroadcastServiceFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `BroadcastService`."""
-    orderBy: [BroadcastServicesOrderBy!] = [PRIMARY_KEY_ASC]
-  ): BroadcastServicesConnection
   chapter(uid: String!): Chapter
 
   """Reads and enables pagination through a set of `Chapter`."""
@@ -6931,6 +7713,41 @@ type Query {
     """The method to use when ordering `Contribution`."""
     orderBy: [ContributionsOrderBy!] = [PRIMARY_KEY_ASC]
   ): ContributionsConnection
+  contributor(uid: String!): Contributor
+
+  """Reads and enables pagination through a set of `Contributor`."""
+  contributors(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ContributorCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ContributorFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Contributor`."""
+    orderBy: [ContributorsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ContributorsConnection
   dataSource(uid: String!): DataSource
 
   """Reads and enables pagination through a set of `DataSource`."""
@@ -7210,6 +8027,41 @@ type Query {
     """The method to use when ordering `Metadatum`."""
     orderBy: [MetadataOrderBy!] = [NATURAL]
   ): MetadataConnection
+  publicationService(uid: String!): PublicationService
+
+  """Reads and enables pagination through a set of `PublicationService`."""
+  publicationServices(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PublicationServiceCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PublicationServiceFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PublicationService`."""
+    orderBy: [PublicationServicesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PublicationServicesConnection
 
   """
   Exposes the root query type nested one level down. This is helpful for Relay 1
@@ -7356,6 +8208,41 @@ type Query {
     """The method to use when ordering `Transcript`."""
     orderBy: [TranscriptsOrderBy!] = [PRIMARY_KEY_ASC]
   ): TranscriptsConnection
+  translation(uid: String!): Translation
+
+  """Reads and enables pagination through a set of `Translation`."""
+  translations(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: TranslationCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: TranslationFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Translation`."""
+    orderBy: [TranslationsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): TranslationsConnection
   ucan(cid: String!): Ucan
 
   """Reads and enables pagination through a set of `Ucan`."""
@@ -7836,74 +8723,6 @@ enum ReposOrderBy {
 }
 
 type Revision {
-  """Reads and enables pagination through a set of `Actor`."""
-  actors(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: ActorCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: ActorFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `Actor`."""
-    orderBy: [ActorsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): ActorsConnection!
-
-  """Reads and enables pagination through a set of `Actor`."""
-  actorsByBroadcastServiceRevisionIdAndPublisherUid(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: ActorCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: ActorFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `Actor`."""
-    orderBy: [ActorsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): RevisionActorsByBroadcastServiceRevisionIdAndPublisherUidManyToManyConnection!
-
   """Reads a single `Agent` that is related to this `Revision`."""
   agentByAgentDid: Agent
   agentDid: String!
@@ -7941,74 +8760,6 @@ type Revision {
     """The method to use when ordering `BroadcastEvent`."""
     orderBy: [BroadcastEventsOrderBy!] = [PRIMARY_KEY_ASC]
   ): BroadcastEventsConnection!
-
-  """Reads and enables pagination through a set of `BroadcastService`."""
-  broadcastServices(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: BroadcastServiceCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: BroadcastServiceFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `BroadcastService`."""
-    orderBy: [BroadcastServicesOrderBy!] = [PRIMARY_KEY_ASC]
-  ): BroadcastServicesConnection!
-
-  """Reads and enables pagination through a set of `BroadcastService`."""
-  broadcastServicesByBroadcastEventRevisionIdAndBroadcastServiceUid(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: BroadcastServiceCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: BroadcastServiceFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `BroadcastService`."""
-    orderBy: [BroadcastServicesOrderBy!] = [PRIMARY_KEY_ASC]
-  ): RevisionBroadcastServicesByBroadcastEventRevisionIdAndBroadcastServiceUidManyToManyConnection!
 
   """Reads and enables pagination through a set of `Chapter`."""
   chapters(
@@ -8111,6 +8862,40 @@ type Revision {
     """The method to use when ordering `Concept`."""
     orderBy: [ConceptsOrderBy!] = [PRIMARY_KEY_ASC]
   ): ConceptsConnection!
+
+  """Reads and enables pagination through a set of `Concept`."""
+  conceptsByConceptRevisionIdAndParentUid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ConceptCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ConceptFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Concept`."""
+    orderBy: [ConceptsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): RevisionConceptsByConceptRevisionIdAndParentUidManyToManyConnection!
 
   """Reads and enables pagination through a set of `Concept`."""
   conceptsByConceptRevisionIdAndSameAsUid(
@@ -8316,6 +9101,74 @@ type Revision {
     """The method to use when ordering `Contribution`."""
     orderBy: [ContributionsOrderBy!] = [PRIMARY_KEY_ASC]
   ): ContributionsConnection!
+
+  """Reads and enables pagination through a set of `Contributor`."""
+  contributors(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ContributorCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ContributorFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Contributor`."""
+    orderBy: [ContributorsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ContributorsConnection!
+
+  """Reads and enables pagination through a set of `Contributor`."""
+  contributorsByPublicationServiceRevisionIdAndPublisherUid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ContributorCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ContributorFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Contributor`."""
+    orderBy: [ContributorsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): RevisionContributorsByPublicationServiceRevisionIdAndPublisherUidManyToManyConnection!
   dateCreated: Datetime!
   dateModified: Datetime!
 
@@ -8428,7 +9281,7 @@ type Revision {
   ): FilesConnection!
 
   """Reads and enables pagination through a set of `File`."""
-  filesByActorRevisionIdAndProfilePictureUid(
+  filesByContributorRevisionIdAndProfilePictureUid(
     """Read all values in the set after (below) this cursor."""
     after: Cursor
 
@@ -8459,7 +9312,7 @@ type Revision {
 
     """The method to use when ordering `File`."""
     orderBy: [FilesOrderBy!] = [PRIMARY_KEY_ASC]
-  ): RevisionFilesByActorRevisionIdAndProfilePictureUidManyToManyConnection!
+  ): RevisionFilesByContributorRevisionIdAndProfilePictureUidManyToManyConnection!
 
   """Reads and enables pagination through a set of `File`."""
   filesByMediaAssetRevisionIdAndFileUid(
@@ -8773,6 +9626,108 @@ type Revision {
   prevRevision: Revision
   prevRevisionId: String
 
+  """Reads and enables pagination through a set of `PublicationService`."""
+  publicationServices(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PublicationServiceCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PublicationServiceFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PublicationService`."""
+    orderBy: [PublicationServicesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PublicationServicesConnection!
+
+  """Reads and enables pagination through a set of `PublicationService`."""
+  publicationServicesByBroadcastEventRevisionIdAndBroadcastServiceUid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PublicationServiceCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PublicationServiceFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PublicationService`."""
+    orderBy: [PublicationServicesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): RevisionPublicationServicesByBroadcastEventRevisionIdAndBroadcastServiceUidManyToManyConnection!
+
+  """Reads and enables pagination through a set of `PublicationService`."""
+  publicationServicesByContentItemRevisionIdAndPublicationServiceUid(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PublicationServiceCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PublicationServiceFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PublicationService`."""
+    orderBy: [PublicationServicesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): RevisionPublicationServicesByContentItemRevisionIdAndPublicationServiceUidManyToManyConnection!
+
   """Reads a single `Repo` that is related to this `Revision`."""
   repoByRepoDid: Repo
   repoDid: String!
@@ -8813,134 +9768,6 @@ type Revision {
     orderBy: [RevisionsOrderBy!] = [PRIMARY_KEY_ASC]
   ): RevisionsConnection!
   uid: String!
-}
-
-"""
-A connection to a list of `Actor` values, with data from `BroadcastService`.
-"""
-type RevisionActorsByBroadcastServiceRevisionIdAndPublisherUidManyToManyConnection {
-  """
-  A list of edges which contains the `Actor`, info from the `BroadcastService`, and the cursor to aid in pagination.
-  """
-  edges: [RevisionActorsByBroadcastServiceRevisionIdAndPublisherUidManyToManyEdge!]!
-
-  """A list of `Actor` objects."""
-  nodes: [Actor!]!
-
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """The count of *all* `Actor` you could get from the connection."""
-  totalCount: Int!
-}
-
-"""A `Actor` edge in the connection, with data from `BroadcastService`."""
-type RevisionActorsByBroadcastServiceRevisionIdAndPublisherUidManyToManyEdge {
-  """Reads and enables pagination through a set of `BroadcastService`."""
-  broadcastServicesByPublisher(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: BroadcastServiceCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: BroadcastServiceFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `BroadcastService`."""
-    orderBy: [BroadcastServicesOrderBy!] = [PRIMARY_KEY_ASC]
-  ): BroadcastServicesConnection!
-
-  """A cursor for use in pagination."""
-  cursor: Cursor
-
-  """The `Actor` at the end of the edge."""
-  node: Actor!
-}
-
-"""
-A connection to a list of `BroadcastService` values, with data from `BroadcastEvent`.
-"""
-type RevisionBroadcastServicesByBroadcastEventRevisionIdAndBroadcastServiceUidManyToManyConnection {
-  """
-  A list of edges which contains the `BroadcastService`, info from the `BroadcastEvent`, and the cursor to aid in pagination.
-  """
-  edges: [RevisionBroadcastServicesByBroadcastEventRevisionIdAndBroadcastServiceUidManyToManyEdge!]!
-
-  """A list of `BroadcastService` objects."""
-  nodes: [BroadcastService!]!
-
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """
-  The count of *all* `BroadcastService` you could get from the connection.
-  """
-  totalCount: Int!
-}
-
-"""
-A `BroadcastService` edge in the connection, with data from `BroadcastEvent`.
-"""
-type RevisionBroadcastServicesByBroadcastEventRevisionIdAndBroadcastServiceUidManyToManyEdge {
-  """Reads and enables pagination through a set of `BroadcastEvent`."""
-  broadcastEvents(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: BroadcastEventCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: BroadcastEventFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `BroadcastEvent`."""
-    orderBy: [BroadcastEventsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): BroadcastEventsConnection!
-
-  """A cursor for use in pagination."""
-  cursor: Cursor
-
-  """The `BroadcastService` at the end of the edge."""
-  node: BroadcastService!
 }
 
 """
@@ -9003,6 +9830,66 @@ type RevisionCommitsByRevisionToCommitBAndAManyToManyEdge {
 
   """The `Commit` at the end of the edge."""
   node: Commit!
+}
+
+"""A connection to a list of `Concept` values, with data from `Concept`."""
+type RevisionConceptsByConceptRevisionIdAndParentUidManyToManyConnection {
+  """
+  A list of edges which contains the `Concept`, info from the `Concept`, and the cursor to aid in pagination.
+  """
+  edges: [RevisionConceptsByConceptRevisionIdAndParentUidManyToManyEdge!]!
+
+  """A list of `Concept` objects."""
+  nodes: [Concept!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Concept` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Concept` edge in the connection, with data from `Concept`."""
+type RevisionConceptsByConceptRevisionIdAndParentUidManyToManyEdge {
+  """Reads and enables pagination through a set of `Concept`."""
+  childConcepts(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ConceptCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ConceptFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Concept`."""
+    orderBy: [ConceptsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ConceptsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Concept` at the end of the edge."""
+  node: Concept!
 }
 
 """A connection to a list of `Concept` values, with data from `Concept`."""
@@ -9243,6 +10130,70 @@ type RevisionContentItemsByBroadcastEventRevisionIdAndContentItemUidManyToManyEd
   node: ContentItem!
 }
 
+"""
+A connection to a list of `Contributor` values, with data from `PublicationService`.
+"""
+type RevisionContributorsByPublicationServiceRevisionIdAndPublisherUidManyToManyConnection {
+  """
+  A list of edges which contains the `Contributor`, info from the `PublicationService`, and the cursor to aid in pagination.
+  """
+  edges: [RevisionContributorsByPublicationServiceRevisionIdAndPublisherUidManyToManyEdge!]!
+
+  """A list of `Contributor` objects."""
+  nodes: [Contributor!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Contributor` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""
+A `Contributor` edge in the connection, with data from `PublicationService`.
+"""
+type RevisionContributorsByPublicationServiceRevisionIdAndPublisherUidManyToManyEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Contributor` at the end of the edge."""
+  node: Contributor!
+
+  """Reads and enables pagination through a set of `PublicationService`."""
+  publicationServicesByPublisher(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: PublicationServiceCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: PublicationServiceFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `PublicationService`."""
+    orderBy: [PublicationServicesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): PublicationServicesConnection!
+}
+
 """A connection to a list of `Entity` values, with data from `Metadatum`."""
 type RevisionEntitiesByMetadatumRevisionIdAndTargetUidManyToManyConnection {
   """
@@ -9303,12 +10254,12 @@ type RevisionEntitiesByMetadatumRevisionIdAndTargetUidManyToManyEdge {
   node: Entity!
 }
 
-"""A connection to a list of `File` values, with data from `Actor`."""
-type RevisionFilesByActorRevisionIdAndProfilePictureUidManyToManyConnection {
+"""A connection to a list of `File` values, with data from `Contributor`."""
+type RevisionFilesByContributorRevisionIdAndProfilePictureUidManyToManyConnection {
   """
-  A list of edges which contains the `File`, info from the `Actor`, and the cursor to aid in pagination.
+  A list of edges which contains the `File`, info from the `Contributor`, and the cursor to aid in pagination.
   """
-  edges: [RevisionFilesByActorRevisionIdAndProfilePictureUidManyToManyEdge!]!
+  edges: [RevisionFilesByContributorRevisionIdAndProfilePictureUidManyToManyEdge!]!
 
   """A list of `File` objects."""
   nodes: [File!]!
@@ -9320,10 +10271,10 @@ type RevisionFilesByActorRevisionIdAndProfilePictureUidManyToManyConnection {
   totalCount: Int!
 }
 
-"""A `File` edge in the connection, with data from `Actor`."""
-type RevisionFilesByActorRevisionIdAndProfilePictureUidManyToManyEdge {
-  """Reads and enables pagination through a set of `Actor`."""
-  actorsByProfilePicture(
+"""A `File` edge in the connection, with data from `Contributor`."""
+type RevisionFilesByContributorRevisionIdAndProfilePictureUidManyToManyEdge {
+  """Reads and enables pagination through a set of `Contributor`."""
+  contributorsByProfilePicture(
     """Read all values in the set after (below) this cursor."""
     after: Cursor
 
@@ -9333,12 +10284,12 @@ type RevisionFilesByActorRevisionIdAndProfilePictureUidManyToManyEdge {
     """
     A condition to be used in determining which values should be returned by the collection.
     """
-    condition: ActorCondition
+    condition: ContributorCondition
 
     """
     A filter to be used in determining which values should be returned by the collection.
     """
-    filter: ActorFilter
+    filter: ContributorFilter
 
     """Only read the first `n` values of the set."""
     first: Int
@@ -9352,9 +10303,9 @@ type RevisionFilesByActorRevisionIdAndProfilePictureUidManyToManyEdge {
     """
     offset: Int
 
-    """The method to use when ordering `Actor`."""
-    orderBy: [ActorsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): ActorsConnection!
+    """The method to use when ordering `Contributor`."""
+    orderBy: [ContributorsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ContributorsConnection!
 
   """A cursor for use in pagination."""
   cursor: Cursor
@@ -9487,12 +10438,6 @@ type RevisionFilesByMediaAssetRevisionIdAndTeaserImageUidManyToManyEdge {
 A filter to be used against `Revision` object types. All fields are combined with a logical ‘and.’
 """
 input RevisionFilter {
-  """Filter by the object’s `actors` relation."""
-  actors: RevisionToManyActorFilter
-
-  """Some related `actors` exist."""
-  actorsExist: Boolean
-
   """Filter by the object’s `agentByAgentDid` relation."""
   agentByAgentDid: AgentFilter
 
@@ -9507,12 +10452,6 @@ input RevisionFilter {
 
   """Some related `broadcastEvents` exist."""
   broadcastEventsExist: Boolean
-
-  """Filter by the object’s `broadcastServices` relation."""
-  broadcastServices: RevisionToManyBroadcastServiceFilter
-
-  """Some related `broadcastServices` exist."""
-  broadcastServicesExist: Boolean
 
   """Filter by the object’s `chapters` relation."""
   chapters: RevisionToManyChapterFilter
@@ -9546,6 +10485,12 @@ input RevisionFilter {
 
   """Some related `contributions` exist."""
   contributionsExist: Boolean
+
+  """Filter by the object’s `contributors` relation."""
+  contributors: RevisionToManyContributorFilter
+
+  """Some related `contributors` exist."""
+  contributorsExist: Boolean
 
   """Filter by the object’s `dateCreated` field."""
   dateCreated: DatetimeFilter
@@ -9618,6 +10563,12 @@ input RevisionFilter {
 
   """Filter by the object’s `prevRevisionId` field."""
   prevRevisionId: StringFilter
+
+  """Filter by the object’s `publicationServices` relation."""
+  publicationServices: RevisionToManyPublicationServiceFilter
+
+  """Some related `publicationServices` exist."""
+  publicationServicesExist: Boolean
 
   """Filter by the object’s `repoByRepoDid` relation."""
   repoByRepoDid: RepoFilter
@@ -9890,23 +10841,135 @@ type RevisionMediaAssetsByChapterRevisionIdAndMediaAssetUidManyToManyEdge {
 }
 
 """
-A filter to be used against many `Actor` object types. All fields are combined with a logical ‘and.’
+A connection to a list of `PublicationService` values, with data from `BroadcastEvent`.
 """
-input RevisionToManyActorFilter {
+type RevisionPublicationServicesByBroadcastEventRevisionIdAndBroadcastServiceUidManyToManyConnection {
   """
-  Every related `Actor` matches the filter criteria. All fields are combined with a logical ‘and.’
+  A list of edges which contains the `PublicationService`, info from the `BroadcastEvent`, and the cursor to aid in pagination.
   """
-  every: ActorFilter
+  edges: [RevisionPublicationServicesByBroadcastEventRevisionIdAndBroadcastServiceUidManyToManyEdge!]!
+
+  """A list of `PublicationService` objects."""
+  nodes: [PublicationService!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
 
   """
-  No related `Actor` matches the filter criteria. All fields are combined with a logical ‘and.’
+  The count of *all* `PublicationService` you could get from the connection.
   """
-  none: ActorFilter
+  totalCount: Int!
+}
+
+"""
+A `PublicationService` edge in the connection, with data from `BroadcastEvent`.
+"""
+type RevisionPublicationServicesByBroadcastEventRevisionIdAndBroadcastServiceUidManyToManyEdge {
+  """Reads and enables pagination through a set of `BroadcastEvent`."""
+  broadcastEventsByBroadcastService(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: BroadcastEventCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: BroadcastEventFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `BroadcastEvent`."""
+    orderBy: [BroadcastEventsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): BroadcastEventsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `PublicationService` at the end of the edge."""
+  node: PublicationService!
+}
+
+"""
+A connection to a list of `PublicationService` values, with data from `ContentItem`.
+"""
+type RevisionPublicationServicesByContentItemRevisionIdAndPublicationServiceUidManyToManyConnection {
+  """
+  A list of edges which contains the `PublicationService`, info from the `ContentItem`, and the cursor to aid in pagination.
+  """
+  edges: [RevisionPublicationServicesByContentItemRevisionIdAndPublicationServiceUidManyToManyEdge!]!
+
+  """A list of `PublicationService` objects."""
+  nodes: [PublicationService!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
 
   """
-  Some related `Actor` matches the filter criteria. All fields are combined with a logical ‘and.’
+  The count of *all* `PublicationService` you could get from the connection.
   """
-  some: ActorFilter
+  totalCount: Int!
+}
+
+"""
+A `PublicationService` edge in the connection, with data from `ContentItem`.
+"""
+type RevisionPublicationServicesByContentItemRevisionIdAndPublicationServiceUidManyToManyEdge {
+  """Reads and enables pagination through a set of `ContentItem`."""
+  contentItems(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: ContentItemCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: ContentItemFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `ContentItem`."""
+    orderBy: [ContentItemsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): ContentItemsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `PublicationService` at the end of the edge."""
+  node: PublicationService!
 }
 
 """
@@ -9927,26 +10990,6 @@ input RevisionToManyBroadcastEventFilter {
   Some related `BroadcastEvent` matches the filter criteria. All fields are combined with a logical ‘and.’
   """
   some: BroadcastEventFilter
-}
-
-"""
-A filter to be used against many `BroadcastService` object types. All fields are combined with a logical ‘and.’
-"""
-input RevisionToManyBroadcastServiceFilter {
-  """
-  Every related `BroadcastService` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  every: BroadcastServiceFilter
-
-  """
-  No related `BroadcastService` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  none: BroadcastServiceFilter
-
-  """
-  Some related `BroadcastService` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  some: BroadcastServiceFilter
 }
 
 """
@@ -10050,6 +11093,26 @@ input RevisionToManyContributionFilter {
 }
 
 """
+A filter to be used against many `Contributor` object types. All fields are combined with a logical ‘and.’
+"""
+input RevisionToManyContributorFilter {
+  """
+  Every related `Contributor` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: ContributorFilter
+
+  """
+  No related `Contributor` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: ContributorFilter
+
+  """
+  Some related `Contributor` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: ContributorFilter
+}
+
+"""
 A filter to be used against many `Entity` object types. All fields are combined with a logical ‘and.’
 """
 input RevisionToManyEntityFilter {
@@ -10147,6 +11210,26 @@ input RevisionToManyMetadatumFilter {
   Some related `Metadatum` matches the filter criteria. All fields are combined with a logical ‘and.’
   """
   some: MetadatumFilter
+}
+
+"""
+A filter to be used against many `PublicationService` object types. All fields are combined with a logical ‘and.’
+"""
+input RevisionToManyPublicationServiceFilter {
+  """
+  Every related `PublicationService` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: PublicationServiceFilter
+
+  """
+  No related `PublicationService` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: PublicationServiceFilter
+
+  """
+  Some related `PublicationService` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: PublicationServiceFilter
 }
 
 """
@@ -10738,6 +11821,113 @@ enum TranscriptsOrderBy {
   UID_DESC
 }
 
+type Translation {
+  engine: String!
+  language: String!
+
+  """Reads a single `MediaAsset` that is related to this `Translation`."""
+  mediaAsset: MediaAsset
+  mediaAssetUid: String!
+  text: String!
+  uid: String!
+}
+
+"""
+A condition to be used against `Translation` object types. All fields are tested
+for equality and combined with a logical ‘and.’
+"""
+input TranslationCondition {
+  """Checks for equality with the object’s `engine` field."""
+  engine: String
+
+  """Checks for equality with the object’s `language` field."""
+  language: String
+
+  """Checks for equality with the object’s `mediaAssetUid` field."""
+  mediaAssetUid: String
+
+  """Checks for equality with the object’s `text` field."""
+  text: String
+
+  """Checks for equality with the object’s `uid` field."""
+  uid: String
+}
+
+"""
+A filter to be used against `Translation` object types. All fields are combined with a logical ‘and.’
+"""
+input TranslationFilter {
+  """Checks for all expressions in this list."""
+  and: [TranslationFilter!]
+
+  """Filter by the object’s `engine` field."""
+  engine: StringFilter
+
+  """Filter by the object’s `language` field."""
+  language: StringFilter
+
+  """Filter by the object’s `mediaAsset` relation."""
+  mediaAsset: MediaAssetFilter
+
+  """Filter by the object’s `mediaAssetUid` field."""
+  mediaAssetUid: StringFilter
+
+  """Negates the expression."""
+  not: TranslationFilter
+
+  """Checks for any expressions in this list."""
+  or: [TranslationFilter!]
+
+  """Filter by the object’s `text` field."""
+  text: StringFilter
+
+  """Filter by the object’s `uid` field."""
+  uid: StringFilter
+}
+
+"""A connection to a list of `Translation` values."""
+type TranslationsConnection {
+  """
+  A list of edges which contains the `Translation` and cursor to aid in pagination.
+  """
+  edges: [TranslationsEdge!]!
+
+  """A list of `Translation` objects."""
+  nodes: [Translation!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `Translation` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `Translation` edge in the connection."""
+type TranslationsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `Translation` at the end of the edge."""
+  node: Translation!
+}
+
+"""Methods to use when ordering `Translation`."""
+enum TranslationsOrderBy {
+  ENGINE_ASC
+  ENGINE_DESC
+  LANGUAGE_ASC
+  LANGUAGE_DESC
+  MEDIA_ASSET_UID_ASC
+  MEDIA_ASSET_UID_DESC
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  TEXT_ASC
+  TEXT_DESC
+  UID_ASC
+  UID_DESC
+}
+
 type Ucan {
   audience: String!
   cid: String!
@@ -10914,94 +12104,6 @@ enum UsersOrderBy {
   NATURAL
   PRIMARY_KEY_ASC
   PRIMARY_KEY_DESC
-}
-
-type _ActorToContribution {
-  a: String!
-
-  """Reads a single `Actor` that is related to this `_ActorToContribution`."""
-  actorByA: Actor
-  b: String!
-
-  """
-  Reads a single `Contribution` that is related to this `_ActorToContribution`.
-  """
-  contributionByB: Contribution
-}
-
-"""
-A condition to be used against `_ActorToContribution` object types. All fields
-are tested for equality and combined with a logical ‘and.’
-"""
-input _ActorToContributionCondition {
-  """Checks for equality with the object’s `a` field."""
-  a: String
-
-  """Checks for equality with the object’s `b` field."""
-  b: String
-}
-
-"""
-A filter to be used against `_ActorToContribution` object types. All fields are combined with a logical ‘and.’
-"""
-input _ActorToContributionFilter {
-  """Filter by the object’s `a` field."""
-  a: StringFilter
-
-  """Filter by the object’s `actorByA` relation."""
-  actorByA: ActorFilter
-
-  """Checks for all expressions in this list."""
-  and: [_ActorToContributionFilter!]
-
-  """Filter by the object’s `b` field."""
-  b: StringFilter
-
-  """Filter by the object’s `contributionByB` relation."""
-  contributionByB: ContributionFilter
-
-  """Negates the expression."""
-  not: _ActorToContributionFilter
-
-  """Checks for any expressions in this list."""
-  or: [_ActorToContributionFilter!]
-}
-
-"""A connection to a list of `_ActorToContribution` values."""
-type _ActorToContributionsConnection {
-  """
-  A list of edges which contains the `_ActorToContribution` and cursor to aid in pagination.
-  """
-  edges: [_ActorToContributionsEdge!]!
-
-  """A list of `_ActorToContribution` objects."""
-  nodes: [_ActorToContribution!]!
-
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """
-  The count of *all* `_ActorToContribution` you could get from the connection.
-  """
-  totalCount: Int!
-}
-
-"""A `_ActorToContribution` edge in the connection."""
-type _ActorToContributionsEdge {
-  """A cursor for use in pagination."""
-  cursor: Cursor
-
-  """The `_ActorToContribution` at the end of the edge."""
-  node: _ActorToContribution!
-}
-
-"""Methods to use when ordering `_ActorToContribution`."""
-enum _ActorToContributionsOrderBy {
-  A_ASC
-  A_DESC
-  B_ASC
-  B_DESC
-  NATURAL
 }
 
 type _ConceptToContentItem {
@@ -11447,6 +12549,96 @@ type _ContentItemToMediaAssetsEdge {
 
 """Methods to use when ordering `_ContentItemToMediaAsset`."""
 enum _ContentItemToMediaAssetsOrderBy {
+  A_ASC
+  A_DESC
+  B_ASC
+  B_DESC
+  NATURAL
+}
+
+type _ContributionToContributor {
+  a: String!
+  b: String!
+
+  """
+  Reads a single `Contribution` that is related to this `_ContributionToContributor`.
+  """
+  contributionByA: Contribution
+
+  """
+  Reads a single `Contributor` that is related to this `_ContributionToContributor`.
+  """
+  contributorByB: Contributor
+}
+
+"""
+A condition to be used against `_ContributionToContributor` object types. All
+fields are tested for equality and combined with a logical ‘and.’
+"""
+input _ContributionToContributorCondition {
+  """Checks for equality with the object’s `a` field."""
+  a: String
+
+  """Checks for equality with the object’s `b` field."""
+  b: String
+}
+
+"""
+A filter to be used against `_ContributionToContributor` object types. All fields are combined with a logical ‘and.’
+"""
+input _ContributionToContributorFilter {
+  """Filter by the object’s `a` field."""
+  a: StringFilter
+
+  """Checks for all expressions in this list."""
+  and: [_ContributionToContributorFilter!]
+
+  """Filter by the object’s `b` field."""
+  b: StringFilter
+
+  """Filter by the object’s `contributionByA` relation."""
+  contributionByA: ContributionFilter
+
+  """Filter by the object’s `contributorByB` relation."""
+  contributorByB: ContributorFilter
+
+  """Negates the expression."""
+  not: _ContributionToContributorFilter
+
+  """Checks for any expressions in this list."""
+  or: [_ContributionToContributorFilter!]
+}
+
+"""A connection to a list of `_ContributionToContributor` values."""
+type _ContributionToContributorsConnection {
+  """
+  A list of edges which contains the `_ContributionToContributor` and cursor to aid in pagination.
+  """
+  edges: [_ContributionToContributorsEdge!]!
+
+  """A list of `_ContributionToContributor` objects."""
+  nodes: [_ContributionToContributor!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `_ContributionToContributor` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""A `_ContributionToContributor` edge in the connection."""
+type _ContributionToContributorsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `_ContributionToContributor` at the end of the edge."""
+  node: _ContributionToContributor!
+}
+
+"""Methods to use when ordering `_ContributionToContributor`."""
+enum _ContributionToContributorsOrderBy {
   A_ASC
   A_DESC
   B_ASC
