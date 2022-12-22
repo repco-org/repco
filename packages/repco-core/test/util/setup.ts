@@ -1,5 +1,6 @@
 import 'source-map-support/register.js'
 import getPort from 'get-port'
+import p from 'path'
 import { Test } from 'brittle'
 import {
   ChildProcess,
@@ -7,22 +8,26 @@ import {
   SpawnOptions,
 } from 'node:child_process'
 import type { Prisma } from 'repco-prisma'
+import type { Readable } from 'stream'
+import { fileURLToPath } from 'url'
 import { PrismaClient } from '../../lib.js'
 
-const COMPOSE_FILE = '../../test/docker-compose.test.yml'
+const REPCO_ROOT = p.join(fileURLToPath(import.meta.url), '../../../../../..')
+const dockerPids: number[] = []
 
 type LogFn = (msg: string) => void
+const defaultLogFn = (...args: any[]) =>
+  console.log(
+    '# ',
+    ...args.map((x) => (typeof x === 'string' ? x.replace('\n', ' ') : x)),
+  )
 
-type SetupOpts = {
-  port?: number
-}
-export async function setup(test: Test, opts: SetupOpts = {}) {
-  const pgPort = opts.port || (await getPort())
-  const { teardown, databaseUrl } = await setupDb(pgPort, test.comment)
+export async function setup(test: Test) {
+  const { teardown, databaseUrl } = await setupDb(defaultLogFn)
   test.teardown(teardown, {})
   process.env.DATABASE_URL = databaseUrl
-  let log: Prisma.LogDefinition[] = []
-  if (process.env.QUERY_LOG) log = [{ emit: 'event', level: 'query' }]
+  const log: Prisma.LogDefinition[] = []
+  if (process.env.QUERY_LOG) log.push({ emit: 'event', level: 'query' })
   const prisma = new PrismaClient({
     log,
     datasources: {
@@ -39,62 +44,84 @@ export async function setup(test: Test, opts: SetupOpts = {}) {
 }
 
 export async function setup2(test: Test) {
-  const first = await setup(test)
-  const second = await setup(test)
-  return [first, second]
+  return [await setup(test), await setup(test)]
 }
 
-export async function setupDb(port: number, log: LogFn = console.log) {
-  const databaseUrl = `postgresql://test:test@localhost:${port}/tests`
-  if (process.env.DOCKER_SETUP === '0')
-    return { databaseUrl, teardown: () => {} }
-  const env = {
-    ...process.env,
-    POSTGRES_PORT: '' + port,
-    DATABASE_URL: `postgresql://test:test@localhost:${port}/tests`,
-  }
-  const verbose = !!process.env.VERBOSE
-  const name = 'repco-postgres-test-' + port
-  const composeArgs = ['compose', '--verbose', '-p', name, '-f', COMPOSE_FILE]
-  const spawnOpts = {
-    verbose,
-    log,
-    env,
-  }
+// Run a postgres container and import migrations.
+export async function setupDb(log: LogFn = console.log) {
+  const port = await getPort()
+  const name = 'repco-test-' + port
+  const env = [
+    'POSTGRES_USER=test',
+    'POSTGRES_PASSWORD=test',
+    'POSTGRES_DB=repco',
+  ]
+  // mount the prisma migrations into the container, plus a script for initdb that runs
+  // all migrations (in alphanumerical order)
+  const volumes = [
+    `${REPCO_ROOT}/packages/repco-prisma/prisma/migrations:/docker-entrypoint-initdb.d/migrations:ro`,
+    `${REPCO_ROOT}/docker/import-migrations.sh:/docker-entrypoint-initdb.d/import-migrations.sh:ro`,
+  ]
+  // set options to improve postgres performance (reliablity is not important here)
+  const config = ['fsync=off', 'full_page_writes=off']
+  // spawn the container
+  const container = spawn(
+    'docker',
+    [
+      'run',
+      '--rm',
+      '--name',
+      name,
+      '-p',
+      `127.0.0.1:${port}:5432`,
+      '--tmpfs',
+      '/var/lib/postgresql/data:rw',
+      ...volumes.flatMap((x) => ['-v', x]),
+      ...env.flatMap((x) => ['-e', x]),
+      'postgres:latest',
+      ...config.flatMap((x) => ['-c', x]),
+    ],
+    { log },
+  )
+  // store the PID for cleanup on exit
+  if (container.child.pid) dockerPids.push(container.child.pid)
+  // wait for the container to print a line that tells us that the server is listening
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const ready = waitForLines(container.child.stderr!, [
+    /database system is ready to accept connections/,
+  ])
+  // wait until the container dies or is ready to accept connections
+  await Promise.race([container, ready])
+
+  const databaseUrl = `postgresql://test:test@localhost:${port}/repco`
   const teardown = async () => {
+    await spawn('docker', ['stop', '-t', '0', name])
+  }
+  return { teardown, databaseUrl }
+}
+
+// ensure all containers are killed on shutdown
+process.on('exit', () => {
+  for (const pid of dockerPids) {
     try {
-      await spawn('docker', [...composeArgs, 'down'], {
-        ...spawnOpts,
-        // test.comment may not be used after the test ended, so resort to a direct log handler here.
-        log: (msg) => console.log('# ' + msg),
-      })
-    } catch (err) {
-      console.error(
-        'Failed to teardown docker container: ' + (err as Error).message,
-      )
-    }
+      process.kill(pid)
+    } catch (_err) {}
   }
-  try {
-    await spawn(
-      'docker',
-      [...composeArgs, 'up', '-d', '--remove-orphans'],
-      spawnOpts,
-    )
+})
 
-    // await spawn('docker', [...composeArgs, 'ps'], spawnOpts)
-    // await spawn('docker', [...composeArgs, 'logs'], spawnOpts)
-
-    await spawn(
-      'yarn',
-      ['prisma', 'migrate', 'reset', '-f', '--skip-generate'],
-      spawnOpts,
-    )
-  } catch (err) {
-    log('Database setup failed: ' + err)
-    await teardown()
-    throw err
-  }
-  return { teardown, databaseUrl: env.DATABASE_URL }
+async function waitForLines(stream: Readable, lines: RegExp[]) {
+  if (!lines.length) return
+  await new Promise<void>((resolve) => {
+    let cur = lines.shift()
+    stream.on('data', (buf) => {
+      for (const line of buf.toString().split('\n')) {
+        if (line.match(cur)) {
+          cur = lines.shift()
+          if (!cur) resolve()
+        }
+      }
+    })
+  })
 }
 
 function spawn(
@@ -102,6 +129,7 @@ function spawn(
   args: string[],
   opts: SpawnOptions & { log?: Test['comment']; verbose?: boolean } = {},
 ): Promise<void> & { child: ChildProcess } {
+  opts.verbose = opts.verbose || !!process.env.VERBOSE || false
   if (!opts.stdio) opts.stdio = 'pipe'
   const log = opts.log || ((msg: string) => console.error(`# ${msg}`))
   log(`spawn: ${command} ${args.map((x) => `${x}`).join(' ')}`)

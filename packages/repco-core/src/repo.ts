@@ -161,7 +161,9 @@ export class Repo {
       },
     })
     const repo = await Repo.open(prisma, did)
-    await repo.saveBatch('_me', [], { commitEmpty: true })
+    if (repo.writeable) {
+      await repo.saveBatch('_me', [], { commitEmpty: true })
+    }
     return repo
   }
 

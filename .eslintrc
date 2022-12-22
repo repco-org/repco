@@ -22,7 +22,7 @@
     "no-var": "warn",
     "prettier/prettier": "warn",
     "no-constant-condition": ["warn", { "checkLoops": false }],
-    "no-empty": ["warn"],
+    "no-empty": ["warn", { "allowEmptyCatch": true }],
     "@typescript-eslint/comma-dangle": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/ban-ts-comment": "off",
