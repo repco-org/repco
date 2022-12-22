@@ -24,7 +24,7 @@ const defaultLogFn = (...args: any[]) =>
 
 export async function setup(test: Test) {
   const { teardown, databaseUrl } = await setupDb(defaultLogFn)
-  test.teardown(teardown, {})
+  test.teardown(teardown, { order: 0 })
   process.env.DATABASE_URL = databaseUrl
   const log: Prisma.LogDefinition[] = []
   if (process.env.QUERY_LOG) log.push({ emit: 'event', level: 'query' })

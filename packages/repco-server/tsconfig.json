@@ -3,7 +3,8 @@
   "extends": "../../tsconfig.json",
   "include": [
     "*.ts",
-    "src/**/*"
+    "src/**/*",
+    "test/**/*"
   ],
   "compilerOptions": {
     "outDir": "./dist"
