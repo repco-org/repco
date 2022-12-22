@@ -391,8 +391,8 @@ export class Repo {
       if (!fullOpts.commitEmpty && !entities.length) return null
 
       // Create the actual commit as a single prisma transaction
-      return await this.$transaction((repo) => 
-        repo.saveBatchInner(entities, fullOpts)
+      return await this.$transaction((repo) =>
+        repo.saveBatchInner(entities, fullOpts),
       )
     } finally {
       release()
@@ -613,7 +613,7 @@ export class Repo {
 }
 
 export class IpldRepo {
-  constructor(public record: RepoRecord, public blockstore: IpldBlockStore) { }
+  constructor(public record: RepoRecord, public blockstore: IpldBlockStore) {}
   get did() {
     return this.record.did
   }
@@ -716,7 +716,7 @@ function setUid(
   input: repco.EntityInput,
   uid: string,
 ): asserts input is repco.EntityInputWithUid {
-  ; (input as any).uid = uid
+  ;(input as any).uid = uid
   input.content.uid = uid
 }
 
