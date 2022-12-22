@@ -16,6 +16,7 @@ export default function ItemsMenuWrapper() {
     createPlaylist,
     updatePlaylist,
     deletePlaylist,
+    error,
   ] = usePlaylists()
 
   return (
@@ -24,7 +25,12 @@ export default function ItemsMenuWrapper() {
         <div className="flex flex-col justify-between mt-6 ">
           <aside>
             <form className="inline">
-              <div className=" justify-center">
+              <div className=" justify-center space-y-2">
+                {error && (
+                  <div className="bg-red-500 align-middle flex justify-center text-white p-2">
+                    {error}
+                  </div>
+                )}
                 <InputWithIcon
                   name="createPlaylist"
                   id="createPlaylist"
@@ -49,6 +55,9 @@ export default function ItemsMenuWrapper() {
                   }}
                 >
                   save
+                </Button>
+                <Button name="createPlaylist" fullWidth disabled={true}>
+                  share playlist
                 </Button>
               </div>
             </form>

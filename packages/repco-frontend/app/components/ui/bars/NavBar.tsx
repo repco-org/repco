@@ -1,27 +1,28 @@
 import { NavLink } from 'react-router-dom'
 
 const active =
-  'bg-white inline-block border-l border-t border-r rounded-t py-2 px-4 font-semibold text-purple-500'
+  'inline-block py-2 px-4 font-semibold bg-white text-brand-secondary'
 const inactive =
-  'bg-white inline-block border-l border-t border-r rounded-t py-2 px-4 font-semibold text-blue-200'
+  'inline-block hover:opacity-100 opacity-60 py-2 px-4 font-semibold bg-brand-secondary'
 
 export function NavBar() {
+  const links = [
+    { label: 'home', to: '/' },
+    { label: 'items', to: '/items' },
+    { label: 'playlists', to: '/playlists' },
+  ]
   return (
-    <ul className="flex border-b">
-      <li className="-mb-px mr-1">
-        <NavLink
-          className={({ isActive }) => (isActive ? active : inactive)}
-          to="/items"
-        >
-          Items
-        </NavLink>
-        <NavLink
-          className={({ isActive }) => (isActive ? active : inactive)}
-          to="/Playlists"
-        >
-          Playlists
-        </NavLink>
-      </li>
+    <ul className="flex text-white pl-4">
+      {links.map((l, i) => (
+        <li key={i}>
+          <NavLink
+            className={({ isActive }) => (isActive ? active : inactive)}
+            to={l.to}
+          >
+            {l.label}
+          </NavLink>
+        </li>
+      ))}
     </ul>
   )
 }

@@ -169,11 +169,19 @@ function createLocalStorageReducer<T>(name: string) {
 }
 
 function reducerInner<T>(state: State<T>, action: Action<T>): State<T> {
+  console.log(state.store, action)
   switch (action.type) {
     case 'CREATE': {
-      if (action.payload.id in state.store) {
-        return { ...state, error: 'ID already exists' }
+      if (state.store instanceof Map) {
+        if (state.store.has(action.payload.id)) {
+          return { ...state, error: 'ID already exists' }
+        }
+      } else if (Array.isArray(state.store)) {
+        if (state.store.find((element) => element.id === action.payload.id)) {
+          return { ...state, error: 'ID already exists' }
+        }
       }
+
       const result = saveEntity(state.store, action.payload)
       return { ...state, ...result }
     }

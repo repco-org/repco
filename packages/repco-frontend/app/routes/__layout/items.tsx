@@ -47,7 +47,7 @@ export default function ItemsMenuWrapper() {
                     type="submit"
                     name="orderBy"
                     value="TITLE_ASC"
-                    className="text-blue-500"
+                    className="text-brand-primary"
                     icon={<ArrowDownIcon />}
                   >
                     Title (Z-A)
@@ -57,7 +57,7 @@ export default function ItemsMenuWrapper() {
                     type="submit"
                     name="orderBy"
                     value="TITLE_DESC"
-                    className="text-blue-500"
+                    className="text-brand-primary"
                     icon={<ArrowUpIcon />}
                   >
                     Title (A-Z)

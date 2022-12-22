@@ -6918,6 +6918,26 @@ export enum _RevisionToCommitsOrderBy {
   Natural = 'NATURAL',
 }
 
+export type LoadContentItemQueryVariables = Exact<{
+  uid: Scalars['String']
+}>
+
+export type LoadContentItemQuery = {
+  contentItem?: {
+    title: string
+    uid: string
+    content: string
+    revisionId: string
+    mediaAssets: {
+      nodes: Array<{
+        uid: string
+        mediaType: string
+        file?: { uid: string; contentUrl: string } | null
+      }>
+    }
+  } | null
+}
+
 export type LoadContentItemsQueryVariables = Exact<{
   first: InputMaybe<Scalars['Int']>
   last: InputMaybe<Scalars['Int']>
@@ -6937,25 +6957,5 @@ export type LoadContentItemsQuery = {
       hasPreviousPage: boolean
     }
     nodes: Array<{ title: string; uid: string; summary?: string | null }>
-  } | null
-}
-
-export type LoadContentItemQueryVariables = Exact<{
-  uid: Scalars['String']
-}>
-
-export type LoadContentItemQuery = {
-  contentItem?: {
-    title: string
-    uid: string
-    content: string
-    revisionId: string
-    mediaAssets: {
-      nodes: Array<{
-        uid: string
-        mediaType: string
-        file?: { uid: string; contentUrl: string } | null
-      }>
-    }
   } | null
 }

@@ -14,18 +14,27 @@ export function PlaylistDialog(props: DialogProps) {
   const [playlist, setPlaylist] = useState<Playlist>()
   const { track } = props
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [playlists, createPlaylist, updatePlaylist, deletePlaylist] =
-    usePlaylists()
+  const [
+    playlists,
+    usePlaylist,
+    createPlaylist,
+    updatePlaylist,
+    deletePlaylist,
+    error,
+  ] = usePlaylists()
   const [open, setOpen] = useState(false)
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
-        <IconButton icon={<PlusCircledIcon />}>add to Playlist</IconButton>
+        <IconButton variantSize={'sm'} icon={<PlusCircledIcon />}>
+          add to Playlist
+        </IconButton>
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-slate-500 opacity-70" />
         <Dialog.Content className="fixed top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 bg-white rounded-lg shadow-2xl p-4 space-x-1 space-y-2">
           <Dialog.Title className="m-0 text-lg">Add to Playlist</Dialog.Title>
+
           <Form className="spacing-2">
             {playlists && playlists.length > 0 ? (
               <select
@@ -53,6 +62,7 @@ export function PlaylistDialog(props: DialogProps) {
               onClick={(e) => {
                 e.preventDefault()
                 if (playlist) {
+                  console.log('CLICK')
                   updatePlaylist(playlist.id, {
                     ...playlist,
                     tracks: [

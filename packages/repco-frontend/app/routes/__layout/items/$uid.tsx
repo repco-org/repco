@@ -1,33 +1,12 @@
 import type { LoaderFunction, MetaFunction } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
-import { gql } from '@urql/core'
 import { SanitizedHTML } from '~/components/sanitized-html'
+import { ContentItemQuery } from '~/graphql/queries/contentItem'
 import type {
   LoadContentItemQuery,
   LoadContentItemQueryVariables,
-} from '~/graphql/types.js'
+} from '~/graphql/types'
 import { graphqlQuery } from '~/lib/graphql.server'
-
-const QUERY = gql`
-  query LoadContentItem($uid: String!) {
-    contentItem(uid: $uid) {
-      title
-      uid
-      content
-      revisionId
-      mediaAssets {
-        nodes {
-          uid
-          mediaType
-          file {
-            uid
-            contentUrl
-          }
-        }
-      }
-    }
-  }
-`
 
 type LoaderData = { data: LoadContentItemQuery }
 
@@ -35,7 +14,7 @@ export const loader: LoaderFunction = ({ params }) => {
   const uid = params.uid
   if (!uid) throw new Error('Missing uid')
   return graphqlQuery<LoadContentItemQuery, LoadContentItemQueryVariables>(
-    QUERY,
+    ContentItemQuery,
     { uid },
   )
 }
@@ -87,12 +66,14 @@ export default function IndexRoute() {
             <br />
 
             {node.file && (
-              <a
-                className="text-lg px-0 py-4 font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                href={node.file.contentUrl}
-              >
-                DOWNLOAD
-              </a>
+              <div>
+                <a
+                  className="text-lg px-0 py-4 font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                  href={node.file.contentUrl}
+                >
+                  DOWNLOAD
+                </a>
+              </div>
             )}
           </li>
         ))}

@@ -1,9 +1,10 @@
 import { GitHubLogoIcon } from '@radix-ui/react-icons'
-import { LoaderArgs, redirect } from '@remix-run/node'
-import { Form } from '@remix-run/react'
+import { json, LoaderArgs } from '@remix-run/node'
+import { Form, useLoaderData } from '@remix-run/react'
 import { SocialsProvider } from 'remix-auth-socials'
 import { IconButton } from '~/components/ui/primitives/Button'
 import { authenticator } from '~/services/auth.server'
+import { getSession } from '~/services/session.server'
 
 interface SocialButtonProps {
   provider: SocialsProvider
@@ -30,18 +31,23 @@ export const GitHubLoginButton = () => (
 )
 
 export async function loader({ request }: LoaderArgs) {
-  const user = await authenticator.isAuthenticated(request)
-  if (user) {
-    console.log('USER: ')
-    return redirect('/')
-  }
-  console.log('NO USER')
-  return {}
+  await authenticator.isAuthenticated(request, {
+    successRedirect: '/playlists',
+  })
+  const session = await getSession(request.headers.get('cookie'))
+  const error = session.get(authenticator.sessionErrorKey)
+  console.log('NO USER: ', error)
+  return json({ error })
 }
 
 export default function Login() {
+  const { error } = useLoaderData()
   return (
-    <div className="flex h-screen w-full justify-center items-center">
+    <div
+      className="flex p-4
+     w-full justify-center items-center"
+    >
+      {error && <div>{error}</div>}
       <GitHubLoginButton />
     </div>
   )
