@@ -16,7 +16,7 @@ export default function Layout() {
   const { user } = useLoaderData()
   return (
     <div className="min-h-full">
-      <div className="bg-gradient-to-r from-brand-primary to-brand-secondary">
+      <header className="bg-gradient-to-r from-brand-primary to-brand-secondary">
         <div className="flex justify-between p-4 ">
           <Logo />
           <div className="p-4">
@@ -24,7 +24,8 @@ export default function Layout() {
           </div>
         </div>
         <NavBar />
-      </div>
+      </header>
+
       <Outlet />
     </div>
   )

@@ -12,17 +12,19 @@ export function NavBar() {
     { label: 'playlists', to: '/playlists' },
   ]
   return (
-    <ul className="flex text-white pl-4">
-      {links.map((l, i) => (
-        <li key={i}>
-          <NavLink
-            className={({ isActive }) => (isActive ? active : inactive)}
-            to={l.to}
-          >
-            {l.label}
-          </NavLink>
-        </li>
-      ))}
-    </ul>
+    <nav aria-label="main navigation">
+      <ul className="flex text-white pl-4">
+        {links.map((l, i) => (
+          <li key={i}>
+            <NavLink
+              className={({ isActive }) => (isActive ? active : inactive)}
+              to={l.to}
+            >
+              {l.label}
+            </NavLink>
+          </li>
+        ))}
+      </ul>
+    </nav>
   )
 }

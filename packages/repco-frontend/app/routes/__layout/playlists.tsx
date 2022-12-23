@@ -64,9 +64,9 @@ export default function ItemsMenuWrapper() {
           </aside>
         </div>
       </div>
-      <div className="w-full h-full p-4 m-8 overflow-y-auto">
+      <main className="w-full h-full p-4 m-8 overflow-y-auto">
         <Outlet />
-      </div>
+      </main>
     </div>
   )
 }
