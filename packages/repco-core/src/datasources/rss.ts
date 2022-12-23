@@ -1,13 +1,26 @@
-import { Link } from 'repco-common/zod'
 import RssParser from 'rss-parser'
 import zod from 'zod'
+import { Link } from 'repco-common/zod'
+import { ContentGroupingVariant } from 'repco-prisma'
+import {
+  ContentGroupingInput,
+  ContentItemInput,
+} from 'repco-prisma/generated/repco/zod.js'
+import { fetch } from 'undici'
 import {
   DataSource,
   DataSourceDefinition,
   DataSourcePlugin,
+  FetchUpdatesResult,
+  parseBodyCached,
+  setParsedBody,
+  SourceRecordForm,
 } from '../datasource.js'
-import { EntityBatch, EntityForm } from '../entity.js'
-import { createHash, createJsonHash } from '../util/hash.js'
+import { EntityForm } from '../entity.js'
+import { createHash } from '../util/hash.js'
+import { createRandomId } from '../util/id.js'
+
+type ParsedFeed = RssParser.Output<any>
 
 export class RssDataSourcePlugin implements DataSourcePlugin {
   createInstance(config: any) {
@@ -49,9 +62,9 @@ function parseCursor(input?: string | null): Cursor {
   const cursor = input
     ? JSON.parse(input)
     : {
-        newest: {},
-        oldest: {},
-      }
+      newest: {},
+      oldest: {},
+    }
   const dateFields = [
     'lastCompletionDate',
     'mostRecentPubDate',
@@ -79,15 +92,21 @@ function getDateRangeFromFeed(feed: RssParser.Output<any>): [Date, Date] {
 
 export class RssDataSource implements DataSource {
   endpoint: URL
-  baseUid: string
+  baseUri: string
   parser: RssParser = new RssParser()
   constructor(config: ConfigSchema) {
-    this.endpoint = new URL(config.endpoint)
-    this.baseUid = 'urn:repco:rss:' + this.endpoint.hostname
+    const endpoint = new URL(config.endpoint)
+    endpoint.hash = ''
+    this.endpoint = endpoint
+    this.baseUri = removeProtocol(this.endpoint)
+  }
+
+  get config() {
+    return { endpoint: this.endpoint.toString() }
   }
 
   get definition(): DataSourceDefinition {
-    const uid = this.baseUid
+    const uid = this.baseUri
     return {
       name: 'RSS data source',
       uid,
@@ -95,19 +114,29 @@ export class RssDataSource implements DataSource {
     }
   }
 
-  canFetchUID(uid: string): boolean {
+  canFetchUri(uri: string): boolean {
+    if (uri === this.endpoint.toString()) return true
     return false
   }
 
-  async fetchByUID(uid: string): Promise<EntityForm[]> {
+  async fetchByUri(uri: string): Promise<SourceRecordForm[]> {
+    if (uri === this.endpoint.toString()) {
+      const body = await this.fetchPage(this.endpoint)
+      return [
+        {
+          sourceType: 'primaryFeed',
+          contentType: 'application/rss+xml',
+          sourceUri: uri,
+          body,
+        },
+      ]
+    }
     return []
   }
 
   // The algorithm works as follows:
   // 1. Fetch most recent page
-  async _crawlNewestUntil(
-    cursor: CursorNewest,
-  ): Promise<{ entities: EntityForm[]; cursor: CursorNewest }> {
+  private async _crawlNewestUntil(cursor: CursorNewest): Promise<string> {
     const url = new URL(this.endpoint)
 
     // TODO: Make configurable
@@ -124,8 +153,13 @@ export class RssDataSource implements DataSource {
       (page * pagination.limit).toString(),
     )
 
-    const { feed, entities } = await this.fetchPage(url)
-    if (!feed.items.length) return { entities: [], cursor }
+    const xml = await this.fetchPage(url)
+    return xml
+  }
+
+  private extractNextCursor(cursor: CursorNewest, feed: ParsedFeed) {
+    if (!feed.items.length) return cursor
+    const page = cursor.pageNumber || 0
 
     const [newestPubDate, oldestPubDate] = getDateRangeFromFeed(feed)
 
@@ -171,10 +205,7 @@ export class RssDataSource implements DataSource {
       }
     }
 
-    return {
-      entities,
-      cursor: nextCursor,
-    }
+    return nextCursor
   }
 
   // TODO: Implement
@@ -199,56 +230,92 @@ export class RssDataSource implements DataSource {
     // const nextCursor = { ...cursor }
   }
 
-  async fetchPage(
-    url: URL,
-  ): Promise<{ feed: RssParser.Output<any>; entities: EntityForm[] }> {
-    const feed = await this.parser.parseURL(url.toString())
+  async fetchPage(url: URL): Promise<string> {
+    const res = await fetch(url)
+    const text = await res.text()
+    return text
+  }
+
+  async mapPage(feed: ParsedFeed) {
     const entities = []
     for (const item of feed.items) {
       entities.push(...(await this._mapItem(item)))
     }
-    return { entities, feed }
+    return entities
   }
 
-  async fetchUpdates(cursorInput: string | null): Promise<EntityBatch> {
+  async fetchUpdates(cursorInput: string | null): Promise<FetchUpdatesResult> {
     const cursor = parseCursor(cursorInput)
-    const entities = []
     const nextCursor = cursor
-    const res = await this._crawlNewestUntil(cursor.newest)
-    entities.push(...res.entities)
-    nextCursor.newest = res.cursor
-    const batch = {
-      cursor: JSON.stringify(nextCursor),
-      entities,
+    const date = new Date()
+    const xml = await this._crawlNewestUntil(cursor.newest)
+
+    const feed = await this.parser.parseString(xml)
+    cursor.newest = this.extractNextCursor(cursor.newest, feed)
+
+    const sourceUri = new URL(this.endpoint)
+    sourceUri.hash = date.toISOString()
+    const record = {
+      contentType: 'application/rss+xml',
+      sourceUri: sourceUri.toString(),
+      sourceType: 'feedPage',
+      body: xml,
     }
-    return batch
+    setParsedBody(record, feed)
+    return {
+      cursor: JSON.stringify(nextCursor),
+      records: [record],
+    }
   }
 
-  _urn(...parts: string[]): string {
-    return [this.baseUid, ...parts].join(':')
+  async mapSourceRecord(record: SourceRecordForm): Promise<EntityForm[]> {
+    if (record.sourceType === 'feedPage') {
+      const feed = await parseBodyCached(record, async (record) =>
+        this.parser.parseString(record.body),
+      )
+      const entities = await this.mapPage(feed)
+      return entities
+    }
+    if (record.sourceType === 'primaryFeed') {
+      const feed = await parseBodyCached(record, async (record) =>
+        this.parser.parseString(record.body),
+      )
+      const entity: ContentGroupingInput = {
+        groupingType: 'feed',
+        title: feed.title || feed.feedUrl || 'unknown',
+        variant: ContentGroupingVariant.EPISODIC,
+        description: feed.description,
+      }
+      return [
+        {
+          type: 'ContentGrouping',
+          content: entity,
+          entityUris: [this.endpoint.toString()],
+        },
+      ]
+    }
+    throw new Error('Invalid source type: ' + record.sourceType)
   }
 
   async _extractMediaAssets(
-    itemSlug: string,
-    revisionSlug: string,
+    itemUri: string,
     item: RssParser.Item,
   ): Promise<{ mediaAssets: Link[]; entities: EntityForm[] }> {
     const entities: EntityForm[] = []
     if (!item.enclosure) {
       return { mediaAssets: [], entities: [] }
     }
-    const fileUid = this._urn('file', itemSlug)
+    const fileUri = itemUri + '#file'
 
     entities.push({
       type: 'File',
       content: {
         contentUrl: item.enclosure.url,
       },
-      entityUris: [fileUid],
-      revisionUris: [this._urn('rev', 'file', revisionSlug)],
+      entityUris: [fileUri, item.enclosure.url],
     })
 
-    const mediaUri = this._urn('media', itemSlug)
+    const mediaUri = itemUri + '#media'
 
     entities.push({
       type: 'MediaAsset',
@@ -256,43 +323,49 @@ export class RssDataSource implements DataSource {
         title: item.title || item.guid || 'missing',
         duration: 0,
         mediaType: 'audio',
-        File: { uri: fileUid },
+        File: { uri: fileUri },
       },
       entityUris: [mediaUri],
-      revisionUris: [this._urn('rev', 'media', revisionSlug)],
     })
 
     return { entities, mediaAssets: [{ uri: mediaUri }] }
   }
 
-  async _deriveSlugs(
-    item: RssParser.Item,
-  ): Promise<{ revisionSlug: string; itemSlug: string }> {
-    const revisionSlug = await createJsonHash(item)
-    const itemSlug = await createHash(item.guid || JSON.stringify(item))
-    return { revisionSlug, itemSlug }
+  async _deriveItemUri(item: RssParser.Item): Promise<string> {
+    if (item.guid) return 'rss:guid:' + removeProtocol(item.guid)
+    if (item.enclosure?.url)
+      return 'rss:hurl:' + (await createHash(item.enclosure.url))
+    return 'rss:uuid:' + createRandomId()
   }
 
   async _mapItem(item: RssParser.Item): Promise<EntityForm[]> {
-    const { revisionSlug, itemSlug } = await this._deriveSlugs(item)
+    const itemUri = await this._deriveItemUri(item)
     const { entities, mediaAssets } = await this._extractMediaAssets(
-      itemSlug,
-      revisionSlug,
+      itemUri,
       item,
     )
-    const content = {
+    const content: ContentItemInput = {
       title: item.title || item.guid || 'missing',
       summary: item.contentSnippet,
       content: item.content || '',
       contentFormat: 'text/plain',
       pubDate: item.pubDate ? new Date(item.pubDate) : null,
-      mediaAssets,
+      PrimaryGrouping: { uri: this.endpoint.toString() },
+      MediaAssets: mediaAssets,
     }
     const headers = {
-      revisionUris: [this._urn('rev', 'content', revisionSlug)],
-      entityUris: [this._urn('content', itemSlug)],
+      entityUris: [itemUri],
     }
     entities.push({ type: 'ContentItem', content, ...headers })
     return entities
+  }
+}
+
+function removeProtocol(inputUrl: string | URL) {
+  try {
+    const url = new URL(inputUrl)
+    return url.toString().replace(url.protocol + '//', '')
+  } catch (err) {
+    return inputUrl.toString()
   }
 }

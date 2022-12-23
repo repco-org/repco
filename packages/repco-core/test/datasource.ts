@@ -1,34 +1,69 @@
+/* eslint-disable  @typescript-eslint/no-non-null-assertion */
+
 import test from 'brittle'
 import { setup } from './util/setup.js'
-import { DataSource, EntityForm, Repo } from '../lib.js'
+import { DataSource, Ingester, Repo } from '../lib.js'
 import {
   BaseDataSource,
   DataSourceDefinition,
+  FetchUpdatesResult,
   ingestUpdatesFromDataSources,
+  ingestUpdatesFromDataSource,
+  remapDataSource,
+  SourceRecordForm,
 } from '../src/datasource.js'
-import { EntityBatch } from '../src/entity.js'
+import { EntityForm, TypedEntityForm } from '../src/entity.js'
+import { DataSourcePlugin, DataSourcePluginRegistry } from '../src/plugins.js'
+
+const intoSourceRecord = (body: EntityForm): SourceRecordForm => ({
+  body: JSON.stringify(body),
+  sourceType: 'entity',
+  sourceUri: 'test:foo',
+  contentType: 'text/repco-entity',
+})
+
+const DS_UID = 'urn:repco:datasource:test'
+
+const fromSourceRecord = (record: SourceRecordForm) =>
+  JSON.parse(record.body) as EntityForm
+
+class TestDataSourcePlugin implements DataSourcePlugin {
+  createInstance(_config: any) {
+    return new TestDataSource()
+  }
+  get definition() {
+    return {
+      name: 'test',
+      uid: 'ds:test',
+    }
+  }
+}
 
 class TestDataSource extends BaseDataSource implements DataSource {
+  mapUppercase = false
+  insertMissing = false
+  resolveMissing = false
+
   get definition(): DataSourceDefinition {
     return {
       name: 'TestDataSource',
-      uid: 'urn:repco:datasource:test',
+      uid: DS_UID,
       pluginUid: 'urn:repco:datasource:test',
     }
   }
 
-  canFetchUID(uid: string): boolean {
+  canFetchUri(uid: string): boolean {
     if (uid.startsWith('urn:test:')) return true
     return false
   }
 
-  async fetchUpdates(cursor: string | null): Promise<EntityBatch> {
+  async fetchUpdates(cursor: string | null): Promise<FetchUpdatesResult> {
     if (cursor === '1') {
-      return { cursor, entities: [] }
+      return { cursor, records: [] }
     }
     const nextCursor = '1'
-    const entities: EntityForm[] = []
-    entities.push({
+    const bodies: EntityForm[] = []
+    const contentItem: TypedEntityForm<'ContentItem'> = {
       type: 'ContentItem',
       content: {
         title: 'Test1',
@@ -37,27 +72,31 @@ class TestDataSource extends BaseDataSource implements DataSource {
         contentFormat: 'text/plain',
       },
       entityUris: ['urn:test:content:1'],
-    })
+    }
+    if (this.insertMissing) {
+      contentItem.content.MediaAssets!.push({ uri: 'urn:test:media:fail' })
+    }
+    bodies.push(contentItem)
     return {
       cursor: nextCursor,
-      entities,
+      records: bodies.map(intoSourceRecord),
     }
   }
-  async fetchByUID(uid: string): Promise<EntityForm[] | null> {
+  async fetchByUri(uid: string): Promise<SourceRecordForm[] | null> {
     if (uid === 'urn:test:file:1') {
       return [
-        {
+        intoSourceRecord({
           type: 'File',
           content: {
             contentUrl: 'http://example.org/file1.mp3',
           },
           entityUris: ['urn:test:file:1'],
-        },
+        }),
       ]
     }
     if (uid === 'urn:test:media:1') {
       return [
-        {
+        intoSourceRecord({
           type: 'MediaAsset',
           content: {
             title: 'Media1',
@@ -65,18 +104,42 @@ class TestDataSource extends BaseDataSource implements DataSource {
             File: { uri: 'urn:test:file:1' },
           },
           entityUris: ['urn:test:media:1'],
-        },
+        }),
       ]
     }
-    return null
+    if (this.resolveMissing && uid === 'urn:test:media:fail') {
+      return [
+        intoSourceRecord({
+          type: 'MediaAsset',
+          content: {
+            title: 'MediaMissingResolved',
+            mediaType: 'audio/mp3',
+            File: { uri: 'urn:test:file:1' },
+          },
+          entityUris: ['urn:test:media:fail'],
+        }),
+      ]
+    }
+    throw new Error('Not found: ' + uid)
+  }
+
+  async mapSourceRecord(record: SourceRecordForm): Promise<EntityForm[]> {
+    const form = JSON.parse(record.body) as EntityForm
+    if (this.mapUppercase) {
+      if (form.type === 'ContentItem') {
+        form.content.title = form.content.title.toUpperCase()
+      }
+    }
+    return [form]
   }
 }
 
 test('datasource', async (assert) => {
   const prisma = await setup(assert)
   const repo = await Repo.create(prisma, 'test')
-  const datasource = new TestDataSource()
-  repo.registerDataSource(datasource)
+  const plugins = new DataSourcePluginRegistry()
+  plugins.register(new TestDataSourcePlugin())
+  await repo.dsr.create(repo.prisma, plugins, 'ds:test', {})
   await ingestUpdatesFromDataSources(repo)
   const uri = 'urn:test:content:1'
   const entities = await prisma.contentItem.findMany({
@@ -94,4 +157,86 @@ test('datasource', async (assert) => {
     entity.MediaAssets[0].File.contentUrl,
     'http://example.org/file1.mp3',
   )
+})
+
+test('remap', async (assert) => {
+  const prisma = await setup(assert)
+  const repo = await Repo.create(prisma, 'test')
+
+  const plugins = new DataSourcePluginRegistry()
+  plugins.register(new TestDataSourcePlugin())
+  await repo.dsr.create(repo.prisma, plugins, 'ds:test', {})
+
+  await ingestUpdatesFromDataSources(repo)
+
+  const head = await repo.getHead()
+  let len = await prisma.revision.count()
+  assert.is(len, 3)
+
+  const datasource = repo.dsr.get(DS_UID)
+  assert.is(!!datasource, true)
+
+  await remapDataSource(repo, datasource!)
+  const head2 = await repo.getHead()
+  assert.is(head.toString(), head2.toString())
+
+  len = await prisma.revision.count()
+  assert.is(len, 3)
+
+  // @ts-ignore
+  datasource.mapUppercase = true
+
+  await remapDataSource(repo, datasource!)
+  const head3 = await repo.getHead()
+  assert.not(head2.toString(), head3.toString())
+
+  len = await prisma.revision.count()
+  assert.is(len, 4)
+
+  const entitiesAfter = await prisma.contentItem.findMany()
+  assert.is(entitiesAfter.length, 1)
+  assert.is(entitiesAfter[0].title, 'TEST1')
+})
+
+test('failed fetches', async (assert) => {
+  const prisma = await setup(assert)
+  const repo = await Repo.create(prisma, 'test')
+
+  const plugins = new DataSourcePluginRegistry()
+  plugins.register(new TestDataSourcePlugin())
+  await repo.dsr.create(repo.prisma, plugins, 'ds:test', {})
+  const datasource = repo.dsr.get(DS_UID)! as TestDataSource
+  datasource.insertMissing = true
+
+  {
+    const res = await ingestUpdatesFromDataSource(repo, datasource)
+    assert.is(res.count, 1)
+    const revisions = await repo.prisma.revision.count()
+    assert.is(revisions, 3)
+    const entities = await repo.prisma.entity.count()
+    assert.is(entities, 3)
+    const fails = await repo.prisma.failedDatasourceFetches.findMany()
+    assert.is(fails.length, 1)
+    assert.is(fails[0].uri, 'urn:test:media:fail')
+  }
+
+  datasource.resolveMissing = true
+
+  await remapDataSource(repo, datasource)
+
+  {
+    const revisions = await repo.prisma.revision.count()
+    assert.is(revisions, 5)
+    const entities = await repo.prisma.entity.count()
+    assert.is(entities, 4)
+  }
+
+  {
+    const res = await ingestUpdatesFromDataSource(repo, datasource)
+    assert.is(res.count, 0)
+    const revisions = await repo.prisma.revision.count()
+    assert.is(revisions, 5)
+    const entities = await repo.prisma.entity.count()
+    assert.is(entities, 4)
+  }
 })

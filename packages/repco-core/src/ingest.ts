@@ -1,9 +1,8 @@
 import {
-  DataSourcePluginRegistry,
   DataSourceRegistry,
   ingestUpdatesFromDataSource,
 } from './datasource.js'
-import { EntityWithRevision } from './entity.js'
+import { DataSourcePluginRegistry } from './plugins.js'
 import { Repo } from './repo.js'
 
 // export type WorkerConstructor
@@ -12,21 +11,20 @@ export enum WorkerStatus {
   Stopped = 'stopped',
 }
 
-export abstract class Worker<Conf = void> {
-  constructor(public plugins: DataSourcePluginRegistry, public repo: Repo) { }
-  abstract start(): Promise<void>
-  // abstract status(): WorkerStatus
-  async stop(): Promise<void> { }
+const POLL_INTERVAL = 10000
+
+export type WorkOpts = {
+  pollInterval?: number
 }
 
-export abstract class Indexer<Conf = void> extends Worker<Conf> {
-  abstract onRevisions(revisions: EntityWithRevision[]): Promise<void>
-}
-
-export class Ingester extends Worker<void> {
+export class Ingester {
   interval = 1000 * 60
-  constructor(plugins: DataSourcePluginRegistry, public repo: Repo) {
-    super(plugins, repo)
+  plugins: DataSourcePluginRegistry
+  repo: Repo
+  hydrated = false
+  constructor(plugins: DataSourcePluginRegistry, repo: Repo) {
+    this.plugins = plugins
+    this.repo = repo
   }
 
   get datasources(): DataSourceRegistry {
@@ -34,36 +32,53 @@ export class Ingester extends Worker<void> {
   }
 
   async init() {
-    const savedDataSources = await this.repo.prisma.dataSource.findMany()
-    for (const model of savedDataSources) {
-      if (!model.pluginUid || !this.plugins.has(model.pluginUid)) {
-        console.error(
-          `Skip init of data source ${model.uid}: Unknown plugin ${model.pluginUid}`,
-        )
+    if (this.hydrated) return
+    await this.repo.dsr.hydrate(this.repo.prisma, this.plugins)
+    this.hydrated = true
+  }
+
+  async ingest(uid: string, wait?: number) {
+    if (!this.hydrated) await this.init()
+    const ds = this.datasources.get(uid)
+    if (!ds)
+      return {
+        uid,
+        ok: false,
+        finished: true,
+        error: new Error(`Datasource \`${uid}\` not found`),
       }
-      const ds = this.plugins.createInstance(model.pluginUid!, model.config)
-      this.datasources.register(ds)
+    if (wait) await new Promise((resolve) => setTimeout(resolve, wait))
+    try {
+      const res = await ingestUpdatesFromDataSource(this.repo, ds)
+      const finished = res.count === 0
+      return { uid, ok: true, finished, ...res }
+    } catch (error) {
+      return { uid, ok: false, finished: true, error }
     }
   }
 
-  async start(): Promise<void> {
-    await this.init()
-    while (true) {
-      console.log('start work...')
-      await this.work()
-      console.log('wait...')
-      await new Promise((resolve) => setTimeout(resolve, this.interval))
-    }
-  }
-
-  async work(): Promise<void> {
-    const results = await Promise.all(
-      this.datasources.all().map((ds) =>
-        ingestUpdatesFromDataSource(this.repo, ds)
-          .then((result) => ({ uid: ds.definition.uid, ok: false, ...result }))
-          .catch((error) => ({ uid: ds.definition.uid, ok: false, error })),
-      ),
+  async ingestAll() {
+    if (!this.hydrated) await this.init()
+    return await Promise.all(
+      this.datasources.ids().map((uid) => this.ingest(uid)),
     )
-    console.log('results', results)
+  }
+
+  async *workLoop(opts: WorkOpts = {}) {
+    if (!this.hydrated) await this.init()
+    const pending = new Map(
+      this.datasources.ids().map((uid) => [uid, this.ingest(uid)]),
+    )
+    while (pending.size) {
+      const res = await Promise.race(pending.values())
+      yield res
+      pending.delete(res.uid)
+      if (res.ok) {
+        const wait = res.finished
+          ? opts.pollInterval || POLL_INTERVAL
+          : undefined
+        pending.set(res.uid, this.ingest(res.uid, wait))
+      }
+    }
   }
 }

@@ -28,175 +28,6 @@ export type Scalars = {
   JSON: any
 }
 
-export type Actor = {
-  /** Reads and enables pagination through a set of `BroadcastService`. */
-  broadcastServicesByPublisher: BroadcastServicesConnection
-  contactInformation: Scalars['String']
-  /** Reads and enables pagination through a set of `Contribution`. */
-  contributions: ActorContributionsByActorToContributionAAndBManyToManyConnection
-  name: Scalars['String']
-  personOrOrganization: Scalars['String']
-  /** Reads a single `File` that is related to this `Actor`. */
-  profilePicture?: Maybe<File>
-  profilePictureUid: Scalars['String']
-  /** Reads a single `Revision` that is related to this `Actor`. */
-  revision?: Maybe<Revision>
-  revisionId: Scalars['String']
-  uid: Scalars['String']
-}
-
-export type ActorBroadcastServicesByPublisherArgs = {
-  after: InputMaybe<Scalars['Cursor']>
-  before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<BroadcastServiceCondition>
-  filter: InputMaybe<BroadcastServiceFilter>
-  first: InputMaybe<Scalars['Int']>
-  last: InputMaybe<Scalars['Int']>
-  offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<BroadcastServicesOrderBy>>
-}
-
-export type ActorContributionsArgs = {
-  after: InputMaybe<Scalars['Cursor']>
-  before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<ContributionCondition>
-  filter: InputMaybe<ContributionFilter>
-  first: InputMaybe<Scalars['Int']>
-  last: InputMaybe<Scalars['Int']>
-  offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<ContributionsOrderBy>>
-}
-
-/** A condition to be used against `Actor` object types. All fields are tested for equality and combined with a logical ‘and.’ */
-export type ActorCondition = {
-  /** Checks for equality with the object’s `contactInformation` field. */
-  contactInformation?: InputMaybe<Scalars['String']>
-  /** Checks for equality with the object’s `name` field. */
-  name?: InputMaybe<Scalars['String']>
-  /** Checks for equality with the object’s `personOrOrganization` field. */
-  personOrOrganization?: InputMaybe<Scalars['String']>
-  /** Checks for equality with the object’s `profilePictureUid` field. */
-  profilePictureUid?: InputMaybe<Scalars['String']>
-  /** Checks for equality with the object’s `revisionId` field. */
-  revisionId?: InputMaybe<Scalars['String']>
-  /** Checks for equality with the object’s `uid` field. */
-  uid?: InputMaybe<Scalars['String']>
-}
-
-/** A connection to a list of `Contribution` values, with data from `_ActorToContribution`. */
-export type ActorContributionsByActorToContributionAAndBManyToManyConnection = {
-  /** A list of edges which contains the `Contribution`, info from the `_ActorToContribution`, and the cursor to aid in pagination. */
-  edges: Array<ActorContributionsByActorToContributionAAndBManyToManyEdge>
-  /** A list of `Contribution` objects. */
-  nodes: Array<Contribution>
-  /** Information to aid in pagination. */
-  pageInfo: PageInfo
-  /** The count of *all* `Contribution` you could get from the connection. */
-  totalCount: Scalars['Int']
-}
-
-/** A `Contribution` edge in the connection, with data from `_ActorToContribution`. */
-export type ActorContributionsByActorToContributionAAndBManyToManyEdge = {
-  /** Reads and enables pagination through a set of `_ActorToContribution`. */
-  _actorToContributionsByB: _ActorToContributionsConnection
-  /** A cursor for use in pagination. */
-  cursor?: Maybe<Scalars['Cursor']>
-  /** The `Contribution` at the end of the edge. */
-  node: Contribution
-}
-
-/** A `Contribution` edge in the connection, with data from `_ActorToContribution`. */
-export type ActorContributionsByActorToContributionAAndBManyToManyEdge_ActorToContributionsByBArgs =
-  {
-    after: InputMaybe<Scalars['Cursor']>
-    before: InputMaybe<Scalars['Cursor']>
-    condition: InputMaybe<_ActorToContributionCondition>
-    filter: InputMaybe<_ActorToContributionFilter>
-    first: InputMaybe<Scalars['Int']>
-    last: InputMaybe<Scalars['Int']>
-    offset: InputMaybe<Scalars['Int']>
-    orderBy?: InputMaybe<Array<_ActorToContributionsOrderBy>>
-  }
-
-/** A filter to be used against `Actor` object types. All fields are combined with a logical ‘and.’ */
-export type ActorFilter = {
-  /** Checks for all expressions in this list. */
-  and?: InputMaybe<Array<ActorFilter>>
-  /** Filter by the object’s `broadcastServicesByPublisher` relation. */
-  broadcastServicesByPublisher?: InputMaybe<ActorToManyBroadcastServiceFilter>
-  /** Some related `broadcastServicesByPublisher` exist. */
-  broadcastServicesByPublisherExist?: InputMaybe<Scalars['Boolean']>
-  /** Filter by the object’s `contactInformation` field. */
-  contactInformation?: InputMaybe<StringFilter>
-  /** Filter by the object’s `name` field. */
-  name?: InputMaybe<StringFilter>
-  /** Negates the expression. */
-  not?: InputMaybe<ActorFilter>
-  /** Checks for any expressions in this list. */
-  or?: InputMaybe<Array<ActorFilter>>
-  /** Filter by the object’s `personOrOrganization` field. */
-  personOrOrganization?: InputMaybe<StringFilter>
-  /** Filter by the object’s `profilePicture` relation. */
-  profilePicture?: InputMaybe<FileFilter>
-  /** Filter by the object’s `profilePictureUid` field. */
-  profilePictureUid?: InputMaybe<StringFilter>
-  /** Filter by the object’s `revision` relation. */
-  revision?: InputMaybe<RevisionFilter>
-  /** Filter by the object’s `revisionId` field. */
-  revisionId?: InputMaybe<StringFilter>
-  /** Filter by the object’s `uid` field. */
-  uid?: InputMaybe<StringFilter>
-}
-
-/** A filter to be used against many `BroadcastService` object types. All fields are combined with a logical ‘and.’ */
-export type ActorToManyBroadcastServiceFilter = {
-  /** Every related `BroadcastService` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  every?: InputMaybe<BroadcastServiceFilter>
-  /** No related `BroadcastService` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  none?: InputMaybe<BroadcastServiceFilter>
-  /** Some related `BroadcastService` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  some?: InputMaybe<BroadcastServiceFilter>
-}
-
-/** A connection to a list of `Actor` values. */
-export type ActorsConnection = {
-  /** A list of edges which contains the `Actor` and cursor to aid in pagination. */
-  edges: Array<ActorsEdge>
-  /** A list of `Actor` objects. */
-  nodes: Array<Actor>
-  /** Information to aid in pagination. */
-  pageInfo: PageInfo
-  /** The count of *all* `Actor` you could get from the connection. */
-  totalCount: Scalars['Int']
-}
-
-/** A `Actor` edge in the connection. */
-export type ActorsEdge = {
-  /** A cursor for use in pagination. */
-  cursor?: Maybe<Scalars['Cursor']>
-  /** The `Actor` at the end of the edge. */
-  node: Actor
-}
-
-/** Methods to use when ordering `Actor`. */
-export enum ActorsOrderBy {
-  ContactInformationAsc = 'CONTACT_INFORMATION_ASC',
-  ContactInformationDesc = 'CONTACT_INFORMATION_DESC',
-  NameAsc = 'NAME_ASC',
-  NameDesc = 'NAME_DESC',
-  Natural = 'NATURAL',
-  PersonOrOrganizationAsc = 'PERSON_OR_ORGANIZATION_ASC',
-  PersonOrOrganizationDesc = 'PERSON_OR_ORGANIZATION_DESC',
-  PrimaryKeyAsc = 'PRIMARY_KEY_ASC',
-  PrimaryKeyDesc = 'PRIMARY_KEY_DESC',
-  ProfilePictureUidAsc = 'PROFILE_PICTURE_UID_ASC',
-  ProfilePictureUidDesc = 'PROFILE_PICTURE_UID_DESC',
-  RevisionIdAsc = 'REVISION_ID_ASC',
-  RevisionIdDesc = 'REVISION_ID_DESC',
-  UidAsc = 'UID_ASC',
-  UidDesc = 'UID_DESC',
-}
-
 export type Agent = {
   /** Reads and enables pagination through a set of `Commit`. */
   commitsByAgentDid: CommitsConnection
@@ -541,8 +372,8 @@ export type BooleanFilter = {
 }
 
 export type BroadcastEvent = {
-  /** Reads a single `BroadcastService` that is related to this `BroadcastEvent`. */
-  broadcastService?: Maybe<BroadcastService>
+  /** Reads a single `PublicationService` that is related to this `BroadcastEvent`. */
+  broadcastService?: Maybe<PublicationService>
   broadcastServiceUid: Scalars['String']
   /** Reads a single `ContentItem` that is related to this `BroadcastEvent`. */
   contentItem?: Maybe<ContentItem>
@@ -579,7 +410,7 @@ export type BroadcastEventFilter = {
   /** Checks for all expressions in this list. */
   and?: InputMaybe<Array<BroadcastEventFilter>>
   /** Filter by the object’s `broadcastService` relation. */
-  broadcastService?: InputMaybe<BroadcastServiceFilter>
+  broadcastService?: InputMaybe<PublicationServiceFilter>
   /** Filter by the object’s `broadcastServiceUid` field. */
   broadcastServiceUid?: InputMaybe<StringFilter>
   /** Filter by the object’s `contentItem` relation. */
@@ -637,181 +468,6 @@ export enum BroadcastEventsOrderBy {
   RevisionIdDesc = 'REVISION_ID_DESC',
   StartAsc = 'START_ASC',
   StartDesc = 'START_DESC',
-  UidAsc = 'UID_ASC',
-  UidDesc = 'UID_DESC',
-}
-
-export type BroadcastService = {
-  address: Scalars['String']
-  /** Reads and enables pagination through a set of `BroadcastEvent`. */
-  broadcastEvents: BroadcastEventsConnection
-  /** Reads and enables pagination through a set of `ContentItem`. */
-  contentItemsByBroadcastEventBroadcastServiceUidAndContentItemUid: BroadcastServiceContentItemsByBroadcastEventBroadcastServiceUidAndContentItemUidManyToManyConnection
-  medium: Scalars['String']
-  name: Scalars['String']
-  /** Reads a single `Actor` that is related to this `BroadcastService`. */
-  publisher?: Maybe<Actor>
-  publisherUid: Scalars['String']
-  /** Reads a single `Revision` that is related to this `BroadcastService`. */
-  revision?: Maybe<Revision>
-  revisionId: Scalars['String']
-  uid: Scalars['String']
-}
-
-export type BroadcastServiceBroadcastEventsArgs = {
-  after: InputMaybe<Scalars['Cursor']>
-  before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<BroadcastEventCondition>
-  filter: InputMaybe<BroadcastEventFilter>
-  first: InputMaybe<Scalars['Int']>
-  last: InputMaybe<Scalars['Int']>
-  offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<BroadcastEventsOrderBy>>
-}
-
-export type BroadcastServiceContentItemsByBroadcastEventBroadcastServiceUidAndContentItemUidArgs =
-  {
-    after: InputMaybe<Scalars['Cursor']>
-    before: InputMaybe<Scalars['Cursor']>
-    condition: InputMaybe<ContentItemCondition>
-    filter: InputMaybe<ContentItemFilter>
-    first: InputMaybe<Scalars['Int']>
-    last: InputMaybe<Scalars['Int']>
-    offset: InputMaybe<Scalars['Int']>
-    orderBy?: InputMaybe<Array<ContentItemsOrderBy>>
-  }
-
-/**
- * A condition to be used against `BroadcastService` object types. All fields are
- * tested for equality and combined with a logical ‘and.’
- */
-export type BroadcastServiceCondition = {
-  /** Checks for equality with the object’s `address` field. */
-  address?: InputMaybe<Scalars['String']>
-  /** Checks for equality with the object’s `medium` field. */
-  medium?: InputMaybe<Scalars['String']>
-  /** Checks for equality with the object’s `name` field. */
-  name?: InputMaybe<Scalars['String']>
-  /** Checks for equality with the object’s `publisherUid` field. */
-  publisherUid?: InputMaybe<Scalars['String']>
-  /** Checks for equality with the object’s `revisionId` field. */
-  revisionId?: InputMaybe<Scalars['String']>
-  /** Checks for equality with the object’s `uid` field. */
-  uid?: InputMaybe<Scalars['String']>
-}
-
-/** A connection to a list of `ContentItem` values, with data from `BroadcastEvent`. */
-export type BroadcastServiceContentItemsByBroadcastEventBroadcastServiceUidAndContentItemUidManyToManyConnection =
-  {
-    /** A list of edges which contains the `ContentItem`, info from the `BroadcastEvent`, and the cursor to aid in pagination. */
-    edges: Array<BroadcastServiceContentItemsByBroadcastEventBroadcastServiceUidAndContentItemUidManyToManyEdge>
-    /** A list of `ContentItem` objects. */
-    nodes: Array<ContentItem>
-    /** Information to aid in pagination. */
-    pageInfo: PageInfo
-    /** The count of *all* `ContentItem` you could get from the connection. */
-    totalCount: Scalars['Int']
-  }
-
-/** A `ContentItem` edge in the connection, with data from `BroadcastEvent`. */
-export type BroadcastServiceContentItemsByBroadcastEventBroadcastServiceUidAndContentItemUidManyToManyEdge =
-  {
-    /** Reads and enables pagination through a set of `BroadcastEvent`. */
-    broadcastEvents: BroadcastEventsConnection
-    /** A cursor for use in pagination. */
-    cursor?: Maybe<Scalars['Cursor']>
-    /** The `ContentItem` at the end of the edge. */
-    node: ContentItem
-  }
-
-/** A `ContentItem` edge in the connection, with data from `BroadcastEvent`. */
-export type BroadcastServiceContentItemsByBroadcastEventBroadcastServiceUidAndContentItemUidManyToManyEdgeBroadcastEventsArgs =
-  {
-    after: InputMaybe<Scalars['Cursor']>
-    before: InputMaybe<Scalars['Cursor']>
-    condition: InputMaybe<BroadcastEventCondition>
-    filter: InputMaybe<BroadcastEventFilter>
-    first: InputMaybe<Scalars['Int']>
-    last: InputMaybe<Scalars['Int']>
-    offset: InputMaybe<Scalars['Int']>
-    orderBy?: InputMaybe<Array<BroadcastEventsOrderBy>>
-  }
-
-/** A filter to be used against `BroadcastService` object types. All fields are combined with a logical ‘and.’ */
-export type BroadcastServiceFilter = {
-  /** Filter by the object’s `address` field. */
-  address?: InputMaybe<StringFilter>
-  /** Checks for all expressions in this list. */
-  and?: InputMaybe<Array<BroadcastServiceFilter>>
-  /** Filter by the object’s `broadcastEvents` relation. */
-  broadcastEvents?: InputMaybe<BroadcastServiceToManyBroadcastEventFilter>
-  /** Some related `broadcastEvents` exist. */
-  broadcastEventsExist?: InputMaybe<Scalars['Boolean']>
-  /** Filter by the object’s `medium` field. */
-  medium?: InputMaybe<StringFilter>
-  /** Filter by the object’s `name` field. */
-  name?: InputMaybe<StringFilter>
-  /** Negates the expression. */
-  not?: InputMaybe<BroadcastServiceFilter>
-  /** Checks for any expressions in this list. */
-  or?: InputMaybe<Array<BroadcastServiceFilter>>
-  /** Filter by the object’s `publisher` relation. */
-  publisher?: InputMaybe<ActorFilter>
-  /** Filter by the object’s `publisherUid` field. */
-  publisherUid?: InputMaybe<StringFilter>
-  /** Filter by the object’s `revision` relation. */
-  revision?: InputMaybe<RevisionFilter>
-  /** Filter by the object’s `revisionId` field. */
-  revisionId?: InputMaybe<StringFilter>
-  /** Filter by the object’s `uid` field. */
-  uid?: InputMaybe<StringFilter>
-}
-
-/** A filter to be used against many `BroadcastEvent` object types. All fields are combined with a logical ‘and.’ */
-export type BroadcastServiceToManyBroadcastEventFilter = {
-  /** Every related `BroadcastEvent` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  every?: InputMaybe<BroadcastEventFilter>
-  /** No related `BroadcastEvent` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  none?: InputMaybe<BroadcastEventFilter>
-  /** Some related `BroadcastEvent` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  some?: InputMaybe<BroadcastEventFilter>
-}
-
-/** A connection to a list of `BroadcastService` values. */
-export type BroadcastServicesConnection = {
-  /** A list of edges which contains the `BroadcastService` and cursor to aid in pagination. */
-  edges: Array<BroadcastServicesEdge>
-  /** A list of `BroadcastService` objects. */
-  nodes: Array<BroadcastService>
-  /** Information to aid in pagination. */
-  pageInfo: PageInfo
-  /** The count of *all* `BroadcastService` you could get from the connection. */
-  totalCount: Scalars['Int']
-}
-
-/** A `BroadcastService` edge in the connection. */
-export type BroadcastServicesEdge = {
-  /** A cursor for use in pagination. */
-  cursor?: Maybe<Scalars['Cursor']>
-  /** The `BroadcastService` at the end of the edge. */
-  node: BroadcastService
-}
-
-/** Methods to use when ordering `BroadcastService`. */
-export enum BroadcastServicesOrderBy {
-  AddressAsc = 'ADDRESS_ASC',
-  AddressDesc = 'ADDRESS_DESC',
-  MediumAsc = 'MEDIUM_ASC',
-  MediumDesc = 'MEDIUM_DESC',
-  NameAsc = 'NAME_ASC',
-  NameDesc = 'NAME_DESC',
-  Natural = 'NATURAL',
-  PrimaryKeyAsc = 'PRIMARY_KEY_ASC',
-  PrimaryKeyDesc = 'PRIMARY_KEY_DESC',
-  PublisherUidAsc = 'PUBLISHER_UID_ASC',
-  PublisherUidDesc = 'PUBLISHER_UID_DESC',
-  RevisionIdAsc = 'REVISION_ID_ASC',
-  RevisionIdDesc = 'REVISION_ID_DESC',
   UidAsc = 'UID_ASC',
   UidDesc = 'UID_DESC',
 }
@@ -1169,14 +825,24 @@ export enum CommitsOrderBy {
 
 export type Concept = {
   /** Reads and enables pagination through a set of `Concept`. */
+  childConcepts: ConceptsConnection
+  /** Reads and enables pagination through a set of `Concept`. */
+  conceptsByConceptParentUidAndSameAsUid: ConceptConceptsByConceptParentUidAndSameAsUidManyToManyConnection
+  /** Reads and enables pagination through a set of `Concept`. */
+  conceptsByConceptSameAsUidAndParentUid: ConceptConceptsByConceptSameAsUidAndParentUidManyToManyConnection
+  /** Reads and enables pagination through a set of `Concept`. */
   conceptsBySameAs: ConceptsConnection
   /** Reads and enables pagination through a set of `ContentItem`. */
   contentItems: ConceptContentItemsByConceptToContentItemAAndBManyToManyConnection
   description?: Maybe<Scalars['String']>
+  kind: ConceptKind
   /** Reads and enables pagination through a set of `MediaAsset`. */
   mediaAssets: ConceptMediaAssetsByConceptToMediaAssetAAndBManyToManyConnection
   name: Scalars['String']
   originNamespace?: Maybe<Scalars['String']>
+  /** Reads a single `Concept` that is related to this `Concept`. */
+  parent?: Maybe<Concept>
+  parentUid?: Maybe<Scalars['String']>
   /** Reads a single `Revision` that is related to this `Concept`. */
   revision?: Maybe<Revision>
   revisionId: Scalars['String']
@@ -1186,6 +852,39 @@ export type Concept = {
   summary?: Maybe<Scalars['String']>
   uid: Scalars['String']
   wikidataIdentifier?: Maybe<Scalars['String']>
+}
+
+export type ConceptChildConceptsArgs = {
+  after: InputMaybe<Scalars['Cursor']>
+  before: InputMaybe<Scalars['Cursor']>
+  condition: InputMaybe<ConceptCondition>
+  filter: InputMaybe<ConceptFilter>
+  first: InputMaybe<Scalars['Int']>
+  last: InputMaybe<Scalars['Int']>
+  offset: InputMaybe<Scalars['Int']>
+  orderBy?: InputMaybe<Array<ConceptsOrderBy>>
+}
+
+export type ConceptConceptsByConceptParentUidAndSameAsUidArgs = {
+  after: InputMaybe<Scalars['Cursor']>
+  before: InputMaybe<Scalars['Cursor']>
+  condition: InputMaybe<ConceptCondition>
+  filter: InputMaybe<ConceptFilter>
+  first: InputMaybe<Scalars['Int']>
+  last: InputMaybe<Scalars['Int']>
+  offset: InputMaybe<Scalars['Int']>
+  orderBy?: InputMaybe<Array<ConceptsOrderBy>>
+}
+
+export type ConceptConceptsByConceptSameAsUidAndParentUidArgs = {
+  after: InputMaybe<Scalars['Cursor']>
+  before: InputMaybe<Scalars['Cursor']>
+  condition: InputMaybe<ConceptCondition>
+  filter: InputMaybe<ConceptFilter>
+  first: InputMaybe<Scalars['Int']>
+  last: InputMaybe<Scalars['Int']>
+  offset: InputMaybe<Scalars['Int']>
+  orderBy?: InputMaybe<Array<ConceptsOrderBy>>
 }
 
 export type ConceptConceptsBySameAsArgs = {
@@ -1221,14 +920,90 @@ export type ConceptMediaAssetsArgs = {
   orderBy?: InputMaybe<Array<MediaAssetsOrderBy>>
 }
 
+/** A connection to a list of `Concept` values, with data from `Concept`. */
+export type ConceptConceptsByConceptParentUidAndSameAsUidManyToManyConnection =
+  {
+    /** A list of edges which contains the `Concept`, info from the `Concept`, and the cursor to aid in pagination. */
+    edges: Array<ConceptConceptsByConceptParentUidAndSameAsUidManyToManyEdge>
+    /** A list of `Concept` objects. */
+    nodes: Array<Concept>
+    /** Information to aid in pagination. */
+    pageInfo: PageInfo
+    /** The count of *all* `Concept` you could get from the connection. */
+    totalCount: Scalars['Int']
+  }
+
+/** A `Concept` edge in the connection, with data from `Concept`. */
+export type ConceptConceptsByConceptParentUidAndSameAsUidManyToManyEdge = {
+  /** Reads and enables pagination through a set of `Concept`. */
+  conceptsBySameAs: ConceptsConnection
+  /** A cursor for use in pagination. */
+  cursor?: Maybe<Scalars['Cursor']>
+  /** The `Concept` at the end of the edge. */
+  node: Concept
+}
+
+/** A `Concept` edge in the connection, with data from `Concept`. */
+export type ConceptConceptsByConceptParentUidAndSameAsUidManyToManyEdgeConceptsBySameAsArgs =
+  {
+    after: InputMaybe<Scalars['Cursor']>
+    before: InputMaybe<Scalars['Cursor']>
+    condition: InputMaybe<ConceptCondition>
+    filter: InputMaybe<ConceptFilter>
+    first: InputMaybe<Scalars['Int']>
+    last: InputMaybe<Scalars['Int']>
+    offset: InputMaybe<Scalars['Int']>
+    orderBy?: InputMaybe<Array<ConceptsOrderBy>>
+  }
+
+/** A connection to a list of `Concept` values, with data from `Concept`. */
+export type ConceptConceptsByConceptSameAsUidAndParentUidManyToManyConnection =
+  {
+    /** A list of edges which contains the `Concept`, info from the `Concept`, and the cursor to aid in pagination. */
+    edges: Array<ConceptConceptsByConceptSameAsUidAndParentUidManyToManyEdge>
+    /** A list of `Concept` objects. */
+    nodes: Array<Concept>
+    /** Information to aid in pagination. */
+    pageInfo: PageInfo
+    /** The count of *all* `Concept` you could get from the connection. */
+    totalCount: Scalars['Int']
+  }
+
+/** A `Concept` edge in the connection, with data from `Concept`. */
+export type ConceptConceptsByConceptSameAsUidAndParentUidManyToManyEdge = {
+  /** Reads and enables pagination through a set of `Concept`. */
+  childConcepts: ConceptsConnection
+  /** A cursor for use in pagination. */
+  cursor?: Maybe<Scalars['Cursor']>
+  /** The `Concept` at the end of the edge. */
+  node: Concept
+}
+
+/** A `Concept` edge in the connection, with data from `Concept`. */
+export type ConceptConceptsByConceptSameAsUidAndParentUidManyToManyEdgeChildConceptsArgs =
+  {
+    after: InputMaybe<Scalars['Cursor']>
+    before: InputMaybe<Scalars['Cursor']>
+    condition: InputMaybe<ConceptCondition>
+    filter: InputMaybe<ConceptFilter>
+    first: InputMaybe<Scalars['Int']>
+    last: InputMaybe<Scalars['Int']>
+    offset: InputMaybe<Scalars['Int']>
+    orderBy?: InputMaybe<Array<ConceptsOrderBy>>
+  }
+
 /** A condition to be used against `Concept` object types. All fields are tested for equality and combined with a logical ‘and.’ */
 export type ConceptCondition = {
   /** Checks for equality with the object’s `description` field. */
   description?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `kind` field. */
+  kind?: InputMaybe<ConceptKind>
   /** Checks for equality with the object’s `name` field. */
   name?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `originNamespace` field. */
   originNamespace?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `parentUid` field. */
+  parentUid?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `revisionId` field. */
   revisionId?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `sameAsUid` field. */
@@ -1281,12 +1056,18 @@ export type ConceptContentItemsByConceptToContentItemAAndBManyToManyEdge_Concept
 export type ConceptFilter = {
   /** Checks for all expressions in this list. */
   and?: InputMaybe<Array<ConceptFilter>>
+  /** Filter by the object’s `childConcepts` relation. */
+  childConcepts?: InputMaybe<ConceptToManyConceptFilter>
+  /** Some related `childConcepts` exist. */
+  childConceptsExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `conceptsBySameAs` relation. */
   conceptsBySameAs?: InputMaybe<ConceptToManyConceptFilter>
   /** Some related `conceptsBySameAs` exist. */
   conceptsBySameAsExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `description` field. */
   description?: InputMaybe<StringFilter>
+  /** Filter by the object’s `kind` field. */
+  kind?: InputMaybe<ConceptKindFilter>
   /** Filter by the object’s `name` field. */
   name?: InputMaybe<StringFilter>
   /** Negates the expression. */
@@ -1295,6 +1076,12 @@ export type ConceptFilter = {
   or?: InputMaybe<Array<ConceptFilter>>
   /** Filter by the object’s `originNamespace` field. */
   originNamespace?: InputMaybe<StringFilter>
+  /** Filter by the object’s `parent` relation. */
+  parent?: InputMaybe<ConceptFilter>
+  /** A related `parent` exists. */
+  parentExists?: InputMaybe<Scalars['Boolean']>
+  /** Filter by the object’s `parentUid` field. */
+  parentUid?: InputMaybe<StringFilter>
   /** Filter by the object’s `revision` relation. */
   revision?: InputMaybe<RevisionFilter>
   /** Filter by the object’s `revisionId` field. */
@@ -1311,6 +1098,37 @@ export type ConceptFilter = {
   uid?: InputMaybe<StringFilter>
   /** Filter by the object’s `wikidataIdentifier` field. */
   wikidataIdentifier?: InputMaybe<StringFilter>
+}
+
+export enum ConceptKind {
+  Category = 'CATEGORY',
+  Tag = 'TAG',
+}
+
+/** A filter to be used against ConceptKind fields. All fields are combined with a logical ‘and.’ */
+export type ConceptKindFilter = {
+  /** Not equal to the specified value, treating null like an ordinary value. */
+  distinctFrom?: InputMaybe<ConceptKind>
+  /** Equal to the specified value. */
+  equalTo?: InputMaybe<ConceptKind>
+  /** Greater than the specified value. */
+  greaterThan?: InputMaybe<ConceptKind>
+  /** Greater than or equal to the specified value. */
+  greaterThanOrEqualTo?: InputMaybe<ConceptKind>
+  /** Included in the specified list. */
+  in?: InputMaybe<Array<ConceptKind>>
+  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
+  isNull?: InputMaybe<Scalars['Boolean']>
+  /** Less than the specified value. */
+  lessThan?: InputMaybe<ConceptKind>
+  /** Less than or equal to the specified value. */
+  lessThanOrEqualTo?: InputMaybe<ConceptKind>
+  /** Equal to the specified value, treating null like an ordinary value. */
+  notDistinctFrom?: InputMaybe<ConceptKind>
+  /** Not equal to the specified value. */
+  notEqualTo?: InputMaybe<ConceptKind>
+  /** Not included in the specified list. */
+  notIn?: InputMaybe<Array<ConceptKind>>
 }
 
 /** A connection to a list of `MediaAsset` values, with data from `_ConceptToMediaAsset`. */
@@ -1382,11 +1200,15 @@ export type ConceptsEdge = {
 export enum ConceptsOrderBy {
   DescriptionAsc = 'DESCRIPTION_ASC',
   DescriptionDesc = 'DESCRIPTION_DESC',
+  KindAsc = 'KIND_ASC',
+  KindDesc = 'KIND_DESC',
   NameAsc = 'NAME_ASC',
   NameDesc = 'NAME_DESC',
   Natural = 'NATURAL',
   OriginNamespaceAsc = 'ORIGIN_NAMESPACE_ASC',
   OriginNamespaceDesc = 'ORIGIN_NAMESPACE_DESC',
+  ParentUidAsc = 'PARENT_UID_ASC',
+  ParentUidDesc = 'PARENT_UID_DESC',
   PrimaryKeyAsc = 'PRIMARY_KEY_ASC',
   PrimaryKeyDesc = 'PRIMARY_KEY_DESC',
   RevisionIdAsc = 'REVISION_ID_ASC',
@@ -1414,6 +1236,8 @@ export type ContentGrouping = {
   licenseUid?: Maybe<Scalars['String']>
   /** Reads and enables pagination through a set of `License`. */
   licensesByContentItemPrimaryGroupingUidAndLicenseUid: ContentGroupingLicensesByContentItemPrimaryGroupingUidAndLicenseUidManyToManyConnection
+  /** Reads and enables pagination through a set of `PublicationService`. */
+  publicationServicesByContentItemPrimaryGroupingUidAndPublicationServiceUid: ContentGroupingPublicationServicesByContentItemPrimaryGroupingUidAndPublicationServiceUidManyToManyConnection
   /** Reads a single `Revision` that is related to this `ContentGrouping`. */
   revision?: Maybe<Revision>
   revisionId: Scalars['String']
@@ -1458,6 +1282,18 @@ export type ContentGroupingLicensesByContentItemPrimaryGroupingUidAndLicenseUidA
     last: InputMaybe<Scalars['Int']>
     offset: InputMaybe<Scalars['Int']>
     orderBy?: InputMaybe<Array<LicensesOrderBy>>
+  }
+
+export type ContentGroupingPublicationServicesByContentItemPrimaryGroupingUidAndPublicationServiceUidArgs =
+  {
+    after: InputMaybe<Scalars['Cursor']>
+    before: InputMaybe<Scalars['Cursor']>
+    condition: InputMaybe<PublicationServiceCondition>
+    filter: InputMaybe<PublicationServiceFilter>
+    first: InputMaybe<Scalars['Int']>
+    last: InputMaybe<Scalars['Int']>
+    offset: InputMaybe<Scalars['Int']>
+    orderBy?: InputMaybe<Array<PublicationServicesOrderBy>>
   }
 
 /**
@@ -1609,6 +1445,43 @@ export type ContentGroupingLicensesByContentItemPrimaryGroupingUidAndLicenseUidM
     orderBy?: InputMaybe<Array<ContentItemsOrderBy>>
   }
 
+/** A connection to a list of `PublicationService` values, with data from `ContentItem`. */
+export type ContentGroupingPublicationServicesByContentItemPrimaryGroupingUidAndPublicationServiceUidManyToManyConnection =
+  {
+    /** A list of edges which contains the `PublicationService`, info from the `ContentItem`, and the cursor to aid in pagination. */
+    edges: Array<ContentGroupingPublicationServicesByContentItemPrimaryGroupingUidAndPublicationServiceUidManyToManyEdge>
+    /** A list of `PublicationService` objects. */
+    nodes: Array<PublicationService>
+    /** Information to aid in pagination. */
+    pageInfo: PageInfo
+    /** The count of *all* `PublicationService` you could get from the connection. */
+    totalCount: Scalars['Int']
+  }
+
+/** A `PublicationService` edge in the connection, with data from `ContentItem`. */
+export type ContentGroupingPublicationServicesByContentItemPrimaryGroupingUidAndPublicationServiceUidManyToManyEdge =
+  {
+    /** Reads and enables pagination through a set of `ContentItem`. */
+    contentItems: ContentItemsConnection
+    /** A cursor for use in pagination. */
+    cursor?: Maybe<Scalars['Cursor']>
+    /** The `PublicationService` at the end of the edge. */
+    node: PublicationService
+  }
+
+/** A `PublicationService` edge in the connection, with data from `ContentItem`. */
+export type ContentGroupingPublicationServicesByContentItemPrimaryGroupingUidAndPublicationServiceUidManyToManyEdgeContentItemsArgs =
+  {
+    after: InputMaybe<Scalars['Cursor']>
+    before: InputMaybe<Scalars['Cursor']>
+    condition: InputMaybe<ContentItemCondition>
+    filter: InputMaybe<ContentItemFilter>
+    first: InputMaybe<Scalars['Int']>
+    last: InputMaybe<Scalars['Int']>
+    offset: InputMaybe<Scalars['Int']>
+    orderBy?: InputMaybe<Array<ContentItemsOrderBy>>
+  }
+
 /** A filter to be used against many `ContentItem` object types. All fields are combined with a logical ‘and.’ */
 export type ContentGroupingToManyContentItemFilter = {
   /** Every related `ContentItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
@@ -1704,8 +1577,6 @@ export enum ContentGroupingsOrderBy {
 export type ContentItem = {
   /** Reads and enables pagination through a set of `BroadcastEvent`. */
   broadcastEvents: BroadcastEventsConnection
-  /** Reads and enables pagination through a set of `BroadcastService`. */
-  broadcastServicesByBroadcastEventContentItemUidAndBroadcastServiceUid: ContentItemBroadcastServicesByBroadcastEventContentItemUidAndBroadcastServiceUidManyToManyConnection
   /** Reads and enables pagination through a set of `Concept`. */
   concepts: ContentItemConceptsByConceptToContentItemBAndAManyToManyConnection
   content: Scalars['String']
@@ -1723,6 +1594,11 @@ export type ContentItem = {
   primaryGrouping?: Maybe<ContentGrouping>
   primaryGroupingUid?: Maybe<Scalars['String']>
   pubDate?: Maybe<Scalars['Datetime']>
+  /** Reads a single `PublicationService` that is related to this `ContentItem`. */
+  publicationService?: Maybe<PublicationService>
+  publicationServiceUid?: Maybe<Scalars['String']>
+  /** Reads and enables pagination through a set of `PublicationService`. */
+  publicationServicesByBroadcastEventContentItemUidAndBroadcastServiceUid: ContentItemPublicationServicesByBroadcastEventContentItemUidAndBroadcastServiceUidManyToManyConnection
   /** Reads a single `Revision` that is related to this `ContentItem`. */
   revision?: Maybe<Revision>
   revisionId: Scalars['String']
@@ -1742,18 +1618,6 @@ export type ContentItemBroadcastEventsArgs = {
   offset: InputMaybe<Scalars['Int']>
   orderBy?: InputMaybe<Array<BroadcastEventsOrderBy>>
 }
-
-export type ContentItemBroadcastServicesByBroadcastEventContentItemUidAndBroadcastServiceUidArgs =
-  {
-    after: InputMaybe<Scalars['Cursor']>
-    before: InputMaybe<Scalars['Cursor']>
-    condition: InputMaybe<BroadcastServiceCondition>
-    filter: InputMaybe<BroadcastServiceFilter>
-    first: InputMaybe<Scalars['Int']>
-    last: InputMaybe<Scalars['Int']>
-    offset: InputMaybe<Scalars['Int']>
-    orderBy?: InputMaybe<Array<BroadcastServicesOrderBy>>
-  }
 
 export type ContentItemConceptsArgs = {
   after: InputMaybe<Scalars['Cursor']>
@@ -1799,41 +1663,16 @@ export type ContentItemMediaAssetsArgs = {
   orderBy?: InputMaybe<Array<MediaAssetsOrderBy>>
 }
 
-/** A connection to a list of `BroadcastService` values, with data from `BroadcastEvent`. */
-export type ContentItemBroadcastServicesByBroadcastEventContentItemUidAndBroadcastServiceUidManyToManyConnection =
-  {
-    /** A list of edges which contains the `BroadcastService`, info from the `BroadcastEvent`, and the cursor to aid in pagination. */
-    edges: Array<ContentItemBroadcastServicesByBroadcastEventContentItemUidAndBroadcastServiceUidManyToManyEdge>
-    /** A list of `BroadcastService` objects. */
-    nodes: Array<BroadcastService>
-    /** Information to aid in pagination. */
-    pageInfo: PageInfo
-    /** The count of *all* `BroadcastService` you could get from the connection. */
-    totalCount: Scalars['Int']
-  }
-
-/** A `BroadcastService` edge in the connection, with data from `BroadcastEvent`. */
-export type ContentItemBroadcastServicesByBroadcastEventContentItemUidAndBroadcastServiceUidManyToManyEdge =
-  {
-    /** Reads and enables pagination through a set of `BroadcastEvent`. */
-    broadcastEvents: BroadcastEventsConnection
-    /** A cursor for use in pagination. */
-    cursor?: Maybe<Scalars['Cursor']>
-    /** The `BroadcastService` at the end of the edge. */
-    node: BroadcastService
-  }
-
-/** A `BroadcastService` edge in the connection, with data from `BroadcastEvent`. */
-export type ContentItemBroadcastServicesByBroadcastEventContentItemUidAndBroadcastServiceUidManyToManyEdgeBroadcastEventsArgs =
+export type ContentItemPublicationServicesByBroadcastEventContentItemUidAndBroadcastServiceUidArgs =
   {
     after: InputMaybe<Scalars['Cursor']>
     before: InputMaybe<Scalars['Cursor']>
-    condition: InputMaybe<BroadcastEventCondition>
-    filter: InputMaybe<BroadcastEventFilter>
+    condition: InputMaybe<PublicationServiceCondition>
+    filter: InputMaybe<PublicationServiceFilter>
     first: InputMaybe<Scalars['Int']>
     last: InputMaybe<Scalars['Int']>
     offset: InputMaybe<Scalars['Int']>
-    orderBy?: InputMaybe<Array<BroadcastEventsOrderBy>>
+    orderBy?: InputMaybe<Array<PublicationServicesOrderBy>>
   }
 
 /** A connection to a list of `Concept` values, with data from `_ConceptToContentItem`. */
@@ -1887,6 +1726,8 @@ export type ContentItemCondition = {
   primaryGroupingUid?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `pubDate` field. */
   pubDate?: InputMaybe<Scalars['Datetime']>
+  /** Checks for equality with the object’s `publicationServiceUid` field. */
+  publicationServiceUid?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `revisionId` field. */
   revisionId?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `subtitle` field. */
@@ -2003,6 +1844,12 @@ export type ContentItemFilter = {
   primaryGroupingUid?: InputMaybe<StringFilter>
   /** Filter by the object’s `pubDate` field. */
   pubDate?: InputMaybe<DatetimeFilter>
+  /** Filter by the object’s `publicationService` relation. */
+  publicationService?: InputMaybe<PublicationServiceFilter>
+  /** A related `publicationService` exists. */
+  publicationServiceExists?: InputMaybe<Scalars['Boolean']>
+  /** Filter by the object’s `publicationServiceUid` field. */
+  publicationServiceUid?: InputMaybe<StringFilter>
   /** Filter by the object’s `revision` relation. */
   revision?: InputMaybe<RevisionFilter>
   /** Filter by the object’s `revisionId` field. */
@@ -2054,6 +1901,43 @@ export type ContentItemMediaAssetsByContentItemToMediaAssetAAndBManyToManyEdge_C
     orderBy?: InputMaybe<Array<_ContentItemToMediaAssetsOrderBy>>
   }
 
+/** A connection to a list of `PublicationService` values, with data from `BroadcastEvent`. */
+export type ContentItemPublicationServicesByBroadcastEventContentItemUidAndBroadcastServiceUidManyToManyConnection =
+  {
+    /** A list of edges which contains the `PublicationService`, info from the `BroadcastEvent`, and the cursor to aid in pagination. */
+    edges: Array<ContentItemPublicationServicesByBroadcastEventContentItemUidAndBroadcastServiceUidManyToManyEdge>
+    /** A list of `PublicationService` objects. */
+    nodes: Array<PublicationService>
+    /** Information to aid in pagination. */
+    pageInfo: PageInfo
+    /** The count of *all* `PublicationService` you could get from the connection. */
+    totalCount: Scalars['Int']
+  }
+
+/** A `PublicationService` edge in the connection, with data from `BroadcastEvent`. */
+export type ContentItemPublicationServicesByBroadcastEventContentItemUidAndBroadcastServiceUidManyToManyEdge =
+  {
+    /** Reads and enables pagination through a set of `BroadcastEvent`. */
+    broadcastEventsByBroadcastService: BroadcastEventsConnection
+    /** A cursor for use in pagination. */
+    cursor?: Maybe<Scalars['Cursor']>
+    /** The `PublicationService` at the end of the edge. */
+    node: PublicationService
+  }
+
+/** A `PublicationService` edge in the connection, with data from `BroadcastEvent`. */
+export type ContentItemPublicationServicesByBroadcastEventContentItemUidAndBroadcastServiceUidManyToManyEdgeBroadcastEventsByBroadcastServiceArgs =
+  {
+    after: InputMaybe<Scalars['Cursor']>
+    before: InputMaybe<Scalars['Cursor']>
+    condition: InputMaybe<BroadcastEventCondition>
+    filter: InputMaybe<BroadcastEventFilter>
+    first: InputMaybe<Scalars['Int']>
+    last: InputMaybe<Scalars['Int']>
+    offset: InputMaybe<Scalars['Int']>
+    orderBy?: InputMaybe<Array<BroadcastEventsOrderBy>>
+  }
+
 /** A filter to be used against many `BroadcastEvent` object types. All fields are combined with a logical ‘and.’ */
 export type ContentItemToManyBroadcastEventFilter = {
   /** Every related `BroadcastEvent` matches the filter criteria. All fields are combined with a logical ‘and.’ */
@@ -2097,6 +1981,8 @@ export enum ContentItemsOrderBy {
   PrimaryGroupingUidDesc = 'PRIMARY_GROUPING_UID_DESC',
   PrimaryKeyAsc = 'PRIMARY_KEY_ASC',
   PrimaryKeyDesc = 'PRIMARY_KEY_DESC',
+  PublicationServiceUidAsc = 'PUBLICATION_SERVICE_UID_ASC',
+  PublicationServiceUidDesc = 'PUBLICATION_SERVICE_UID_DESC',
   PubDateAsc = 'PUB_DATE_ASC',
   PubDateDesc = 'PUB_DATE_DESC',
   RevisionIdAsc = 'REVISION_ID_ASC',
@@ -2112,10 +1998,10 @@ export enum ContentItemsOrderBy {
 }
 
 export type Contribution = {
-  /** Reads and enables pagination through a set of `Actor`. */
-  actors: ContributionActorsByActorToContributionBAndAManyToManyConnection
   /** Reads and enables pagination through a set of `ContentItem`. */
   contentItems: ContributionContentItemsByContentItemToContributionBAndAManyToManyConnection
+  /** Reads and enables pagination through a set of `Contributor`. */
+  contributors: ContributionContributorsByContributionToContributorAAndBManyToManyConnection
   /** Reads and enables pagination through a set of `MediaAsset`. */
   mediaAssets: ContributionMediaAssetsByContributionToMediaAssetAAndBManyToManyConnection
   /** Reads a single `Revision` that is related to this `Contribution`. */
@@ -2123,17 +2009,6 @@ export type Contribution = {
   revisionId: Scalars['String']
   role: Scalars['String']
   uid: Scalars['String']
-}
-
-export type ContributionActorsArgs = {
-  after: InputMaybe<Scalars['Cursor']>
-  before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<ActorCondition>
-  filter: InputMaybe<ActorFilter>
-  first: InputMaybe<Scalars['Int']>
-  last: InputMaybe<Scalars['Int']>
-  offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<ActorsOrderBy>>
 }
 
 export type ContributionContentItemsArgs = {
@@ -2147,6 +2022,17 @@ export type ContributionContentItemsArgs = {
   orderBy?: InputMaybe<Array<ContentItemsOrderBy>>
 }
 
+export type ContributionContributorsArgs = {
+  after: InputMaybe<Scalars['Cursor']>
+  before: InputMaybe<Scalars['Cursor']>
+  condition: InputMaybe<ContributorCondition>
+  filter: InputMaybe<ContributorFilter>
+  first: InputMaybe<Scalars['Int']>
+  last: InputMaybe<Scalars['Int']>
+  offset: InputMaybe<Scalars['Int']>
+  orderBy?: InputMaybe<Array<ContributorsOrderBy>>
+}
+
 export type ContributionMediaAssetsArgs = {
   after: InputMaybe<Scalars['Cursor']>
   before: InputMaybe<Scalars['Cursor']>
@@ -2157,41 +2043,6 @@ export type ContributionMediaAssetsArgs = {
   offset: InputMaybe<Scalars['Int']>
   orderBy?: InputMaybe<Array<MediaAssetsOrderBy>>
 }
-
-/** A connection to a list of `Actor` values, with data from `_ActorToContribution`. */
-export type ContributionActorsByActorToContributionBAndAManyToManyConnection = {
-  /** A list of edges which contains the `Actor`, info from the `_ActorToContribution`, and the cursor to aid in pagination. */
-  edges: Array<ContributionActorsByActorToContributionBAndAManyToManyEdge>
-  /** A list of `Actor` objects. */
-  nodes: Array<Actor>
-  /** Information to aid in pagination. */
-  pageInfo: PageInfo
-  /** The count of *all* `Actor` you could get from the connection. */
-  totalCount: Scalars['Int']
-}
-
-/** A `Actor` edge in the connection, with data from `_ActorToContribution`. */
-export type ContributionActorsByActorToContributionBAndAManyToManyEdge = {
-  /** Reads and enables pagination through a set of `_ActorToContribution`. */
-  _actorToContributionsByA: _ActorToContributionsConnection
-  /** A cursor for use in pagination. */
-  cursor?: Maybe<Scalars['Cursor']>
-  /** The `Actor` at the end of the edge. */
-  node: Actor
-}
-
-/** A `Actor` edge in the connection, with data from `_ActorToContribution`. */
-export type ContributionActorsByActorToContributionBAndAManyToManyEdge_ActorToContributionsByAArgs =
-  {
-    after: InputMaybe<Scalars['Cursor']>
-    before: InputMaybe<Scalars['Cursor']>
-    condition: InputMaybe<_ActorToContributionCondition>
-    filter: InputMaybe<_ActorToContributionFilter>
-    first: InputMaybe<Scalars['Int']>
-    last: InputMaybe<Scalars['Int']>
-    offset: InputMaybe<Scalars['Int']>
-    orderBy?: InputMaybe<Array<_ActorToContributionsOrderBy>>
-  }
 
 /**
  * A condition to be used against `Contribution` object types. All fields are
@@ -2241,6 +2092,43 @@ export type ContributionContentItemsByContentItemToContributionBAndAManyToManyEd
     last: InputMaybe<Scalars['Int']>
     offset: InputMaybe<Scalars['Int']>
     orderBy?: InputMaybe<Array<_ContentItemToContributionsOrderBy>>
+  }
+
+/** A connection to a list of `Contributor` values, with data from `_ContributionToContributor`. */
+export type ContributionContributorsByContributionToContributorAAndBManyToManyConnection =
+  {
+    /** A list of edges which contains the `Contributor`, info from the `_ContributionToContributor`, and the cursor to aid in pagination. */
+    edges: Array<ContributionContributorsByContributionToContributorAAndBManyToManyEdge>
+    /** A list of `Contributor` objects. */
+    nodes: Array<Contributor>
+    /** Information to aid in pagination. */
+    pageInfo: PageInfo
+    /** The count of *all* `Contributor` you could get from the connection. */
+    totalCount: Scalars['Int']
+  }
+
+/** A `Contributor` edge in the connection, with data from `_ContributionToContributor`. */
+export type ContributionContributorsByContributionToContributorAAndBManyToManyEdge =
+  {
+    /** Reads and enables pagination through a set of `_ContributionToContributor`. */
+    _contributionToContributorsByB: _ContributionToContributorsConnection
+    /** A cursor for use in pagination. */
+    cursor?: Maybe<Scalars['Cursor']>
+    /** The `Contributor` at the end of the edge. */
+    node: Contributor
+  }
+
+/** A `Contributor` edge in the connection, with data from `_ContributionToContributor`. */
+export type ContributionContributorsByContributionToContributorAAndBManyToManyEdge_ContributionToContributorsByBArgs =
+  {
+    after: InputMaybe<Scalars['Cursor']>
+    before: InputMaybe<Scalars['Cursor']>
+    condition: InputMaybe<_ContributionToContributorCondition>
+    filter: InputMaybe<_ContributionToContributorFilter>
+    first: InputMaybe<Scalars['Int']>
+    last: InputMaybe<Scalars['Int']>
+    offset: InputMaybe<Scalars['Int']>
+    orderBy?: InputMaybe<Array<_ContributionToContributorsOrderBy>>
   }
 
 /** A filter to be used against `Contribution` object types. All fields are combined with a logical ‘and.’ */
@@ -2327,6 +2215,180 @@ export enum ContributionsOrderBy {
   RevisionIdDesc = 'REVISION_ID_DESC',
   RoleAsc = 'ROLE_ASC',
   RoleDesc = 'ROLE_DESC',
+  UidAsc = 'UID_ASC',
+  UidDesc = 'UID_DESC',
+}
+
+export type Contributor = {
+  contactInformation: Scalars['String']
+  /** Reads and enables pagination through a set of `Contribution`. */
+  contributions: ContributorContributionsByContributionToContributorBAndAManyToManyConnection
+  name: Scalars['String']
+  personOrOrganization: Scalars['String']
+  /** Reads a single `File` that is related to this `Contributor`. */
+  profilePicture?: Maybe<File>
+  profilePictureUid: Scalars['String']
+  /** Reads and enables pagination through a set of `PublicationService`. */
+  publicationServicesByPublisher: PublicationServicesConnection
+  /** Reads a single `Revision` that is related to this `Contributor`. */
+  revision?: Maybe<Revision>
+  revisionId: Scalars['String']
+  uid: Scalars['String']
+}
+
+export type ContributorContributionsArgs = {
+  after: InputMaybe<Scalars['Cursor']>
+  before: InputMaybe<Scalars['Cursor']>
+  condition: InputMaybe<ContributionCondition>
+  filter: InputMaybe<ContributionFilter>
+  first: InputMaybe<Scalars['Int']>
+  last: InputMaybe<Scalars['Int']>
+  offset: InputMaybe<Scalars['Int']>
+  orderBy?: InputMaybe<Array<ContributionsOrderBy>>
+}
+
+export type ContributorPublicationServicesByPublisherArgs = {
+  after: InputMaybe<Scalars['Cursor']>
+  before: InputMaybe<Scalars['Cursor']>
+  condition: InputMaybe<PublicationServiceCondition>
+  filter: InputMaybe<PublicationServiceFilter>
+  first: InputMaybe<Scalars['Int']>
+  last: InputMaybe<Scalars['Int']>
+  offset: InputMaybe<Scalars['Int']>
+  orderBy?: InputMaybe<Array<PublicationServicesOrderBy>>
+}
+
+/**
+ * A condition to be used against `Contributor` object types. All fields are tested
+ * for equality and combined with a logical ‘and.’
+ */
+export type ContributorCondition = {
+  /** Checks for equality with the object’s `contactInformation` field. */
+  contactInformation?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `name` field. */
+  name?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `personOrOrganization` field. */
+  personOrOrganization?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `profilePictureUid` field. */
+  profilePictureUid?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `revisionId` field. */
+  revisionId?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `uid` field. */
+  uid?: InputMaybe<Scalars['String']>
+}
+
+/** A connection to a list of `Contribution` values, with data from `_ContributionToContributor`. */
+export type ContributorContributionsByContributionToContributorBAndAManyToManyConnection =
+  {
+    /** A list of edges which contains the `Contribution`, info from the `_ContributionToContributor`, and the cursor to aid in pagination. */
+    edges: Array<ContributorContributionsByContributionToContributorBAndAManyToManyEdge>
+    /** A list of `Contribution` objects. */
+    nodes: Array<Contribution>
+    /** Information to aid in pagination. */
+    pageInfo: PageInfo
+    /** The count of *all* `Contribution` you could get from the connection. */
+    totalCount: Scalars['Int']
+  }
+
+/** A `Contribution` edge in the connection, with data from `_ContributionToContributor`. */
+export type ContributorContributionsByContributionToContributorBAndAManyToManyEdge =
+  {
+    /** Reads and enables pagination through a set of `_ContributionToContributor`. */
+    _contributionToContributorsByA: _ContributionToContributorsConnection
+    /** A cursor for use in pagination. */
+    cursor?: Maybe<Scalars['Cursor']>
+    /** The `Contribution` at the end of the edge. */
+    node: Contribution
+  }
+
+/** A `Contribution` edge in the connection, with data from `_ContributionToContributor`. */
+export type ContributorContributionsByContributionToContributorBAndAManyToManyEdge_ContributionToContributorsByAArgs =
+  {
+    after: InputMaybe<Scalars['Cursor']>
+    before: InputMaybe<Scalars['Cursor']>
+    condition: InputMaybe<_ContributionToContributorCondition>
+    filter: InputMaybe<_ContributionToContributorFilter>
+    first: InputMaybe<Scalars['Int']>
+    last: InputMaybe<Scalars['Int']>
+    offset: InputMaybe<Scalars['Int']>
+    orderBy?: InputMaybe<Array<_ContributionToContributorsOrderBy>>
+  }
+
+/** A filter to be used against `Contributor` object types. All fields are combined with a logical ‘and.’ */
+export type ContributorFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<ContributorFilter>>
+  /** Filter by the object’s `contactInformation` field. */
+  contactInformation?: InputMaybe<StringFilter>
+  /** Filter by the object’s `name` field. */
+  name?: InputMaybe<StringFilter>
+  /** Negates the expression. */
+  not?: InputMaybe<ContributorFilter>
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<ContributorFilter>>
+  /** Filter by the object’s `personOrOrganization` field. */
+  personOrOrganization?: InputMaybe<StringFilter>
+  /** Filter by the object’s `profilePicture` relation. */
+  profilePicture?: InputMaybe<FileFilter>
+  /** Filter by the object’s `profilePictureUid` field. */
+  profilePictureUid?: InputMaybe<StringFilter>
+  /** Filter by the object’s `publicationServicesByPublisher` relation. */
+  publicationServicesByPublisher?: InputMaybe<ContributorToManyPublicationServiceFilter>
+  /** Some related `publicationServicesByPublisher` exist. */
+  publicationServicesByPublisherExist?: InputMaybe<Scalars['Boolean']>
+  /** Filter by the object’s `revision` relation. */
+  revision?: InputMaybe<RevisionFilter>
+  /** Filter by the object’s `revisionId` field. */
+  revisionId?: InputMaybe<StringFilter>
+  /** Filter by the object’s `uid` field. */
+  uid?: InputMaybe<StringFilter>
+}
+
+/** A filter to be used against many `PublicationService` object types. All fields are combined with a logical ‘and.’ */
+export type ContributorToManyPublicationServiceFilter = {
+  /** Every related `PublicationService` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<PublicationServiceFilter>
+  /** No related `PublicationService` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<PublicationServiceFilter>
+  /** Some related `PublicationService` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<PublicationServiceFilter>
+}
+
+/** A connection to a list of `Contributor` values. */
+export type ContributorsConnection = {
+  /** A list of edges which contains the `Contributor` and cursor to aid in pagination. */
+  edges: Array<ContributorsEdge>
+  /** A list of `Contributor` objects. */
+  nodes: Array<Contributor>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** The count of *all* `Contributor` you could get from the connection. */
+  totalCount: Scalars['Int']
+}
+
+/** A `Contributor` edge in the connection. */
+export type ContributorsEdge = {
+  /** A cursor for use in pagination. */
+  cursor?: Maybe<Scalars['Cursor']>
+  /** The `Contributor` at the end of the edge. */
+  node: Contributor
+}
+
+/** Methods to use when ordering `Contributor`. */
+export enum ContributorsOrderBy {
+  ContactInformationAsc = 'CONTACT_INFORMATION_ASC',
+  ContactInformationDesc = 'CONTACT_INFORMATION_DESC',
+  NameAsc = 'NAME_ASC',
+  NameDesc = 'NAME_DESC',
+  Natural = 'NATURAL',
+  PersonOrOrganizationAsc = 'PERSON_OR_ORGANIZATION_ASC',
+  PersonOrOrganizationDesc = 'PERSON_OR_ORGANIZATION_DESC',
+  PrimaryKeyAsc = 'PRIMARY_KEY_ASC',
+  PrimaryKeyDesc = 'PRIMARY_KEY_DESC',
+  ProfilePictureUidAsc = 'PROFILE_PICTURE_UID_ASC',
+  ProfilePictureUidDesc = 'PROFILE_PICTURE_UID_DESC',
+  RevisionIdAsc = 'REVISION_ID_ASC',
+  RevisionIdDesc = 'REVISION_ID_DESC',
   UidAsc = 'UID_ASC',
   UidDesc = 'UID_DESC',
 }
@@ -2562,15 +2624,97 @@ export type EntityToManyMetadatumFilter = {
   some?: InputMaybe<MetadatumFilter>
 }
 
+export type FailedDatasourceFetch = {
+  datasourceUid: Scalars['String']
+  errorDetails?: Maybe<Scalars['JSON']>
+  errorMessage: Scalars['String']
+  timestamp: Scalars['Datetime']
+  uri: Scalars['String']
+}
+
+/**
+ * A condition to be used against `FailedDatasourceFetch` object types. All fields
+ * are tested for equality and combined with a logical ‘and.’
+ */
+export type FailedDatasourceFetchCondition = {
+  /** Checks for equality with the object’s `datasourceUid` field. */
+  datasourceUid?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `errorDetails` field. */
+  errorDetails?: InputMaybe<Scalars['JSON']>
+  /** Checks for equality with the object’s `errorMessage` field. */
+  errorMessage?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `timestamp` field. */
+  timestamp?: InputMaybe<Scalars['Datetime']>
+  /** Checks for equality with the object’s `uri` field. */
+  uri?: InputMaybe<Scalars['String']>
+}
+
+/** A filter to be used against `FailedDatasourceFetch` object types. All fields are combined with a logical ‘and.’ */
+export type FailedDatasourceFetchFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<FailedDatasourceFetchFilter>>
+  /** Filter by the object’s `datasourceUid` field. */
+  datasourceUid?: InputMaybe<StringFilter>
+  /** Filter by the object’s `errorDetails` field. */
+  errorDetails?: InputMaybe<JsonFilter>
+  /** Filter by the object’s `errorMessage` field. */
+  errorMessage?: InputMaybe<StringFilter>
+  /** Negates the expression. */
+  not?: InputMaybe<FailedDatasourceFetchFilter>
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<FailedDatasourceFetchFilter>>
+  /** Filter by the object’s `timestamp` field. */
+  timestamp?: InputMaybe<DatetimeFilter>
+  /** Filter by the object’s `uri` field. */
+  uri?: InputMaybe<StringFilter>
+}
+
+/** A connection to a list of `FailedDatasourceFetch` values. */
+export type FailedDatasourceFetchesConnection = {
+  /** A list of edges which contains the `FailedDatasourceFetch` and cursor to aid in pagination. */
+  edges: Array<FailedDatasourceFetchesEdge>
+  /** A list of `FailedDatasourceFetch` objects. */
+  nodes: Array<FailedDatasourceFetch>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** The count of *all* `FailedDatasourceFetch` you could get from the connection. */
+  totalCount: Scalars['Int']
+}
+
+/** A `FailedDatasourceFetch` edge in the connection. */
+export type FailedDatasourceFetchesEdge = {
+  /** A cursor for use in pagination. */
+  cursor?: Maybe<Scalars['Cursor']>
+  /** The `FailedDatasourceFetch` at the end of the edge. */
+  node: FailedDatasourceFetch
+}
+
+/** Methods to use when ordering `FailedDatasourceFetch`. */
+export enum FailedDatasourceFetchesOrderBy {
+  DatasourceUidAsc = 'DATASOURCE_UID_ASC',
+  DatasourceUidDesc = 'DATASOURCE_UID_DESC',
+  ErrorDetailsAsc = 'ERROR_DETAILS_ASC',
+  ErrorDetailsDesc = 'ERROR_DETAILS_DESC',
+  ErrorMessageAsc = 'ERROR_MESSAGE_ASC',
+  ErrorMessageDesc = 'ERROR_MESSAGE_DESC',
+  Natural = 'NATURAL',
+  PrimaryKeyAsc = 'PRIMARY_KEY_ASC',
+  PrimaryKeyDesc = 'PRIMARY_KEY_DESC',
+  TimestampAsc = 'TIMESTAMP_ASC',
+  TimestampDesc = 'TIMESTAMP_DESC',
+  UriAsc = 'URI_ASC',
+  UriDesc = 'URI_DESC',
+}
+
 export type File = {
-  /** Reads and enables pagination through a set of `Actor`. */
-  actorsByProfilePicture: ActorsConnection
   additionalMetadata?: Maybe<Scalars['String']>
   bitrate?: Maybe<Scalars['Int']>
   cid?: Maybe<Scalars['String']>
   codec?: Maybe<Scalars['String']>
   contentSize?: Maybe<Scalars['Int']>
   contentUrl: Scalars['String']
+  /** Reads and enables pagination through a set of `Contributor`. */
+  contributorsByProfilePicture: ContributorsConnection
   duration?: Maybe<Scalars['Float']>
   /** Reads and enables pagination through a set of `File`. */
   filesByMediaAssetFileUidAndTeaserImageUid: FileFilesByMediaAssetFileUidAndTeaserImageUidManyToManyConnection
@@ -2592,15 +2736,15 @@ export type File = {
   uid: Scalars['String']
 }
 
-export type FileActorsByProfilePictureArgs = {
+export type FileContributorsByProfilePictureArgs = {
   after: InputMaybe<Scalars['Cursor']>
   before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<ActorCondition>
-  filter: InputMaybe<ActorFilter>
+  condition: InputMaybe<ContributorCondition>
+  filter: InputMaybe<ContributorFilter>
   first: InputMaybe<Scalars['Int']>
   last: InputMaybe<Scalars['Int']>
   offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<ActorsOrderBy>>
+  orderBy?: InputMaybe<Array<ContributorsOrderBy>>
 }
 
 export type FileFilesByMediaAssetFileUidAndTeaserImageUidArgs = {
@@ -2769,10 +2913,6 @@ export type FileFilesByMediaAssetTeaserImageUidAndFileUidManyToManyEdgeMediaAsse
 
 /** A filter to be used against `File` object types. All fields are combined with a logical ‘and.’ */
 export type FileFilter = {
-  /** Filter by the object’s `actorsByProfilePicture` relation. */
-  actorsByProfilePicture?: InputMaybe<FileToManyActorFilter>
-  /** Some related `actorsByProfilePicture` exist. */
-  actorsByProfilePictureExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `additionalMetadata` field. */
   additionalMetadata?: InputMaybe<StringFilter>
   /** Checks for all expressions in this list. */
@@ -2787,6 +2927,10 @@ export type FileFilter = {
   contentSize?: InputMaybe<IntFilter>
   /** Filter by the object’s `contentUrl` field. */
   contentUrl?: InputMaybe<StringFilter>
+  /** Filter by the object’s `contributorsByProfilePicture` relation. */
+  contributorsByProfilePicture?: InputMaybe<FileToManyContributorFilter>
+  /** Some related `contributorsByProfilePicture` exist. */
+  contributorsByProfilePictureExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `duration` field. */
   duration?: InputMaybe<FloatFilter>
   /** Filter by the object’s `mediaAssets` relation. */
@@ -2885,14 +3029,14 @@ export type FileLicensesByMediaAssetTeaserImageUidAndLicenseUidManyToManyEdgeMed
     orderBy?: InputMaybe<Array<MediaAssetsOrderBy>>
   }
 
-/** A filter to be used against many `Actor` object types. All fields are combined with a logical ‘and.’ */
-export type FileToManyActorFilter = {
-  /** Every related `Actor` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  every?: InputMaybe<ActorFilter>
-  /** No related `Actor` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  none?: InputMaybe<ActorFilter>
-  /** Some related `Actor` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  some?: InputMaybe<ActorFilter>
+/** A filter to be used against many `Contributor` object types. All fields are combined with a logical ‘and.’ */
+export type FileToManyContributorFilter = {
+  /** Every related `Contributor` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<ContributorFilter>
+  /** No related `Contributor` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<ContributorFilter>
+  /** Some related `Contributor` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<ContributorFilter>
 }
 
 /** A filter to be used against many `MediaAsset` object types. All fields are combined with a logical ‘and.’ */
@@ -3159,6 +3303,8 @@ export type License = {
   /** Reads and enables pagination through a set of `MediaAsset`. */
   mediaAssets: MediaAssetsConnection
   name: Scalars['String']
+  /** Reads and enables pagination through a set of `PublicationService`. */
+  publicationServicesByContentItemLicenseUidAndPublicationServiceUid: LicensePublicationServicesByContentItemLicenseUidAndPublicationServiceUidManyToManyConnection
   /** Reads a single `Revision` that is related to this `License`. */
   revision?: Maybe<Revision>
   revisionId: Scalars['String']
@@ -3231,6 +3377,18 @@ export type LicenseMediaAssetsArgs = {
   offset: InputMaybe<Scalars['Int']>
   orderBy?: InputMaybe<Array<MediaAssetsOrderBy>>
 }
+
+export type LicensePublicationServicesByContentItemLicenseUidAndPublicationServiceUidArgs =
+  {
+    after: InputMaybe<Scalars['Cursor']>
+    before: InputMaybe<Scalars['Cursor']>
+    condition: InputMaybe<PublicationServiceCondition>
+    filter: InputMaybe<PublicationServiceFilter>
+    first: InputMaybe<Scalars['Int']>
+    last: InputMaybe<Scalars['Int']>
+    offset: InputMaybe<Scalars['Int']>
+    orderBy?: InputMaybe<Array<PublicationServicesOrderBy>>
+  }
 
 /** A condition to be used against `License` object types. All fields are tested for equality and combined with a logical ‘and.’ */
 export type LicenseCondition = {
@@ -3381,6 +3539,43 @@ export type LicenseFilter = {
   uid?: InputMaybe<StringFilter>
 }
 
+/** A connection to a list of `PublicationService` values, with data from `ContentItem`. */
+export type LicensePublicationServicesByContentItemLicenseUidAndPublicationServiceUidManyToManyConnection =
+  {
+    /** A list of edges which contains the `PublicationService`, info from the `ContentItem`, and the cursor to aid in pagination. */
+    edges: Array<LicensePublicationServicesByContentItemLicenseUidAndPublicationServiceUidManyToManyEdge>
+    /** A list of `PublicationService` objects. */
+    nodes: Array<PublicationService>
+    /** Information to aid in pagination. */
+    pageInfo: PageInfo
+    /** The count of *all* `PublicationService` you could get from the connection. */
+    totalCount: Scalars['Int']
+  }
+
+/** A `PublicationService` edge in the connection, with data from `ContentItem`. */
+export type LicensePublicationServicesByContentItemLicenseUidAndPublicationServiceUidManyToManyEdge =
+  {
+    /** Reads and enables pagination through a set of `ContentItem`. */
+    contentItems: ContentItemsConnection
+    /** A cursor for use in pagination. */
+    cursor?: Maybe<Scalars['Cursor']>
+    /** The `PublicationService` at the end of the edge. */
+    node: PublicationService
+  }
+
+/** A `PublicationService` edge in the connection, with data from `ContentItem`. */
+export type LicensePublicationServicesByContentItemLicenseUidAndPublicationServiceUidManyToManyEdgeContentItemsArgs =
+  {
+    after: InputMaybe<Scalars['Cursor']>
+    before: InputMaybe<Scalars['Cursor']>
+    condition: InputMaybe<ContentItemCondition>
+    filter: InputMaybe<ContentItemFilter>
+    first: InputMaybe<Scalars['Int']>
+    last: InputMaybe<Scalars['Int']>
+    offset: InputMaybe<Scalars['Int']>
+    orderBy?: InputMaybe<Array<ContentItemsOrderBy>>
+  }
+
 /** A filter to be used against many `ContentGrouping` object types. All fields are combined with a logical ‘and.’ */
 export type LicenseToManyContentGroupingFilter = {
   /** Every related `ContentGrouping` matches the filter criteria. All fields are combined with a logical ‘and.’ */
@@ -3471,6 +3666,8 @@ export type MediaAsset = {
   title: Scalars['String']
   /** Reads and enables pagination through a set of `Transcript`. */
   transcripts: TranscriptsConnection
+  /** Reads and enables pagination through a set of `Translation`. */
+  translations: TranslationsConnection
   uid: Scalars['String']
 }
 
@@ -3527,6 +3724,17 @@ export type MediaAssetTranscriptsArgs = {
   last: InputMaybe<Scalars['Int']>
   offset: InputMaybe<Scalars['Int']>
   orderBy?: InputMaybe<Array<TranscriptsOrderBy>>
+}
+
+export type MediaAssetTranslationsArgs = {
+  after: InputMaybe<Scalars['Cursor']>
+  before: InputMaybe<Scalars['Cursor']>
+  condition: InputMaybe<TranslationCondition>
+  filter: InputMaybe<TranslationFilter>
+  first: InputMaybe<Scalars['Int']>
+  last: InputMaybe<Scalars['Int']>
+  offset: InputMaybe<Scalars['Int']>
+  orderBy?: InputMaybe<Array<TranslationsOrderBy>>
 }
 
 /** A connection to a list of `Concept` values, with data from `_ConceptToMediaAsset`. */
@@ -3707,6 +3915,10 @@ export type MediaAssetFilter = {
   transcripts?: InputMaybe<MediaAssetToManyTranscriptFilter>
   /** Some related `transcripts` exist. */
   transcriptsExist?: InputMaybe<Scalars['Boolean']>
+  /** Filter by the object’s `translations` relation. */
+  translations?: InputMaybe<MediaAssetToManyTranslationFilter>
+  /** Some related `translations` exist. */
+  translationsExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `uid` field. */
   uid?: InputMaybe<StringFilter>
 }
@@ -3729,6 +3941,16 @@ export type MediaAssetToManyTranscriptFilter = {
   none?: InputMaybe<TranscriptFilter>
   /** Some related `Transcript` matches the filter criteria. All fields are combined with a logical ‘and.’ */
   some?: InputMaybe<TranscriptFilter>
+}
+
+/** A filter to be used against many `Translation` object types. All fields are combined with a logical ‘and.’ */
+export type MediaAssetToManyTranslationFilter = {
+  /** Every related `Translation` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<TranslationFilter>
+  /** No related `Translation` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<TranslationFilter>
+  /** Some related `Translation` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<TranslationFilter>
 }
 
 /** A connection to a list of `MediaAsset` values. */
@@ -3876,11 +4098,314 @@ export type PageInfo = {
   startCursor?: Maybe<Scalars['Cursor']>
 }
 
+export type PublicationService = {
+  address: Scalars['String']
+  /** Reads and enables pagination through a set of `BroadcastEvent`. */
+  broadcastEventsByBroadcastService: BroadcastEventsConnection
+  /** Reads and enables pagination through a set of `ContentGrouping`. */
+  contentGroupingsByContentItemPublicationServiceUidAndPrimaryGroupingUid: PublicationServiceContentGroupingsByContentItemPublicationServiceUidAndPrimaryGroupingUidManyToManyConnection
+  /** Reads and enables pagination through a set of `ContentItem`. */
+  contentItems: ContentItemsConnection
+  /** Reads and enables pagination through a set of `ContentItem`. */
+  contentItemsByBroadcastEventBroadcastServiceUidAndContentItemUid: PublicationServiceContentItemsByBroadcastEventBroadcastServiceUidAndContentItemUidManyToManyConnection
+  /** Reads and enables pagination through a set of `License`. */
+  licensesByContentItemPublicationServiceUidAndLicenseUid: PublicationServiceLicensesByContentItemPublicationServiceUidAndLicenseUidManyToManyConnection
+  medium?: Maybe<Scalars['String']>
+  name: Scalars['String']
+  /** Reads a single `Contributor` that is related to this `PublicationService`. */
+  publisher?: Maybe<Contributor>
+  publisherUid?: Maybe<Scalars['String']>
+  /** Reads a single `Revision` that is related to this `PublicationService`. */
+  revision?: Maybe<Revision>
+  revisionId: Scalars['String']
+  uid: Scalars['String']
+}
+
+export type PublicationServiceBroadcastEventsByBroadcastServiceArgs = {
+  after: InputMaybe<Scalars['Cursor']>
+  before: InputMaybe<Scalars['Cursor']>
+  condition: InputMaybe<BroadcastEventCondition>
+  filter: InputMaybe<BroadcastEventFilter>
+  first: InputMaybe<Scalars['Int']>
+  last: InputMaybe<Scalars['Int']>
+  offset: InputMaybe<Scalars['Int']>
+  orderBy?: InputMaybe<Array<BroadcastEventsOrderBy>>
+}
+
+export type PublicationServiceContentGroupingsByContentItemPublicationServiceUidAndPrimaryGroupingUidArgs =
+  {
+    after: InputMaybe<Scalars['Cursor']>
+    before: InputMaybe<Scalars['Cursor']>
+    condition: InputMaybe<ContentGroupingCondition>
+    filter: InputMaybe<ContentGroupingFilter>
+    first: InputMaybe<Scalars['Int']>
+    last: InputMaybe<Scalars['Int']>
+    offset: InputMaybe<Scalars['Int']>
+    orderBy?: InputMaybe<Array<ContentGroupingsOrderBy>>
+  }
+
+export type PublicationServiceContentItemsArgs = {
+  after: InputMaybe<Scalars['Cursor']>
+  before: InputMaybe<Scalars['Cursor']>
+  condition: InputMaybe<ContentItemCondition>
+  filter: InputMaybe<ContentItemFilter>
+  first: InputMaybe<Scalars['Int']>
+  last: InputMaybe<Scalars['Int']>
+  offset: InputMaybe<Scalars['Int']>
+  orderBy?: InputMaybe<Array<ContentItemsOrderBy>>
+}
+
+export type PublicationServiceContentItemsByBroadcastEventBroadcastServiceUidAndContentItemUidArgs =
+  {
+    after: InputMaybe<Scalars['Cursor']>
+    before: InputMaybe<Scalars['Cursor']>
+    condition: InputMaybe<ContentItemCondition>
+    filter: InputMaybe<ContentItemFilter>
+    first: InputMaybe<Scalars['Int']>
+    last: InputMaybe<Scalars['Int']>
+    offset: InputMaybe<Scalars['Int']>
+    orderBy?: InputMaybe<Array<ContentItemsOrderBy>>
+  }
+
+export type PublicationServiceLicensesByContentItemPublicationServiceUidAndLicenseUidArgs =
+  {
+    after: InputMaybe<Scalars['Cursor']>
+    before: InputMaybe<Scalars['Cursor']>
+    condition: InputMaybe<LicenseCondition>
+    filter: InputMaybe<LicenseFilter>
+    first: InputMaybe<Scalars['Int']>
+    last: InputMaybe<Scalars['Int']>
+    offset: InputMaybe<Scalars['Int']>
+    orderBy?: InputMaybe<Array<LicensesOrderBy>>
+  }
+
+/**
+ * A condition to be used against `PublicationService` object types. All fields are
+ * tested for equality and combined with a logical ‘and.’
+ */
+export type PublicationServiceCondition = {
+  /** Checks for equality with the object’s `address` field. */
+  address?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `medium` field. */
+  medium?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `name` field. */
+  name?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `publisherUid` field. */
+  publisherUid?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `revisionId` field. */
+  revisionId?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `uid` field. */
+  uid?: InputMaybe<Scalars['String']>
+}
+
+/** A connection to a list of `ContentGrouping` values, with data from `ContentItem`. */
+export type PublicationServiceContentGroupingsByContentItemPublicationServiceUidAndPrimaryGroupingUidManyToManyConnection =
+  {
+    /** A list of edges which contains the `ContentGrouping`, info from the `ContentItem`, and the cursor to aid in pagination. */
+    edges: Array<PublicationServiceContentGroupingsByContentItemPublicationServiceUidAndPrimaryGroupingUidManyToManyEdge>
+    /** A list of `ContentGrouping` objects. */
+    nodes: Array<ContentGrouping>
+    /** Information to aid in pagination. */
+    pageInfo: PageInfo
+    /** The count of *all* `ContentGrouping` you could get from the connection. */
+    totalCount: Scalars['Int']
+  }
+
+/** A `ContentGrouping` edge in the connection, with data from `ContentItem`. */
+export type PublicationServiceContentGroupingsByContentItemPublicationServiceUidAndPrimaryGroupingUidManyToManyEdge =
+  {
+    /** Reads and enables pagination through a set of `ContentItem`. */
+    contentItemsByPrimaryGrouping: ContentItemsConnection
+    /** A cursor for use in pagination. */
+    cursor?: Maybe<Scalars['Cursor']>
+    /** The `ContentGrouping` at the end of the edge. */
+    node: ContentGrouping
+  }
+
+/** A `ContentGrouping` edge in the connection, with data from `ContentItem`. */
+export type PublicationServiceContentGroupingsByContentItemPublicationServiceUidAndPrimaryGroupingUidManyToManyEdgeContentItemsByPrimaryGroupingArgs =
+  {
+    after: InputMaybe<Scalars['Cursor']>
+    before: InputMaybe<Scalars['Cursor']>
+    condition: InputMaybe<ContentItemCondition>
+    filter: InputMaybe<ContentItemFilter>
+    first: InputMaybe<Scalars['Int']>
+    last: InputMaybe<Scalars['Int']>
+    offset: InputMaybe<Scalars['Int']>
+    orderBy?: InputMaybe<Array<ContentItemsOrderBy>>
+  }
+
+/** A connection to a list of `ContentItem` values, with data from `BroadcastEvent`. */
+export type PublicationServiceContentItemsByBroadcastEventBroadcastServiceUidAndContentItemUidManyToManyConnection =
+  {
+    /** A list of edges which contains the `ContentItem`, info from the `BroadcastEvent`, and the cursor to aid in pagination. */
+    edges: Array<PublicationServiceContentItemsByBroadcastEventBroadcastServiceUidAndContentItemUidManyToManyEdge>
+    /** A list of `ContentItem` objects. */
+    nodes: Array<ContentItem>
+    /** Information to aid in pagination. */
+    pageInfo: PageInfo
+    /** The count of *all* `ContentItem` you could get from the connection. */
+    totalCount: Scalars['Int']
+  }
+
+/** A `ContentItem` edge in the connection, with data from `BroadcastEvent`. */
+export type PublicationServiceContentItemsByBroadcastEventBroadcastServiceUidAndContentItemUidManyToManyEdge =
+  {
+    /** Reads and enables pagination through a set of `BroadcastEvent`. */
+    broadcastEvents: BroadcastEventsConnection
+    /** A cursor for use in pagination. */
+    cursor?: Maybe<Scalars['Cursor']>
+    /** The `ContentItem` at the end of the edge. */
+    node: ContentItem
+  }
+
+/** A `ContentItem` edge in the connection, with data from `BroadcastEvent`. */
+export type PublicationServiceContentItemsByBroadcastEventBroadcastServiceUidAndContentItemUidManyToManyEdgeBroadcastEventsArgs =
+  {
+    after: InputMaybe<Scalars['Cursor']>
+    before: InputMaybe<Scalars['Cursor']>
+    condition: InputMaybe<BroadcastEventCondition>
+    filter: InputMaybe<BroadcastEventFilter>
+    first: InputMaybe<Scalars['Int']>
+    last: InputMaybe<Scalars['Int']>
+    offset: InputMaybe<Scalars['Int']>
+    orderBy?: InputMaybe<Array<BroadcastEventsOrderBy>>
+  }
+
+/** A filter to be used against `PublicationService` object types. All fields are combined with a logical ‘and.’ */
+export type PublicationServiceFilter = {
+  /** Filter by the object’s `address` field. */
+  address?: InputMaybe<StringFilter>
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<PublicationServiceFilter>>
+  /** Filter by the object’s `broadcastEventsByBroadcastService` relation. */
+  broadcastEventsByBroadcastService?: InputMaybe<PublicationServiceToManyBroadcastEventFilter>
+  /** Some related `broadcastEventsByBroadcastService` exist. */
+  broadcastEventsByBroadcastServiceExist?: InputMaybe<Scalars['Boolean']>
+  /** Filter by the object’s `contentItems` relation. */
+  contentItems?: InputMaybe<PublicationServiceToManyContentItemFilter>
+  /** Some related `contentItems` exist. */
+  contentItemsExist?: InputMaybe<Scalars['Boolean']>
+  /** Filter by the object’s `medium` field. */
+  medium?: InputMaybe<StringFilter>
+  /** Filter by the object’s `name` field. */
+  name?: InputMaybe<StringFilter>
+  /** Negates the expression. */
+  not?: InputMaybe<PublicationServiceFilter>
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<PublicationServiceFilter>>
+  /** Filter by the object’s `publisher` relation. */
+  publisher?: InputMaybe<ContributorFilter>
+  /** A related `publisher` exists. */
+  publisherExists?: InputMaybe<Scalars['Boolean']>
+  /** Filter by the object’s `publisherUid` field. */
+  publisherUid?: InputMaybe<StringFilter>
+  /** Filter by the object’s `revision` relation. */
+  revision?: InputMaybe<RevisionFilter>
+  /** Filter by the object’s `revisionId` field. */
+  revisionId?: InputMaybe<StringFilter>
+  /** Filter by the object’s `uid` field. */
+  uid?: InputMaybe<StringFilter>
+}
+
+/** A connection to a list of `License` values, with data from `ContentItem`. */
+export type PublicationServiceLicensesByContentItemPublicationServiceUidAndLicenseUidManyToManyConnection =
+  {
+    /** A list of edges which contains the `License`, info from the `ContentItem`, and the cursor to aid in pagination. */
+    edges: Array<PublicationServiceLicensesByContentItemPublicationServiceUidAndLicenseUidManyToManyEdge>
+    /** A list of `License` objects. */
+    nodes: Array<License>
+    /** Information to aid in pagination. */
+    pageInfo: PageInfo
+    /** The count of *all* `License` you could get from the connection. */
+    totalCount: Scalars['Int']
+  }
+
+/** A `License` edge in the connection, with data from `ContentItem`. */
+export type PublicationServiceLicensesByContentItemPublicationServiceUidAndLicenseUidManyToManyEdge =
+  {
+    /** Reads and enables pagination through a set of `ContentItem`. */
+    contentItems: ContentItemsConnection
+    /** A cursor for use in pagination. */
+    cursor?: Maybe<Scalars['Cursor']>
+    /** The `License` at the end of the edge. */
+    node: License
+  }
+
+/** A `License` edge in the connection, with data from `ContentItem`. */
+export type PublicationServiceLicensesByContentItemPublicationServiceUidAndLicenseUidManyToManyEdgeContentItemsArgs =
+  {
+    after: InputMaybe<Scalars['Cursor']>
+    before: InputMaybe<Scalars['Cursor']>
+    condition: InputMaybe<ContentItemCondition>
+    filter: InputMaybe<ContentItemFilter>
+    first: InputMaybe<Scalars['Int']>
+    last: InputMaybe<Scalars['Int']>
+    offset: InputMaybe<Scalars['Int']>
+    orderBy?: InputMaybe<Array<ContentItemsOrderBy>>
+  }
+
+/** A filter to be used against many `BroadcastEvent` object types. All fields are combined with a logical ‘and.’ */
+export type PublicationServiceToManyBroadcastEventFilter = {
+  /** Every related `BroadcastEvent` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<BroadcastEventFilter>
+  /** No related `BroadcastEvent` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<BroadcastEventFilter>
+  /** Some related `BroadcastEvent` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<BroadcastEventFilter>
+}
+
+/** A filter to be used against many `ContentItem` object types. All fields are combined with a logical ‘and.’ */
+export type PublicationServiceToManyContentItemFilter = {
+  /** Every related `ContentItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<ContentItemFilter>
+  /** No related `ContentItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<ContentItemFilter>
+  /** Some related `ContentItem` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<ContentItemFilter>
+}
+
+/** A connection to a list of `PublicationService` values. */
+export type PublicationServicesConnection = {
+  /** A list of edges which contains the `PublicationService` and cursor to aid in pagination. */
+  edges: Array<PublicationServicesEdge>
+  /** A list of `PublicationService` objects. */
+  nodes: Array<PublicationService>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** The count of *all* `PublicationService` you could get from the connection. */
+  totalCount: Scalars['Int']
+}
+
+/** A `PublicationService` edge in the connection. */
+export type PublicationServicesEdge = {
+  /** A cursor for use in pagination. */
+  cursor?: Maybe<Scalars['Cursor']>
+  /** The `PublicationService` at the end of the edge. */
+  node: PublicationService
+}
+
+/** Methods to use when ordering `PublicationService`. */
+export enum PublicationServicesOrderBy {
+  AddressAsc = 'ADDRESS_ASC',
+  AddressDesc = 'ADDRESS_DESC',
+  MediumAsc = 'MEDIUM_ASC',
+  MediumDesc = 'MEDIUM_DESC',
+  NameAsc = 'NAME_ASC',
+  NameDesc = 'NAME_DESC',
+  Natural = 'NATURAL',
+  PrimaryKeyAsc = 'PRIMARY_KEY_ASC',
+  PrimaryKeyDesc = 'PRIMARY_KEY_DESC',
+  PublisherUidAsc = 'PUBLISHER_UID_ASC',
+  PublisherUidDesc = 'PUBLISHER_UID_DESC',
+  RevisionIdAsc = 'REVISION_ID_ASC',
+  RevisionIdDesc = 'REVISION_ID_DESC',
+  UidAsc = 'UID_ASC',
+  UidDesc = 'UID_DESC',
+}
+
 /** The root query type which gives access points into the data universe. */
 export type Query = {
-  actor?: Maybe<Actor>
-  /** Reads and enables pagination through a set of `Actor`. */
-  actors?: Maybe<ActorsConnection>
   agent?: Maybe<Agent>
   /** Reads and enables pagination through a set of `Agent`. */
   agents?: Maybe<AgentsConnection>
@@ -3890,9 +4415,6 @@ export type Query = {
   broadcastEvent?: Maybe<BroadcastEvent>
   /** Reads and enables pagination through a set of `BroadcastEvent`. */
   broadcastEvents?: Maybe<BroadcastEventsConnection>
-  broadcastService?: Maybe<BroadcastService>
-  /** Reads and enables pagination through a set of `BroadcastService`. */
-  broadcastServices?: Maybe<BroadcastServicesConnection>
   chapter?: Maybe<Chapter>
   /** Reads and enables pagination through a set of `Chapter`. */
   chapters?: Maybe<ChaptersConnection>
@@ -3911,12 +4433,18 @@ export type Query = {
   contribution?: Maybe<Contribution>
   /** Reads and enables pagination through a set of `Contribution`. */
   contributions?: Maybe<ContributionsConnection>
+  contributor?: Maybe<Contributor>
+  /** Reads and enables pagination through a set of `Contributor`. */
+  contributors?: Maybe<ContributorsConnection>
   dataSource?: Maybe<DataSource>
   /** Reads and enables pagination through a set of `DataSource`. */
   dataSources?: Maybe<DataSourcesConnection>
   /** Reads and enables pagination through a set of `Entity`. */
   entities?: Maybe<EntitiesConnection>
   entity?: Maybe<Entity>
+  failedDatasourceFetch?: Maybe<FailedDatasourceFetch>
+  /** Reads and enables pagination through a set of `FailedDatasourceFetch`. */
+  failedDatasourceFetches?: Maybe<FailedDatasourceFetchesConnection>
   file?: Maybe<File>
   /** Reads and enables pagination through a set of `File`. */
   files?: Maybe<FilesConnection>
@@ -3931,6 +4459,9 @@ export type Query = {
   mediaAssets?: Maybe<MediaAssetsConnection>
   /** Reads and enables pagination through a set of `Metadatum`. */
   metadata?: Maybe<MetadataConnection>
+  publicationService?: Maybe<PublicationService>
+  /** Reads and enables pagination through a set of `PublicationService`. */
+  publicationServices?: Maybe<PublicationServicesConnection>
   /**
    * Exposes the root query type nested one level down. This is helpful for Relay 1
    * which can only query top level fields if they are in a particular form.
@@ -3948,29 +4479,15 @@ export type Query = {
   transcript?: Maybe<Transcript>
   /** Reads and enables pagination through a set of `Transcript`. */
   transcripts?: Maybe<TranscriptsConnection>
+  translation?: Maybe<Translation>
+  /** Reads and enables pagination through a set of `Translation`. */
+  translations?: Maybe<TranslationsConnection>
   ucan?: Maybe<Ucan>
   /** Reads and enables pagination through a set of `Ucan`. */
   ucans?: Maybe<UcansConnection>
   user?: Maybe<User>
   /** Reads and enables pagination through a set of `User`. */
   users?: Maybe<UsersConnection>
-}
-
-/** The root query type which gives access points into the data universe. */
-export type QueryActorArgs = {
-  uid: Scalars['String']
-}
-
-/** The root query type which gives access points into the data universe. */
-export type QueryActorsArgs = {
-  after: InputMaybe<Scalars['Cursor']>
-  before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<ActorCondition>
-  filter: InputMaybe<ActorFilter>
-  first: InputMaybe<Scalars['Int']>
-  last: InputMaybe<Scalars['Int']>
-  offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<ActorsOrderBy>>
 }
 
 /** The root query type which gives access points into the data universe. */
@@ -4022,23 +4539,6 @@ export type QueryBroadcastEventsArgs = {
   last: InputMaybe<Scalars['Int']>
   offset: InputMaybe<Scalars['Int']>
   orderBy?: InputMaybe<Array<BroadcastEventsOrderBy>>
-}
-
-/** The root query type which gives access points into the data universe. */
-export type QueryBroadcastServiceArgs = {
-  uid: Scalars['String']
-}
-
-/** The root query type which gives access points into the data universe. */
-export type QueryBroadcastServicesArgs = {
-  after: InputMaybe<Scalars['Cursor']>
-  before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<BroadcastServiceCondition>
-  filter: InputMaybe<BroadcastServiceFilter>
-  first: InputMaybe<Scalars['Int']>
-  last: InputMaybe<Scalars['Int']>
-  offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<BroadcastServicesOrderBy>>
 }
 
 /** The root query type which gives access points into the data universe. */
@@ -4144,6 +4644,23 @@ export type QueryContributionsArgs = {
 }
 
 /** The root query type which gives access points into the data universe. */
+export type QueryContributorArgs = {
+  uid: Scalars['String']
+}
+
+/** The root query type which gives access points into the data universe. */
+export type QueryContributorsArgs = {
+  after: InputMaybe<Scalars['Cursor']>
+  before: InputMaybe<Scalars['Cursor']>
+  condition: InputMaybe<ContributorCondition>
+  filter: InputMaybe<ContributorFilter>
+  first: InputMaybe<Scalars['Int']>
+  last: InputMaybe<Scalars['Int']>
+  offset: InputMaybe<Scalars['Int']>
+  orderBy?: InputMaybe<Array<ContributorsOrderBy>>
+}
+
+/** The root query type which gives access points into the data universe. */
 export type QueryDataSourceArgs = {
   uid: Scalars['String']
 }
@@ -4175,6 +4692,24 @@ export type QueryEntitiesArgs = {
 /** The root query type which gives access points into the data universe. */
 export type QueryEntityArgs = {
   uid: Scalars['String']
+}
+
+/** The root query type which gives access points into the data universe. */
+export type QueryFailedDatasourceFetchArgs = {
+  datasourceUid: Scalars['String']
+  uri: Scalars['String']
+}
+
+/** The root query type which gives access points into the data universe. */
+export type QueryFailedDatasourceFetchesArgs = {
+  after: InputMaybe<Scalars['Cursor']>
+  before: InputMaybe<Scalars['Cursor']>
+  condition: InputMaybe<FailedDatasourceFetchCondition>
+  filter: InputMaybe<FailedDatasourceFetchFilter>
+  first: InputMaybe<Scalars['Int']>
+  last: InputMaybe<Scalars['Int']>
+  offset: InputMaybe<Scalars['Int']>
+  orderBy?: InputMaybe<Array<FailedDatasourceFetchesOrderBy>>
 }
 
 /** The root query type which gives access points into the data universe. */
@@ -4258,6 +4793,23 @@ export type QueryMetadataArgs = {
 }
 
 /** The root query type which gives access points into the data universe. */
+export type QueryPublicationServiceArgs = {
+  uid: Scalars['String']
+}
+
+/** The root query type which gives access points into the data universe. */
+export type QueryPublicationServicesArgs = {
+  after: InputMaybe<Scalars['Cursor']>
+  before: InputMaybe<Scalars['Cursor']>
+  condition: InputMaybe<PublicationServiceCondition>
+  filter: InputMaybe<PublicationServiceFilter>
+  first: InputMaybe<Scalars['Int']>
+  last: InputMaybe<Scalars['Int']>
+  offset: InputMaybe<Scalars['Int']>
+  orderBy?: InputMaybe<Array<PublicationServicesOrderBy>>
+}
+
+/** The root query type which gives access points into the data universe. */
 export type QueryRepoArgs = {
   did: Scalars['String']
 }
@@ -4323,6 +4875,23 @@ export type QueryTranscriptsArgs = {
   last: InputMaybe<Scalars['Int']>
   offset: InputMaybe<Scalars['Int']>
   orderBy?: InputMaybe<Array<TranscriptsOrderBy>>
+}
+
+/** The root query type which gives access points into the data universe. */
+export type QueryTranslationArgs = {
+  uid: Scalars['String']
+}
+
+/** The root query type which gives access points into the data universe. */
+export type QueryTranslationsArgs = {
+  after: InputMaybe<Scalars['Cursor']>
+  before: InputMaybe<Scalars['Cursor']>
+  condition: InputMaybe<TranslationCondition>
+  filter: InputMaybe<TranslationFilter>
+  first: InputMaybe<Scalars['Int']>
+  last: InputMaybe<Scalars['Int']>
+  offset: InputMaybe<Scalars['Int']>
+  orderBy?: InputMaybe<Array<TranslationsOrderBy>>
 }
 
 /** The root query type which gives access points into the data universe. */
@@ -4588,25 +5157,19 @@ export enum ReposOrderBy {
 }
 
 export type Revision = {
-  /** Reads and enables pagination through a set of `Actor`. */
-  actors: ActorsConnection
-  /** Reads and enables pagination through a set of `Actor`. */
-  actorsByBroadcastServiceRevisionIdAndPublisherUid: RevisionActorsByBroadcastServiceRevisionIdAndPublisherUidManyToManyConnection
   /** Reads a single `Agent` that is related to this `Revision`. */
   agentByAgentDid?: Maybe<Agent>
   agentDid: Scalars['String']
   /** Reads and enables pagination through a set of `BroadcastEvent`. */
   broadcastEvents: BroadcastEventsConnection
-  /** Reads and enables pagination through a set of `BroadcastService`. */
-  broadcastServices: BroadcastServicesConnection
-  /** Reads and enables pagination through a set of `BroadcastService`. */
-  broadcastServicesByBroadcastEventRevisionIdAndBroadcastServiceUid: RevisionBroadcastServicesByBroadcastEventRevisionIdAndBroadcastServiceUidManyToManyConnection
   /** Reads and enables pagination through a set of `Chapter`. */
   chapters: ChaptersConnection
   /** Reads and enables pagination through a set of `Commit`. */
   commits: RevisionCommitsByRevisionToCommitBAndAManyToManyConnection
   /** Reads and enables pagination through a set of `Concept`. */
   concepts: ConceptsConnection
+  /** Reads and enables pagination through a set of `Concept`. */
+  conceptsByConceptRevisionIdAndParentUid: RevisionConceptsByConceptRevisionIdAndParentUidManyToManyConnection
   /** Reads and enables pagination through a set of `Concept`. */
   conceptsByConceptRevisionIdAndSameAsUid: RevisionConceptsByConceptRevisionIdAndSameAsUidManyToManyConnection
   contentCid: Scalars['String']
@@ -4620,8 +5183,10 @@ export type Revision = {
   contentItemsByBroadcastEventRevisionIdAndContentItemUid: RevisionContentItemsByBroadcastEventRevisionIdAndContentItemUidManyToManyConnection
   /** Reads and enables pagination through a set of `Contribution`. */
   contributions: ContributionsConnection
-  /** Reads and enables pagination through a set of `DataSource`. */
-  dataSourcesBySourceRecordRevisionIdAndDataSourceUid: RevisionDataSourcesBySourceRecordRevisionIdAndDataSourceUidManyToManyConnection
+  /** Reads and enables pagination through a set of `Contributor`. */
+  contributors: ContributorsConnection
+  /** Reads and enables pagination through a set of `Contributor`. */
+  contributorsByPublicationServiceRevisionIdAndPublisherUid: RevisionContributorsByPublicationServiceRevisionIdAndPublisherUidManyToManyConnection
   dateCreated: Scalars['Datetime']
   dateModified: Scalars['Datetime']
   /** Reads a single `SourceRecord` that is related to this `Revision`. */
@@ -4636,7 +5201,7 @@ export type Revision = {
   /** Reads and enables pagination through a set of `File`. */
   files: FilesConnection
   /** Reads and enables pagination through a set of `File`. */
-  filesByActorRevisionIdAndProfilePictureUid: RevisionFilesByActorRevisionIdAndProfilePictureUidManyToManyConnection
+  filesByContributorRevisionIdAndProfilePictureUid: RevisionFilesByContributorRevisionIdAndProfilePictureUidManyToManyConnection
   /** Reads and enables pagination through a set of `File`. */
   filesByMediaAssetRevisionIdAndFileUid: RevisionFilesByMediaAssetRevisionIdAndFileUidManyToManyConnection
   /** Reads and enables pagination through a set of `File`. */
@@ -4660,6 +5225,12 @@ export type Revision = {
   /** Reads a single `Revision` that is related to this `Revision`. */
   prevRevision?: Maybe<Revision>
   prevRevisionId?: Maybe<Scalars['String']>
+  /** Reads and enables pagination through a set of `PublicationService`. */
+  publicationServices: PublicationServicesConnection
+  /** Reads and enables pagination through a set of `PublicationService`. */
+  publicationServicesByBroadcastEventRevisionIdAndBroadcastServiceUid: RevisionPublicationServicesByBroadcastEventRevisionIdAndBroadcastServiceUidManyToManyConnection
+  /** Reads and enables pagination through a set of `PublicationService`. */
+  publicationServicesByContentItemRevisionIdAndPublicationServiceUid: RevisionPublicationServicesByContentItemRevisionIdAndPublicationServiceUidManyToManyConnection
   /** Reads a single `Repo` that is related to this `Revision`. */
   repoByRepoDid?: Maybe<Repo>
   repoDid: Scalars['String']
@@ -4667,31 +5238,7 @@ export type Revision = {
   revisionUris?: Maybe<Array<Maybe<Scalars['String']>>>
   /** Reads and enables pagination through a set of `Revision`. */
   revisionsByPrevRevisionId: RevisionsConnection
-  /** Reads and enables pagination through a set of `SourceRecord`. */
-  sourceRecords: SourceRecordsConnection
   uid: Scalars['String']
-}
-
-export type RevisionActorsArgs = {
-  after: InputMaybe<Scalars['Cursor']>
-  before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<ActorCondition>
-  filter: InputMaybe<ActorFilter>
-  first: InputMaybe<Scalars['Int']>
-  last: InputMaybe<Scalars['Int']>
-  offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<ActorsOrderBy>>
-}
-
-export type RevisionActorsByBroadcastServiceRevisionIdAndPublisherUidArgs = {
-  after: InputMaybe<Scalars['Cursor']>
-  before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<ActorCondition>
-  filter: InputMaybe<ActorFilter>
-  first: InputMaybe<Scalars['Int']>
-  last: InputMaybe<Scalars['Int']>
-  offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<ActorsOrderBy>>
 }
 
 export type RevisionBroadcastEventsArgs = {
@@ -4704,29 +5251,6 @@ export type RevisionBroadcastEventsArgs = {
   offset: InputMaybe<Scalars['Int']>
   orderBy?: InputMaybe<Array<BroadcastEventsOrderBy>>
 }
-
-export type RevisionBroadcastServicesArgs = {
-  after: InputMaybe<Scalars['Cursor']>
-  before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<BroadcastServiceCondition>
-  filter: InputMaybe<BroadcastServiceFilter>
-  first: InputMaybe<Scalars['Int']>
-  last: InputMaybe<Scalars['Int']>
-  offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<BroadcastServicesOrderBy>>
-}
-
-export type RevisionBroadcastServicesByBroadcastEventRevisionIdAndBroadcastServiceUidArgs =
-  {
-    after: InputMaybe<Scalars['Cursor']>
-    before: InputMaybe<Scalars['Cursor']>
-    condition: InputMaybe<BroadcastServiceCondition>
-    filter: InputMaybe<BroadcastServiceFilter>
-    first: InputMaybe<Scalars['Int']>
-    last: InputMaybe<Scalars['Int']>
-    offset: InputMaybe<Scalars['Int']>
-    orderBy?: InputMaybe<Array<BroadcastServicesOrderBy>>
-  }
 
 export type RevisionChaptersArgs = {
   after: InputMaybe<Scalars['Cursor']>
@@ -4751,6 +5275,17 @@ export type RevisionCommitsArgs = {
 }
 
 export type RevisionConceptsArgs = {
+  after: InputMaybe<Scalars['Cursor']>
+  before: InputMaybe<Scalars['Cursor']>
+  condition: InputMaybe<ConceptCondition>
+  filter: InputMaybe<ConceptFilter>
+  first: InputMaybe<Scalars['Int']>
+  last: InputMaybe<Scalars['Int']>
+  offset: InputMaybe<Scalars['Int']>
+  orderBy?: InputMaybe<Array<ConceptsOrderBy>>
+}
+
+export type RevisionConceptsByConceptRevisionIdAndParentUidArgs = {
   after: InputMaybe<Scalars['Cursor']>
   before: InputMaybe<Scalars['Cursor']>
   condition: InputMaybe<ConceptCondition>
@@ -4829,16 +5364,28 @@ export type RevisionContributionsArgs = {
   orderBy?: InputMaybe<Array<ContributionsOrderBy>>
 }
 
-export type RevisionDataSourcesBySourceRecordRevisionIdAndDataSourceUidArgs = {
+export type RevisionContributorsArgs = {
   after: InputMaybe<Scalars['Cursor']>
   before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<DataSourceCondition>
-  filter: InputMaybe<DataSourceFilter>
+  condition: InputMaybe<ContributorCondition>
+  filter: InputMaybe<ContributorFilter>
   first: InputMaybe<Scalars['Int']>
   last: InputMaybe<Scalars['Int']>
   offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<DataSourcesOrderBy>>
+  orderBy?: InputMaybe<Array<ContributorsOrderBy>>
 }
+
+export type RevisionContributorsByPublicationServiceRevisionIdAndPublisherUidArgs =
+  {
+    after: InputMaybe<Scalars['Cursor']>
+    before: InputMaybe<Scalars['Cursor']>
+    condition: InputMaybe<ContributorCondition>
+    filter: InputMaybe<ContributorFilter>
+    first: InputMaybe<Scalars['Int']>
+    last: InputMaybe<Scalars['Int']>
+    offset: InputMaybe<Scalars['Int']>
+    orderBy?: InputMaybe<Array<ContributorsOrderBy>>
+  }
 
 export type RevisionEntitiesArgs = {
   after: InputMaybe<Scalars['Cursor']>
@@ -4873,7 +5420,7 @@ export type RevisionFilesArgs = {
   orderBy?: InputMaybe<Array<FilesOrderBy>>
 }
 
-export type RevisionFilesByActorRevisionIdAndProfilePictureUidArgs = {
+export type RevisionFilesByContributorRevisionIdAndProfilePictureUidArgs = {
   after: InputMaybe<Scalars['Cursor']>
   before: InputMaybe<Scalars['Cursor']>
   condition: InputMaybe<FileCondition>
@@ -4983,6 +5530,41 @@ export type RevisionMetadataArgs = {
   orderBy?: InputMaybe<Array<MetadataOrderBy>>
 }
 
+export type RevisionPublicationServicesArgs = {
+  after: InputMaybe<Scalars['Cursor']>
+  before: InputMaybe<Scalars['Cursor']>
+  condition: InputMaybe<PublicationServiceCondition>
+  filter: InputMaybe<PublicationServiceFilter>
+  first: InputMaybe<Scalars['Int']>
+  last: InputMaybe<Scalars['Int']>
+  offset: InputMaybe<Scalars['Int']>
+  orderBy?: InputMaybe<Array<PublicationServicesOrderBy>>
+}
+
+export type RevisionPublicationServicesByBroadcastEventRevisionIdAndBroadcastServiceUidArgs =
+  {
+    after: InputMaybe<Scalars['Cursor']>
+    before: InputMaybe<Scalars['Cursor']>
+    condition: InputMaybe<PublicationServiceCondition>
+    filter: InputMaybe<PublicationServiceFilter>
+    first: InputMaybe<Scalars['Int']>
+    last: InputMaybe<Scalars['Int']>
+    offset: InputMaybe<Scalars['Int']>
+    orderBy?: InputMaybe<Array<PublicationServicesOrderBy>>
+  }
+
+export type RevisionPublicationServicesByContentItemRevisionIdAndPublicationServiceUidArgs =
+  {
+    after: InputMaybe<Scalars['Cursor']>
+    before: InputMaybe<Scalars['Cursor']>
+    condition: InputMaybe<PublicationServiceCondition>
+    filter: InputMaybe<PublicationServiceFilter>
+    first: InputMaybe<Scalars['Int']>
+    last: InputMaybe<Scalars['Int']>
+    offset: InputMaybe<Scalars['Int']>
+    orderBy?: InputMaybe<Array<PublicationServicesOrderBy>>
+  }
+
 export type RevisionRevisionsByPrevRevisionIdArgs = {
   after: InputMaybe<Scalars['Cursor']>
   before: InputMaybe<Scalars['Cursor']>
@@ -4993,91 +5575,6 @@ export type RevisionRevisionsByPrevRevisionIdArgs = {
   offset: InputMaybe<Scalars['Int']>
   orderBy?: InputMaybe<Array<RevisionsOrderBy>>
 }
-
-export type RevisionSourceRecordsArgs = {
-  after: InputMaybe<Scalars['Cursor']>
-  before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<SourceRecordCondition>
-  filter: InputMaybe<SourceRecordFilter>
-  first: InputMaybe<Scalars['Int']>
-  last: InputMaybe<Scalars['Int']>
-  offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<SourceRecordsOrderBy>>
-}
-
-/** A connection to a list of `Actor` values, with data from `BroadcastService`. */
-export type RevisionActorsByBroadcastServiceRevisionIdAndPublisherUidManyToManyConnection =
-  {
-    /** A list of edges which contains the `Actor`, info from the `BroadcastService`, and the cursor to aid in pagination. */
-    edges: Array<RevisionActorsByBroadcastServiceRevisionIdAndPublisherUidManyToManyEdge>
-    /** A list of `Actor` objects. */
-    nodes: Array<Actor>
-    /** Information to aid in pagination. */
-    pageInfo: PageInfo
-    /** The count of *all* `Actor` you could get from the connection. */
-    totalCount: Scalars['Int']
-  }
-
-/** A `Actor` edge in the connection, with data from `BroadcastService`. */
-export type RevisionActorsByBroadcastServiceRevisionIdAndPublisherUidManyToManyEdge =
-  {
-    /** Reads and enables pagination through a set of `BroadcastService`. */
-    broadcastServicesByPublisher: BroadcastServicesConnection
-    /** A cursor for use in pagination. */
-    cursor?: Maybe<Scalars['Cursor']>
-    /** The `Actor` at the end of the edge. */
-    node: Actor
-  }
-
-/** A `Actor` edge in the connection, with data from `BroadcastService`. */
-export type RevisionActorsByBroadcastServiceRevisionIdAndPublisherUidManyToManyEdgeBroadcastServicesByPublisherArgs =
-  {
-    after: InputMaybe<Scalars['Cursor']>
-    before: InputMaybe<Scalars['Cursor']>
-    condition: InputMaybe<BroadcastServiceCondition>
-    filter: InputMaybe<BroadcastServiceFilter>
-    first: InputMaybe<Scalars['Int']>
-    last: InputMaybe<Scalars['Int']>
-    offset: InputMaybe<Scalars['Int']>
-    orderBy?: InputMaybe<Array<BroadcastServicesOrderBy>>
-  }
-
-/** A connection to a list of `BroadcastService` values, with data from `BroadcastEvent`. */
-export type RevisionBroadcastServicesByBroadcastEventRevisionIdAndBroadcastServiceUidManyToManyConnection =
-  {
-    /** A list of edges which contains the `BroadcastService`, info from the `BroadcastEvent`, and the cursor to aid in pagination. */
-    edges: Array<RevisionBroadcastServicesByBroadcastEventRevisionIdAndBroadcastServiceUidManyToManyEdge>
-    /** A list of `BroadcastService` objects. */
-    nodes: Array<BroadcastService>
-    /** Information to aid in pagination. */
-    pageInfo: PageInfo
-    /** The count of *all* `BroadcastService` you could get from the connection. */
-    totalCount: Scalars['Int']
-  }
-
-/** A `BroadcastService` edge in the connection, with data from `BroadcastEvent`. */
-export type RevisionBroadcastServicesByBroadcastEventRevisionIdAndBroadcastServiceUidManyToManyEdge =
-  {
-    /** Reads and enables pagination through a set of `BroadcastEvent`. */
-    broadcastEvents: BroadcastEventsConnection
-    /** A cursor for use in pagination. */
-    cursor?: Maybe<Scalars['Cursor']>
-    /** The `BroadcastService` at the end of the edge. */
-    node: BroadcastService
-  }
-
-/** A `BroadcastService` edge in the connection, with data from `BroadcastEvent`. */
-export type RevisionBroadcastServicesByBroadcastEventRevisionIdAndBroadcastServiceUidManyToManyEdgeBroadcastEventsArgs =
-  {
-    after: InputMaybe<Scalars['Cursor']>
-    before: InputMaybe<Scalars['Cursor']>
-    condition: InputMaybe<BroadcastEventCondition>
-    filter: InputMaybe<BroadcastEventFilter>
-    first: InputMaybe<Scalars['Int']>
-    last: InputMaybe<Scalars['Int']>
-    offset: InputMaybe<Scalars['Int']>
-    orderBy?: InputMaybe<Array<BroadcastEventsOrderBy>>
-  }
 
 /** A connection to a list of `Commit` values, with data from `_RevisionToCommit`. */
 export type RevisionCommitsByRevisionToCommitBAndAManyToManyConnection = {
@@ -5112,6 +5609,42 @@ export type RevisionCommitsByRevisionToCommitBAndAManyToManyEdge_RevisionToCommi
     last: InputMaybe<Scalars['Int']>
     offset: InputMaybe<Scalars['Int']>
     orderBy?: InputMaybe<Array<_RevisionToCommitsOrderBy>>
+  }
+
+/** A connection to a list of `Concept` values, with data from `Concept`. */
+export type RevisionConceptsByConceptRevisionIdAndParentUidManyToManyConnection =
+  {
+    /** A list of edges which contains the `Concept`, info from the `Concept`, and the cursor to aid in pagination. */
+    edges: Array<RevisionConceptsByConceptRevisionIdAndParentUidManyToManyEdge>
+    /** A list of `Concept` objects. */
+    nodes: Array<Concept>
+    /** Information to aid in pagination. */
+    pageInfo: PageInfo
+    /** The count of *all* `Concept` you could get from the connection. */
+    totalCount: Scalars['Int']
+  }
+
+/** A `Concept` edge in the connection, with data from `Concept`. */
+export type RevisionConceptsByConceptRevisionIdAndParentUidManyToManyEdge = {
+  /** Reads and enables pagination through a set of `Concept`. */
+  childConcepts: ConceptsConnection
+  /** A cursor for use in pagination. */
+  cursor?: Maybe<Scalars['Cursor']>
+  /** The `Concept` at the end of the edge. */
+  node: Concept
+}
+
+/** A `Concept` edge in the connection, with data from `Concept`. */
+export type RevisionConceptsByConceptRevisionIdAndParentUidManyToManyEdgeChildConceptsArgs =
+  {
+    after: InputMaybe<Scalars['Cursor']>
+    before: InputMaybe<Scalars['Cursor']>
+    condition: InputMaybe<ConceptCondition>
+    filter: InputMaybe<ConceptFilter>
+    first: InputMaybe<Scalars['Int']>
+    last: InputMaybe<Scalars['Int']>
+    offset: InputMaybe<Scalars['Int']>
+    orderBy?: InputMaybe<Array<ConceptsOrderBy>>
   }
 
 /** A connection to a list of `Concept` values, with data from `Concept`. */
@@ -5259,41 +5792,41 @@ export type RevisionContentItemsByBroadcastEventRevisionIdAndContentItemUidManyT
     orderBy?: InputMaybe<Array<BroadcastEventsOrderBy>>
   }
 
-/** A connection to a list of `DataSource` values, with data from `SourceRecord`. */
-export type RevisionDataSourcesBySourceRecordRevisionIdAndDataSourceUidManyToManyConnection =
+/** A connection to a list of `Contributor` values, with data from `PublicationService`. */
+export type RevisionContributorsByPublicationServiceRevisionIdAndPublisherUidManyToManyConnection =
   {
-    /** A list of edges which contains the `DataSource`, info from the `SourceRecord`, and the cursor to aid in pagination. */
-    edges: Array<RevisionDataSourcesBySourceRecordRevisionIdAndDataSourceUidManyToManyEdge>
-    /** A list of `DataSource` objects. */
-    nodes: Array<DataSource>
+    /** A list of edges which contains the `Contributor`, info from the `PublicationService`, and the cursor to aid in pagination. */
+    edges: Array<RevisionContributorsByPublicationServiceRevisionIdAndPublisherUidManyToManyEdge>
+    /** A list of `Contributor` objects. */
+    nodes: Array<Contributor>
     /** Information to aid in pagination. */
     pageInfo: PageInfo
-    /** The count of *all* `DataSource` you could get from the connection. */
+    /** The count of *all* `Contributor` you could get from the connection. */
     totalCount: Scalars['Int']
   }
 
-/** A `DataSource` edge in the connection, with data from `SourceRecord`. */
-export type RevisionDataSourcesBySourceRecordRevisionIdAndDataSourceUidManyToManyEdge =
+/** A `Contributor` edge in the connection, with data from `PublicationService`. */
+export type RevisionContributorsByPublicationServiceRevisionIdAndPublisherUidManyToManyEdge =
   {
     /** A cursor for use in pagination. */
     cursor?: Maybe<Scalars['Cursor']>
-    /** The `DataSource` at the end of the edge. */
-    node: DataSource
-    /** Reads and enables pagination through a set of `SourceRecord`. */
-    sourceRecords: SourceRecordsConnection
+    /** The `Contributor` at the end of the edge. */
+    node: Contributor
+    /** Reads and enables pagination through a set of `PublicationService`. */
+    publicationServicesByPublisher: PublicationServicesConnection
   }
 
-/** A `DataSource` edge in the connection, with data from `SourceRecord`. */
-export type RevisionDataSourcesBySourceRecordRevisionIdAndDataSourceUidManyToManyEdgeSourceRecordsArgs =
+/** A `Contributor` edge in the connection, with data from `PublicationService`. */
+export type RevisionContributorsByPublicationServiceRevisionIdAndPublisherUidManyToManyEdgePublicationServicesByPublisherArgs =
   {
     after: InputMaybe<Scalars['Cursor']>
     before: InputMaybe<Scalars['Cursor']>
-    condition: InputMaybe<SourceRecordCondition>
-    filter: InputMaybe<SourceRecordFilter>
+    condition: InputMaybe<PublicationServiceCondition>
+    filter: InputMaybe<PublicationServiceFilter>
     first: InputMaybe<Scalars['Int']>
     last: InputMaybe<Scalars['Int']>
     offset: InputMaybe<Scalars['Int']>
-    orderBy?: InputMaybe<Array<SourceRecordsOrderBy>>
+    orderBy?: InputMaybe<Array<PublicationServicesOrderBy>>
   }
 
 /** A connection to a list of `Entity` values, with data from `Metadatum`. */
@@ -5332,11 +5865,11 @@ export type RevisionEntitiesByMetadatumRevisionIdAndTargetUidManyToManyEdgeMetad
     orderBy?: InputMaybe<Array<MetadataOrderBy>>
   }
 
-/** A connection to a list of `File` values, with data from `Actor`. */
-export type RevisionFilesByActorRevisionIdAndProfilePictureUidManyToManyConnection =
+/** A connection to a list of `File` values, with data from `Contributor`. */
+export type RevisionFilesByContributorRevisionIdAndProfilePictureUidManyToManyConnection =
   {
-    /** A list of edges which contains the `File`, info from the `Actor`, and the cursor to aid in pagination. */
-    edges: Array<RevisionFilesByActorRevisionIdAndProfilePictureUidManyToManyEdge>
+    /** A list of edges which contains the `File`, info from the `Contributor`, and the cursor to aid in pagination. */
+    edges: Array<RevisionFilesByContributorRevisionIdAndProfilePictureUidManyToManyEdge>
     /** A list of `File` objects. */
     nodes: Array<File>
     /** Information to aid in pagination. */
@@ -5345,27 +5878,28 @@ export type RevisionFilesByActorRevisionIdAndProfilePictureUidManyToManyConnecti
     totalCount: Scalars['Int']
   }
 
-/** A `File` edge in the connection, with data from `Actor`. */
-export type RevisionFilesByActorRevisionIdAndProfilePictureUidManyToManyEdge = {
-  /** Reads and enables pagination through a set of `Actor`. */
-  actorsByProfilePicture: ActorsConnection
-  /** A cursor for use in pagination. */
-  cursor?: Maybe<Scalars['Cursor']>
-  /** The `File` at the end of the edge. */
-  node: File
-}
+/** A `File` edge in the connection, with data from `Contributor`. */
+export type RevisionFilesByContributorRevisionIdAndProfilePictureUidManyToManyEdge =
+  {
+    /** Reads and enables pagination through a set of `Contributor`. */
+    contributorsByProfilePicture: ContributorsConnection
+    /** A cursor for use in pagination. */
+    cursor?: Maybe<Scalars['Cursor']>
+    /** The `File` at the end of the edge. */
+    node: File
+  }
 
-/** A `File` edge in the connection, with data from `Actor`. */
-export type RevisionFilesByActorRevisionIdAndProfilePictureUidManyToManyEdgeActorsByProfilePictureArgs =
+/** A `File` edge in the connection, with data from `Contributor`. */
+export type RevisionFilesByContributorRevisionIdAndProfilePictureUidManyToManyEdgeContributorsByProfilePictureArgs =
   {
     after: InputMaybe<Scalars['Cursor']>
     before: InputMaybe<Scalars['Cursor']>
-    condition: InputMaybe<ActorCondition>
-    filter: InputMaybe<ActorFilter>
+    condition: InputMaybe<ContributorCondition>
+    filter: InputMaybe<ContributorFilter>
     first: InputMaybe<Scalars['Int']>
     last: InputMaybe<Scalars['Int']>
     offset: InputMaybe<Scalars['Int']>
-    orderBy?: InputMaybe<Array<ActorsOrderBy>>
+    orderBy?: InputMaybe<Array<ContributorsOrderBy>>
   }
 
 /** A connection to a list of `File` values, with data from `MediaAsset`. */
@@ -5443,10 +5977,6 @@ export type RevisionFilesByMediaAssetRevisionIdAndTeaserImageUidManyToManyEdgeMe
 
 /** A filter to be used against `Revision` object types. All fields are combined with a logical ‘and.’ */
 export type RevisionFilter = {
-  /** Filter by the object’s `actors` relation. */
-  actors?: InputMaybe<RevisionToManyActorFilter>
-  /** Some related `actors` exist. */
-  actorsExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `agentByAgentDid` relation. */
   agentByAgentDid?: InputMaybe<AgentFilter>
   /** Filter by the object’s `agentDid` field. */
@@ -5457,10 +5987,6 @@ export type RevisionFilter = {
   broadcastEvents?: InputMaybe<RevisionToManyBroadcastEventFilter>
   /** Some related `broadcastEvents` exist. */
   broadcastEventsExist?: InputMaybe<Scalars['Boolean']>
-  /** Filter by the object’s `broadcastServices` relation. */
-  broadcastServices?: InputMaybe<RevisionToManyBroadcastServiceFilter>
-  /** Some related `broadcastServices` exist. */
-  broadcastServicesExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `chapters` relation. */
   chapters?: InputMaybe<RevisionToManyChapterFilter>
   /** Some related `chapters` exist. */
@@ -5483,6 +6009,10 @@ export type RevisionFilter = {
   contributions?: InputMaybe<RevisionToManyContributionFilter>
   /** Some related `contributions` exist. */
   contributionsExist?: InputMaybe<Scalars['Boolean']>
+  /** Filter by the object’s `contributors` relation. */
+  contributors?: InputMaybe<RevisionToManyContributorFilter>
+  /** Some related `contributors` exist. */
+  contributorsExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `dateCreated` field. */
   dateCreated?: InputMaybe<DatetimeFilter>
   /** Filter by the object’s `dateModified` field. */
@@ -5531,6 +6061,10 @@ export type RevisionFilter = {
   prevRevisionExists?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `prevRevisionId` field. */
   prevRevisionId?: InputMaybe<StringFilter>
+  /** Filter by the object’s `publicationServices` relation. */
+  publicationServices?: InputMaybe<RevisionToManyPublicationServiceFilter>
+  /** Some related `publicationServices` exist. */
+  publicationServicesExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `repoByRepoDid` relation. */
   repoByRepoDid?: InputMaybe<RepoFilter>
   /** Filter by the object’s `repoDid` field. */
@@ -5543,10 +6077,6 @@ export type RevisionFilter = {
   revisionsByPrevRevisionId?: InputMaybe<RevisionToManyRevisionFilter>
   /** Some related `revisionsByPrevRevisionId` exist. */
   revisionsByPrevRevisionIdExist?: InputMaybe<Scalars['Boolean']>
-  /** Filter by the object’s `sourceRecords` relation. */
-  sourceRecords?: InputMaybe<RevisionToManySourceRecordFilter>
-  /** Some related `sourceRecords` exist. */
-  sourceRecordsExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `uid` field. */
   uid?: InputMaybe<StringFilter>
 }
@@ -5699,15 +6229,79 @@ export type RevisionMediaAssetsByChapterRevisionIdAndMediaAssetUidManyToManyEdge
     orderBy?: InputMaybe<Array<ChaptersOrderBy>>
   }
 
-/** A filter to be used against many `Actor` object types. All fields are combined with a logical ‘and.’ */
-export type RevisionToManyActorFilter = {
-  /** Every related `Actor` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  every?: InputMaybe<ActorFilter>
-  /** No related `Actor` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  none?: InputMaybe<ActorFilter>
-  /** Some related `Actor` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  some?: InputMaybe<ActorFilter>
-}
+/** A connection to a list of `PublicationService` values, with data from `BroadcastEvent`. */
+export type RevisionPublicationServicesByBroadcastEventRevisionIdAndBroadcastServiceUidManyToManyConnection =
+  {
+    /** A list of edges which contains the `PublicationService`, info from the `BroadcastEvent`, and the cursor to aid in pagination. */
+    edges: Array<RevisionPublicationServicesByBroadcastEventRevisionIdAndBroadcastServiceUidManyToManyEdge>
+    /** A list of `PublicationService` objects. */
+    nodes: Array<PublicationService>
+    /** Information to aid in pagination. */
+    pageInfo: PageInfo
+    /** The count of *all* `PublicationService` you could get from the connection. */
+    totalCount: Scalars['Int']
+  }
+
+/** A `PublicationService` edge in the connection, with data from `BroadcastEvent`. */
+export type RevisionPublicationServicesByBroadcastEventRevisionIdAndBroadcastServiceUidManyToManyEdge =
+  {
+    /** Reads and enables pagination through a set of `BroadcastEvent`. */
+    broadcastEventsByBroadcastService: BroadcastEventsConnection
+    /** A cursor for use in pagination. */
+    cursor?: Maybe<Scalars['Cursor']>
+    /** The `PublicationService` at the end of the edge. */
+    node: PublicationService
+  }
+
+/** A `PublicationService` edge in the connection, with data from `BroadcastEvent`. */
+export type RevisionPublicationServicesByBroadcastEventRevisionIdAndBroadcastServiceUidManyToManyEdgeBroadcastEventsByBroadcastServiceArgs =
+  {
+    after: InputMaybe<Scalars['Cursor']>
+    before: InputMaybe<Scalars['Cursor']>
+    condition: InputMaybe<BroadcastEventCondition>
+    filter: InputMaybe<BroadcastEventFilter>
+    first: InputMaybe<Scalars['Int']>
+    last: InputMaybe<Scalars['Int']>
+    offset: InputMaybe<Scalars['Int']>
+    orderBy?: InputMaybe<Array<BroadcastEventsOrderBy>>
+  }
+
+/** A connection to a list of `PublicationService` values, with data from `ContentItem`. */
+export type RevisionPublicationServicesByContentItemRevisionIdAndPublicationServiceUidManyToManyConnection =
+  {
+    /** A list of edges which contains the `PublicationService`, info from the `ContentItem`, and the cursor to aid in pagination. */
+    edges: Array<RevisionPublicationServicesByContentItemRevisionIdAndPublicationServiceUidManyToManyEdge>
+    /** A list of `PublicationService` objects. */
+    nodes: Array<PublicationService>
+    /** Information to aid in pagination. */
+    pageInfo: PageInfo
+    /** The count of *all* `PublicationService` you could get from the connection. */
+    totalCount: Scalars['Int']
+  }
+
+/** A `PublicationService` edge in the connection, with data from `ContentItem`. */
+export type RevisionPublicationServicesByContentItemRevisionIdAndPublicationServiceUidManyToManyEdge =
+  {
+    /** Reads and enables pagination through a set of `ContentItem`. */
+    contentItems: ContentItemsConnection
+    /** A cursor for use in pagination. */
+    cursor?: Maybe<Scalars['Cursor']>
+    /** The `PublicationService` at the end of the edge. */
+    node: PublicationService
+  }
+
+/** A `PublicationService` edge in the connection, with data from `ContentItem`. */
+export type RevisionPublicationServicesByContentItemRevisionIdAndPublicationServiceUidManyToManyEdgeContentItemsArgs =
+  {
+    after: InputMaybe<Scalars['Cursor']>
+    before: InputMaybe<Scalars['Cursor']>
+    condition: InputMaybe<ContentItemCondition>
+    filter: InputMaybe<ContentItemFilter>
+    first: InputMaybe<Scalars['Int']>
+    last: InputMaybe<Scalars['Int']>
+    offset: InputMaybe<Scalars['Int']>
+    orderBy?: InputMaybe<Array<ContentItemsOrderBy>>
+  }
 
 /** A filter to be used against many `BroadcastEvent` object types. All fields are combined with a logical ‘and.’ */
 export type RevisionToManyBroadcastEventFilter = {
@@ -5717,16 +6311,6 @@ export type RevisionToManyBroadcastEventFilter = {
   none?: InputMaybe<BroadcastEventFilter>
   /** Some related `BroadcastEvent` matches the filter criteria. All fields are combined with a logical ‘and.’ */
   some?: InputMaybe<BroadcastEventFilter>
-}
-
-/** A filter to be used against many `BroadcastService` object types. All fields are combined with a logical ‘and.’ */
-export type RevisionToManyBroadcastServiceFilter = {
-  /** Every related `BroadcastService` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  every?: InputMaybe<BroadcastServiceFilter>
-  /** No related `BroadcastService` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  none?: InputMaybe<BroadcastServiceFilter>
-  /** Some related `BroadcastService` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  some?: InputMaybe<BroadcastServiceFilter>
 }
 
 /** A filter to be used against many `Chapter` object types. All fields are combined with a logical ‘and.’ */
@@ -5779,6 +6363,16 @@ export type RevisionToManyContributionFilter = {
   some?: InputMaybe<ContributionFilter>
 }
 
+/** A filter to be used against many `Contributor` object types. All fields are combined with a logical ‘and.’ */
+export type RevisionToManyContributorFilter = {
+  /** Every related `Contributor` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<ContributorFilter>
+  /** No related `Contributor` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<ContributorFilter>
+  /** Some related `Contributor` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<ContributorFilter>
+}
+
 /** A filter to be used against many `Entity` object types. All fields are combined with a logical ‘and.’ */
 export type RevisionToManyEntityFilter = {
   /** Every related `Entity` matches the filter criteria. All fields are combined with a logical ‘and.’ */
@@ -5829,6 +6423,16 @@ export type RevisionToManyMetadatumFilter = {
   some?: InputMaybe<MetadatumFilter>
 }
 
+/** A filter to be used against many `PublicationService` object types. All fields are combined with a logical ‘and.’ */
+export type RevisionToManyPublicationServiceFilter = {
+  /** Every related `PublicationService` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<PublicationServiceFilter>
+  /** No related `PublicationService` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<PublicationServiceFilter>
+  /** Some related `PublicationService` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<PublicationServiceFilter>
+}
+
 /** A filter to be used against many `Revision` object types. All fields are combined with a logical ‘and.’ */
 export type RevisionToManyRevisionFilter = {
   /** Every related `Revision` matches the filter criteria. All fields are combined with a logical ‘and.’ */
@@ -5837,16 +6441,6 @@ export type RevisionToManyRevisionFilter = {
   none?: InputMaybe<RevisionFilter>
   /** Some related `Revision` matches the filter criteria. All fields are combined with a logical ‘and.’ */
   some?: InputMaybe<RevisionFilter>
-}
-
-/** A filter to be used against many `SourceRecord` object types. All fields are combined with a logical ‘and.’ */
-export type RevisionToManySourceRecordFilter = {
-  /** Every related `SourceRecord` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  every?: InputMaybe<SourceRecordFilter>
-  /** No related `SourceRecord` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  none?: InputMaybe<SourceRecordFilter>
-  /** Some related `SourceRecord` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  some?: InputMaybe<SourceRecordFilter>
 }
 
 /** A connection to a list of `Revision` values. */
@@ -5906,17 +6500,17 @@ export enum RevisionsOrderBy {
 
 export type SourceRecord = {
   body: Scalars['String']
+  containedEntityUris?: Maybe<Array<Maybe<Scalars['String']>>>
   contentType: Scalars['String']
   /** Reads a single `DataSource` that is related to this `SourceRecord`. */
   dataSource?: Maybe<DataSource>
   dataSourceUid?: Maybe<Scalars['String']>
-  domainType: Scalars['String']
   meta?: Maybe<Scalars['JSON']>
-  /** Reads a single `Revision` that is related to this `SourceRecord`. */
-  revision?: Maybe<Revision>
-  revisionId: Scalars['String']
   /** Reads and enables pagination through a set of `Revision`. */
   revisionsByDerivedFrom: RevisionsConnection
+  sourceType: Scalars['String']
+  sourceUri: Scalars['String']
+  timestamp: Scalars['Datetime']
   uid: Scalars['String']
 }
 
@@ -5938,16 +6532,20 @@ export type SourceRecordRevisionsByDerivedFromArgs = {
 export type SourceRecordCondition = {
   /** Checks for equality with the object’s `body` field. */
   body?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `containedEntityUris` field. */
+  containedEntityUris?: InputMaybe<Array<InputMaybe<Scalars['String']>>>
   /** Checks for equality with the object’s `contentType` field. */
   contentType?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `dataSourceUid` field. */
   dataSourceUid?: InputMaybe<Scalars['String']>
-  /** Checks for equality with the object’s `domainType` field. */
-  domainType?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `meta` field. */
   meta?: InputMaybe<Scalars['JSON']>
-  /** Checks for equality with the object’s `revisionId` field. */
-  revisionId?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `sourceType` field. */
+  sourceType?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `sourceUri` field. */
+  sourceUri?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `timestamp` field. */
+  timestamp?: InputMaybe<Scalars['Datetime']>
   /** Checks for equality with the object’s `uid` field. */
   uid?: InputMaybe<Scalars['String']>
 }
@@ -5958,6 +6556,8 @@ export type SourceRecordFilter = {
   and?: InputMaybe<Array<SourceRecordFilter>>
   /** Filter by the object’s `body` field. */
   body?: InputMaybe<StringFilter>
+  /** Filter by the object’s `containedEntityUris` field. */
+  containedEntityUris?: InputMaybe<StringListFilter>
   /** Filter by the object’s `contentType` field. */
   contentType?: InputMaybe<StringFilter>
   /** Filter by the object’s `dataSource` relation. */
@@ -5966,22 +6566,22 @@ export type SourceRecordFilter = {
   dataSourceExists?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `dataSourceUid` field. */
   dataSourceUid?: InputMaybe<StringFilter>
-  /** Filter by the object’s `domainType` field. */
-  domainType?: InputMaybe<StringFilter>
   /** Filter by the object’s `meta` field. */
   meta?: InputMaybe<JsonFilter>
   /** Negates the expression. */
   not?: InputMaybe<SourceRecordFilter>
   /** Checks for any expressions in this list. */
   or?: InputMaybe<Array<SourceRecordFilter>>
-  /** Filter by the object’s `revision` relation. */
-  revision?: InputMaybe<RevisionFilter>
-  /** Filter by the object’s `revisionId` field. */
-  revisionId?: InputMaybe<StringFilter>
   /** Filter by the object’s `revisionsByDerivedFrom` relation. */
   revisionsByDerivedFrom?: InputMaybe<SourceRecordToManyRevisionFilter>
   /** Some related `revisionsByDerivedFrom` exist. */
   revisionsByDerivedFromExist?: InputMaybe<Scalars['Boolean']>
+  /** Filter by the object’s `sourceType` field. */
+  sourceType?: InputMaybe<StringFilter>
+  /** Filter by the object’s `sourceUri` field. */
+  sourceUri?: InputMaybe<StringFilter>
+  /** Filter by the object’s `timestamp` field. */
+  timestamp?: InputMaybe<DatetimeFilter>
   /** Filter by the object’s `uid` field. */
   uid?: InputMaybe<StringFilter>
 }
@@ -6020,19 +6620,23 @@ export type SourceRecordsEdge = {
 export enum SourceRecordsOrderBy {
   BodyAsc = 'BODY_ASC',
   BodyDesc = 'BODY_DESC',
+  ContainedEntityUrisAsc = 'CONTAINED_ENTITY_URIS_ASC',
+  ContainedEntityUrisDesc = 'CONTAINED_ENTITY_URIS_DESC',
   ContentTypeAsc = 'CONTENT_TYPE_ASC',
   ContentTypeDesc = 'CONTENT_TYPE_DESC',
   DataSourceUidAsc = 'DATA_SOURCE_UID_ASC',
   DataSourceUidDesc = 'DATA_SOURCE_UID_DESC',
-  DomainTypeAsc = 'DOMAIN_TYPE_ASC',
-  DomainTypeDesc = 'DOMAIN_TYPE_DESC',
   MetaAsc = 'META_ASC',
   MetaDesc = 'META_DESC',
   Natural = 'NATURAL',
   PrimaryKeyAsc = 'PRIMARY_KEY_ASC',
   PrimaryKeyDesc = 'PRIMARY_KEY_DESC',
-  RevisionIdAsc = 'REVISION_ID_ASC',
-  RevisionIdDesc = 'REVISION_ID_DESC',
+  SourceTypeAsc = 'SOURCE_TYPE_ASC',
+  SourceTypeDesc = 'SOURCE_TYPE_DESC',
+  SourceUriAsc = 'SOURCE_URI_ASC',
+  SourceUriDesc = 'SOURCE_URI_DESC',
+  TimestampAsc = 'TIMESTAMP_ASC',
+  TimestampDesc = 'TIMESTAMP_DESC',
   UidAsc = 'UID_ASC',
   UidDesc = 'UID_DESC',
 }
@@ -6241,6 +6845,92 @@ export enum TranscriptsOrderBy {
   UidDesc = 'UID_DESC',
 }
 
+export type Translation = {
+  engine: Scalars['String']
+  language: Scalars['String']
+  /** Reads a single `MediaAsset` that is related to this `Translation`. */
+  mediaAsset?: Maybe<MediaAsset>
+  mediaAssetUid: Scalars['String']
+  text: Scalars['String']
+  uid: Scalars['String']
+}
+
+/**
+ * A condition to be used against `Translation` object types. All fields are tested
+ * for equality and combined with a logical ‘and.’
+ */
+export type TranslationCondition = {
+  /** Checks for equality with the object’s `engine` field. */
+  engine?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `language` field. */
+  language?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `mediaAssetUid` field. */
+  mediaAssetUid?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `text` field. */
+  text?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `uid` field. */
+  uid?: InputMaybe<Scalars['String']>
+}
+
+/** A filter to be used against `Translation` object types. All fields are combined with a logical ‘and.’ */
+export type TranslationFilter = {
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<TranslationFilter>>
+  /** Filter by the object’s `engine` field. */
+  engine?: InputMaybe<StringFilter>
+  /** Filter by the object’s `language` field. */
+  language?: InputMaybe<StringFilter>
+  /** Filter by the object’s `mediaAsset` relation. */
+  mediaAsset?: InputMaybe<MediaAssetFilter>
+  /** Filter by the object’s `mediaAssetUid` field. */
+  mediaAssetUid?: InputMaybe<StringFilter>
+  /** Negates the expression. */
+  not?: InputMaybe<TranslationFilter>
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<TranslationFilter>>
+  /** Filter by the object’s `text` field. */
+  text?: InputMaybe<StringFilter>
+  /** Filter by the object’s `uid` field. */
+  uid?: InputMaybe<StringFilter>
+}
+
+/** A connection to a list of `Translation` values. */
+export type TranslationsConnection = {
+  /** A list of edges which contains the `Translation` and cursor to aid in pagination. */
+  edges: Array<TranslationsEdge>
+  /** A list of `Translation` objects. */
+  nodes: Array<Translation>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** The count of *all* `Translation` you could get from the connection. */
+  totalCount: Scalars['Int']
+}
+
+/** A `Translation` edge in the connection. */
+export type TranslationsEdge = {
+  /** A cursor for use in pagination. */
+  cursor?: Maybe<Scalars['Cursor']>
+  /** The `Translation` at the end of the edge. */
+  node: Translation
+}
+
+/** Methods to use when ordering `Translation`. */
+export enum TranslationsOrderBy {
+  EngineAsc = 'ENGINE_ASC',
+  EngineDesc = 'ENGINE_DESC',
+  LanguageAsc = 'LANGUAGE_ASC',
+  LanguageDesc = 'LANGUAGE_DESC',
+  MediaAssetUidAsc = 'MEDIA_ASSET_UID_ASC',
+  MediaAssetUidDesc = 'MEDIA_ASSET_UID_DESC',
+  Natural = 'NATURAL',
+  PrimaryKeyAsc = 'PRIMARY_KEY_ASC',
+  PrimaryKeyDesc = 'PRIMARY_KEY_DESC',
+  TextAsc = 'TEXT_ASC',
+  TextDesc = 'TEXT_DESC',
+  UidAsc = 'UID_ASC',
+  UidDesc = 'UID_DESC',
+}
+
 export type Ucan = {
   audience: Scalars['String']
   cid: Scalars['String']
@@ -6380,73 +7070,6 @@ export enum UsersOrderBy {
   Natural = 'NATURAL',
   PrimaryKeyAsc = 'PRIMARY_KEY_ASC',
   PrimaryKeyDesc = 'PRIMARY_KEY_DESC',
-}
-
-export type _ActorToContribution = {
-  a: Scalars['String']
-  /** Reads a single `Actor` that is related to this `_ActorToContribution`. */
-  actorByA?: Maybe<Actor>
-  b: Scalars['String']
-  /** Reads a single `Contribution` that is related to this `_ActorToContribution`. */
-  contributionByB?: Maybe<Contribution>
-}
-
-/**
- * A condition to be used against `_ActorToContribution` object types. All fields
- * are tested for equality and combined with a logical ‘and.’
- */
-export type _ActorToContributionCondition = {
-  /** Checks for equality with the object’s `a` field. */
-  a?: InputMaybe<Scalars['String']>
-  /** Checks for equality with the object’s `b` field. */
-  b?: InputMaybe<Scalars['String']>
-}
-
-/** A filter to be used against `_ActorToContribution` object types. All fields are combined with a logical ‘and.’ */
-export type _ActorToContributionFilter = {
-  /** Filter by the object’s `a` field. */
-  a?: InputMaybe<StringFilter>
-  /** Filter by the object’s `actorByA` relation. */
-  actorByA?: InputMaybe<ActorFilter>
-  /** Checks for all expressions in this list. */
-  and?: InputMaybe<Array<_ActorToContributionFilter>>
-  /** Filter by the object’s `b` field. */
-  b?: InputMaybe<StringFilter>
-  /** Filter by the object’s `contributionByB` relation. */
-  contributionByB?: InputMaybe<ContributionFilter>
-  /** Negates the expression. */
-  not?: InputMaybe<_ActorToContributionFilter>
-  /** Checks for any expressions in this list. */
-  or?: InputMaybe<Array<_ActorToContributionFilter>>
-}
-
-/** A connection to a list of `_ActorToContribution` values. */
-export type _ActorToContributionsConnection = {
-  /** A list of edges which contains the `_ActorToContribution` and cursor to aid in pagination. */
-  edges: Array<_ActorToContributionsEdge>
-  /** A list of `_ActorToContribution` objects. */
-  nodes: Array<_ActorToContribution>
-  /** Information to aid in pagination. */
-  pageInfo: PageInfo
-  /** The count of *all* `_ActorToContribution` you could get from the connection. */
-  totalCount: Scalars['Int']
-}
-
-/** A `_ActorToContribution` edge in the connection. */
-export type _ActorToContributionsEdge = {
-  /** A cursor for use in pagination. */
-  cursor?: Maybe<Scalars['Cursor']>
-  /** The `_ActorToContribution` at the end of the edge. */
-  node: _ActorToContribution
-}
-
-/** Methods to use when ordering `_ActorToContribution`. */
-export enum _ActorToContributionsOrderBy {
-  AAsc = 'A_ASC',
-  ADesc = 'A_DESC',
-  BAsc = 'B_ASC',
-  BDesc = 'B_DESC',
-  Natural = 'NATURAL',
 }
 
 export type _ConceptToContentItem = {
@@ -6777,6 +7400,73 @@ export type _ContentItemToMediaAssetsEdge = {
 
 /** Methods to use when ordering `_ContentItemToMediaAsset`. */
 export enum _ContentItemToMediaAssetsOrderBy {
+  AAsc = 'A_ASC',
+  ADesc = 'A_DESC',
+  BAsc = 'B_ASC',
+  BDesc = 'B_DESC',
+  Natural = 'NATURAL',
+}
+
+export type _ContributionToContributor = {
+  a: Scalars['String']
+  b: Scalars['String']
+  /** Reads a single `Contribution` that is related to this `_ContributionToContributor`. */
+  contributionByA?: Maybe<Contribution>
+  /** Reads a single `Contributor` that is related to this `_ContributionToContributor`. */
+  contributorByB?: Maybe<Contributor>
+}
+
+/**
+ * A condition to be used against `_ContributionToContributor` object types. All
+ * fields are tested for equality and combined with a logical ‘and.’
+ */
+export type _ContributionToContributorCondition = {
+  /** Checks for equality with the object’s `a` field. */
+  a?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `b` field. */
+  b?: InputMaybe<Scalars['String']>
+}
+
+/** A filter to be used against `_ContributionToContributor` object types. All fields are combined with a logical ‘and.’ */
+export type _ContributionToContributorFilter = {
+  /** Filter by the object’s `a` field. */
+  a?: InputMaybe<StringFilter>
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<_ContributionToContributorFilter>>
+  /** Filter by the object’s `b` field. */
+  b?: InputMaybe<StringFilter>
+  /** Filter by the object’s `contributionByA` relation. */
+  contributionByA?: InputMaybe<ContributionFilter>
+  /** Filter by the object’s `contributorByB` relation. */
+  contributorByB?: InputMaybe<ContributorFilter>
+  /** Negates the expression. */
+  not?: InputMaybe<_ContributionToContributorFilter>
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<_ContributionToContributorFilter>>
+}
+
+/** A connection to a list of `_ContributionToContributor` values. */
+export type _ContributionToContributorsConnection = {
+  /** A list of edges which contains the `_ContributionToContributor` and cursor to aid in pagination. */
+  edges: Array<_ContributionToContributorsEdge>
+  /** A list of `_ContributionToContributor` objects. */
+  nodes: Array<_ContributionToContributor>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** The count of *all* `_ContributionToContributor` you could get from the connection. */
+  totalCount: Scalars['Int']
+}
+
+/** A `_ContributionToContributor` edge in the connection. */
+export type _ContributionToContributorsEdge = {
+  /** A cursor for use in pagination. */
+  cursor?: Maybe<Scalars['Cursor']>
+  /** The `_ContributionToContributor` at the end of the edge. */
+  node: _ContributionToContributor
+}
+
+/** Methods to use when ordering `_ContributionToContributor`. */
+export enum _ContributionToContributorsOrderBy {
   AAsc = 'A_ASC',
   ADesc = 'A_DESC',
   BAsc = 'B_ASC',

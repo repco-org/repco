@@ -8,6 +8,7 @@
 import { repco } from 'repco-prisma'
 import { Headers } from './mod.js'
 import {
+  ConceptKind,
   ContentGrouping,
   ContentGroupingVariant,
   ContentItem,
@@ -16,7 +17,7 @@ import {
 } from './prisma.js'
 
 export type { ContentItem, MediaAsset, ContentGrouping, Revision }
-export { ContentGroupingVariant }
+export { ContentGroupingVariant, ConceptKind }
 
 export type AnyEntityContent = { uid: string }
 export type AllEntityTypes = repco.EntityOutput['type']
@@ -30,6 +31,7 @@ export type EntityForm = repco.EntityInput & Headers
 
 export type EntityInputWithHeaders = repco.EntityInputWithUid & {
   headers: Headers
+  prevContentCid?: string
 }
 
 export type EntityInputWithRevision = repco.EntityInputWithUid & {
@@ -53,6 +55,10 @@ export type EntityType = repco.EntityOutput['type']
 // TODO: This should be the output types.
 export type TypedEntity<T extends EntityType> = Extract<
   repco.EntityInput,
+  { type: T }
+>
+export type TypedEntityForm<T extends EntityType> = Extract<
+  EntityForm,
   { type: T }
 >
 export type TypedEntityWithRevision<T extends EntityType> = TypedEntity<T> & {

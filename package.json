@@ -20,6 +20,7 @@
     "build-and-test": "yarn --frozen-lockfile && run-s build test",
     "test": "run-s test:*",
     "test:core": "yarn --cwd packages/repco-core test",
+    "test:server": "yarn --cwd packages/repco-server test",
     "migrate": "yarn --cwd packages/repco-prisma prisma migrate deploy",
     "migrate:dev": "yarn --cwd packages/repco-prisma prisma migrate dev && yarn --cwd packages/repco-graphql export-schema",
     "codegen": "yarn migrate:dev",

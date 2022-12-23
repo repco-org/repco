@@ -24,25 +24,35 @@ cp sample.env .env
 docker-compose up -d
 # initial db migration (required)
 yarn migrate
-# ingest revision from cba.media
-yarn cli ingest
-# log the stored revisions
-yarn cli log-revisions
-# start the HTTP server
+# start the server [optional]
 yarn server
+# start the frontend [optional]
+yarn frontend
+# add new repo
+yarn cli repo create default
+# add datasource
+yarn cli ds add -r <repo> <plugin-name> <endpoint>
+# for example the cba plugin - need to define the api key for cba in .env file
+yarn cli ds add -r default urn:repco:datasource:cba https://cba.fro.at/wp-json/wp/v2
+# ingest updates from all datasources
+yarn cli ds ingest
+# print all revisions in a repo
+yarn cli repo log-revisions <repo>
 # get revisions over HTTP
 curl http://localhost:8765/changes
+# browse through contentItems via GUI
+http://localhost:3000
 ```
 
 ## Development notes
 
-### Package and repo structure 
+### Package and repo structure
 
-This project is structured as a monorepo of multiple TypeScript packages. We use Yarn workspaces to enable inter-project depencencies. To speed up build times, we also use [TypeScript project references](https://www.typescriptlang.org/docs/handbook/project-references.html). This is all readily setup, so you can just use `yarn build` or `yarn watch` in any of the packages and workspace dependencies will automatically be rebuilt if needed. 
+This project is structured as a monorepo of multiple TypeScript packages. We use Yarn workspaces to enable inter-project depencencies. To speed up build times, we also use [TypeScript project references](https://www.typescriptlang.org/docs/handbook/project-references.html). This is all readily setup, so you can just use `yarn build` or `yarn watch` in any of the packages and workspace dependencies will automatically be rebuilt if needed.
 
 When adding new workspace dependencies to projects, the dependency has to be added to the references section in the `tsconfig.json` as well. A script is included to automate this process, so whenever adding new workspace packages or adding a workspace dependency to an existing package, run `yarn update-ts-references` from the workspace root.
 
-When adding a new package, use one of the `tsconfig.json` files in any of the projects as a start. 
+When adding a new package, use one of the `tsconfig.json` files in any of the projects as a start.
 
 ### Codegen and migrations
 
@@ -61,18 +71,8 @@ While this is an in progress project may this is not the last standing.
 Repco is organized as a monorepro. In the individual packages a TypeDoc documentation can be generated with `yarn docs`.
 Most and most important functions, types, interfaces etc. are provided with appropriate comments. Each package usually contains a README.md with a short description. Additionally in each package a diagram folder can be created which contains a visualization of classes or processes.
 
-Project Tree - rough overview
+The documentation is available at [/doc]
 
-REPCO
+# Contribution
 
-```
-|
-|-REPCO
-| |-packages
-| | |-repco-core            //this packege ingest data from a datasource and persist to a local postgress
-| | |-repco-prisma          //defines the repco datamodel
-| | |-repco-prisma-generate //a custom prisma generator for validation and upsert function of the datamodel
-| | |-repco-server          //simple http-server for replication between the repco-nodes
-```
-
----
+If you want to contribute, chat with us on our [Discord channel](https://discord.gg/XfUPZFH6cj).

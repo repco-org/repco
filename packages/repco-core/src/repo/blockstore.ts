@@ -57,6 +57,7 @@ export type BlockT = { cid: CID, bytes: Uint8Array }
 
 export interface IpldBlockStore {
   put(data: any): Promise<CID>
+  // hasOrPut(data: any): Promise<{ cid: CID, isNew: boolean }>
   getBytes(cid: CID): Promise<Uint8Array>
   putBytes(cid: CID, bytes: Uint8Array): Promise<void>
   putBytesBatch(blocks: BlockT[]): Promise<void>
@@ -85,12 +86,15 @@ export abstract class IpldBlockStoreBase implements IpldBlockStore {
     return value
   }
 
+  // TODO: Rename putData
   async put(record: any): Promise<CID> {
     const value = preEncode(record)
     const block = await Block.encode({ value, hasher, codec })
     await this.putBytes(block.cid, block.bytes)
     return block.cid
   }
+
+  // async hasOrPut(record: any): Promise<{ cid: CID, isNew: boolean> {
 
   async get(cid: CID): Promise<IpldRecord> {
     const bytes = await this.getBytes(cid)
