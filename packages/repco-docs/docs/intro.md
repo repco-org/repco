@@ -3,7 +3,19 @@ sidebar_position: 1
 ---
 # repco
 
-_repco_ deals with repositories of Community Media. Community Media is defined as media (audio, video, pictures) that are produced by community-based, mostly non-commercial media creators. This includes Community Radio stations, recordings of events and lectures, Podcasters and other media collections.
+_Repco_ (Repository of Community Media) is an application that deals with the collection, management and distribution of community-based media. Community media is defined as media (audio, video, pictures) that are produced by community-based, mostly non-commercial media creators. This includes Community Radio stations, recordings of events and lectures, Podcasters, and other media collections.
+
+Goals:
+
+* To provide a decentralized platform for community media creators to store, manage and distribute their media content.
+* To enable easy replication of community media content between different Repco nodes.
+* To provide a public-facing API for accessing community media content.
+* To support different data sources and make it easy to add new data sources.
+* To ensure the scalability and reliability of the application.
+* To provide an easy-to-use interface for media creators and other stakeholders to manage their content.
+* To make the application easy to deploy and maintain.
+* To use state-of-the-art technologies for data storage, data access and data replication.
+* To make the codebase open-source, to encourage contributions from the community and to foster further development of the application.
 
 This repo contains both an [in-progress specification document](./SPEC.md) and a first implementation of repco.
 
