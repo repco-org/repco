@@ -17,12 +17,12 @@ Goals:
 * To use state-of-the-art technologies for data storage, data access and data replication.
 * To make the codebase open-source, to encourage contributions from the community and to foster further development of the application.
 
-This repo contains both an [in-progress specification document](./SPEC.md) and a first implementation of repco.
+This repo contains both an [in-progress specification document](#) and a first implementation of repco.
 
 The implementation is written in TypeScript. Currently, it consists of two packages:
 
-- [repco-prisma](./packages/repco-prisma) contains the Repco datamodel written as a [Prisma](https://www.prisma.io/) schema definition for PostgreSQL. The Prisma schema definition also emits TypeScript types for all parts of the datamodel.
-- [repco-core](./packages/repco-core) is the first implementation of a Repco node that can ingest content from different data sources into a local database, replicate the content between Repco nodes and provide a public-facing API. It is a work-in-progress and not yet fully functional.
+- [repco-prisma](#) contains the Repco datamodel written as a [Prisma](https://www.prisma.io/) schema definition for PostgreSQL. The Prisma schema definition also emits TypeScript types for all parts of the datamodel.
+- [repco-core](#) is the first implementation of a Repco node that can ingest content from different data sources into a local database, replicate the content between Repco nodes and provide a public-facing API. It is a work-in-progress and not yet fully functional.
 
 ## Installation and usage
 
