@@ -35,5 +35,5 @@ export function parsePagination(url: URL): LoadContentItemsQueryVariables {
     after,
     before,
   }
-  return variables
+  return variables as LoadContentItemsQueryVariables
 }
