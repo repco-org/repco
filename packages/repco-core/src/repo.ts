@@ -50,6 +50,7 @@ import { MapList } from './util/collections.js'
 import { ParseError } from './util/error.js'
 import { createEntityId, createRevisionId } from './util/id.js'
 import { Mutex } from './util/mutex.js'
+import { fetch } from 'undici'
 
 export * from './repo/types.js'
 
@@ -110,7 +111,7 @@ export class Repo {
   public prisma: PrismaClient | Prisma.TransactionClient
   public ipld: IpldRepo
 
-  public readonly record: RepoRecord
+  public record: RepoRecord
 
   private publishingCapability: string | null
   private validatedAgents: Set<string> = new Set()
@@ -256,6 +257,58 @@ export class Repo {
     return !!this.publishingCapability
   }
 
+  async refreshInfo() {
+    const record = await this.prisma.repo.findUnique({
+      where: { did: this.did },
+    })
+    if (!record) {
+      throw new RepoError(ErrorCode.NOT_FOUND, `Repo not found`)
+    }
+    this.record = record
+  }
+
+  get gateways() {
+    return this.record.gateways
+  }
+
+  async setGateways(gateways: string[]) {
+    await this.prisma.repo.update({
+      where: { did: this.did },
+      data: { gateways }
+    })
+    await this.refreshInfo()
+  }
+
+  async hasRoot(rootCid: CID | string): Promise<boolean> {
+    const cidStr = rootCid.toString()
+    return !!(await this.prisma.commit.count({
+      where: { rootCid: cidStr, repoDid: this.did },
+    }))
+  }
+
+  async pullFromGateways() {
+    if (this.writeable) throw new Error('Cannot pull-sync writeable repo')
+    for (const gateway of this.gateways) {
+      console.log('sync from', gateway)
+      const maybeHead = await this.getHeadMaybe()
+      const ownHead = maybeHead ? maybeHead.toString() : ''
+      console.log('own head', ownHead)
+      const url = `${gateway}/sync/${this.did}`
+      const res = await fetch(url, { method: 'HEAD' })
+      console.log('fetch', url, res.status)
+      const theirHead = res.headers.get('x-repco-head')
+      console.log('their head', theirHead)
+      if (theirHead && !(await this.hasRoot(theirHead))) {
+        const res = await fetch(url + `/${ownHead}`)
+        console.log('res', res.status, res.headers)
+        if (!res.body) continue
+        console.log('start import')
+        await this.importFromCar(res.body, console.log)
+      }
+    }
+    console.log('done', await this.getHeadMaybe())
+  }
+
   registerDataSource(ds: DataSource) {
     this.dsr.register(ds)
   }
@@ -375,7 +428,7 @@ export class Repo {
     opts: Partial<SaveBatchOpts> = {},
   ) {
     if (!this.writeable) throw new Error('Repo is not writeable')
-    const fullOpts: SaveBatchOpts = { ...opts, ...SAVE_BATCH_DEFAULTS }
+    const fullOpts: SaveBatchOpts = { ...SAVE_BATCH_DEFAULTS, ...opts }
 
     // Save the batch in one transaction.
     const release = await this.txlock.lock()

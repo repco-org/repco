@@ -8421,6 +8421,7 @@ type Repo {
     orderBy: [CommitsOrderBy!] = [PRIMARY_KEY_ASC]
   ): CommitsConnection!
   did: String!
+  gateways: [String]
   head: String
   name: String
 
@@ -8587,6 +8588,9 @@ input RepoCondition {
   """Checks for equality with the object’s `did` field."""
   did: String
 
+  """Checks for equality with the object’s `gateways` field."""
+  gateways: [String]
+
   """Checks for equality with the object’s `head` field."""
   head: String
 
@@ -8618,6 +8622,9 @@ input RepoFilter {
 
   """Filter by the object’s `did` field."""
   did: StringFilter
+
+  """Filter by the object’s `gateways` field."""
+  gateways: StringListFilter
 
   """Filter by the object’s `head` field."""
   head: StringFilter
@@ -8711,6 +8718,8 @@ type ReposEdge {
 enum ReposOrderBy {
   DID_ASC
   DID_DESC
+  GATEWAYS_ASC
+  GATEWAYS_DESC
   HEAD_ASC
   HEAD_DESC
   NAME_ASC
@@ -9171,9 +9180,6 @@ type Revision {
   ): RevisionContributorsByPublicationServiceRevisionIdAndPublisherUidManyToManyConnection!
   dateCreated: Datetime!
   dateModified: Datetime!
-
-  """Reads a single `SourceRecord` that is related to this `Revision`."""
-  derivedFrom: SourceRecord
   derivedFromUid: String
 
   """Reads and enables pagination through a set of `Entity`."""
@@ -10498,12 +10504,6 @@ input RevisionFilter {
   """Filter by the object’s `dateModified` field."""
   dateModified: DatetimeFilter
 
-  """Filter by the object’s `derivedFrom` relation."""
-  derivedFrom: SourceRecordFilter
-
-  """A related `derivedFrom` exists."""
-  derivedFromExists: Boolean
-
   """Filter by the object’s `derivedFromUid` field."""
   derivedFromUid: StringFilter
 
@@ -11322,40 +11322,6 @@ type SourceRecord {
   dataSource: DataSource
   dataSourceUid: String
   meta: JSON
-
-  """Reads and enables pagination through a set of `Revision`."""
-  revisionsByDerivedFrom(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: RevisionCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: RevisionFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `Revision`."""
-    orderBy: [RevisionsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): RevisionsConnection!
   sourceType: String!
   sourceUri: String!
   timestamp: Datetime!
@@ -11429,12 +11395,6 @@ input SourceRecordFilter {
   """Checks for any expressions in this list."""
   or: [SourceRecordFilter!]
 
-  """Filter by the object’s `revisionsByDerivedFrom` relation."""
-  revisionsByDerivedFrom: SourceRecordToManyRevisionFilter
-
-  """Some related `revisionsByDerivedFrom` exist."""
-  revisionsByDerivedFromExist: Boolean
-
   """Filter by the object’s `sourceType` field."""
   sourceType: StringFilter
 
@@ -11446,26 +11406,6 @@ input SourceRecordFilter {
 
   """Filter by the object’s `uid` field."""
   uid: StringFilter
-}
-
-"""
-A filter to be used against many `Revision` object types. All fields are combined with a logical ‘and.’
-"""
-input SourceRecordToManyRevisionFilter {
-  """
-  Every related `Revision` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  every: RevisionFilter
-
-  """
-  No related `Revision` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  none: RevisionFilter
-
-  """
-  Some related `Revision` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  some: RevisionFilter
 }
 
 """A connection to a list of `SourceRecord` values."""
