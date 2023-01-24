@@ -68,13 +68,11 @@ export function runServer(prisma: PrismaClient, port: number) {
   const terminator = createHttpTerminator({ server })
 
   const shutdown = async () => {
-    console.log('in')
     await Promise.all([
       pgPool.end(),
       graphqlHandler.release(),
       terminator.terminate()
     ])
-    console.log('out')
   }
 
   return {

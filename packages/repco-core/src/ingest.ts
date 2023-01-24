@@ -1,3 +1,4 @@
+import { UntilStopped } from 'repco-common'
 import {
   DataSourceRegistry,
   ingestUpdatesFromDataSource,
@@ -13,6 +14,19 @@ export enum WorkerStatus {
 
 const POLL_INTERVAL = 10000
 
+const stopped = (uid: string) => ({
+  uid,
+  ok: true,
+  finished: false,
+  canclled: true,
+})
+const errored = (uid: string, error: Error | any) => ({
+  uid,
+  ok: false,
+  finished: true,
+  error: error instanceof Error ? error : new Error(String(error)),
+})
+
 export type WorkOpts = {
   pollInterval?: number
 }
@@ -22,6 +36,8 @@ export class Ingester {
   plugins: DataSourcePluginRegistry
   repo: Repo
   hydrated = false
+  untilStopped = new UntilStopped()
+
   constructor(plugins: DataSourcePluginRegistry, repo: Repo) {
     this.plugins = plugins
     this.repo = repo
@@ -38,22 +54,18 @@ export class Ingester {
   }
 
   async ingest(uid: string, wait?: number) {
+    if (this.untilStopped.stopped) return stopped(uid)
     if (!this.hydrated) await this.init()
     const ds = this.datasources.get(uid)
-    if (!ds)
-      return {
-        uid,
-        ok: false,
-        finished: true,
-        error: new Error(`Datasource \`${uid}\` not found`),
-      }
-    if (wait) await new Promise((resolve) => setTimeout(resolve, wait))
+    if (!ds) return errored(uid, new Error(`Datasource \`${uid}\` not found`))
+    if (wait) await this.untilStopped.timeout(wait)
+    if (this.untilStopped.stopped) return stopped(uid)
     try {
       const res = await ingestUpdatesFromDataSource(this.repo, ds)
       const finished = res.count === 0
       return { uid, ok: true, finished, ...res }
     } catch (error) {
-      return { uid, ok: false, finished: true, error }
+      return errored(uid, error)
     }
   }
 
@@ -62,6 +74,14 @@ export class Ingester {
     return await Promise.all(
       this.datasources.ids().map((uid) => this.ingest(uid)),
     )
+  }
+
+  stop() {
+    this.untilStopped.stop()
+  }
+
+  get stopped() {
+    return this.untilStopped.stopped
   }
 
   async *workLoop(opts: WorkOpts = {}) {
@@ -73,7 +93,7 @@ export class Ingester {
       const res = await Promise.race(pending.values())
       yield res
       pending.delete(res.uid)
-      if (res.ok) {
+      if (res.ok && !this.stopped) {
         const wait = res.finished
           ? opts.pollInterval || POLL_INTERVAL
           : undefined

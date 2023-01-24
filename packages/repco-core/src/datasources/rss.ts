@@ -231,9 +231,30 @@ export class RssDataSource implements DataSource {
   }
 
   async fetchPage(url: URL): Promise<string> {
-    const res = await fetch(url)
-    const text = await res.text()
-    return text
+    // console.log('FETCH', url.toString())
+    const maxRetries = 50
+    let timeout = 1
+    let retries = 0
+    while (true) {
+      try {
+        const res = await fetch(url)
+        if (res.ok) {
+          const text = await res.text()
+          return text
+        }
+        throw new Error(`Got status ${res.status} for ${url.toString()}`)
+      } catch (err) {
+        retries += 1
+        if (retries >= maxRetries) {
+          throw err
+        }
+
+        // retry
+        const wait = timeout * 1000
+        timeout = timeout * 2
+        await new Promise((resolve) => setTimeout(resolve, wait))
+      }
+    }
   }
 
   async mapPage(feed: ParsedFeed) {
