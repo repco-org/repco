@@ -5,7 +5,7 @@ export const server = createCommand({
   name: 'server',
   help: 'Start the repco API server',
   options: {
-    port: { type: 'string', short: 'p', help: 'Port to listen on' }
+    port: { type: 'string', short: 'p', help: 'Port to listen on' },
   },
   async run(opts) {
     const prisma = new PrismaClient()
@@ -14,4 +14,3 @@ export const server = createCommand({
     runServer(prisma, port)
   },
 })
-

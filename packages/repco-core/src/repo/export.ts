@@ -19,7 +19,7 @@ export async function exportRepoToCarReversed(
   repo: Repo,
   head: CID,
   tail?: CID,
-  onProgress?: ExportOnProgressCallback
+  onProgress?: ExportOnProgressCallback,
 ) {
   const { writer, out } = CarWriter.create([tail || head])
   writeRepoToCarReversed(repo, writer, head, tail, onProgress)
@@ -41,7 +41,7 @@ async function writeRepoToCarReversed(
   writer: BlockWriter,
   head: CID,
   tail?: CID,
-  onProgress?: ExportOnProgressCallback
+  onProgress?: ExportOnProgressCallback,
 ) {
   try {
     const headRow = await repo.prisma.commit.findFirst({
@@ -77,11 +77,15 @@ async function writeRepoToCarReversed(
       commits: 0,
       bytes: 0,
       blocks: 0,
-      deltaBytes: 0
+      deltaBytes: 0,
     }
     const trackingWriter = new TrackingBlockWriter(writer)
     for (const commitRow of commitLog) {
-      const commit = await writeCommitToCar(repo.blockstore, trackingWriter, CID.parse(commitRow.rootCid))
+      const commit = await writeCommitToCar(
+        repo.blockstore,
+        trackingWriter,
+        CID.parse(commitRow.rootCid),
+      )
       if (commit) progress.commits += 1
       progress.bytes = trackingWriter.bytesWritten
       progress.blocks = trackingWriter.blocksWritten

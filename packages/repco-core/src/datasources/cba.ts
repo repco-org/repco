@@ -20,14 +20,28 @@
 
 //********************************************************************************************************************************************* */
 
-import * as zod from "zod";
-import { form } from "repco-prisma";
-import { fetch } from "undici";
-import { CbaAudio, CbaCategory, CbaImage, CbaPost, CbaSeries, CbaStation, CbaTag } from "./cba/types.js";
-import { DataSource, DataSourceDefinition, DataSourcePlugin, FetchUpdatesResult, SourceRecordForm } from "../datasource.js";
-import { ConceptKind, ContentGroupingVariant, EntityForm } from "../entity.js";
-import { FetchOpts } from "../util/datamapping.js";
-import { HttpError } from "../util/error.js";
+import * as zod from 'zod'
+import { form } from 'repco-prisma'
+import { fetch } from 'undici'
+import {
+  CbaAudio,
+  CbaCategory,
+  CbaImage,
+  CbaPost,
+  CbaSeries,
+  CbaStation,
+  CbaTag,
+} from './cba/types.js'
+import {
+  DataSource,
+  DataSourceDefinition,
+  DataSourcePlugin,
+  FetchUpdatesResult,
+  SourceRecordForm,
+} from '../datasource.js'
+import { ConceptKind, ContentGroupingVariant, EntityForm } from '../entity.js'
+import { FetchOpts } from '../util/datamapping.js'
+import { HttpError } from '../util/error.js'
 
 // Endpoint of the Datasource
 const DEFAULT_ENDPOINT = 'https://cba.fro.at/wp-json/wp/v2'

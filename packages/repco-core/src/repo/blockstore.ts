@@ -53,7 +53,7 @@ export async function validateCID(params: { cid: CID; bytes: Uint8Array }) {
   }
 }
 
-export type BlockT = { cid: CID, bytes: Uint8Array }
+export type BlockT = { cid: CID; bytes: Uint8Array }
 
 export interface IpldBlockStore {
   put(data: any): Promise<CID>
@@ -77,7 +77,9 @@ export abstract class IpldBlockStoreBase implements IpldBlockStore {
   abstract hasCid(cid: CID): Promise<boolean>
 
   async putBytesBatch(blocks: BlockT[]) {
-    await Promise.all(blocks.map(block => this.putBytes(block.cid, block.bytes)))
+    await Promise.all(
+      blocks.map((block) => this.putBytes(block.cid, block.bytes)),
+    )
   }
 
   parse(bytes: Uint8Array | Buffer) {
@@ -137,7 +139,8 @@ export abstract class IpldBlockStoreBase implements IpldBlockStore {
 
 export class PrismaIpldBlockStoreTransaction
   extends IpldBlockStoreBase
-  implements IpldBlockStore {
+  implements IpldBlockStore
+{
   batch: Record<string, Uint8Array> = {}
   constructor(private prisma: Prisma.TransactionClient) {
     super()
@@ -210,7 +213,8 @@ export class PrismaIpldBlockStoreTransaction
 
 export class PrismaIpldBlockStore
   extends IpldBlockStoreBase
-  implements IpldBlockStore {
+  implements IpldBlockStore
+{
   constructor(private prisma: Prisma.TransactionClient) {
     super()
   }
@@ -270,7 +274,8 @@ export class PrismaIpldBlockStore
 
 export class LevelIpldBlockStore
   extends IpldBlockStoreBase
-  implements IpldBlockStore {
+  implements IpldBlockStore
+{
   db: Level<Uint8Array, Uint8Array>
   opened = false
   _open?: Promise<void>

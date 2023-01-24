@@ -1,6 +1,6 @@
 import Table from 'cli-table3'
-import pc from 'picocolors'
 import fs from 'fs/promises'
+import pc from 'picocolors'
 import fmtBytes from 'pretty-bytes'
 import fmtMs from 'pretty-ms'
 // @ts-ignore
@@ -8,10 +8,10 @@ import speedometer from 'speedometer'
 import { Presets, SingleBar } from 'cli-progress'
 import { createReadStream } from 'fs'
 import { CID } from 'multiformats/cid'
+import { ExportProgress, ImportProgress, Repo } from 'repco-core'
 import { PrismaClient } from 'repco-prisma'
 import { pipeline } from 'stream/promises'
 import { createCommand, createCommandGroup } from '../parse.js'
-import { Repo, ImportProgress, ExportProgress } from 'repco-core'
 
 // helpers
 const print = (msg: string) => console.error(msg)
@@ -278,5 +278,14 @@ export const syncCommand = createCommand({
 export const command = createCommandGroup({
   name: 'repo',
   help: 'Manage repco repositories',
-  commands: [create, join, list, info, carImport, carExport, logRevisions, syncCommand],
+  commands: [
+    create,
+    join,
+    list,
+    info,
+    carImport,
+    carExport,
+    logRevisions,
+    syncCommand,
+  ],
 })

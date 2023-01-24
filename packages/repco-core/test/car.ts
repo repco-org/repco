@@ -4,7 +4,7 @@ import { CarBlockIterator } from '@ipld/car'
 // @ts-ignore
 import { clock } from 'nanobench-utils'
 import { setup } from './util/setup.js'
-import { PrismaClient, Repo } from '../lib.js'
+import { Repo } from '../lib.js'
 import { exportRepoToCar } from '../src/repo/export.js'
 
 const round = (x: number) => Math.round(x * 100) / 100

@@ -1,8 +1,8 @@
+import exitHook from 'async-exit-hook'
 import { log, UntilStopped } from 'repco-common'
 import { defaultDataSourcePlugins, Ingester, Repo } from 'repco-core'
 import { PrismaClient } from 'repco-prisma'
 import { createCommand } from '../parse.js'
-import exitHook from 'async-exit-hook'
 
 const SYNC_INTERVAL = 1000 * 60
 

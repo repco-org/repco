@@ -1,6 +1,6 @@
-import pg from 'pg'
 import PgManyToManyPlugin from '@graphile-contrib/pg-many-to-many'
 import SimplifyInflectorPlugin from '@graphile-contrib/pg-simplify-inflector'
+import pg from 'pg'
 import ConnectionFilterPlugin from 'postgraphile-plugin-connection-filter'
 import { NodePlugin } from 'graphile-build'
 import { lexicographicSortSchema } from 'graphql'

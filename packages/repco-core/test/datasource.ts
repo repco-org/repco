@@ -2,13 +2,13 @@
 
 import test from 'brittle'
 import { setup } from './util/setup.js'
-import { DataSource, Ingester, Repo } from '../lib.js'
+import { DataSource, Repo } from '../lib.js'
 import {
   BaseDataSource,
   DataSourceDefinition,
   FetchUpdatesResult,
-  ingestUpdatesFromDataSources,
   ingestUpdatesFromDataSource,
+  ingestUpdatesFromDataSources,
   remapDataSource,
   SourceRecordForm,
 } from '../src/datasource.js'

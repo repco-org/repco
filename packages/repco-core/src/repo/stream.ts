@@ -12,9 +12,8 @@ export type RevisionFilter = {
 export async function* ContentLoaderStream<
   B extends boolean,
   T extends B extends false ? Revision : Revision[],
-  U extends B extends false ? EntityWithRevision : EntityWithRevision[]
->(input: RevisionStream<B, T>, inBatches: B): AsyncGenerator<U>
-{
+  U extends B extends false ? EntityWithRevision : EntityWithRevision[],
+>(input: RevisionStream<B, T>, inBatches: B): AsyncGenerator<U> {
   for await (const chunk of input) {
     const batch = input.asBatch(chunk)
     const out = []

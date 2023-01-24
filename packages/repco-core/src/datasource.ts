@@ -247,7 +247,8 @@ export async function ingestUpdatesFromDataSource(
   const cursor = await fetchCursor(repo.prisma, datasource)
 
   const { cursor: nextCursor, records } = await datasource.fetchUpdates(cursor)
-  if (!records.length && (!nextCursor || nextCursor === cursor)) return { cursor, count: 0 }
+  if (!records.length && (!nextCursor || nextCursor === cursor))
+    return { cursor, count: 0 }
 
   let count = 0
   if (records.length) {

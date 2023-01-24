@@ -56,4 +56,3 @@ test('other', async (assert) => {
   const stack = g.resolve()
   assert.alike(stack, ['d', 'c', 'b', 'a', 'e'])
 })
-

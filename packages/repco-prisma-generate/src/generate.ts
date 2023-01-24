@@ -1,6 +1,6 @@
 import { DMMF } from '@prisma/generator-helper'
 import { SourceFile } from 'ts-morph'
-import { isRepcoEntity, hasSkipAnnotation, findRelations } from './util.js'
+import { findRelations, isRepcoEntity } from './util.js'
 
 export function generateTypes(dmmf: DMMF.Document, file: SourceFile) {
   const imports = ['PrismaPromise', 'Prisma']
@@ -220,4 +220,3 @@ function generateUpsertFunction(models: DMMF.Model[], file: SourceFile) {
     statements: code,
   })
 }
-
