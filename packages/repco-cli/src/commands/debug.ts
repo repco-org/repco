@@ -1,8 +1,8 @@
 import casual from 'casual-browserify'
 import prettyMs from 'pretty-ms'
 import { SingleBar } from 'cli-progress'
-import { createCommand, createCommandGroup } from '../parse.js'
 import { EntityForm, Repo } from 'repco-core'
+import { createCommand, createCommandGroup } from '../parse.js'
 
 const round = (x: number) => Math.round(x * 100) / 100
 

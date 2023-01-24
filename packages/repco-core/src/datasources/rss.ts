@@ -63,9 +63,9 @@ function parseCursor(input?: string | null): Cursor {
   const cursor = input
     ? JSON.parse(input)
     : {
-      newest: {},
-      oldest: {},
-    }
+        newest: {},
+        oldest: {},
+      }
   const dateFields = [
     'lastCompletionDate',
     'mostRecentPubDate',

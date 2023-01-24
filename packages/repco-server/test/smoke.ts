@@ -1,10 +1,9 @@
 import test, { Test } from 'brittle'
-import { fetch } from 'undici'
-import { setup } from 'repco-core/dist/test/util/setup.js'
-import { PrismaClient, Repo } from 'repco-core'
-import { runServer } from '../src/lib.js'
-
 import getPort from 'get-port'
+import { PrismaClient, Repo } from 'repco-core'
+import { setup } from 'repco-core/dist/test/util/setup.js'
+import { fetch } from 'undici'
+import { runServer } from '../src/lib.js'
 
 async function createTestRepo(prisma: PrismaClient) {
   const repo = await Repo.create(prisma, 'default')
@@ -49,20 +48,22 @@ test('smoke', async (assert) => {
   const res = await fetch(`${url}/graphql`, {
     headers: { 'content-type': 'application/json' },
     method: 'POST',
-    body: JSON.stringify({ query })
+    body: JSON.stringify({ query }),
   }).then((r) => r.json())
 
   assert.alike(res, {
     data: {
       contentItems: {
-        nodes: [{
-          title: 'foo',
-          content: 'badoo',
-          revision: {
-            repoDid: repo.did
-          }
-        }]
-      }
-    }
+        nodes: [
+          {
+            title: 'foo',
+            content: 'badoo',
+            revision: {
+              repoDid: repo.did,
+            },
+          },
+        ],
+      },
+    },
   })
 })

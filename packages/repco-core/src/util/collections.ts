@@ -59,4 +59,3 @@ export class DequeSet<T> {
     if (idx !== -1) return this.stack.slice(idx)
   }
 }
-
