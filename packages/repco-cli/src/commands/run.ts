@@ -1,7 +1,8 @@
-import { UntilStopped } from 'repco-common'
+import { log, UntilStopped } from 'repco-common'
 import { defaultDataSourcePlugins, Ingester, Repo } from 'repco-core'
 import { PrismaClient } from 'repco-prisma'
 import { createCommand } from '../parse.js'
+import exitHook from 'async-exit-hook'
 
 const SYNC_INTERVAL = 1000 * 60
 
@@ -25,17 +26,18 @@ export const run = createCommand({
     // start ingest
     const ingest = ingestAll(prisma)
 
-    // clean shutdown
-    process.on('SIGINT', async () => {
+    exitHook(async (callback) => {
+      log.debug('Exit, wait for tasks to finish...')
       try {
         await Promise.all([
           server.shutdown(),
           sync.shutdown(),
           ingest.shutdown(),
         ])
-        process.exit(0)
+        log.debug('All tasks finished, now quit.')
+        setTimeout(callback, 1)
       } catch (err) {
-        console.error('Error during shutdown: ', err)
+        log.error('Error during shutdown: ', err)
         process.exit(1)
       }
     })
@@ -49,7 +51,15 @@ function ingestAll(prisma: PrismaClient) {
     ingesters.push(ingester)
     const queue = ingester.workLoop()
     for await (const result of queue) {
-      console.log(result)
+      if ('error' in result) {
+        log.error(`ingest ${result.uid} ERROR: ${result.error}`)
+      } else {
+        const cursor =
+          'cursor' in result && result.cursor
+            ? JSON.parse(result.cursor).pageNumber
+            : ''
+        log.debug(`ingest ${result.uid}: ${result.ok} ${cursor}`)
+      }
     }
   })
 
@@ -75,7 +85,7 @@ function syncAllRepos(prisma: PrismaClient) {
       }
     } catch (err) {
       // TODO: What to do when sync failed?
-      console.error(`Sync failed for repo ${repo.name}: ${err}`)
+      log.error(`Sync failed for repo ${repo.name}: ${err}`)
     }
   })
 

@@ -23,6 +23,7 @@
     "@pkgjs/parseargs": "^0.11.0",
     "@types/cli-progress": "^3.11.0",
     "@types/table": "^6.3.2",
+    "async-exit-hook": "^2.0.1",
     "casual-browserify": "^1.5.19-2",
     "cli-progress": "^3.11.2",
     "cli-table3": "^0.6.3",
@@ -36,6 +37,7 @@
     "table": "^6.8.1"
   },
   "devDependencies": {
+    "@types/async-exit-hook": "^2.0.0",
     "@types/pkgjs__parseargs": "^0.10.0",
     "esbuild": "^0.14.51"
   }
