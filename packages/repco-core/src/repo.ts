@@ -8,6 +8,7 @@ import {
   Repo as RepoRecord,
   Revision,
 } from 'repco-prisma'
+import { fetch } from 'undici'
 import { ZodError } from 'zod'
 import { DataSource, DataSourceRegistry } from './datasource.js'
 import {
@@ -50,7 +51,6 @@ import { MapList } from './util/collections.js'
 import { ParseError } from './util/error.js'
 import { createEntityId, createRevisionId } from './util/id.js'
 import { Mutex } from './util/mutex.js'
-import { fetch } from 'undici'
 
 export * from './repo/types.js'
 
@@ -216,6 +216,24 @@ export class Repo {
     return list
   }
 
+  static async all(prisma: PrismaClient): Promise<Repo[]> {
+    const list = await Repo.list(prisma)
+    const repos = await Promise.all(
+      list.map(({ did }) => Repo.open(prisma, did)),
+    )
+    return repos
+  }
+
+  static async mapAsync<T = void>(
+    prisma: PrismaClient,
+    mapAsync: (repo: Repo) => Promise<T>,
+  ) {
+    const repos = await Repo.all(prisma)
+    const tasks = repos.map(mapAsync)
+    const results = await Promise.all(tasks)
+    return results
+  }
+
   constructor(
     prisma: PrismaClient | Prisma.TransactionClient,
     record: RepoRecord,
@@ -274,7 +292,7 @@ export class Repo {
   async setGateways(gateways: string[]) {
     await this.prisma.repo.update({
       where: { did: this.did },
-      data: { gateways }
+      data: { gateways },
     })
     await this.refreshInfo()
   }
@@ -676,7 +694,7 @@ export class Repo {
 }
 
 export class IpldRepo {
-  constructor(public record: RepoRecord, public blockstore: IpldBlockStore) {}
+  constructor(public record: RepoRecord, public blockstore: IpldBlockStore) { }
   get did() {
     return this.record.did
   }
@@ -779,7 +797,7 @@ function setUid(
   input: repco.EntityInput,
   uid: string,
 ): asserts input is repco.EntityInputWithUid {
-  ;(input as any).uid = uid
+  ; (input as any).uid = uid
   input.content.uid = uid
 }
 

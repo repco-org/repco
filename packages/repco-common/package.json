@@ -14,6 +14,7 @@
   "dependencies": {
     "multiformats": "^9.9.0",
     "pino": "^8.7.0",
+    "pino-pretty": "^9.1.1",
     "zod": "^3.19"
   }
 }

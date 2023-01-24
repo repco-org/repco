@@ -247,15 +247,20 @@ export async function ingestUpdatesFromDataSource(
   const cursor = await fetchCursor(repo.prisma, datasource)
 
   const { cursor: nextCursor, records } = await datasource.fetchUpdates(cursor)
-  if (!records.length) return { cursor, count: 0 }
+  if (!records.length && (!nextCursor || nextCursor === cursor)) return { cursor, count: 0 }
 
-  const entities = await mapAndPersistSourceRecord(repo, datasource, records)
-  await repo.saveBatch('me', entities) // TODO: Agent
+  let count = 0
+  if (records.length) {
+    const entities = await mapAndPersistSourceRecord(repo, datasource, records)
+    await repo.saveBatch('me', entities) // TODO: Agent
+    count = entities.length
+  }
   await saveCursor(repo.prisma, datasource, nextCursor)
 
   return {
-    count: entities.length,
-    cursor,
+    finished: cursor === nextCursor,
+    count,
+    cursor: nextCursor,
   }
 }
 

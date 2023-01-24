@@ -3,13 +3,13 @@ import 'express-async-errors'
 import * as error from './error.js'
 import cors from 'cors'
 import express, { Response } from 'express'
+import { createHttpTerminator } from 'http-terminator'
+import { createLogger, Logger } from 'repco-common'
 import { PrismaClient } from 'repco-core'
 import { createGraphqlHandler, createPoolFromUrl } from 'repco-graphql'
 import Routes from './routes.js'
-import { createLogger, Logger } from 'repco-common'
-import { createHttpTerminator } from 'http-terminator'
 
-export const logger: Logger = createLogger('server')
+export const log: Logger = createLogger('server')
 
 export type Locals = {
   prisma: PrismaClient
@@ -38,7 +38,7 @@ export function runServer(prisma: PrismaClient, port: number) {
   app.use(graphqlHandler)
   app.use((_req, res, next) => {
     res.locals.prisma = prisma
-    res.locals.log = logger
+    res.locals.log = log
     next()
   })
   app.use((req, _res, next) => {
@@ -57,7 +57,7 @@ export function runServer(prisma: PrismaClient, port: number) {
   app.use(error.handler)
 
   const server = app.listen(port, () => {
-    console.log(`Repco server listening on http://localhost:${port}`)
+    log.info(`Repco server listening on http://localhost:${port}`)
   })
 
   const isReady = new Promise((resolve, reject) => {
@@ -68,19 +68,17 @@ export function runServer(prisma: PrismaClient, port: number) {
   const terminator = createHttpTerminator({ server })
 
   const shutdown = async () => {
-    console.log('in')
     await Promise.all([
       pgPool.end(),
       graphqlHandler.release(),
-      terminator.terminate()
+      terminator.terminate(),
     ])
-    console.log('out')
   }
 
   return {
     app,
     server,
     shutdown,
-    isReady
+    isReady,
   }
 }
