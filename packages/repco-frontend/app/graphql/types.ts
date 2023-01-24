@@ -4938,6 +4938,7 @@ export type Repo = {
   /** Reads and enables pagination through a set of `Commit`. */
   commitsByRepoDid: CommitsConnection
   did: Scalars['String']
+  gateways?: Maybe<Array<Maybe<Scalars['String']>>>
   head?: Maybe<Scalars['String']>
   name?: Maybe<Scalars['String']>
   /** Reads and enables pagination through a set of `Revision`. */
@@ -5063,6 +5064,8 @@ export type RepoCommitsByCommitRepoDidAndParentManyToManyEdgeCommitsByParentArgs
 export type RepoCondition = {
   /** Checks for equality with the object’s `did` field. */
   did?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `gateways` field. */
+  gateways?: InputMaybe<Array<InputMaybe<Scalars['String']>>>
   /** Checks for equality with the object’s `head` field. */
   head?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `name` field. */
@@ -5085,6 +5088,8 @@ export type RepoFilter = {
   commitsByRepoDidExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `did` field. */
   did?: InputMaybe<StringFilter>
+  /** Filter by the object’s `gateways` field. */
+  gateways?: InputMaybe<StringListFilter>
   /** Filter by the object’s `head` field. */
   head?: InputMaybe<StringFilter>
   /** Filter by the object’s `name` field. */
@@ -5145,6 +5150,8 @@ export type ReposEdge = {
 export enum ReposOrderBy {
   DidAsc = 'DID_ASC',
   DidDesc = 'DID_DESC',
+  GatewaysAsc = 'GATEWAYS_ASC',
+  GatewaysDesc = 'GATEWAYS_DESC',
   HeadAsc = 'HEAD_ASC',
   HeadDesc = 'HEAD_DESC',
   NameAsc = 'NAME_ASC',
@@ -5189,8 +5196,6 @@ export type Revision = {
   contributorsByPublicationServiceRevisionIdAndPublisherUid: RevisionContributorsByPublicationServiceRevisionIdAndPublisherUidManyToManyConnection
   dateCreated: Scalars['Datetime']
   dateModified: Scalars['Datetime']
-  /** Reads a single `SourceRecord` that is related to this `Revision`. */
-  derivedFrom?: Maybe<SourceRecord>
   derivedFromUid?: Maybe<Scalars['String']>
   /** Reads and enables pagination through a set of `Entity`. */
   entities: EntitiesConnection
@@ -6017,10 +6022,6 @@ export type RevisionFilter = {
   dateCreated?: InputMaybe<DatetimeFilter>
   /** Filter by the object’s `dateModified` field. */
   dateModified?: InputMaybe<DatetimeFilter>
-  /** Filter by the object’s `derivedFrom` relation. */
-  derivedFrom?: InputMaybe<SourceRecordFilter>
-  /** A related `derivedFrom` exists. */
-  derivedFromExists?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `derivedFromUid` field. */
   derivedFromUid?: InputMaybe<StringFilter>
   /** Filter by the object’s `entities` relation. */
@@ -6506,23 +6507,10 @@ export type SourceRecord = {
   dataSource?: Maybe<DataSource>
   dataSourceUid?: Maybe<Scalars['String']>
   meta?: Maybe<Scalars['JSON']>
-  /** Reads and enables pagination through a set of `Revision`. */
-  revisionsByDerivedFrom: RevisionsConnection
   sourceType: Scalars['String']
   sourceUri: Scalars['String']
   timestamp: Scalars['Datetime']
   uid: Scalars['String']
-}
-
-export type SourceRecordRevisionsByDerivedFromArgs = {
-  after: InputMaybe<Scalars['Cursor']>
-  before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<RevisionCondition>
-  filter: InputMaybe<RevisionFilter>
-  first: InputMaybe<Scalars['Int']>
-  last: InputMaybe<Scalars['Int']>
-  offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<RevisionsOrderBy>>
 }
 
 /**
@@ -6572,10 +6560,6 @@ export type SourceRecordFilter = {
   not?: InputMaybe<SourceRecordFilter>
   /** Checks for any expressions in this list. */
   or?: InputMaybe<Array<SourceRecordFilter>>
-  /** Filter by the object’s `revisionsByDerivedFrom` relation. */
-  revisionsByDerivedFrom?: InputMaybe<SourceRecordToManyRevisionFilter>
-  /** Some related `revisionsByDerivedFrom` exist. */
-  revisionsByDerivedFromExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `sourceType` field. */
   sourceType?: InputMaybe<StringFilter>
   /** Filter by the object’s `sourceUri` field. */
@@ -6584,16 +6568,6 @@ export type SourceRecordFilter = {
   timestamp?: InputMaybe<DatetimeFilter>
   /** Filter by the object’s `uid` field. */
   uid?: InputMaybe<StringFilter>
-}
-
-/** A filter to be used against many `Revision` object types. All fields are combined with a logical ‘and.’ */
-export type SourceRecordToManyRevisionFilter = {
-  /** Every related `Revision` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  every?: InputMaybe<RevisionFilter>
-  /** No related `Revision` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  none?: InputMaybe<RevisionFilter>
-  /** Some related `Revision` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  some?: InputMaybe<RevisionFilter>
 }
 
 /** A connection to a list of `SourceRecord` values. */
