@@ -1,0 +1,8 @@
+data
+data*
+**/data
+node_modules
+**/node_modules
+**/.clinic
+docs
+SANDBOX
