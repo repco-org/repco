@@ -1,5 +1,6 @@
 import RssParser from 'rss-parser'
 import zod from 'zod'
+import { log } from 'repco-common'
 import { Link } from 'repco-common/zod'
 import { ContentGroupingVariant } from 'repco-prisma'
 import {
@@ -136,7 +137,9 @@ export class RssDataSource implements DataSource {
 
   // The algorithm works as follows:
   // 1. Fetch most recent page
-  private async _crawlNewestUntil(cursor: CursorNewest): Promise<string> {
+  private async _crawlNewestUntil(
+    cursor: CursorNewest,
+  ): Promise<{ url: URL; xml: string }> {
     const url = new URL(this.endpoint)
 
     // TODO: Make configurable
@@ -154,7 +157,7 @@ export class RssDataSource implements DataSource {
     )
 
     const xml = await this.fetchPage(url)
-    return xml
+    return { url, xml }
   }
 
   private extractNextCursor(cursor: CursorNewest, feed: ParsedFeed) {
@@ -238,6 +241,9 @@ export class RssDataSource implements DataSource {
     while (true) {
       try {
         const res = await fetch(url)
+        log.debug(
+          `fetch ${url.toString()}: ${res.ok ? 'OK' : 'FAIL'} ${res.status}`,
+        )
         if (res.ok) {
           const text = await res.text()
           return text
@@ -269,23 +275,32 @@ export class RssDataSource implements DataSource {
     const cursor = parseCursor(cursorInput)
     const nextCursor = cursor
     const date = new Date()
-    const xml = await this._crawlNewestUntil(cursor.newest)
+    const { url, xml } = await this._crawlNewestUntil(cursor.newest)
 
-    const feed = await this.parser.parseString(xml)
-    cursor.newest = this.extractNextCursor(cursor.newest, feed)
+    try {
+      const feed = await this.parser.parseString(xml)
+      cursor.newest = this.extractNextCursor(cursor.newest, feed)
 
-    const sourceUri = new URL(this.endpoint)
-    sourceUri.hash = date.toISOString()
-    const record = {
-      contentType: 'application/rss+xml',
-      sourceUri: sourceUri.toString(),
-      sourceType: 'feedPage',
-      body: xml,
-    }
-    setParsedBody(record, feed)
-    return {
-      cursor: JSON.stringify(nextCursor),
-      records: [record],
+      const sourceUri = new URL(this.endpoint)
+      sourceUri.hash = date.toISOString()
+      const record = {
+        contentType: 'application/rss+xml',
+        sourceUri: sourceUri.toString(),
+        sourceType: 'feedPage',
+        body: xml,
+      }
+      setParsedBody(record, feed)
+      return {
+        cursor: JSON.stringify(nextCursor),
+        records: [record],
+      }
+    } catch (err) {
+      log.error(`Failed to parse feed from ${url.toString()}: ${err}`)
+      if (nextCursor.newest.pageNumber) nextCursor.newest.pageNumber += 1
+      return {
+        cursor: JSON.stringify(nextCursor),
+        records: [],
+      }
     }
   }
 
