@@ -17,6 +17,7 @@
     "test": "brittle dist/test/*.js"
   },
   "dependencies": {
+    "compression": "^1.7.4",
     "cors": "^2.8.5",
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
@@ -25,6 +26,7 @@
     "pino-pretty": "^9.1.1",
     "repco-common": "0.1.0",
     "repco-core": "0.1.0",
+    "repco-frontend": "0.1.0",
     "repco-graphql": "0.1.0"
   },
   "devDependencies": {
