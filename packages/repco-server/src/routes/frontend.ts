@@ -1,3 +1,10 @@
+// This mounts the Remix frontend into the server.
+// It does this with await import() to make it optional if not needed.
+// It also works around an incompatiblity by the insertGlobals()
+// function from @remix-run/express which adds the streams from
+// web-streams-polyfill, which are incompatible with those from
+// node:stream/web as used in undici.
+
 import express from 'express'
 import p from 'path'
 import { createRequire } from 'module'
