@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Demo - container</title>
+    <script type="module" src="../dist/src/index.js"></script>
+    <style>
+      .container {
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      :host {
+        --post-card-background-color: black;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <post-element
+        count="3"
+        defaultThumbnail="https://upload.wikimedia.org/wikipedia/commons/e/e8/Play_blauw.png"
+        url="https://node2.repco.openaudiosearch.org/graphql"
+      />
+    </div>
+  </body>
+</html>
