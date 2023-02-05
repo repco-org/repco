@@ -16,6 +16,7 @@ Use the `post-element` tag in your HTML file. You can customize the display of t
 - `count`: the number of posts to display (default is `10` also maximum right now)
 - `_defaultThumbnail`: the default thumbnail image URL to display if a post does not have a thumbnail (default is ` `)
 - `endpoint`: the URL of the GraphQL API to retrieve the posts from (default is `https://node1.repco.openaudiosearch.org/graphql`)
+- `query`: pass a query with filter options 
 
 Examples are provided in the `dev``directory
 

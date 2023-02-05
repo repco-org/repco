@@ -19,11 +19,14 @@
   "author": "arso-collective",
   "license": "tba",
   "dependencies": {
+    "@apollo/client": "^3.7.7",
     "dompurify": "^2.4.3",
+    "graphql": "^16.6.0",
     "lit": "^2.2.4"
   },
   "devDependencies": {
     "@types/dompurify": "^2.4.0",
+    "@types/graphql": "^14.5.0",
     "@typescript-eslint/eslint-plugin": "^5.25.0",
     "@typescript-eslint/parser": "^5.25.0",
     "@web/dev-server": "^0.1.31",

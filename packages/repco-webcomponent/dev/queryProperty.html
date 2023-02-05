@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Demo - queryProperty</title>
+    <script type="module" src="../dist/src/index.js"></script>
+    <style>
+      .container {
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      :host {
+        --post-card-background-color: black;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <repco-post-element query="query {
+  contentItems(orderBy: TITLE_DESC) {
+    nodes {
+      content
+      title
+      uid
+      mediaAssets {
+        nodes {
+          mediaType
+          file {
+            contentUrl
+          }
+        }
+      }
+    }
+  }
+}
+
+" />
+    </div>
+  </body>
+</html>

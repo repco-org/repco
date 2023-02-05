@@ -27,6 +27,27 @@ export class RepcoPostElement extends LitElement {
   @property({ type: String })
   _defaultThumbnail = ''
 
+  @property({ type: String })
+  query = `
+  query {
+    contentItems {
+      nodes {
+        title
+        content
+        uid
+        mediaAssets {
+          nodes {
+            mediaType
+            file {
+              contentUrl
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
   @state()
   private _state: { posts: PostType[] } = { posts: [] }
 
@@ -76,37 +97,28 @@ export class RepcoPostElement extends LitElement {
   //may parse data on another way to component... apollo provieds a lit component
   //we should discuss this
   private async fetchData() {
-    const response = await fetch(this.endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        query: `
-    query {
-  contentItems {
-    nodes {
-      title
-      content
-      uid
-      mediaAssets {
-        nodes {
-          mediaType
-          file {
-            contentUrl
-          }
-        }
+    try {
+      const response = await fetch(this.endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: this.query,
+        }),
+      })
+      if (!response.ok) {
+        throw new Error(
+          `Failed to fetch data with status code: ${response.status}`,
+        )
       }
+      const json = await response.json()
+      const posts = json.data.contentItems.nodes
+      this._state = { posts }
+    } catch (error) {
+      console.error(error)
+      // may show a post saying that there was an error
+      this._state = { posts: [] }
     }
   }
-}
-
-`,
-      }),
-    })
-    const json = await response.json()
-    const posts = json.data.contentItems.nodes
-    this._state = { posts }
-  }
-
   private trimContent(content: string) {
     return content.slice(0, 106)
   }
