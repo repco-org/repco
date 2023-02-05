@@ -3,7 +3,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Demo - container</title>
+    <title>Demo - endpoint</title>
     <script type="module" src="../dist/src/index.js"></script>
     <style>
       .container {
@@ -11,14 +11,13 @@
         margin-left: auto;
         margin-right: auto;
       }
-      :host {
-        --post-card-background-color: black;
-      }
     </style>
   </head>
   <body>
     <div class="container">
-      <repco-post-element endpoint="https://node2.repco.openaudiosearch.org/graphql" />
+      <repco-post-element
+        endpoint="https://node2.repco.openaudiosearch.org/graphql"
+      />
     </div>
   </body>
 </html>

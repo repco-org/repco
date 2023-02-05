@@ -11,14 +11,12 @@
         margin-left: auto;
         margin-right: auto;
       }
-      :host {
-        --post-card-background-color: black;
-      }
     </style>
   </head>
   <body>
     <div class="container">
-      <repco-post-element query="query {
+      <repco-post-element
+        query="query {
   contentItems(orderBy: TITLE_DESC) {
     nodes {
       content
@@ -36,7 +34,8 @@
   }
 }
 
-" />
+"
+      />
     </div>
   </body>
 </html>
