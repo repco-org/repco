@@ -1,6 +1,6 @@
+import DOMPurify from 'dompurify'
 import { css, html, LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { unsafeHTML } from 'lit/directives/unsafe-html.js'
 
 @customElement('repco-post-card-body')
 export class RepcoPostCardBodyElement extends LitElement {
@@ -16,7 +16,9 @@ export class RepcoPostCardBodyElement extends LitElement {
   @property()
   body = ''
   override render() {
-    return html`${unsafeHTML(this.body)}`
+    return html`${DOMPurify.sanitize(this.body)
+      .trim()
+      .replace(/<\/?p>/g, '')}`
   }
 }
 

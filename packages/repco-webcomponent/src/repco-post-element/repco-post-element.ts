@@ -49,12 +49,12 @@ export class RepcoPostElement extends LitElement {
 
       const body = `${this.trimContent(post.content)}...`
       const footer = `source: ${this.endpoint}`
-      //TODO: imrove this
-      const link = `${this.endpoint.substring(
+      const endpointBase = this.endpoint.substring(
         0,
-        this.endpoint.length - 7,
-      )}items/${post.uid}`
-      console.log(this.endpoint)
+        this.endpoint.lastIndexOf('/'),
+      )
+      const link = `${endpointBase}/items/${post.uid}`
+
       return html`
         <repco-post-card
           .thumbnail="${thumbnail}"
@@ -72,6 +72,9 @@ export class RepcoPostElement extends LitElement {
     window.open(url, '_blank')
   }
 
+  //TO DO: if fetch fails, what to do, right know the component fails sielently
+  //may parse data on another way to component... apollo provieds a lit component
+  //we should discuss this
   private async fetchData() {
     const response = await fetch(this.endpoint, {
       method: 'POST',
