@@ -1,7 +1,10 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "../../tsconfig.json",
-  "include": ["*.ts", "./generated/repco/*.ts"],
+  "include": [
+    "*.ts",
+    "./generated/repco/*.ts"
+  ],
   "compilerOptions": {
     "outDir": "dist"
   },

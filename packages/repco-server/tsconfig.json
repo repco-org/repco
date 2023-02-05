@@ -11,13 +11,13 @@
   },
   "references": [
     {
+      "path": "../repco-common"
+    },
+    {
       "path": "../repco-core"
     },
     {
       "path": "../repco-graphql"
-    },
-    {
-      "path": "../repco-common"
     }
   ]
 }

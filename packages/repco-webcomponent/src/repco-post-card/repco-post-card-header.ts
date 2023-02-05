@@ -1,12 +1,12 @@
-import {LitElement, html, css} from 'lit';
-import {customElement, property} from 'lit/decorators.js';
+import { css, html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators.js'
 
-@customElement('post-card-header')
-export class PostCardHeaderElement extends LitElement {
+@customElement('repco-post-card-header')
+export class RepcoPostCardHeaderElement extends LitElement {
   static override styles = css`
     :host {
       flex-grow: 1;
-      color: var(--post-header-color);
+      color: var(--repco-post-card-header-color);
     }
 
     h2,
@@ -17,24 +17,24 @@ export class PostCardHeaderElement extends LitElement {
     i {
       font-size: 0.875rem;
     }
-  `;
+  `
 
   @property()
-  header = '';
+  header = ''
 
   @property()
-  subheader = '';
+  subheader = ''
 
   override render() {
     return html`
       <h2>${this.header}</h2>
       <i>${this.subheader}</i>
-    `;
+    `
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'post-card-header': PostCardHeaderElement;
+    'repco-post-card-header': RepcoPostCardHeaderElement
   }
 }
