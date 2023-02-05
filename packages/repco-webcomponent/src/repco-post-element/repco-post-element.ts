@@ -17,6 +17,8 @@ export class RepcoPostElement extends LitElement {
       border-color: #cbd5e0;
     }
   `
+  @property({ type: String })
+  layout = 'column'
 
   @property()
   endpoint = 'https://node1.repco.openaudiosearch.org/graphql'
@@ -57,36 +59,42 @@ export class RepcoPostElement extends LitElement {
   }
 
   override render() {
-    return html`${this._state.posts.slice(0, this.count).map((post) => {
-      let thumbnail = this._defaultThumbnail
-      post.mediaAssets.nodes.map((asset: MediaAssetType) => {
-        if (asset.mediaType == 'image') {
-          thumbnail = asset.file.contentUrl
-        }
-      })
+    return html` <div
+      style="display: flex; flex-direction: ${this.layout === 'horizontal'
+        ? 'row'
+        : 'column'};"
+    >
+      ${this._state.posts.slice(0, this.count).map((post) => {
+        let thumbnail = this._defaultThumbnail
+        post.mediaAssets.nodes.map((asset: MediaAssetType) => {
+          if (asset.mediaType == 'image') {
+            thumbnail = asset.file.contentUrl
+          }
+        })
 
-      const header = post.title
-      const subheader = post.uid
+        const header = post.title
+        const subheader = post.uid
 
-      const body = `${this.trimContent(post.content)}...`
-      const footer = `source: ${this.endpoint}`
-      const endpointBase = this.endpoint.substring(
-        0,
-        this.endpoint.lastIndexOf('/'),
-      )
-      const link = `${endpointBase}/items/${post.uid}`
+        const body = `${this.trimContent(post.content)}...`
+        const footer = `source: ${this.endpoint}`
+        const endpointBase = this.endpoint.substring(
+          0,
+          this.endpoint.lastIndexOf('/'),
+        )
+        const link = `${endpointBase}/items/${post.uid}`
 
-      return html`
-        <repco-post-card
-          .thumbnail="${thumbnail}"
-          .header="${header}"
-          .subheader="${subheader}"
-          .body="${body}"
-          .footer="${footer}"
-          @click=${() => this.cardClick(link)}
-        ></repco-post-card>
-      `
-    })}`
+        return html`
+          <repco-post-card
+            .thumbnail="${thumbnail}"
+            .header="${header}"
+            .subheader="${subheader}"
+            .body="${body}"
+            .footer="${footer}"
+            @click=${() => this.cardClick(link)}
+          ></repco-post-card>
+        `
+      })}
+    </div>`
   }
 
   private cardClick(url: string) {

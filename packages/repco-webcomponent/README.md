@@ -1,24 +1,34 @@
-# repco-recommander-box
+# RepcoPostElement
 
-A web component to show a list of recommended posts. This is still WIP and not ready for production right now.
+A web component that fetches post data from a specified endpoint, displays the fetched data in cards, and provides the ability to open the original post in a new tab.
+
+## Features
+
+- Fetch post data from a specified endpoint.
+- Display the fetched data in cards.
+- Provide the ability to open the original post in a new tab.
+
+## Properties
+
+- `layout`: Specifies the layout of the cards, either `column` (default) or `horizontal`.
+- `endpoint`: Specifies the URL of the endpoint to fetch post data from (default: `https://node1.repco.openaudiosearch.org/graphql`).
+- `count`: Specifies the maximum number of cards to display (default: `10`).
+- `_defaultThumbnail`: Specifies a default thumbnail image to use if no image is available in the post data.
+- `query`: Specifies the GraphQL query to be sent to the endpoint.
+
+
+Examples are provided in the `dev``directory
+
 
 ## Usage
 
-To use the `repco-recommander-box` component, add the following code to your HTML file:
-
 ```html
-<script type="module" src="./dist/src/post-element.js"></script>
-<repco-recommander-box></repco-recommander-box>
+<repco-post-element
+  endpoint="https://node1.repco.openaudiosearch.org/graphql"
+  count="5"
+></repco-post-element>
 ```
 
-Use the `post-element` tag in your HTML file. You can customize the display of the component by setting its attributes:
-
-- `count`: the number of posts to display (default is `10` also maximum right now)
-- `_defaultThumbnail`: the default thumbnail image URL to display if a post does not have a thumbnail (default is ` `)
-- `endpoint`: the URL of the GraphQL API to retrieve the posts from (default is `https://node1.repco.openaudiosearch.org/graphql`)
-- `query`: pass a query with filter options 
-
-Examples are provided in the `dev``directory
 
 ## Building the Component
 
