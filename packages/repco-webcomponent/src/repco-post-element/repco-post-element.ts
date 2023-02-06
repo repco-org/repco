@@ -10,13 +10,32 @@ export class RepcoPostElement extends LitElement {
       display: flex;
       flex-direction: column;
     }
-    :hover {
-      background-color: #000000;
-      background-color: #f7fafc;
+
+    :host.card {
+      background-color: var(--card-background-color, #f7fafc);
+      box-shadow: var(--card-shadow, 0px 4px 6px rgba(0, 0, 0, 0.1));
+      border-color: var(--card-border-color, #cbd5e0);
+    }
+    .card:hover {
+      background-color: #f8f8f8;
       box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
       border-color: #cbd5e0;
     }
+    :host([theme='dark']) .card {
+      background-color: var(--dark-card-background-color, #383838);
+      color: var(--dark-card-color, #f7fafc);
+      box-shadow: var(--dark-card-shadow, 0px 4px 6px rgba(0, 0, 0, 0.1));
+      border-color: var(--dark-card-border-color, #cbd5e0);
+    }
+    :host([theme='dark']) .card:hover {
+      background-color: var(--dark-card-hover-background-color, #1c1c1c);
+      box-shadow: var(--dark-card-hover-shadow, 0px 4px 6px rgba(0, 0, 0, 0.1));
+      border-color: var(--dark-card-hover-border-color, #cbd5e0);
+    }
   `
+  @property({ type: String, reflect: true })
+  theme = 'light'
+
   @property({ type: String })
   layout = 'column'
 
@@ -85,6 +104,7 @@ export class RepcoPostElement extends LitElement {
 
         return html`
           <repco-post-card
+            class="card"
             .thumbnail="${thumbnail}"
             .header="${header}"
             .subheader="${subheader}"

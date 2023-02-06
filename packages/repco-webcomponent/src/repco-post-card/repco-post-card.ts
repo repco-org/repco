@@ -46,6 +46,8 @@ export class RepcoPostCardElement extends LitElement {
       --post-footer-color: var(--repco-post-card-footer-color);
     }
   `
+  @property({ type: String })
+  customStyles = ''
 
   @property()
   thumbnail = ''
