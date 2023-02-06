@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Demo - Sample</title>
+    <script type="module" src="../dist/src/index.js"></script>
+    <style>
+      .content {
+        display: flex;
+        flex-wrap: nowrap;
+      }
+      .news-section {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      .news-card {
+        width: 30%;
+        background-color: white;
+        border: 1px solid lightgray;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 1px;
+        padding: 20px;
+      }
+
+      .news-card h3 {
+        margin-top: 0;
+        font-size: 20px;
+        font-weight: bold;
+      }
+
+      .news-card p {
+        font-size: 14px;
+        line-height: 1.5;
+        margin-top: 20px;
+      }
+
+      .news-card a {
+        display: block;
+        margin-top: 20px;
+        font-size: 16px;
+        color: blue;
+        text-decoration: none;
+      }
+      .container {
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Nachrichten - <span id="keyword">Politik</span></h1>
+    <div class="content">
+      <section class="news-section">
+        <div class="news-card">
+          <h3>Article 1</h3>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
+            maximus, est at malesuada placerat, nulla elit fringilla justo, non
+            egestas lacus sapien sit amet risus. Nullam dapibus consectetur sem,
+            ut tincidunt neque eleifend non. Sed euismod sapien sit amet gravida
+            sagittis. In varius, nisi a posuere dictum, lacus leo malesuada
+            odio, vel pharetra libero libero vel velit.
+          </p>
+          <a href="#">Read more</a>
+        </div>
+        <div class="news-card">
+          <h3>Article 2</h3>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
+            maximus, est at malesuada placerat, nulla elit fringilla justo, non
+            egestas lacus sapien sit amet risus. Nullam dapibus consectetur sem,
+            ut tincidunt neque eleifend non. Sed euismod sapien sit amet gravida
+            sagittis. In varius, nisi a posuere dictum, lacus leo malesuada
+            odio, vel pharetra libero libero vel velit.
+          </p>
+          <a href="#">Read more</a>
+        </div>
+        <div class="news-card">
+          <h3>Article 3</h3>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
+            maximus, est at malesuada placerat, nulla elit fringilla justo, non
+            egestas lacus sapien sit amet risus. Nullam dapibus consectetur sem,
+            ut tincidunt neque eleifend non. Sed euismod sapien sit amet gravida
+            sagittis. In varius, nisi a posuere dictum, lacus leo malesuada
+            odio, vel pharetra libero libero vel velit.
+          </p>
+          <a href="#">Read more</a>
+        </div>
+        <div class="news-card">
+          <h3>Article 4</h3>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
+            maximus, est at malesuada placerat, nulla elit fringilla justo, non
+            egestas lacus sapien sit amet risus. Nullam dapibus consectetur sem,
+            ut tincidunt neque eleifend non. Sed euismod sapien sit amet gravida
+            sagittis. In varius, nisi a posuere dictum, lacus leo malesuada
+            odio, vel pharetra libero libero vel velit.
+          </p>
+          <a href="#">Read more</a>
+        </div>
+        <div class="news-card">
+          <h3>Article 5</h3>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
+            maximus, est at malesuada placerat, nulla elit fringilla justo, non
+            egestas lacus sapien sit amet risus. Nullam dapibus consectetur sem,
+            ut tincidunt neque eleifend non. Sed euismod sapien sit amet gravida
+            sagittis. In varius, nisi a posuere dictum, lacus leo malesuada
+            odio, vel pharetra libero libero vel velit.
+          </p>
+          <a href="#">Read more</a>
+        </div>
+        <div class="news-card">
+          <h3>Article 6</h3>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
+            maximus, est at malesuada placerat, nulla elit fringilla justo, non
+            egestas lacus sapien sit amet risus. Nullam dapibus consectetur sem,
+            ut tincidunt neque eleifend non. Sed euismod sapien sit amet gravida
+            sagittis. In varius, nisi a posuere dictum, lacus leo malesuada
+            odio, vel pharetra libero libero vel velit.
+          </p>
+          <a href="#">Read more</a>
+        </div>
+      </section>
+      <div class="container">
+        <repco-post-element
+          query='query {
+  contentItems(filter: {title: {includes: "${document.querySelector("#keyword").textContent}"}}) {
+    nodes {
+      content
+      title
+      uid
+      mediaAssets {
+        nodes {
+          mediaType
+          file {
+            contentUrl
+          }
+        }
+      }
+    }
+  }
+}
+
+'
+        />
+      </div>
+    </div>
+    <script>
+      document.querySelector('repco-post-element').setAttribute(
+        'query',
+        `query {
+  contentItems(filter: {title: {includes: "${
+    document.querySelector('#keyword').textContent
+  }"}}) {
+    nodes {
+      content
+      title
+      uid
+      mediaAssets {
+        nodes {
+          mediaType
+          file {
+            contentUrl
+          }
+        }
+      }
+    }
+  }
+}`,
+      )
+    </script>
+  </body>
+</html>

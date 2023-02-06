@@ -1,0 +1,29 @@
+{
+ "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig.json",
+  
+  "compilerOptions": {
+    "target": "es2019",
+    "declaration": true,
+    "declarationMap": true,
+    "inlineSources": true,
+        "outDir": "./dist",
+
+    "rootDir": "./",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "noImplicitOverride": true,
+    "plugins": [
+      {
+        "name": "ts-lit-plugin",
+        "strict": true
+      }
+    ]
+  },
+  "include": ["src/**/*.ts"]
+
+}
