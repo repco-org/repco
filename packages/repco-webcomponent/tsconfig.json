@@ -21,7 +21,8 @@
       {
         "name": "ts-lit-plugin",
         "strict": true
-      }
+      },
+      { "name": "typescript-lit-html-plugin" }
     ]
   },
   "include": ["src/**/*.ts"]
