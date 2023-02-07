@@ -52,7 +52,10 @@ function ingestAll(prisma: PrismaClient) {
     const queue = ingester.workLoop()
     for await (const result of queue) {
       if ('error' in result) {
-        log.error(`ingest ${result.uid} ERROR: ${result.error}`)
+        log.error({
+          error: result.error,
+          message: `ingest ${result.uid} ERROR: ${result.error}`,
+        })
       } else {
         const cursor =
           'cursor' in result && result.cursor
