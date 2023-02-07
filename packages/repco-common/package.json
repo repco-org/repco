@@ -12,9 +12,9 @@
     "./zod": "./dist/zod.js"
   },
   "dependencies": {
+    "@mgcrea/pino-pretty-compact": "^1.1.2",
     "multiformats": "^9.9.0",
-    "pino": "^8.7.0",
-    "pino-pretty": "^9.1.1",
+    "pino": "^8.9.0",
     "zod": "^3.19"
   }
 }

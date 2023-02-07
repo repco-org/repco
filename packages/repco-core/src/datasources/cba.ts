@@ -41,8 +41,8 @@ import {
 } from '../datasource.js'
 import { ConceptKind, ContentGroupingVariant, EntityForm } from '../entity.js'
 import { FetchOpts } from '../util/datamapping.js'
+import { log } from '../datasource.js'
 import { HttpError } from '../util/error.js'
-import { log } from 'repco-common'
 
 // Endpoint of the Datasource
 const DEFAULT_ENDPOINT = 'https://cba.fro.at/wp-json/wp/v2'
