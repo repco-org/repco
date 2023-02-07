@@ -1,4 +1,4 @@
-FROM node:18-slim as builder
+FROM node:18-alpine as builder
 WORKDIR /app
 
 # install and build
