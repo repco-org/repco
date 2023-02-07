@@ -233,7 +233,7 @@ export class CbaDataSource implements DataSource {
     {
       let postsCursor = cursor.posts
       if (!postsCursor) postsCursor = '1970-01-01T01:00:00'
-      const perPage = 2
+      const perPage = 100
       const url = this._url(
         `/posts?page=1&per_page=${perPage}&_embed&orderby=modified&order=asc&modified_after=${postsCursor}`,
       )
