@@ -4,6 +4,7 @@ WORKDIR /app
 # install and build
 COPY package.json ./
 COPY tsconfig.json ./
+COPY .eslintrc ./
 COPY docker/docker-init.sh ./
 COPY ./packages ./packages
 RUN yarn

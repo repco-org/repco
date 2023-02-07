@@ -1,22 +1,12 @@
 import express from 'express'
-import { Repo } from 'repco-core'
-import Changes from './routes/changes.js'
-import { getLocals } from './lib.js'
+import apiRoutes from './routes/api.js'
+import { enableFrontend, router as frontendRoutes } from './routes/frontend.js'
+
+// Enable frontend. This could be put behind a environement variable.
+enableFrontend()
 
 const router = express.Router()
-
-router.get('/', async (req, res) => {
-  res.send('hello, world')
-})
-
-router.get('/repos', async (req, res) => {
-  res.json(await Repo.list(getLocals(res).prisma))
-})
-
-router.get('/health', (req, res) => {
-  res.send({ ok: true })
-})
-
-router.use(Changes)
+router.use('/api', apiRoutes)
+router.use('/', frontendRoutes)
 
 export default router

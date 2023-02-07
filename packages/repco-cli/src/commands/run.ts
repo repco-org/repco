@@ -78,6 +78,7 @@ function syncAllRepos(prisma: PrismaClient) {
   const untilStopped = new UntilStopped()
 
   const tasks = Repo.mapAsync(prisma, async (repo) => {
+    if (repo.writeable) return
     try {
       while (!untilStopped.stopped) {
         await repo.pullFromGateways()

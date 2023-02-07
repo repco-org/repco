@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink } from '@remix-run/react'
 
 const active =
   'inline-block py-2 px-4 font-semibold bg-white text-brand-secondary'
