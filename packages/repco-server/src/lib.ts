@@ -3,13 +3,18 @@ import 'express-async-errors'
 import * as error from './error.js'
 import cors from 'cors'
 import express, { Response } from 'express'
+import pinoHttp from 'pino-http'
 import { createHttpTerminator } from 'http-terminator'
 import { createLogger, Logger } from 'repco-common'
 import { PrismaClient } from 'repco-core'
 import { createGraphqlHandler, createPoolFromUrl } from 'repco-graphql'
 import Routes from './routes.js'
 
-export const log: Logger = createLogger('server')
+const logger = pinoHttp({
+  logger: createLogger('server'),
+  useLevel: 'debug',
+  redact: ['req.headers.authorization'],
+})
 
 export type Locals = {
   prisma: PrismaClient
@@ -33,12 +38,12 @@ export function runServer(prisma: PrismaClient, port: number) {
   const graphqlHandler = createGraphqlHandler(pgPool)
 
   const app = express()
+  app.use(logger)
   app.use(express.json({ limit: '100mb' }))
   app.use(cors())
   app.use(graphqlHandler)
   app.use((_req, res, next) => {
     res.locals.prisma = prisma
-    res.locals.log = log
     next()
   })
   app.use((req, _res, next) => {
@@ -57,7 +62,7 @@ export function runServer(prisma: PrismaClient, port: number) {
   app.use(error.handler)
 
   const server = app.listen(port, () => {
-    log.info(`Repco server listening on http://localhost:${port}`)
+    logger.logger.info(`Repco server listening on http://localhost:${port}`)
   })
 
   const isReady = new Promise((resolve, reject) => {

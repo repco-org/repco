@@ -51,6 +51,7 @@ import { MapList } from './util/collections.js'
 import { ParseError } from './util/error.js'
 import { createEntityId, createRevisionId } from './util/id.js'
 import { Mutex } from './util/mutex.js'
+import { createLogger, Logger } from 'repco-common'
 
 export * from './repo/types.js'
 
@@ -96,6 +97,8 @@ const REVISION_SELECT = {
   contentCid: true,
 }
 
+const log = createLogger('repo')
+
 function defaultBlockStore(
   prisma: PrismaClient | Prisma.TransactionClient,
 ): IpldBlockStore {
@@ -120,6 +123,8 @@ export class Repo {
   public static cache = true
 
   private txlock = new Mutex()
+
+  public log: Logger
 
   static async createOrOpen(prisma: PrismaClient, name: string, did?: string) {
     try {
@@ -247,6 +252,7 @@ export class Repo {
     this.blockstore = bs || defaultBlockStore(prisma)
     this.publishingCapability = cap
     this.ipld = new IpldRepo(record, this.blockstore)
+    this.log = log.child({ repo: this.did })
   }
 
   private async $transaction<R>(fn: (repo: Repo) => Promise<R>) {
@@ -307,24 +313,32 @@ export class Repo {
   async pullFromGateways() {
     if (this.writeable) throw new Error('Cannot pull-sync writeable repo')
     for (const gateway of this.gateways) {
-      console.log('sync from', gateway)
+      const log = this.log.child({ gateway })
       const maybeHead = await this.getHeadMaybe()
       const ownHead = maybeHead ? maybeHead.toString() : ''
-      console.log('own head', ownHead)
-      const url = `${gateway}/sync/${this.did}`
+      log.debug({ msg: `sync: start`, ownHead, gateway })
+      const url = `${gateway}/api/sync/${this.did}`
       const res = await fetch(url, { method: 'HEAD' })
-      console.log('fetch', url, res.status)
       const theirHead = res.headers.get('x-repco-head')
-      console.log('their head', theirHead)
       if (theirHead && !(await this.hasRoot(theirHead))) {
+        log.debug({
+          msg: `sync: retrieved head, now fetching updates`,
+          theirHead,
+        })
         const res = await fetch(url + `/${ownHead}`)
-        console.log('res', res.status, res.headers)
+        log.debug(`sync: got response ${res.status}, start import`)
         if (!res.body) continue
-        console.log('start import')
-        await this.importFromCar(res.body, console.log)
+        await this.importFromCar(res.body, (progress) =>
+          log.debug({ msg: 'sync: progress', progress }),
+        )
+        log.debug({ msg: `sync: finished import` })
+      } else {
+        log.debug({
+          msg: `sync: retrieved head, no pending updates`,
+          theirHead,
+        })
       }
     }
-    console.log('done', await this.getHeadMaybe())
   }
 
   registerDataSource(ds: DataSource) {
@@ -694,7 +708,7 @@ export class Repo {
 }
 
 export class IpldRepo {
-  constructor(public record: RepoRecord, public blockstore: IpldBlockStore) {}
+  constructor(public record: RepoRecord, public blockstore: IpldBlockStore) { }
   get did() {
     return this.record.did
   }
@@ -797,7 +811,7 @@ function setUid(
   input: repco.EntityInput,
   uid: string,
 ): asserts input is repco.EntityInputWithUid {
-  ;(input as any).uid = uid
+  ; (input as any).uid = uid
   input.content.uid = uid
 }
 

@@ -2,6 +2,7 @@ import pc from 'picocolors'
 import { parseArgs } from '@pkgjs/parseargs'
 import { commands } from './commands.js'
 import { shortUsage } from './commands/help.js'
+import { log } from 'repco-common'
 
 // helpers
 
@@ -146,9 +147,7 @@ export async function runAndPrintErrors(args?: string[]) {
     print(`${pc.red(pc.bold('error:'))} ${msg}`)
     print('')
     shortUsage((err as any).command as CommandSpec | undefined)
-    if (process.env.DEBUG) {
-      console.log(err)
-    }
+    log.debug(err)
     process.exit(1)
   }
 }

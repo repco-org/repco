@@ -1,9 +1,12 @@
+import { createLogger } from 'repco-common'
 import { EntityForm } from './entity.js'
 import { DataSourcePluginRegistry } from './plugins.js'
 import { Prisma, PrismaCore, SourceRecord } from './prisma.js'
 import { Repo } from './repo.js'
 import { createSourceRecordId } from './util/id.js'
 import { Registry } from './util/registry.js'
+
+export const log = createLogger('ingest')
 
 export type { DataSourcePlugin } from './plugins.js'
 
@@ -244,11 +247,15 @@ export async function ingestUpdatesFromDataSource(
   repo: Repo,
   datasource: DataSource,
 ) {
+  const { uid } = datasource.definition
   const cursor = await fetchCursor(repo.prisma, datasource)
+  log.debug(`ingest ${uid}: cursor ${JSON.stringify(cursor)}`)
 
   const { cursor: nextCursor, records } = await datasource.fetchUpdates(cursor)
-  if (!records.length && (!nextCursor || nextCursor === cursor))
+  if (!records.length && (!nextCursor || nextCursor === cursor)) {
+    log.debug(`ingest ${uid}: fetched ${records.length}, return`)
     return { cursor, count: 0 }
+  }
 
   let count = 0
   if (records.length) {
@@ -256,6 +263,8 @@ export async function ingestUpdatesFromDataSource(
     await repo.saveBatch('me', entities) // TODO: Agent
     count = entities.length
   }
+  const finished = cursor === nextCursor
+  log.debug(`ingest ${uid}: ingested ${count}, finished ${finished}`)
   await saveCursor(repo.prisma, datasource, nextCursor)
 
   return {

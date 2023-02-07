@@ -8,7 +8,7 @@
   },
   "type": "module",
   "scripts": {
-    "build": "run-s build:prisma-generate build:prisma build:tsc build:cli-bundle build:frontend",
+    "build": "run-s build:prisma-generate build:prisma build:frontend build:tsc build:cli-bundle",
     "build:tsc": "tsc --build",
     "build:prisma-generate": "yarn --cwd packages/repco-prisma-generate build",
     "build:prisma": "yarn --cwd packages/repco-prisma build",

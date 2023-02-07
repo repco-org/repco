@@ -16,12 +16,19 @@ globalThis.__bundlerPathsOverrides = {
 
 export type { Logger } from 'pino'
 
-const opts: LoggerOptions = {}
+const opts: LoggerOptions = {
+  serializers: {
+    err: pino.stdSerializers.err,
+    error: pino.stdSerializers.err,
+  },
+}
 if (!process.env.LOG_JSON) {
   opts.transport = {
-    target: 'pino-pretty',
+    target: '@mgcrea/pino-pretty-compact',
     options: {
+      json: !!process.env.LOG_JSON,
       colorize: true,
+      translateTime: 'HH:MM:ss',
       ignore: 'pid,hostname',
     },
   }
