@@ -42,7 +42,7 @@ async function mountRemixFrontend() {
     })
     handlers.main = createRequestHandler({ build })
   } catch (err) {
-    log.warn('Frontend is not available: ' + err)
+    log.warn({ msg: 'Frontend is not available: ' + err, error: err })
   }
 }
 
