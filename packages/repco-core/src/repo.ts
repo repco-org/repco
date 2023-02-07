@@ -313,25 +313,28 @@ export class Repo {
   async pullFromGateways() {
     if (this.writeable) throw new Error('Cannot pull-sync writeable repo')
     for (const gateway of this.gateways) {
+      const log = this.log.child({ gateway })
       const maybeHead = await this.getHeadMaybe()
       const ownHead = maybeHead ? maybeHead.toString() : ''
-      this.log.debug({ message: `sync: start`, ownHead, gateway })
+      log.debug({ msg: `sync: start`, ownHead, gateway })
       const url = `${gateway}/api/sync/${this.did}`
       const res = await fetch(url, { method: 'HEAD' })
       const theirHead = res.headers.get('x-repco-head')
       if (theirHead && !(await this.hasRoot(theirHead))) {
-        this.log.debug(`sync: retrieved head, now fetching updates`, {
+        log.debug({
+          msg: `sync: retrieved head, now fetching updates`,
           theirHead,
         })
         const res = await fetch(url + `/${ownHead}`)
-        this.log.debug(`sync: got response ${res.status}, start import`)
+        log.debug(`sync: got response ${res.status}, start import`)
         if (!res.body) continue
         await this.importFromCar(res.body, (progress) =>
-          log.debug({ message: 'sync: progress', progress }),
+          log.debug({ msg: 'sync: progress', progress }),
         )
-        this.log.debug(`sync: finished import`)
+        log.debug({ msg: `sync: finished import` })
       } else {
-        this.log.debug(`sync: retrieved head, no pending updates`, {
+        log.debug({
+          msg: `sync: retrieved head, no pending updates`,
           theirHead,
         })
       }
