@@ -14,7 +14,13 @@ const HEADER_CAR = 'application/vnd.ipld.car'
 
 type RequestT = Request<any, any, any, any, Record<string, any>>
 
-router.get('/', async (req, res) => {})
+router.get('/repos', async (_req, res) => {
+  res.json(await Repo.list(getLocals(res).prisma))
+})
+
+router.get('/health', (_req, res) => {
+  res.send({ ok: true })
+})
 
 router.head('/sync/:repoDid', async (req, res) => {
   const { prisma } = getLocals(res)
