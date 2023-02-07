@@ -42,6 +42,7 @@ import {
 import { ConceptKind, ContentGroupingVariant, EntityForm } from '../entity.js'
 import { FetchOpts } from '../util/datamapping.js'
 import { HttpError } from '../util/error.js'
+import { log } from 'repco-common'
 
 // Endpoint of the Datasource
 const DEFAULT_ENDPOINT = 'https://cba.fro.at/wp-json/wp/v2'
@@ -552,11 +553,17 @@ export class CbaDataSource implements DataSource {
     if (this.apiKey) {
       url.searchParams.set('api_key', this.apiKey)
     }
-    const res = await fetch(url.toString(), opts)
-    if (!res.ok) {
-      throw await HttpError.fromResponseJson(res, url)
+    try {
+      const res = await fetch(url.toString(), opts)
+      log.debug(`fetch (${res.status}, url: ${url})`)
+      if (!res.ok) {
+        throw await HttpError.fromResponseJson(res, url)
+      }
+      const json = await res.json()
+      return json as T
+    } catch (err) {
+      log.debug(`fetch failed (url: ${url}, error: ${err})`)
+      throw err
     }
-    const json = await res.json()
-    return json as T
   }
 }
