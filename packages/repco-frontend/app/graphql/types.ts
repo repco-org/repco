@@ -7620,6 +7620,27 @@ export type LoadContentItemsQuery = {
       hasNextPage: boolean
       hasPreviousPage: boolean
     }
-    nodes: Array<{ title: string; uid: string; summary?: string | null }>
+    nodes: Array<{
+      pubDate?: any | null
+      title: string
+      uid: string
+      subtitle?: string | null
+      summary?: string | null
+      mediaAssets: {
+        nodes: Array<{
+          duration?: number | null
+          fileUid: string
+          licenseUid?: string | null
+          mediaType: string
+          title: string
+          uid: string
+          file?: {
+            contentUrl: string
+            contentSize?: number | null
+            mimeType?: string | null
+          } | null
+        }>
+      }
+    }>
   } | null
 }

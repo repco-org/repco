@@ -9,7 +9,8 @@ import {
 } from '@remix-run/react'
 import styles from './styles/app.css'
 import { ContextManager } from './lib/contextManager'
-import type { Playlist } from './lib/usePlaylists'
+import type { Playlist, Track } from './lib/usePlaylists'
+import { PlayerProvider } from './components/player/Player'
 
 export function links() {
   return [{ rel: 'stylesheet', href: styles }]
@@ -22,7 +23,7 @@ export const meta: MetaFunction = () => ({
 
 const contextManager = ContextManager.getInstance()
 const PlaylistProvider = contextManager.addMapContext<Playlist>('playlists')
-
+const QueueProvider = contextManager.addListContext<Track[]>('queue')
 export default function App() {
   return (
     <html lang="en" className="h-full">
@@ -32,7 +33,11 @@ export default function App() {
       </head>
       <body className="min-h-full p-0">
         <PlaylistProvider>
+          <QueueProvider>
+            <PlayerProvider>
           <Outlet />
+          </PlayerProvider>
+          </QueueProvider>
         </PlaylistProvider>
 
         <ScrollRestoration />

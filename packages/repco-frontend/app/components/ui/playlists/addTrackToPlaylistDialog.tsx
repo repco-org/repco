@@ -7,26 +7,22 @@ import { usePlaylists } from '~/lib/usePlaylists'
 import { Button, IconButton } from '../primitives/Button'
 
 interface DialogProps {
-  track: Track
+  track: Track | undefined
 }
 
 export function PlaylistDialog(props: DialogProps) {
   const [playlist, setPlaylist] = useState<Playlist>()
   const { track } = props
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [
-    playlists,
-    usePlaylist,
-    createPlaylist,
-    updatePlaylist,
-    deletePlaylist,
-    error,
-  ] = usePlaylists()
+  const { playlists, updatePlaylist } = usePlaylists()
   const [open, setOpen] = useState(false)
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
-        <IconButton variantSize={'sm'} icon={<PlusCircledIcon />}>
+        <IconButton
+          disabled={track ? false : true}
+          variantSize={'sm'}
+          icon={<PlusCircledIcon />}
+        >
           add to Playlist
         </IconButton>
       </Dialog.Trigger>
@@ -61,16 +57,19 @@ export function PlaylistDialog(props: DialogProps) {
             <Button
               onClick={(e) => {
                 e.preventDefault()
-                if (playlist) {
+                if (playlist && track) {
                   console.log('CLICK')
                   updatePlaylist(playlist.id, {
                     ...playlist,
                     tracks: [
                       ...playlist.tracks,
                       {
-                        title: track.title,
+                        title: track.title ,
                         uid: track.uid,
                         description: track.description,
+                        src: track.src,
+                        contentItemUid: track.contentItemUid
+
                       },
                     ],
                   })

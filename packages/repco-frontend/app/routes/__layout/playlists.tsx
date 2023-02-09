@@ -10,14 +10,12 @@ export default function ItemsMenuWrapper() {
   const orderBy = searchParams.get('orderBy')
   const [name, setName] = useState<string>()
 
-  const [
-    playlists,
-    getPlaylist,
+  const {
+   
     createPlaylist,
-    updatePlaylist,
-    deletePlaylist,
+    
     error,
-  ] = usePlaylists()
+  } = usePlaylists()
 
   return (
     <div className="flex h-full">

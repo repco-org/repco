@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useContext, useEffect, useState } from 'react'
 import { ContextManager } from '~/lib/contextManager'
 
@@ -6,6 +5,8 @@ export interface Track {
   uid: string
   title: string
   description?: string
+  src: string
+  contentItemUid?: string
 }
 
 export interface Playlist {
@@ -50,7 +51,6 @@ export function usePlaylists() {
   }
 
   function updatePlaylist(name: string, data: Playlist) {
-    console.log('UPDATE', name, data)
     dispatch({
       type: 'UPDATE',
       payload: { id: name, data },
@@ -60,12 +60,12 @@ export function usePlaylists() {
   function deletePlaylist(name: string) {
     dispatch({
       type: 'DELETE',
-      payload: { id: name, data: { id: name, tracks: [] } },
+      payload: { id: name },
     })
   }
 
   function usePlaylist(name: string) {
-    function addTrack(uid: string, title: string) {
+    function addTrack(uid: string, title: string, src: string) {
       const playlist = store.get(name) || { tracks: [] }
       dispatch({
         type: 'UPDATE',
@@ -73,7 +73,7 @@ export function usePlaylists() {
           id: name,
           data: {
             id: name,
-            tracks: [...playlist.tracks, { uid, title }],
+            tracks: [...playlist.tracks, { uid, title, src }],
           },
         },
       })
@@ -104,12 +104,12 @@ export function usePlaylists() {
     return [addTrack, removeTrack, tracks] as const
   }
 
-  return [
+  return {
     playlists,
     usePlaylist,
     createPlaylist,
     updatePlaylist,
     deletePlaylist,
     error,
-  ] as const
+  } as const
 }

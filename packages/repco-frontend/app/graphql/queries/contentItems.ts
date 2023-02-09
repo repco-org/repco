@@ -25,9 +25,26 @@ export const ContentItemsQuery = gql`
       }
       totalCount
       nodes {
+        pubDate
         title
         uid
+        subtitle
         summary
+        mediaAssets {
+          nodes {
+            duration
+            fileUid
+            licenseUid
+            mediaType
+            title
+            uid
+            file {
+              contentUrl
+              contentSize
+              mimeType
+            }
+          }
+        }
       }
     }
   }
