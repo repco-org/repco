@@ -10,7 +10,7 @@ export interface Entity<T> {
 }
 
 interface State<T> {
-  store: Entity<T>[] | Map<string, T>
+  store: Array<Entity<T>>| Map<string, T>
   error: string | null
 }
 
@@ -21,7 +21,7 @@ interface Create<T> {
 
 interface Delete<T> {
   type: 'DELETE'
-  payload: Entity<T>
+  payload: {id: string}
 }
 
 interface Update<T> {

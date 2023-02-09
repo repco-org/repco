@@ -8,13 +8,10 @@ export const loader: LoaderFunction = async ({ request }) => {
 }
 
 export default function PlaylistIndex() {
-  const [
+  const {
     playlists,
-    getPlaylist,
-    createPlaylist,
-    updatePlaylist,
     deletePlaylist,
-  ] = usePlaylists()
+  } = usePlaylists()
 
   if (!playlists) return <div>loading...</div>
 

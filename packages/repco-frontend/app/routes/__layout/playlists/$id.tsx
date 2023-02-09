@@ -10,8 +10,8 @@ export const loader: LoaderFunction = async ({ params }) => {
 
 export default function Playlist() {
   const { id } = useLoaderData()
-  const [playlists, getPlaylist] = usePlaylists()
-  const [addTrack, removeTrack, tracks] = getPlaylist(id)
+  const {playlists, usePlaylist} = usePlaylists()
+  const [addTrack, removeTrack, tracks] = usePlaylist(id)
   return (
     <main className="px-2">
       <Link to="/playlists">
@@ -46,7 +46,7 @@ export default function Playlist() {
           <div>loading...</div>
         )}
       </div>
-      <button onClick={() => addTrack('track1', 'bla')}>add track</button>
+      
     </main>
   )
 }
