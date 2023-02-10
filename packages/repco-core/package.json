@@ -20,7 +20,7 @@
     "@ipld/car": "^4.1.6",
     "@ipld/dag-cbor": "^7.0.3",
     "@multiformats/blake2": "^1.0.11",
-    "@ucans/ucans": "https://gitpkg.now.sh/Frando/ts-ucan/packages/ucans?fix-0.11.3",
+    "@ucans/ucans": "^0.11.2",
     "dotenv": "^16.0.1",
     "level": "^8.0.0",
     "multiformats": "^9.9.0",
