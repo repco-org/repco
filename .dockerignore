@@ -1,8 +1,8 @@
-data
+.git
 data*
+packages/repco-prisma/generated
 **/data
-node_modules
+**/SANDBOX
+**/data
 **/node_modules
 **/.clinic
-docs
-SANDBOX
