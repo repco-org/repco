@@ -20,8 +20,8 @@
   "keywords": [],
   "author": "",
   "dependencies": {
-    "prisma": "^4.5.0",
-    "@prisma/client": "^4.5.0",
+    "prisma": "^4.10.1",
+    "@prisma/client": "^4.10.1",
     "dotenv-cli": "^6.0.0",
     "zod": "^3.19",
     "repco-common": "*"
