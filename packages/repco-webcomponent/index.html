@@ -1,28 +1,244 @@
 <!DOCTYPE html>
-
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Comonent Demo</title>
+    <title>RepcoPostElement - A Web Component build for Repco</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        background-color: #f7fafc;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .containerHead {
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 36px;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      p {
+        font-size: 18px;
+        line-height: 1.5;
+        margin-bottom: 20px;
+      }
+
+      h2 {
+        font-size: 24px;
+        margin-bottom: 10px;
+      }
+
+      pre {
+        background-color: #f7f7f7;
+        padding: 10px;
+        margin-bottom: 20px;
+      }
+
+      ul {
+        font-size: 18px;
+        line-height: 1.5;
+        margin-bottom: 20px;
+        list-style: none;
+        padding: 0;
+      }
+
+      li {
+        margin-bottom: 10px;
+      }
+
+      strong {
+        font-weight: bold;
+      }
+
+      .container {
+        max-width: 1600px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .card {
+        margin: 20px;
+        padding: 20px;
+        width: 500px;
+        min-height: 200px;
+        display: grid;
+        grid-template-rows: 50px 100px 1fr 50px;
+        border-radius: 10px;
+        box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.25);
+        transition: all 0.2s;
+      }
+
+      .card:hover {
+        box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.4);
+        transform: scale(1.01);
+      }
+
+      .card a {
+        font-size: 16px;
+        color: #1a202c;
+        text-decoration: none;
+        border: 1px solid #cbd5e0;
+        border-radius: 10px;
+        padding: 10px 20px;
+        transition: all 0.3s ease-in-out;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .card a:hover {
+        background-color: #cbd5e0;
+        color: #ffffff;
+      }
+    </style>
   </head>
   <body>
-    <h1>Demo</h1>
-    <a href="/dev/blank.html">blank</a>
-    <br />
-    <a href="/dev/container.html">container</a>
-    <br />
-    <a href="/dev/styledContainer.html">styledContainer</a>
-    <br />
-    <a href="/dev/endpoint.html">endpoint</a>
-    <br />
-    <a href="/dev/properties.html">properties</a>
-    <br />
-    <a href="/dev/queryProperty.html">QueryProperty</a>
-    <br />
-    <a href="/dev/sample.html">sample</a>
-    <br />
-    <a href="/dev/layout.html">layout</a>
-    <br />
-    <a href="/dev/theme.html">theme</a>
+    <div class="container">
+      <div class="containerHead">
+        <h1>Repco Post Element</h1>
+        <p>
+          The repco-post-element custom element is a reusable and customizable
+          component that displays post data fetched from a GraphQL API.
+        </p>
+        <h2>Usage</h2>
+        <p>
+          To use the repco-post-element custom element, you need to include the
+          following code in your HTML file:
+        </p>
+        <pre>
+            &lt;repco-post-element&gt;&lt;/repco-post-element&gt;
+          </pre
+        >
+
+        <h2>Attributes</h2>
+        <p>
+          The following are the attributes of the repco-post-element custom
+          element:
+        </p>
+        <ul>
+          <li>
+            <strong>theme:</strong> A string attribute that sets the visual
+            theme of the post element. It can be either "light" or "dark". The
+            default value is "light".
+          </li>
+          <li>
+            <strong>layout:</strong> A string attribute that sets the layout of
+            the post elements. It can be either "column" or "horizontal". The
+            default value is "column".
+          </li>
+          <li>
+            <strong>count:</strong> A number attribute that sets the number of
+            post elements to be displayed. The default value is 10.
+          </li>
+          <li>
+            <strong>_defaultThumbnail:</strong> A string attribute that sets the
+            default thumbnail image to be displayed if a post doesn't have a
+            media asset of type 'image'. The default value is an empty string.
+          </li>
+          <li>
+            <strong>endpoint:</strong> A string attribute that sets the endpoint
+            for the GraphQL API to fetch the post data. The default value is
+            'https://node1.repco.openaudiosearch.org/graphql'.
+          </li>
+          <li>
+            <strong>query:</strong> A string attribute that sets the GraphQL
+            query used to fetch the post data from the API. The default query
+            returns the title, content, uid, and media assets for all content
+            items.
+          </li>
+        </ul>
+      </div>
+
+      <div class="container">
+        <div class="card">
+          <h2>Blank</h2>
+          <p>Preview the blank version of the component.</p>
+          <a href="/dev/blank.html">Preview</a>
+        </div>
+        <div class="card">
+          <h2>Container</h2>
+          <p>
+            Preview the container version of the component, which is an example
+            of how you can use the component with a container to wrap it.
+          </p>
+          <a href="/dev/container.html">Preview</a>
+        </div>
+        <div class="card">
+          <h2>Styled Container</h2>
+          <p>
+            Preview the styled container version of the component, which shows
+            how you can add styles to the container to customize the appearance
+            of the component.
+          </p>
+          <a href="/dev/styledContainer.html">Preview</a>
+        </div>
+        <div class="card">
+          <h2>Endpoint</h2>
+          <p>
+            Preview the endpoint version of the component, which demonstrates
+            how you can use the component with an endpoint to retrieve data from
+            a server.
+          </p>
+          <a href="/dev/endpoint.html">Preview</a>
+        </div>
+        <div class="card">
+          <h2>Properties</h2>
+          <p>
+            Preview the properties version of the component, which shows how you
+            can use properties to configure the component to your needs.
+          </p>
+          <a href="/dev/properties.html">Preview</a>
+        </div>
+        <div class="card">
+          <h2>Query Property</h2>
+          <p>
+            Preview the query property version of the component, which
+            demonstrates how you can use a query property to filter the data
+            displayed by the component.
+          </p>
+          <a href="/dev/queryProperty.html">Preview</a>
+        </div>
+        <div class="card">
+          <h2>Sample Page</h2>
+          <p>
+            Preview the sample page of the component, which shows how you can
+            use the component in a complete web page and how you can use the
+            query property to filter the data displayed by the component based
+            on the topic.
+          </p>
+          <a href="/dev/sample.html">Preview</a>
+        </div>
+        <div class="card">
+          <h2>Layout</h2>
+          <p>
+            Preview the layout version of the component, which demonstrates how
+            you can use the component with different layout options to control
+            the appearance of the component.
+          </p>
+          <a href="/dev/layout.html">Preview</a>
+        </div>
+        <div class="card">
+          <h2>Theme</h2>
+          <p>
+            Preview the theme version of the component, which shows how you can
+            use the component with different theme options to control the
+            appearance of the component.
+          </p>
+          <a href="/dev/theme.html">Preview</a>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

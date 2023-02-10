@@ -322,7 +322,9 @@ export class CbaDataSource implements DataSource {
 
     const file: form.FileInput = {
       contentUrl: media.source_url,
-      bitrate: media.media_details.bitrate ? Math.round(media.media_details.bitrate) : undefined,
+      bitrate: media.media_details.bitrate
+        ? Math.round(media.media_details.bitrate)
+        : undefined,
       codec: media.media_details.codec,
       duration: media.media_details.length,
       mimeType: media.mime_type,
