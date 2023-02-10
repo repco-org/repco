@@ -1,20 +1,19 @@
-FROM node:18-slim as builder
+FROM alpine as base
+
+RUN apk add --update nodejs yarn
 WORKDIR /app
 
+FROM base as builder
+COPY . .
 # install and build
-COPY package.json ./
-COPY tsconfig.json ./
-COPY .eslintrc ./
-COPY docker/docker-init.sh ./
-COPY ./packages ./packages
 RUN yarn
 RUN yarn build
-RUN du -h --max-depth=1
-
-# remove dev dependencies
+# remove dev dependencies again
 RUN yarn install --production --ignore-scripts --prefer-offline --frozen-lockfile
-RUN du -h --max-depth=1
 
+FROM base
+COPY --from=builder /app /app
 # setup
+ENV PATH="${PATH}:/app/node_modules/.bin"
 ENV NODE_ENV=production
-CMD ["./docker-init.sh"]
+CMD ["/app/docker/docker-init.sh"]
