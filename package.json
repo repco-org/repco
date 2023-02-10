@@ -14,10 +14,12 @@
     "build:prisma": "yarn --cwd packages/repco-prisma build",
     "build:cli-bundle": "yarn --cwd packages/repco-cli build:bundle",
     "build:frontend": "yarn --cwd packages/repco-frontend build",
-    "build:docs": "yarn --cwd packages/repco-docs build",
+    "build:docs": "yarn --cwd packages/repco-docs-website build",
     "dev:server": "yarn --cwd packages/repco-server dev",
     "dev:frontend": "yarn --cwd packages/repco-frontend dev",
+    "dev:docs": "yarn --cwd packages/repco-docs-website dev",
     "start:frontend": "yarn --cwd packages/repco-frontend start",
+    "start:docs": "yarn --cwd packages/repco-docs-website start",
     "watch": "run-p watch:*",
     "watch:tsc": "tsc --build --watch",
     "watch:cli-bundle": "yarn --cwd packages/repco-cli watch:bundle",
@@ -32,8 +34,7 @@
     "cli": "node packages/repco-cli/bin.js",
     "lint": "eslint packages",
     "lint:fix": "eslint packages --fix",
-    "update-ts-references": "node scripts/update-ts-references.js",
-    "docs": "yarn --cwd packages/repco-docs start"
+    "update-ts-references": "node scripts/update-ts-references.js"
   },
   "devDependencies": {
     "@mattinton/prettier-plugin-tidy-imports": "^1.1.12",
