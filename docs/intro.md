@@ -4,7 +4,7 @@ weight: -10
 ---
 # repco
 
-_Repco_ (Repository of Community Media) is an application that deals with the collection, management and distribution of community-based media. Community media is defined as media (audio, video, pictures) that are produced by community-based, mostly non-commercial media creators. This includes Community Radio stations, recordings of events and lectures, Podcasters, and other media collections.
+_Repco_ (Replication & Collector) is an application that deals with the collection, management and distribution of community-based media. Community media is defined as media (audio, video, pictures) that are produced by community-based, mostly non-commercial media creators. This includes Community Radio stations, recordings of events and lectures, Podcasters, and other media collections.
 
 Goals:
 

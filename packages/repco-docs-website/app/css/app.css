@@ -2,6 +2,10 @@
   box-sizing: border-box;
 }
 
+:root {
+  --c-border1: #f8c;
+}
+
 body {
   font-family: sans-serif;
   line-height: 1.35;
@@ -47,7 +51,7 @@ body {
   text-shadow: 2px 2px #f0e;
 }
 
-.layout-header--slug {
+.layout-header .layout-header--slug {
   font-size: .9rem;
   opacity: .6;
   padding-left: 1rem;
@@ -69,9 +73,9 @@ body {
   width: 15rem;
   /* background: #1a000c; */
   /* color: white; */
-  padding: .5rem 1rem;
+  padding: 1rem;
 }
-.layout-main > .layout-nav h2 {
+.layout-nav h2 {
   font-weight: normal;
   padding: 0;
   margin: 1rem 0 0 0;
@@ -81,7 +85,7 @@ body {
   padding: .125rem .5rem;
   /* text-shadow: 1px 1px #f0e; */
 }
-.layout-main > .layout-nav a {
+.layout-nav a {
   /* color: rgba(255,255,255,0.8); */
   display: block;
   /* font-weight: bold; */
@@ -90,10 +94,10 @@ body {
   /* margin: .25rem 0; */
   color: #222;
 }
-.layout-main > .layout-nav a:visited {
+.layout-nav a:visited {
   color: #423;
 }
-.layout-main > .layout-nav a.active {
+.layout-nav a.active {
   /* background-color: #302; */
   /* background-color: #fae0f0; */
   background-color: #fceaf6;
@@ -101,16 +105,19 @@ body {
   color: #c29;
   font-weight: bold;
 }
-.layout-main > .layout-nav a:hover,
-.layout-main > .layout-nav a.active {
+.layout-nav a:hover,
+.layout-nav a.active {
   /* color: #f6b; */
   /* color: #d4a; */
   color: #c29;
 }
-.layout-main > .layout-nav ul, li {
-  list-style-type: none;
+.layout-nav ul,
+.layout-nav li {
   margin: 0;
   padding: 0;
+}
+.layout-nav li {
+  list-style-type: none;
 }
 
 .search-results h2 {
@@ -127,10 +134,39 @@ body {
   flex-grow: 1;
 }
 
+.markdown td, .markdown th {
+  padding: .5rem;
+  border: 1px solid #ddd;
+}
+.markdown table {
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+.markdown th, .markdown thead td {
+  background: #eee;
+}
+
+.search-form {
+  display: flex;
+}
+.search-form input, .search-form button {
+  font-size: 1.2rem;
+  border: 1px solid var(--c-border1);
+  display: block;
+}
+.search-form button {
+  background: #fcd;
+  cursor: pointer;
+}
+.search-form button:hover {
+  background: #fad;
+}
+
 /* mobile styles */
 .layout-nav--toggle {
   display: none;
 }
+
 @media only screen and (max-device-width: 720px) {
   .layout-header {
     display: block;

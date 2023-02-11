@@ -14,5 +14,9 @@ export function Markdown(props: Props) {
     remarkPlugins: [...remarkPlugins, remarkGfm, remarkMermaid],
     rehypePlugins: [...rehypePlugins, rehypeRaw, rehypeStringify],
   }
-  return <ReactMarkdown {...nextProps} />
+  return (
+    <div className="markdown">
+      <ReactMarkdown {...nextProps} />
+    </div>
+  )
 }
