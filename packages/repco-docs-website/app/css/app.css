@@ -151,11 +151,15 @@ body {
 }
 .search-form input, .search-form button {
   font-size: 1.2rem;
-  border: 1px solid var(--c-border1);
+  /* border: 1px solid var(--c-border1); */
+  border: none;
   display: block;
+  margin-left: 5px;
+  border-radius: 5px;
 }
 .search-form button {
-  background: #fcd;
+  /* background: #fcd; */
+  background: #fad;
   cursor: pointer;
 }
 .search-form button:hover {

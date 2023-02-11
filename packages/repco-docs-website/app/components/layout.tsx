@@ -50,6 +50,9 @@ function Nav(props: NavProps) {
         {isVisible ? 'Hide menu' : 'Show menu'}
       </button>
       <ul id="layout-nav--menu">
+        <li>
+          <a href='https://github.com/openaudiosearch/repco' target='_blank'>Source code on GitHub</a>
+        </li>
         {root.children.map((entry) => (
           <li key={entry.path}>
             <NavEntry entry={entry} />
