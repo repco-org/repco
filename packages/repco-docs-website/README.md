@@ -6,6 +6,7 @@ Documentation website for Repco.
 
 This is a [Remix](https://remix.run) app that renders content from markdown files, organized in folders. It also indexes the content in [Meilisearch](https://docs.meilisearch.com/).
 
+* Copy `env.sample` to `.env`. For production: Change the `MEILISEARCH_API_KEY` to a random string (e.g. `pwgen 24 1`).
 * Start meilisearch: `docker compose up -d`
 * Start Remix in development mode: `yarn dev`
 
