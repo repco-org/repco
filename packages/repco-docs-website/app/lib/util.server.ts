@@ -1,6 +1,6 @@
+import chokidar from 'chokidar'
 import fs from 'fs/promises'
 import parseFrontmatter from 'gray-matter'
-import chokidar from 'chokidar'
 import p from 'path'
 import type { Doc, Entry } from '~/lib/util.js'
 import { indexDocs } from './search.server'
@@ -19,26 +19,24 @@ if (WATCH_MODE) {
       ignoreInitial: true,
       awaitWriteFinish: true,
     })
-    .on('change,add', async (event, path) => {
+    .on('change,add', async (_event, path) => {
       console.log('trigger reload: ', p.relative(BASE, path))
       try {
-        if (path.endsWith('.md')) await loadFile(path, { reload: true })
+        if (path.endsWith('.md'))
+          await loadPage(path, { reload: true, absolutePath: true })
         await loadTree()
       } catch (err) { }
     })
 }
 
-export async function loadSlug(slug: string) {
-  const path = p.normalize(p.join(BASE, slug + '.md'))
-  return loadFile(path)
-}
+export type LoadOpts = { reload?: boolean; absolutePath?: boolean }
 
-export type LoadOpts = { reload?: boolean }
-
-export async function loadFile(
+export async function loadPage(
   path: string,
   opts: LoadOpts = {},
 ): Promise<Doc> {
+  if (!opts.absolutePath) path = p.join(BASE, path + '.md')
+  path = p.normalize(path)
   if (!path.startsWith(BASE)) throw new Error('Invalid path')
   if (!path.endsWith('.md')) throw new Error('Invalid file')
   const id = path.substring(BASE.length + 1, path.length - 3)
@@ -69,7 +67,7 @@ async function* index(dir: string): AsyncIterable<Entry> {
       // skip index files
       if (name === 'index.md') continue
       try {
-        const { data } = await loadFile(path)
+        const { data } = await loadPage(path, { absolutePath: true })
         const basename = p.basename(name, '.md')
         yield {
           type: 'page',
@@ -80,11 +78,16 @@ async function* index(dir: string): AsyncIterable<Entry> {
         }
       } catch (_err) { }
     } else if (type === 'folder') {
-      let data = {}
+      let data
       try {
-        const res = await loadFile(p.join(path, 'index.md'))
+        const res = await loadPage(p.join(path, 'index.md'), {
+          absolutePath: true,
+        })
         data = res.data
-      } catch (_err) { }
+      } catch (_err) {
+        data = {}
+      }
+
       yield {
         path: rpath,
         type: 'folder',
