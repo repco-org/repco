@@ -1,5 +1,5 @@
-import { NavLink, useParams } from '@remix-run/react'
-import { PropsWithChildren, useMemo } from 'react'
+import { NavLink, useLocation, useParams } from '@remix-run/react'
+import { PropsWithChildren, useEffect, useMemo, useState } from 'react'
 import { Entry, EntryNode, intoFolders } from '~/lib/util'
 import { SearchForm } from './search'
 
@@ -16,7 +16,7 @@ export function Layout(props: LayoutProps) {
         </a>
         <div>Replication & Collector</div>
         <div className="layout-header--slug">{slug}</div>
-        <div className='flex-space' />
+        <div className="flex-space" />
         <SearchForm />
       </div>
       <div className="layout-main">
@@ -28,16 +28,35 @@ export function Layout(props: LayoutProps) {
 }
 
 function Nav(props: NavProps) {
+  const location = useLocation()
+  const [isVisible, setIsVisible] = useState(false)
+  const toggleNav = () => setIsVisible((isVisible) => !isVisible)
+  useEffect(() => setIsVisible(false), [location])
   const { index } = props
   const folders = useMemo(() => intoFolders(index), [index])
   const root = folders.ROOT
   if (!root) return null
+  const cls = ['layout-nav']
+  if (isVisible) cls.push('is-active')
   return (
-    <div className="layout-nav">
-      {root.children.map((entry) => (
-        <NavEntry key={entry.path} entry={entry} />
-      ))}
-    </div>
+    <nav role="navigation" aria-label="Menu" className={cls.join(' ')}>
+      <button
+        className="layout-nav--toggle"
+        aria-label="Toggle menu"
+        aria-expanded={isVisible}
+        aria-controls="layout-nav--menu"
+        onClick={toggleNav}
+      >
+        {isVisible ? 'Hide menu' : 'Show menu'}
+      </button>
+      <ul id="layout-nav--menu">
+        {root.children.map((entry) => (
+          <li key={entry.path}>
+            <NavEntry entry={entry} />
+          </li>
+        ))}
+      </ul>
+    </nav>
   )
 }
 
@@ -56,12 +75,15 @@ function PageLink({ entry }: { entry: Entry }) {
 }
 
 function Folder({ entry }: { entry: EntryNode }) {
+  const id = 'layout-folder--' + btoa(entry.path).slice(0, -2)
   return (
     <div className="layout-folder">
-      <h2>{entry.data.title || entry.name}</h2>
-      <ul>
+      <h2 id={id}>{entry.data.title || entry.name}</h2>
+      <ul aria-labelledby={id}>
         {entry.children.map((page) => (
-          <PageLink key={page.path} entry={page} />
+          <li key={page.path}>
+            <PageLink key={page.path} entry={page} />
+          </li>
         ))}
       </ul>
     </div>
