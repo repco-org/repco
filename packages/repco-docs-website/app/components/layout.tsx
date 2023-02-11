@@ -1,6 +1,7 @@
 import { NavLink, useParams } from '@remix-run/react'
 import { PropsWithChildren, useMemo } from 'react'
 import { Entry, EntryNode, intoFolders } from '~/lib/util'
+import { SearchForm } from './search'
 
 type NavProps = { index: Entry[] }
 type LayoutProps = PropsWithChildren<NavProps>
@@ -15,6 +16,8 @@ export function Layout(props: LayoutProps) {
         </a>
         <div>Replication & Collector</div>
         <div className="layout-header--slug">{slug}</div>
+        <div className='flex-space' />
+        <SearchForm />
       </div>
       <div className="layout-main">
         <Nav index={props.index} />

@@ -1,5 +1,6 @@
 /** @type {import('@remix-run/dev').AppConfig} */
 module.exports = {
+// export default {
   future: {
      // unstable_dev: true
   },
@@ -36,5 +37,9 @@ module.exports = {
     /^trim-lines.*/,
     /^react-markdown$/,
     /^vfile.*/,
+    /^strip-markdown$/,
+    /^remark$/,
+    /^remark-stringify$/,
+    /^longest-streak$/,
   ]
 }

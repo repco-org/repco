@@ -323,18 +323,20 @@ export class CbaDataSource implements DataSource {
 
     const file: form.FileInput = {
       contentUrl: media.source_url,
-      bitrate: media.media_details.bitrate ? Math.round(media.media_details.bitrate) : undefined,
+      bitrate: media.media_details.bitrate
+        ? Math.round(media.media_details.bitrate)
+        : undefined,
       codec: media.media_details.codec,
       duration: media.media_details.length,
       mimeType: media.mime_type,
       cid: null,
-      resolution: media.media_details.bitrate.toString(),
+      resolution: null,
     }
     const asset: form.MediaAssetInput = {
       title: media.title.rendered,
       description: media.description?.rendered,
       mediaType: 'audio',
-      duration: media.media_details.length,
+      duration: media.media_details.length || null,
       //License: null,
       //contributor
       Concepts: media.media_tag.map((cbaId) => ({
@@ -361,16 +363,19 @@ export class CbaDataSource implements DataSource {
 
     const file: form.FileInput = {
       contentUrl: media.source_url,
-      contentSize: media.media_details.filesize,
+      contentSize: media.media_details.filesize || null,
       mimeType: media.mime_type,
-      resolution:
+      resolution: null,
+    }
+    if (media.media_details.width && media.media_details.height) {
+      file.resolution =
         media.media_details.height.toString() +
         'x' +
-        media.media_details.width.toString(),
+        media.media_details.width.toString()
     }
     const asset: form.MediaAssetInput = {
       title: media.title.rendered,
-      description: media.description?.rendered,
+      description: media.description?.rendered || null,
       mediaType: 'image',
       //License: null,
       //contributor

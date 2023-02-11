@@ -1,5 +1,5 @@
 export type Doc = {
-  data: any
+  data: Record<string, any>
   content: string
 }
 

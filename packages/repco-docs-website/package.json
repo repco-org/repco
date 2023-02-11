@@ -20,14 +20,17 @@
     "frontmatter": "^0.0.3",
     "graphql": "^15.8.0",
     "gray-matter": "^4.0.3",
+    "meilisearch": "^0.31.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-markdown": "^8.0.5",
     "rehype-raw": "^6.1.1",
     "rehype-stringify": "^9.0.3",
+    "remark": "^14.0.2",
     "remark-gfm": "^3.0.1",
     "remark-mermaid-plugin": "^1.0.2",
-    "remix-auth": "^3.4.0"
+    "remix-auth": "^3.4.0",
+    "strip-markdown": "^5.0.0"
   },
   "devDependencies": {
     "@remix-run/dev": "^1.12.0",

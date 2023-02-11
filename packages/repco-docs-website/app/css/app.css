@@ -113,3 +113,16 @@ body {
   padding: 0;
 }
 
+.search-results h2 {
+  font-size: 1.2rem;
+  font-weight: normal;
+}
+
+.search-results--content em {
+  font-style: normal;
+  background: #fea;
+}
+
+.flex-space {
+  flex-grow: 1;
+}

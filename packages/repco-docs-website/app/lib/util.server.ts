@@ -3,6 +3,7 @@ import parseFrontmatter from 'gray-matter'
 import chokidar from 'chokidar'
 import p from 'path'
 import type { Doc, Entry } from '~/lib/util.js'
+import { indexDocs } from './search.server'
 
 // const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 const PATH_TO_DOCS = '../../../docs'
@@ -33,17 +34,19 @@ export async function loadSlug(slug: string) {
 }
 
 export type LoadOpts = { reload?: boolean }
+
 export async function loadFile(
   path: string,
   opts: LoadOpts = {},
 ): Promise<Doc> {
   if (!path.startsWith(BASE)) throw new Error('Invalid path')
   if (!path.endsWith('.md')) throw new Error('Invalid file')
-  if (opts.reload || !cache.docs[path]) {
+  const id = path.substring(BASE.length + 1, path.length - 3)
+  if (opts.reload || !cache.docs[id]) {
     const text = await fs.readFile(path, { encoding: 'utf8' })
-    cache.docs[path] = parseFrontmatter(text)
+    cache.docs[id] = parseFrontmatter(text)
   }
-  return cache.docs[path]
+  return cache.docs[id]
 }
 
 export async function loadTree(): Promise<Entry[]> {
@@ -52,6 +55,7 @@ export async function loadTree(): Promise<Entry[]> {
   for await (const page of index(BASE)) {
     cache.index.push(page)
   }
+  indexDocs(cache.docs)
   return cache.index
 }
 
