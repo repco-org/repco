@@ -1,4 +1,4 @@
-# REPCO v0.1.0
+# Repco v0.1.0
 
 ## Editors and Authors
 
@@ -42,13 +42,37 @@ In conclusion, the Repco codebase and its integration into the ECB2.0 project wi
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://datatracker.ietf.org/doc/html/rfc2119).
 
+# Tabel of Content
+
+1. Introduction
+   - [1.1 Motivation or the need for Repco](#1.1-Motivation-or-the-need-for-Repco)
+   - [1.2 Overview](#1.2-Overview)
+   - [1.3 Conclusion](#Conclusion)
+   - [1.4 Dependencies](#Dependencies)
+2. Repco Repositories
+   - [2.1 Structure of a Repository](#Structure-of-a-Repository)
+   - [2.2 Commits](#Commits)
+   - [2.3 Revisions](#Revisions)
+   - [2.4 Keys and Signatures](#Keys-and-Signatures)
+   - [2.5 Synchronization and Import/Export](#Synchronization-and-Import/Export)
+   - [2.6 Conclusion](#Conclusion-1)
+3. Repco HTTP API
+   - [3.1 `/sync`](#3.1-sync)
+   - [3.2 `/changes`](#3.2-changes)
+4. Repco GraphQL API
+   - [4. Repco GraphQL API](#4.-Repco-GraphQL-API)
+5. Changes
+   - [5. Changes](#5.-Changes)
+6. Glossary
+   - [6. Glossary](#6.-Glossary)
+
 # 1. Introduction
 
-The REPCO codebase exposes a command-line interface and a data server that enables import of content from different sources into a REPCO node, as well as replication of this content between different REPCO nodes. All data imported into a REPCO node is enriched with signatures for full self-authentication and organized into repositories, encoded as IPLD and addressable via IPFS content IDs.
+The Repco codebase exposes a command-line interface and a data server that enables import of content from different sources into a Repco node, as well as replication of this content between different Repco nodes. All data imported into a Repco node is enriched with signatures for full self-authentication and organized into repositories, encoded as IPLD and addressable via IPFS content IDs.
 
-By leveraging this digital infrastructure, the European Cultural Backbone 2.0 (ECB2.0) project aspires to create a single platform for cross-European nodes of broadcasting services, disseminators of audiovisual content, and media outlets to collaborate on. The REPCO codebase will provide the backbone for this initiative, offering a secure, decentralized platform for the preservation and exploration of information and media.
+By leveraging this digital infrastructure, the European Cultural Backbone 2.0 (ECB2.0) project aspires to create a single platform for cross-European nodes of broadcasting services, disseminators of audiovisual content, and media outlets to collaborate on. The Repco codebase will provide the backbone for this initiative, offering a secure, decentralized platform for the preservation and exploration of information and media.
 
-This specification chapter provides an overview of the REPCO codebase and its key features, including the GraphQL and REST APIs, and their functionalities. It serves as a comprehensive guide for developers and users alike, providing detailed technical information on how to use the REPCO codebase and the tools it provides.
+This specification chapter provides an overview of the Repco codebase and its key features, including the GraphQL and REST APIs, and their functionalities. It serves as a comprehensive guide for developers and users alike, providing detailed technical information on how to use the Repco codebase and the tools it provides.
 
 ## 1.1 Motivation or the need for Repco
 
@@ -56,9 +80,9 @@ A significant part of public debate takes place today on a few commercial online
 
 Since no real democratic discourse can take place under such conditions, it is necessary to create independent, not-for-profit infrastructures and democratic media spaces (“Public Open Spaces”) that enable and promote public debates and opinion-forming under conditions geared to the common good.
 
-The REPCO software package will provide a solution for the preservation and exploration of information and media in a way that prioritizes diversity, openness, transparency, accountability, competition, and individual rights. This platform will enable the creation of Public Open Spaces where public debates and opinion-forming can take place in a democratic and inclusive manner.
+The Repco software package will provide a solution for the preservation and exploration of information and media in a way that prioritizes diversity, openness, transparency, accountability, competition, and individual rights. This platform will enable the creation of Public Open Spaces where public debates and opinion-forming can take place in a democratic and inclusive manner.
 
-The REPCO codebase is designed to be flexible, easily accessible, and secure, providing a solid foundation for developers to create custom applications and promote public discourse. By using the latest in blockchain and peer-to-peer technology, REPCO will ensure the transparency, accountability, and authenticity of the content and data stored on the platform.
+The Repco codebase is designed to be flexible, easily accessible, and secure, providing a solid foundation for developers to create custom applications and promote public discourse. By using the latest in blockchain and peer-to-peer technology, Repco will ensure the transparency, accountability, and authenticity of the content and data stored on the platform.
 
 ## 1.2 Overview
 
@@ -168,22 +192,74 @@ In conclusion, the Repco repository is a secure and efficient way of storing and
 
 # 6. Glossary
 
-- ECB2.0 (European Cultural Backbone 2.0): A visionary initiative that aims to establish a digital infrastructure for cross-European collaboration and integration in the broadcasting industry.
-- Arso: A software development collective that is bringing expertise and experience to the ECB2.0 project. With a focus on decentralized information and media preservation.
-- Repco codebase: A versatile and robust software solution developed by Arso, which enables the import, preservation, and replication of information and media content.
-- CLI (Command-Line Interface): A tool provided by the Repco codebase to interact with the system.
-- IPLD (InterPlanetary Linked Data): A data format used by the Repco codebase to encode and organize imported data for easy accessibility and preservation.
-- IPFS (InterPlanetary File System): A decentralized file system that provides addressability for data stored within the Repco codebase via content IDs.
-- GraphQL API: An API provided by the Repco codebase that uses a GraphQL query language and supports various query and mutation operations.
-- REST API: An API provided by the Repco codebase that uses a RESTful architecture for data retrieval and replication between Repco nodes.
-- Front-end prototype: A demo developed by Arso to showcase the capabilities of the Repco codebase, which provides an easy-to-use web user interface.
-- RFC 2119: A document that defines the interpretation of key words used in the REPCO document such as "MUST", "MUST NOT", etc.
+## ECB2.0 (European Cultural Backbone 2.0)
 
-* Community Media: Refers to media organizations and platforms that are owned, managed and controlled by the local community, and are aimed at serving the needs and interests of the community.
-* Media Repository: A digital database or storage system that contains a collection of links to media files and assets such as audio, video, images, and documents. The media repository serves as a centralized location for storing, organizing, and retrieving media metadata.
-* Repco Node: A component which use the UCANs architecture and serves as a point of interaction between different components and external systems. A Repco Node can be thought of as a bridge that allows data to be exchanged between different systems and components.
-* Repco Domain data model: A representation of data specific to a particular domain or application, that defines the relationships between different data elements and the constraints on their values.
-* Repco Lower Data model: A data model that defines how data should be organized in containers, such as tables or arrays, and the relationships between the containers.
-* Entity schema: A data model that defines the structure of a specific entity, such as a person or organization, and the relationships between its attributes.
-* Canonical ID: A unique identifier for an entity, such as a person or organization, that is used to refer to the entity across different systems and contexts.
-* Alternative ID: A secondary identifier for an entity, used in cases where the Canonical ID is not available or applicable. The Alternative ID allows for the entity to be referred to in different ways in different systems or contexts.
+A visionary initiative that aims to establish a digital infrastructure for cross-European collaboration and integration in the broadcasting industry.
+
+## Arso
+
+A software development collective that is bringing expertise and experience to the ECB2.0 project. With a focus on decentralized information and media preservation.
+
+## Repco codebase
+
+A versatile and robust software solution developed by Arso, which enables the import, preservation, and replication of information and media content.
+
+## CLI (Command-Line Interface)
+
+A tool provided by the Repco codebase to interact with the system.
+
+## IPLD (InterPlanetary Linked Data)
+
+A data format used by the Repco codebase to encode and organize imported data for easy accessibility and preservation.
+
+## IPFS (InterPlanetary File System)
+
+A decentralized file system that provides addressability for data stored within the Repco codebase via content IDs.
+
+## GraphQL API
+
+An API provided by the Repco codebase that uses a GraphQL query language and supports various query and mutation operations.
+
+## REST API
+
+An API provided by the Repco codebase that uses a RESTful architecture for data retrieval and replication between Repco nodes.
+
+## Front-end prototype
+
+A demo developed by Arso to showcase the capabilities of the Repco codebase, which provides an easy-to-use web user interface.
+
+## RFC 2119
+
+A document that defines the interpretation of key words used in the REPCO document such as "MUST", "MUST NOT", etc.
+
+## Community Media
+
+Refers to media organizations and platforms that are owned, managed and controlled by the local community, and are aimed at serving the needs and interests of the community.
+
+## Media Repository
+
+A digital database or storage system that contains a collection of links to media files and assets such as audio, video, images, and documents. The media repository serves as a centralized location for storing, organizing, and retrieving media metadata.
+
+## Repco Node
+
+A component which use the UCANs architecture and serves as a point of interaction between different components and external systems. A Repco Node can be thought of as a bridge that allows data to be exchanged between different systems and components.
+
+## Repco Domain data model
+
+A representation of data specific to a particular domain or application, that defines the relationships between different data elements and the constraints on their values.
+
+## Repco Lower Data model
+
+A data model that defines how data should be organized in containers, such as tables or arrays, and the relationships between the containers.
+
+## Entity schema
+
+A data model that defines the structure of a specific entity, such as a person or organization, and the relationships between its attributes.
+
+## Canonical ID
+
+A unique identifier for an entity, such as a person or organization, that is used to refer to the entity across different systems and contexts.
+
+## Alternative ID
+
+A secondary identifier for an entity, used in cases where the Canonical ID is not available or applicable. The Alternative ID allows for the entity to be referred to in different ways in different systems or contexts.
