@@ -51,7 +51,7 @@ Each entity has a `uid` and a `revisionId`, both are unique.
 | Contributor        | A person or organization which has contributed to a content                  |
 | Chapter            | A part of a MediaAsset                                                       |
 | BrodcastEvent      | The event being broadcast such as a sporting event or awards ceremony.       |
-| PublicationService | he media network(s) whose content is broadcast on this station.              |
+| PublicationService | The media network(s) whose content is broadcast on this station.              |
 | Transcript         | Transcript of a media file                                                   |
 | Translation        | Translation of a media file                                                  |
 | File               | A file which belongs to a MediaAsset                                         |
