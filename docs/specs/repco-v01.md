@@ -178,9 +178,139 @@ In conclusion, the Repco repository is a secure and efficient way of storing and
 
 # 3. Repco HTTP API
 
+The router of the express server handles different endpoints for managing Repco repositories and the content stored in them.
+
+- The /repos endpoint returns a list of all Repco repositories.
+- The /health endpoint returns a simple JSON object indicating the health of the system.
+- The /sync/:repoDid endpoint retrieves the head commit of a Repco repository.
+- The /sync/:repoDid/:tail? endpoint retrieves a CAR (Content Addressable ARchive) stream of a Repco repository's content. The :tail parameter is optional and is used to specify the tail commit of the repository.
+- The /post/:repoDid endpoint imports content into a Repco repository from a CAR stream.
+- The /changes/:repoDid endpoint retrieves a list of changes (revisions) in a Repco repository. The changes can be returned as either JSON or NDJSON (Newline-Delimited JSON), depending on the client's request.
+- The /changes endpoint allows for creation of revisions in a Repco repository, but the implementation is currently commented out.
+
 ## 3.1 `/sync`
 
+The /sync route in the given Express.js API is for synchronization of repositories between nodes. The API supports GET, HEAD and POST requests for the /sync route.
+
+### GET Request:
+
+The GET request allows a client to retrieve the full contents of a repository in a format known as the Content Addressable Archive (CAR) format. The API expects a repoDid parameter in the URL that specifies which repository the client is interested in, and an optional tail parameter which can be used to only retrieve revisions after a specified commit.
+
+The GET request to the /sync/:repoDid/:tail? endpoint exports the repository as a CAR (Content-Addressable Representation) file. The CAR file can start from a specified tail commit, which is passed as a parameter in the URL (optional). The returned content-type header is set to HEADER_CAR and the response body is the CAR file stream.
+
+### HEAD Request:
+
+The HEAD request allows a client to check the current head commit of a repository. The API expects a repoDid parameter in the URL that specifies which repository the client is interested in. The response will include a header x-repco-head with the CID (Content Identifier) of the current head commit.
+
+The HEAD request to the /sync/:repoDid endpoint returns the current head (i.e., the most recent commit) of the repository identified by the DID repoDid in the header x-repco-head. The response status code is set to 204 (No Content).
+
+### POST Request:
+
+The POST request allows a client to upload a repository in CAR format to the server. The API expects a repoDid parameter in the URL that specifies which repository the client is uploading. The contents of the repository are expected in the body of the request.
+
+The POST request to the /sync/:repoDid endpoint imports a CAR file into the repository identified by the DID repoDid. The CAR file is passed as the request body. The response is a JSON object with the key ok and value true indicating the successful import of the CAR file.
+
+### Example for sync
+
+To sync a repo via bash, you can use the curl command in the terminal.
+
+Here's an example to sync a repo:
+
+```
+curl -X POST \
+  http://localhost:3000/sync/<repoDid> \
+  -H 'content-type: application/octet-stream' \
+  --data-binary @<path-to-car-file>
+
+```
+
+This command will send a POST request to the /sync/<repoDid> endpoint with a binary data of the car file specified by <path-to-car-file>.
+
+You can also include the -v option to get more verbose output, which can be helpful in troubleshooting if you encounter any issues while syncing the repo.
+
+Note: Replace <repoDid> with the actual DID of the repo and <path-to-car-file> with the actual path to the car file you want to sync.
+
 ## 3.2 `/changes`
+
+The /changes route in Repco is used to make changes to an existing repository in the Repco system. The route provides a way to update the metadata and content of the repository.
+
+## GET /changes
+
+Retrieve a stream of changes for a specific repository.
+
+### Parameters
+
+- `repoDid` (required, string): The DID of the repository to retrieve changes for.
+- `from` (optional, string): The ID of the revision to start retrieving changes from. If not provided, changes will start from the most recent revision.
+- `content` (optional, string): If set to "true", the returned changes will include the content of the revisions. If not provided or set to "false", the returned changes will only include metadata about the revisions.
+
+### Request
+
+- Headers:
+  - `Accept` (optional, string): The format of the response. If set to `application/x-ndjson`, the response will be in [NDJSON](http://ndjson.org) format. If not provided, the response will be in JSON format.
+
+### Response
+
+- Headers:
+  - `Content-Type`: The format of the response. Will be set to `application/x-ndjson` if the response is in NDJSON format, or `application/json` if the response is in JSON format.
+- Body: An asynchronous stream of change objects, in either JSON or NDJSON format. Each change object represents a single revision and includes the following properties:
+  - `id` (string): The ID of the revision.
+  - `timestamp` (string, ISO 8601 date-time format): The date and time when the revision was made.
+  - `author` (object): Information about the author of the revision. Includes the following properties:
+    - `id` (string): The ID of the author.
+    - `name` (string): The name of the author.
+    - `email` (string): The email address of the author.
+  - `message` (string): The commit message associated with the revision.
+  - `content` (string, Base64-encoded): The content of the revision, only included if the `content` query parameter was set to "true".
+
+### Example get changes
+
+Here is an example of a GET request to the /changes endpoint using curl.
+
+```
+curl "http://localhost:3000/changes/123456789?from=0&content=false&format=ndjson"
+
+```
+
+In this example, :repoDid is a placeholder for the actual repository ID. Replace it with the actual repository ID. REVISION_ID is also a placeholder, replace it with the actual revision ID that you want to start retrieving changes from. The content query parameter with a value of 1 specifies that the response should include the content of the revisions.
+
+## PUT /changes
+
+The /changes endpoint for the PUT method is used to submit revisions to the system. The endpoint requires the content-type header to be set to application/x-ndjson or application/json. The body of the request should contain the revision data in either JSON or NDJSON format.
+
+## Request
+
+### Headers
+
+- `Content-Type`: Must be set to either `application/x-ndjson` or `application/json`
+
+### Body
+
+The body of the request should contain the revision data in either JSON or NDJSON format. The structure of the revision data depends on the implementation.
+
+## Response
+
+### Body
+
+A JSON object with a single field, `ok`, which will be set to `true` to indicate that the request was successful.
+
+### Status Code
+
+- `200 OK`: The request was successful and the revisions were processed successfully.
+- `400 Bad Request`: The `Content-Type` header was not set to either `application/x-ndjson` or `application/json`.
+
+### Example for change
+
+The /change route in Repco is used to make changes to an existing repository in the Repco system. The route provides a way to update the metadata and content of the repository.
+
+Here is an example of how you can use the /change route in bash to update the metadata of a repository:
+
+```
+curl -X PUT -H "Content-Type: application/x-ndjson" -d '[{"field1": "value1", "field2": "value2"},{"field1": "value3", "field2": "value4"}]' http://localhost:3000/changes
+
+```
+
+This example assumes that your server is running on http://localhost:3000. The data being sent in the PUT request is in the ndjson format and contains two objects, each representing a revision with field1 and field2 as properties.
 
 # 4. Repco GraphQL API
 
