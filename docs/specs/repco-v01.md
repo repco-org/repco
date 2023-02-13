@@ -44,27 +44,23 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 # Tabel of Content
 
-1. Introduction
-   - [1.1 Motivation or the need for Repco](#1.1-Motivation-or-the-need-for-Repco)
-   - [1.2 Overview](#1.2-Overview)
-   - [1.3 Conclusion](#Conclusion)
-   - [1.4 Dependencies](#Dependencies)
-2. Repco Repositories
-   - [2.1 Structure of a Repository](#Structure-of-a-Repository)
-   - [2.2 Commits](#Commits)
-   - [2.3 Revisions](#Revisions)
-   - [2.4 Keys and Signatures](#Keys-and-Signatures)
-   - [2.5 Synchronization and Import/Export](#Synchronization-and-Import/Export)
-   - [2.6 Conclusion](#Conclusion-1)
-3. Repco HTTP API
-   - [3.1 `/sync`](#3.1-sync)
-   - [3.2 `/changes`](#3.2-changes)
-4. Repco GraphQL API
-   - [4. Repco GraphQL API](#4.-Repco-GraphQL-API)
-5. Changes
-   - [5. Changes](#5.-Changes)
-6. Glossary
-   - [6. Glossary](#6.-Glossary)
+- [1. Introduction](#1-introduction)
+- - [1.1 Motivation or the need for Repco](#1.1-Motivation-or-the-need-for-Repco)
+- - [1.2 Overview](#1.2-Overview)
+- - [1.3 Dependencies](#1.3-Dependencies)
+- [2. Repco Repositories or Repo](#2-repco-repositories-or-repo)
+- - [2.1 Structure of a Repository](#Structure-of-a-Repository)
+- - [2.2 Commits](#Commits)
+- - [2.3 Revisions](#Revisions)
+- - [2.4 Keys and Signatures](#Keys-and-Signatures)
+- - [2.5 Synchronization and Import/Export](#Synchronization-and-Import/Export)
+- - [2.6 Conclusion](#Conclusion-1)
+- [3. Repco HTTP API](#3-repco-http-api)
+- - [3.1 `/sync`](#3.1-sync)
+- - [3.2 `/changes`](#3.2-changes)
+- [4. Repco GraphQL API](#4-repco-graphql-api)
+- [5. Changes](#5-changes)
+- [6. Glossary](#6-glossary)
 
 # 1. Introduction
 
@@ -132,7 +128,7 @@ The repco-webcomponent component provides a web component for Repco, which can b
 
 The Repco system is a collection of modules and packages that work together to provide a digital infrastructure for a federated system. The components of the Repco architecture each serve a specific purpose, from providing a Command Line Interface to generating the GraphQL API and providing a web component. The system's architecture is designed to be flexible and accessible, providing a solid foundation for developers to build custom applications and ensuring that the conditions for free expression are geared towards the common good.
 
-## Dependencies
+## 1.3 Dependencies
 
 Repco has several dependencies that are essential for its functionality and performance. These dependencies include:
 
@@ -152,31 +148,31 @@ Remix: A full stack web framework that lets you focus on the user interface and 
 
 These dependencies play an important role in the functionality and performance of Repco and allow developers to build scalable and powerful applications with ease.
 
-# 2. Repco repositories
+# 2. Repco repositories or Repo
 
 Repco utilizes a repository-based architecture to store and manage the digital content and its associated metadata. In this chapter, we will discuss the structure and components of a Repco repository and how they work together to provide a secure and efficient digital infrastructure.
 
-## Structure of a Repository
+## 2.1 Structure of a Repository
 
 A Repco repository is a list of commits that represent a historical record of changes made to the content and metadata stored in the repository. Each commit in a repository contains a list of revisions that hold the actual content and metadata. The structure of a Repco repository is modeled as an IPLD (InterPlanetary Linked Data) merkle tree, with each block of data (content, revision, and commit) being hashed and stored with its content hash (encoded as a CID (Content Identifier)) in a block store.
 
-## Commits
+## 2.2 Commits
 
 A commit in a Repco repository is a record of changes made to the content and metadata stored in the repository. Each commit always contains the CID of its parent commit and the CIDs of the revisions that are part of the commit. The CID of each commit is signed, ensuring the authenticity and integrity of the data stored in the repository.
 
-## Revisions
+## 2.3 Revisions
 
 A revision in a Repco repository is a record of a specific version of the content and metadata stored in the repository. A revision contains the CID of its content, making it possible to retrieve the content from the block store.
 
-## Keys and Signatures
+## 2.4 Keys and Signatures
 
 A Repco repository is represented by a key pair that is stored in the database. The DID (Decentralized Identifier) of the public key serves as the primary ID for the repository, while the repository also has a name for local identification. Each commit in the repository is signed, ensuring the authenticity and integrity of the data stored in the repository. In the future, it will be possible to authorize other key pairs to sign updates to a repository using UCANs (Universally Composable and Decentralized Access Networks).
 
-## Synchronization and Import/Export
+## 2.5 Synchronization and Import/Export
 
 For synchronization and import/export, Repco utilizes CAR (Content Addressable Resources) streams, which contain the blocks of a repository and allow for incremental decoding and verification. This enables efficient and secure synchronization of repositories over untrusted connections or intermediaries.
 
-## Conclusion
+## 2.6 Conclusion
 
 In conclusion, the Repco repository is a secure and efficient way of storing and managing digital content and metadata. The use of IPLD, keys and signatures, and CAR streams ensures that the data stored in the repository is authentic, and the structure of the repository allows for efficient synchronization and import/export of data.
 
