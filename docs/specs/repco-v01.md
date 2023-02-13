@@ -132,19 +132,19 @@ The Repco system is a collection of modules and packages that work together to p
 
 Repco has several dependencies that are essential for its functionality and performance. These dependencies include:
 
-Typescript: A statically typed programming language that is a strict syntactical superset of JavaScript.
+* Typescript: A statically typed programming language that is a strict syntactical superset of JavaScript.
 
-Node: A platform for building server-side applications in JavaScript.
+* Node: A platform for building server-side applications in JavaScript.
 
-IPLD: A data model for linking and addressing content-based data structures in a distributed file system.
+* IPLD: A data model for linking and addressing content-based data structures in a distributed file system.
 
-Prisma: A high-performance and flexible ORM that simplifies database workflows and provides a simple, type-safe API for your database.
+* Prisma: A high-performance and flexible ORM that simplifies database workflows and provides a simple, type-safe API for your database.
 
-Postgraphil: A GraphQL API generator for PostgreSQL.
+* Postgraphil: A GraphQL API generator for PostgreSQL.
 
-Express: A fast and minimalistic web framework for Node.js that provides a robust set of features for web and mobile applications.
+* Express: A fast and minimalistic web framework for Node.js that provides a robust set of features for web and mobile applications.
 
-Remix: A full stack web framework that lets you focus on the user interface and work back through web standards to deliver a fast, slick, and resilient user experience. People are gonna love using your stuff.
+* Remix: A full stack web framework that lets you focus on the user interface and work back through web standards to deliver a fast, slick, and resilient user experience. People are gonna love using your stuff.
 
 These dependencies play an important role in the functionality and performance of Repco and allow developers to build scalable and powerful applications with ease.
 
@@ -190,7 +190,7 @@ The router of the express server handles different endpoints for managing Repco 
 
 ## 3.1 `/sync`
 
-The /sync route in the given Express.js API is for synchronization of repositories between nodes. The API supports GET, HEAD and POST requests for the /sync route.
+The /sync route in the given API is for synchronization of repositories between nodes. The API supports GET, HEAD and POST requests for the /sync route.
 
 ### GET Request:
 
@@ -253,26 +253,18 @@ Retrieve a stream of changes for a specific repository.
 
 - Headers:
   - `Content-Type`: The format of the response. Will be set to `application/x-ndjson` if the response is in NDJSON format, or `application/json` if the response is in JSON format.
-- Body: An asynchronous stream of change objects, in either JSON or NDJSON format. Each change object represents a single revision and includes the following properties:
-  - `id` (string): The ID of the revision.
-  - `timestamp` (string, ISO 8601 date-time format): The date and time when the revision was made.
-  - `author` (object): Information about the author of the revision. Includes the following properties:
-    - `id` (string): The ID of the author.
-    - `name` (string): The name of the author.
-    - `email` (string): The email address of the author.
-  - `message` (string): The commit message associated with the revision.
-  - `content` (string, Base64-encoded): The content of the revision, only included if the `content` query parameter was set to "true".
+- Body: An asynchronous stream of change objects, in either JSON or NDJSON format. Each change object represents a single revision.
 
 ### Example get changes
 
 Here is an example of a GET request to the /changes endpoint using curl.
 
 ```
-curl "http://localhost:3000/changes/123456789?from=0&content=false&format=ndjson"
+curl "http://localhost:3000/changes/<repoDid>"
 
 ```
 
-In this example, :repoDid is a placeholder for the actual repository ID. Replace it with the actual repository ID. REVISION_ID is also a placeholder, replace it with the actual revision ID that you want to start retrieving changes from. The content query parameter with a value of 1 specifies that the response should include the content of the revisions.
+In this example, :repoDid is a placeholder for the actual repository ID. Replace it with the actual repository ID. 
 
 ## PUT /changes
 

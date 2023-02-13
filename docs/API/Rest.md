@@ -2,7 +2,6 @@
 title: Rest
 weight: 1
 ---
-_This document is a work in progress._
 
 # REST-API
 

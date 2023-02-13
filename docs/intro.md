@@ -27,7 +27,7 @@ Repco uses **CAR (Content Addressable Repository) streams to import and export d
 
 Repco also includes a **DataSource feature, which allows you to fetch updates from external sources** and convert the data into the Repco data model. To implement a DataSource, you need to create a DataSourcePlugin that implements the DataSourcePlugins interface. The DataSource has a definition consisting of a UID, name, and plugin ID, and provides methods to fetch updates, fetch data by UID, and check if a UID can be fetched.
 
-Repco provides a c**ommand-line interface (CLI)** to control the system and manage repositories and DataSources. You can create a repo, mirror an existing repo, list repos, import and export data, and much more.
+Repco provides a **command-line interface (CLI)** to control the system and manage repositories and DataSources. You can create a repo, mirror an existing repo, list repos, import and export data, and much more.
 
 Repco also includes **a simple frontend** that allows you to visualize the content items and create playlists in local storage. The frontend uses the GraphQL interface of Repco, which is generated using PostGraphile.
 
@@ -35,7 +35,7 @@ In summary, Repco is a decentralized and secure repository management system tha
 
 ## What’s next?
 
-The next chapter of the project involves **extending a data model (RDDM**) with proper **file storage** and implementing three storage providers with different capabilities: l**ocal roots, S3, and IPFS.** 
+The next chapter of the project involves **extending a data model (RDDM**) with proper **file storage** and implementing three storage providers with different capabilities: **local roots, S3, and IPFS.** 
 
 The data model must have the ability to store rich metadata and support version control, while providing a job queue/worker system to make it easy to extract metadata and perform data processing tasks.
 

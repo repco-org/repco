@@ -2,7 +2,6 @@
 title: GraphQl
 weight: 0
 ---
-_This document is a work in progress._
 
 # GraphQL-API
 
