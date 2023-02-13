@@ -1,9 +1,8 @@
 ---
 title: Data model
-weight: 0
+weight: 3
 ---
-
-This is WIP!
+_This document is a work in progress._
 
 # Description of the data model
 

@@ -2,10 +2,9 @@
 title: Concept and Constrains
 weight: 0
 ---
+_This document is a work in progress._
 
 # Concept and Constrains
-
-This is still WIP
 
 ## Concept
 

@@ -1,9 +1,9 @@
 ---
 title: Getting Started
-weight: 0
+weight: -1
 ---
 
-## __What is repco?__
+## __What is Repco?__
 
 
 **Repco is a digital infrastructure for a federated system** where cross-European nodes of broadcasting services, disseminators of audiovisual content, and media outlets collaboratively participate on a federated platform. 
@@ -33,23 +33,6 @@ Repco also includes **a simple frontend** that allows you to visualize the conte
 
 In summary, Repco is a decentralized and secure repository management system that provides a simple way to store, manage, and share content across different platforms and devices.
 
-### TLDR:
-
-Repco is a system for managing and storing content using a distributed and decentralized data structure called an **IPLD merkle tree**. 
-
-The system uses a **keypair as the primary identifier** for a repository, and each commit in a repository is signed to provide authenticity. 
-
-The content of a repository can be **imported or exported using CAR streams**.
-
-External data providers can be integrated into Repco through **datasources that are implemented as plugins**. 
-
-The system can be **managed through a command line interface**. 
-
-There is also a simple **frontend for visualizing and creating playlists**. 
-
-The core logic of Repco is implemented in the repco-core module, and the **GraphQL API is generated using PostGraphile** in the repco-graphql module.
-
-
 ## What’s next?
 
 The next chapter of the project involves **extending a data model (RDDM**) with proper **file storage** and implementing three storage providers with different capabilities: l**ocal roots, S3, and IPFS.** 
@@ -61,3 +44,19 @@ Additionally, the project aims to provide support for **license handling,** with
 The project also aims to implement **search and discovery features**, including facetted search, full-text search, keyword search, and the ability to query by concepts. The data model will support merging of concepts and proper support for distinct concept trees (taxonomies).
 
 Finally, the project will focus on providing support for derived files, including version control and **automated extraction** using tools such as ffmpeg. The project will have a job server logic for workers to create derivations and manage available licenses per-repository.
+
+## TLDR:
+
+Repco is a system for managing and storing content using a distributed and decentralized data structure called an **IPLD merkle tree**.
+
+The system uses a **keypair as the primary identifier** for a repository, and each commit in a repository is signed to provide authenticity.
+
+The content of a repository can be **imported or exported using CAR streams**.
+
+External data providers can be integrated into Repco through **datasources that are implemented as plugins**.
+
+The system can be **managed through a command line interface**.
+
+There is also a simple **frontend for visualizing and creating playlists**.
+
+The core logic of Repco is implemented in the repco-core module, and the **GraphQL API is generated using PostGraphile** in the repco-graphql module.

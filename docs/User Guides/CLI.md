@@ -1,11 +1,12 @@
 ---
-title: CLI
-weight: -1
+title: Command-line interface
+weight: 1
 ---
 
-# CLI
+# Command-line interface
 
-The repco command line interface (CLI) is the main tool for interacting with a repco instance. It is built with [TypeScript](https://www.typescriptlang.org).
+
+The Repco command line interface (CLI) is the main tool for interacting with a Repco instance. It is built with [TypeScript](https://www.typescriptlang.org).
 
 ## Installation
 
@@ -17,7 +18,7 @@ First, let's understand the basic structure of a CLI command in Repco. The gener
 ```
 repco <command> [opts] [args...]
 ```
-Here, repco is the name of the CLI tool, command is the name of the specific command you want to run, opts are options that you can pass to the command, and args are arguments that you need to provide to the command.
+Here, Repco is the name of the CLI tool, command is the name of the specific command you want to run, opts are options that you can pass to the command, and args are arguments that you need to provide to the command.
 
 For example, to run the version command, you can run:
 ```

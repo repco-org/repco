@@ -1,11 +1,11 @@
 ---
 title: Create a data source
-weight: -2
+weight: 2
 ---
 
 # Implementing a Datasource
 
-A DataSource is an external provider for repco data. The interface is implemented for individual providers (like CBA, XRCB, media.cccc.de). The DataSource includes methods to fetch data from the external source and converts this data into the repco data model.
+A DataSource is an external provider for Repco data. The interface is implemented for individual providers (like CBA, XRCB, media.cccc.de). The DataSource includes methods to fetch data from the external source and converts this data into the Repco data model.
 
 Datasources are configured for each repo seperately. Once enabled, the ds ingest command will fetch and store new content from all datasources withing a repo.
 
@@ -21,7 +21,7 @@ To implement a datasource, a DatasourcePlugin must be created which implements t
 
 ` {uid: 'urn:repco:datasource:cba', name: 'CBA',}`
 
-Furthermore the actual datasource is created which is responsible for the mapping of the data to the repco data model. For this the interface DataSource is implemented.
+Furthermore the actual datasource is created which is responsible for the mapping of the data to the Repco data model. For this the interface DataSource is implemented.
 
 A datasource has a definition consisting of uid, name, and pluginId. Further it provides at least the methods
 
