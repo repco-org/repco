@@ -11,6 +11,7 @@
     "start": "dotenv -e .env -- remix-serve build"
   },
   "dependencies": {
+    "@remix-run/dev": "^1.12.0",
     "@remix-run/node": "^1.12.0",
     "@remix-run/react": "^1.12.0",
     "@remix-run/serve": "^1.12.0",
@@ -33,7 +34,6 @@
     "strip-markdown": "^5.0.0"
   },
   "devDependencies": {
-    "@remix-run/dev": "^1.12.0",
     "@remix-run/eslint-config": "^1.12.0",
     "@types/react": "^18.0.15",
     "@types/react-dom": "^18.0.6",
