@@ -1,6 +1,6 @@
 ---
 title: Create a data source
-weight: -1
+weight: -2
 ---
 
 # Implementing a Datasource
@@ -43,6 +43,6 @@ The algorithm used to fetch updates from a DataSource works as follows:
 2. Check if the oldest date of the page is older than the most recent date of the last fetch.
     * If the oldest date is older, reset to page 0. If already on page 0, the fetch is complete.
     * If the oldest date is newer, increase the page number to continue the fetch until the most recent publication date is reached.
-    
+
 In this way, Repco ensures that all updates from the external source are fetched and stored in the local database.
 

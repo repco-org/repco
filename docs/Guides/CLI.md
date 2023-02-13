@@ -1,6 +1,6 @@
 ---
 title: CLI
-weight: 0
+weight: -1
 ---
 
 # CLI

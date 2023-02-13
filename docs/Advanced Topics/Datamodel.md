@@ -3,6 +3,8 @@ title: Data model
 weight: 0
 ---
 
+This is WIP!
+
 # Description of the data model
 
 The Repco data model is defined as a prisma schema and is actually divided into two data models the Repco domain data model (name: RDDM) and the Repco Lower data model (name: RLDM). For further details checkout the prisma schema.
@@ -16,7 +18,6 @@ The RLDM stores data as InterPlanetary Linked Data ([IPLD](#)) nodes, which are 
 The RLDM authenticates commits through [UCANs](https://ucan.xyz/) (Unforgeable Capability-based Authenticated Names). These UCANs must be issued by, or delegated from, the owner keypair of the repository. The RLDM also defines internal entity IDs (uids) and external unique identifiers (uris) for entities.
 
 The RLDM defines a few headers that are part of the revision IPLD, including metadata such as the entity type, previous revision ID, and creation and modification timestamps.
-
 
 ## RLDM
 
@@ -40,23 +41,23 @@ The RLDM defines the common entities, the relations and headers which are needed
 The RDDM defines entities which are managed in the RLDM.
 Each entity has a `uid` and a `revisionId`, both are unique.
 
-| Entity          | Description                                                                  |
-| --------------- | ---------------------------------------------------------------------------- |
-| SourceRecord    | The original content which is imported and mapped                             |
-| ContentGrouping | Defines if it is an episode or a series                                      |
-| ContentItem     | Container for a contribution or composition of content                       |
-| License         | An official permission or permit                                             |
-| MediaAsset      | A container for audio, video, image or document with some metadata           |
-| Contribution    | A container for ContentItems, Actors and MediaAsstes with a special role     |
-| Contributor     | A person or organization which has contributed to a content                  |
-| Chapter         | A part of a MediaAsset                                                       |
-| BrodcastEvent   | The event being broadcast such as a sporting event or awards ceremony.       |
+| Entity             | Description                                                                  |
+| ------------------ | ---------------------------------------------------------------------------- |
+| SourceRecord       | The original content which is imported and mapped                            |
+| ContentGrouping    | Defines if it is an episode or a series                                      |
+| ContentItem        | Container for a contribution or composition of content                       |
+| License            | An official permission or permit                                             |
+| MediaAsset         | A container for audio, video, image or document with some metadata           |
+| Contribution       | A container for ContentItems, Actors and MediaAsstes with a special role     |
+| Contributor        | A person or organization which has contributed to a content                  |
+| Chapter            | A part of a MediaAsset                                                       |
+| BrodcastEvent      | The event being broadcast such as a sporting event or awards ceremony.       |
 | PublicationService | he media network(s) whose content is broadcast on this station.              |
-| Transcript      | Transcript of a media file                                                   |
-| Translation     | Translation of a media file
-| File            | A file which belongs to a MediaAsset                                         |
-| Concept         | Something that is like a universe in terms of media like the Marvel Universe |
-| Metadata        | Further data which belonges to an Entity                                     |
+| Transcript         | Transcript of a media file                                                   |
+| Translation        | Translation of a media file                                                  |
+| File               | A file which belongs to a MediaAsset                                         |
+| Concept            | Something that is like a universe in terms of media like the Marvel Universe |
+| Metadata           | Further data which belonges to an Entity                                     |
 
 ## Decisions and changes
 
