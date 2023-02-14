@@ -7,7 +7,7 @@ FROM base as builder
 COPY . .
 # install and build
 RUN yarn
-RUN yarn build
+RUN yarn build:docker
 # remove dev dependencies again
 RUN yarn install --production --ignore-scripts --prefer-offline --frozen-lockfile
 
