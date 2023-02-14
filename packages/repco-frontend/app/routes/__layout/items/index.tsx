@@ -22,12 +22,20 @@ export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url)
   const includes = url.searchParams.get('includes')
   const orderBy = url.searchParams.get('orderBy') || 'TITLE_ASC'
+  const repoDid = url.searchParams.get('repoDid') || 'all'
   const { first, last, after, before } = parsePagination(url)
   let filter: ContentItemFilter | undefined = undefined
   if (includes) {
-    const titleFilter: StringFilter = { includes }
+    const titleFilter: StringFilter = { includesInsensitive: includes }
     filter = { title: titleFilter }
   }
+
+  if (repoDid && repoDid !== "all") {
+    const repoFilter = {repoDid: {equalTo: repoDid}}
+    filter = {...filter, revision:repoFilter}
+  }
+  console.warn("AFTER", filter, repoDid)
+  
   const queryVariables = {
     first,
     last,
@@ -36,7 +44,6 @@ export const loader: LoaderFunction = async ({ request }) => {
     orderBy: orderBy as ContentItemsOrderBy,
     filter,
   }
-
   const { data } = await graphqlQuery<
     LoadContentItemsQuery,
     LoadContentItemsQueryVariables
@@ -60,7 +67,7 @@ interface MediaDisplayProps {
 }
 
 function useFileWidget(mediaAsset: MediaAsset, contentItemUid: string) {
-  const { tracks, addTrack } = useQueue()
+  const { addTrack } = useQueue()
   if (!mediaAsset.file?.contentUrl) return
   if (mediaAsset.mediaType === 'image')
     return <img className="w-32" src={mediaAsset.file?.contentUrl} />
@@ -107,16 +114,15 @@ export function MediaDisplay({ mediaAssets, contentItemUid }: MediaDisplayProps)
 }
 
 export default function ItemsIndex() {
-  const { nodes, pageInfo } = useLoaderData<typeof loader>()
+  const { nodes, pageInfo, repos } = useLoaderData<typeof loader>()
   const [searchParams] = useSearchParams()
   const includes = searchParams.getAll('includes')
   const orderBy = searchParams.getAll('orderBy')
-
   return (
     <div>
       <div>
+        {nodes.length === 0 && <div>There is no content here that matches the set filters!</div>}
         {nodes.map((node: ContentItem, i: number) => {
-          console.log(node)
           return (
             <ContentItemCard key={i} node={node.uid} variant={'hover'}>
               <div>

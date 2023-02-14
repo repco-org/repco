@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react'
-import { ContextManager } from '~/lib/contextManager'
+import { ContextManager } from './LocalStorageContext'
 
 export interface Track {
   uid: string

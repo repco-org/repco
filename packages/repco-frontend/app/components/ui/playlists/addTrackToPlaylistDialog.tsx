@@ -58,7 +58,6 @@ export function PlaylistDialog(props: DialogProps) {
               onClick={(e) => {
                 e.preventDefault()
                 if (playlist && track) {
-                  console.log('CLICK')
                   updatePlaylist(playlist.id, {
                     ...playlist,
                     tracks: [

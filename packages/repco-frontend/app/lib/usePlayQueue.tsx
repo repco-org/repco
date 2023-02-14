@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react'
-import { ContextManager } from '~/lib/contextManager'
-import type { Track } from './usePlaylists'
-import { Entity } from '~/lib/contextManager'
+import { ContextManager } from '~/lib/LocalStorageContext'
+import { Playlist, Track, usePlaylists } from './usePlaylists'
+import { Entity } from '~/lib/LocalStorageContext'
 
 export function useQueue() {
   const context =
@@ -32,7 +32,6 @@ export function useQueue() {
   }
   
   function updateTrack(data: Track) {
-    console.log('UPDATE',data)
     dispatch({
       type: 'UPDATE',
       payload: { id: data.uid, data },
@@ -45,10 +44,23 @@ export function useQueue() {
       payload: { id: uid },
     })
   }
+
+  function replaceCurrentQueue(queue: Array<Track>) {
+    const payload = queue.map((item) => {return {id: item.uid, data: item}})
+    dispatch({
+      type: 'REPLACE',
+      payload: payload
+    })
+
+  }
+
+  function loadPlaylistToQueue(playlist: Playlist) {
+    replaceCurrentQueue(playlist.tracks)
+  }
  
 
   const tracks = queue.map((item) => item.data)
   return {
-    tracks, addTrack,updateTrack,deleteTrack, error
+    tracks, addTrack,updateTrack,deleteTrack, loadPlaylistToQueue, error
  } as const
 }

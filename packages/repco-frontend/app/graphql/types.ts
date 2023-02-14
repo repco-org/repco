@@ -7644,3 +7644,35 @@ export type LoadContentItemsQuery = {
     }>
   } | null
 }
+
+export type LoadDashboardDataQueryVariables = Exact<{ [key: string]: never }>
+
+export type LoadDashboardDataQuery = {
+  repos?: {
+    totalCount: number
+    nodes: Array<{ did: string; name?: string | null }>
+  } | null
+  contentItems?: { totalCount: number } | null
+  mediaAssets?: { totalCount: number } | null
+  files?: { totalCount: number } | null
+  commits?: { totalCount: number } | null
+  publicationServices?: {
+    totalCount: number
+    nodes: Array<{ name: string; contentItems: { totalCount: number } }>
+  } | null
+}
+
+export type LoadRepoStatsQueryVariables = Exact<{
+  repoDid: InputMaybe<Scalars['String']>
+}>
+
+export type LoadRepoStatsQuery = {
+  contentItems?: { totalCount: number } | null
+  repos?: { nodes: Array<{ name?: string | null }> } | null
+}
+
+export type LoadReposQueryVariables = Exact<{ [key: string]: never }>
+
+export type LoadReposQuery = {
+  repos?: { nodes: Array<{ did: string; name?: string | null }> } | null
+}
