@@ -103,7 +103,7 @@ body {
   background-color: #fceaf6;
   /* color: #f6b; */
   color: #c29;
-  font-weight: bold;
+  /* font-weight: bold; */
 }
 .layout-nav a:hover,
 .layout-nav a.active {
@@ -144,6 +144,10 @@ body {
 }
 .markdown th, .markdown thead td {
   background: #eee;
+}
+
+.markdown code {
+  background-color: #eee;
 }
 
 .search-form {
