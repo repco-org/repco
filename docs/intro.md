@@ -14,7 +14,9 @@ Repco **deals with repositories of community media**, which is defined as media 
 
 The Repco datamodel is written as a Prisma schema definition for PostgreSQL and the **Repco node is responsible for ingesting content from different data sources, replicating content between Repco nodes and providing a public-facing API**. 
 
-The project started with a conference in Linz titled "Building a European Cultural Backbone". The contribution to the project is welcome and can be made through the [Discord](https://discord.gg/XfUPZFH6cj) channel.
+The project started with a conference in Linz titled ["Building a European Cultural Backbone"](https://cba.fro.at/building-a-european-cultural-backbone). 
+
+Repco is open to contributions of all kinds. Find us on [GitHub](https://github.com/openaudiosearch/repco-specs), [Discord](http://discord.arso.xyz/) and Matrix (soon, link coming).
 
 Repco is a project by:
 
