@@ -7,9 +7,9 @@ const inactive =
 
 export function NavBar() {
   const links = [
-    { label: 'home', to: '/' },
-    { label: 'items', to: '/items' },
-    { label: 'playlists', to: '/playlists' },
+    { label: 'Dashboard', to: '/' },
+    { label: 'Items', to: '/items' },
+    { label: 'Playlists', to: '/playlists' },
   ]
   return (
     <nav aria-label="main navigation">

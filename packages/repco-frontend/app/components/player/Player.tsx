@@ -2,12 +2,12 @@ import React, {
   PropsWithChildren,
   useContext,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
 } from 'react'
 import {
+  ListBulletIcon,
   PauseIcon,
   PlayIcon,
   TrackNextIcon,
@@ -17,14 +17,6 @@ import { Track } from '~/lib/usePlaylists'
 import { useQueue } from '~/lib/usePlayQueue'
 import { Button } from '../ui/primitives/Button'
 
-function trackHeadline({ track }: { track: Track }) {
-  if (!track) return null
-  let headline = track.title || track.src || undefined
-  // Remove html highlighting tags from title display in player
-  headline = headline?.replace(/(<([^>]+)>)/gi, '')
-  return headline
-}
-
 type PlayerContext = {
   track: Track | null
   setTrack: React.Dispatch<React.SetStateAction<Track | null>>
@@ -33,6 +25,8 @@ type PlayerContext = {
   nextTrack: () => void
   previousTrack: () => void
   tracks: Track[]
+  queueVisibility: boolean
+  setQueueVisibility: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 type PlaystateContext = {
@@ -45,7 +39,7 @@ type PlaystateContext = {
 
 /**
  * The player context holds setters and values for the
- * currently playing media track and mark (region).
+ * currently playing media track.
  */
 export const PlayerContext = React.createContext<PlayerContext | undefined>(
   undefined,
@@ -67,6 +61,7 @@ export function PlayerProvider({ children }: PropsWithChildren) {
   const { tracks } = useQueue()
   const [track, setTrack] = useState<Track | null>(tracks.at(0) || null)
   const [trackIndex, setTrackIndex] = useState(0)
+  const [queueVisibility, setQueueVisibility] = useState(false)
 
   const src = track ? track.src : null
   const { audio, element, ...state } = useAudioElement({ src })
@@ -74,11 +69,18 @@ export function PlayerProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     if (tracks.at(trackIndex)) {
       setTrack(tracks.at(trackIndex) || null)
+    } else if (tracks.length === 0 && audio) {
+      setTrack(null)
+      audio.src = ''
     }
   }, [tracks, trackIndex])
 
   useEffect(() => {
-    if (!audio || !track) return
+    if (!audio) return
+    if (!track) {
+      audio.src = ''
+      return
+    }
     let pos = 0
     audio.currentTime = pos
     if (didMount) {
@@ -108,8 +110,10 @@ export function PlayerProvider({ children }: PropsWithChildren) {
       nextTrack,
       previousTrack,
       tracks,
+      queueVisibility,
+      setQueueVisibility,
     }),
-    [track, trackIndex, tracks],
+    [track, trackIndex, tracks, queueVisibility],
   )
 
   const playstateContext = useMemo(
@@ -174,7 +178,7 @@ function useAudioElement({ src }: { src: string | null }) {
 
   const audio = ref.current
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!audio || !src) return
     audio.src = src
   }, [audio, src])
@@ -272,16 +276,16 @@ export default function Player() {
       <div className="flex flex-col">
         <div className="flex flex-row space-x-4">
           <div>
-          <Button onClickCapture={player?.previousTrack}>
-            <TrackPreviousIcon />
-          </Button>
-          <Button onClickCapture={togglePlay}>
-            {state?.isPlaying ? <PauseIcon /> : <PlayIcon />}
-          </Button>
-          <Button onClickCapture={player?.nextTrack}>
-            {' '}
-            <TrackNextIcon />
-          </Button>
+            <Button onClickCapture={player?.previousTrack}>
+              <TrackPreviousIcon />
+            </Button>
+            <Button onClickCapture={togglePlay}>
+              {state?.isPlaying ? <PauseIcon /> : <PlayIcon />}
+            </Button>
+            <Button onClickCapture={player?.nextTrack}>
+              {' '}
+              <TrackNextIcon />
+            </Button>
           </div>
           <div className="flex items-center space-x-2">
             <div className="text-xs">{formatDuration(displayTime || 0)}</div>
@@ -298,8 +302,16 @@ export default function Player() {
             </div>
           </div>
           <div className="flex items-center">
-            <h3>{player?.track?.title}</h3>
+            <p className="truncate">{player?.track?.title}</p>
           </div>
+          <Button
+            intent={player?.queueVisibility ? 'active' : 'primary'}
+            onClick={() =>
+              player?.setQueueVisibility(player.queueVisibility ? false : true)
+            }
+          >
+            <ListBulletIcon />
+          </Button>
         </div>
       </div>
     </div>

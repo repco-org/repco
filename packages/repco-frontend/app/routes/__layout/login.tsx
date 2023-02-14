@@ -37,7 +37,7 @@ export async function loader({ request }: LoaderArgs) {
   })
   const session = await getSession(request.headers.get('cookie'))
   const error = session.get(authenticator.sessionErrorKey)
-  console.log('NO USER: ', error)
+  console.error('NO USER: ', error)
   return json({ error })
 }
 

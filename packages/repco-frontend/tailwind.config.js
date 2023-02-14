@@ -3,6 +3,9 @@ module.exports = {
   content: ['./app/**/*.{ts,tsx,jsx,js}'],
   theme: {
     extend: {
+      backgroundImage: {
+        'hero' : "url('/labs-bg.png')"
+      },
       colors: {
         brand: {
           primary: '#565df6',

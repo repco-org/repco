@@ -2,7 +2,7 @@ import type { Dispatch, PropsWithChildren } from 'react'
 import { createContext, useReducer } from 'react'
 
 export type Context<T> = { state: State<T>; dispatch: Dispatch<Action<T>> }
-type Action<T> = Create<T> | Delete<T> | Update<T> | Failure
+type Action<T> = Create<T> | Delete<T> | Update<T> | Replace<T> | Failure
 
 export interface Entity<T> {
   id: string
@@ -10,28 +10,33 @@ export interface Entity<T> {
 }
 
 interface State<T> {
-  store: Array<Entity<T>>| Map<string, T>
+  store: Array<Entity<T>> | Map<string, T>
   error: string | null
 }
 
 interface Create<T> {
   type: 'CREATE'
-  payload: Entity<T>
+  payload: Entity<T> 
 }
 
 interface Delete<T> {
   type: 'DELETE'
-  payload: {id: string}
+  payload: { id: string }
 }
 
 interface Update<T> {
   type: 'UPDATE'
-  payload: Entity<T>
+  payload: Entity<T> 
 }
 
 interface Failure {
   type: 'FAILURE'
   payload: string
+}
+
+interface Replace<T> {
+  type: 'REPLACE'
+  payload: Array<Entity<T>> | Map<string, T>
 }
 
 function assertNever(x: never): never {
@@ -169,7 +174,6 @@ function createLocalStorageReducer<T>(name: string) {
 }
 
 function reducerInner<T>(state: State<T>, action: Action<T>): State<T> {
-  console.log(state.store, action)
   switch (action.type) {
     case 'CREATE': {
       if (state.store instanceof Map) {
@@ -198,6 +202,19 @@ function reducerInner<T>(state: State<T>, action: Action<T>): State<T> {
         state.store = state.store.filter((e) => e.id !== action.payload.id)
       }
       return { ...state }
+
+    case 'REPLACE': {
+      if (state.store instanceof Map && action.payload instanceof Map)  {
+        state.store = action.payload
+        
+      } 
+      else if (Array.isArray(state.store) && Array.isArray(action.payload)) {
+        state.store = action.payload
+        }
+      
+      
+      return { ...state }
+    }
 
     case 'FAILURE':
       return { ...state, error: action.payload }

@@ -1,14 +1,14 @@
 import Player, { usePlayer } from '~/components/player/Player'
+import { PlayIcon, ReaderIcon } from '@radix-ui/react-icons'
 import type { LoaderArgs } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
+import { Link, useLoaderData } from '@remix-run/react'
 import { NavBar } from '@ui/bars/NavBar'
 import { Logo } from '@ui/primitives/logo'
 import { Outlet } from 'react-router-dom'
+import { Button } from '~/components/ui/primitives/Button'
 import { GitHubLoginButton } from '~/routes/__layout/login'
 import { authenticator } from '~/services/auth.server'
 import { LogoutButton } from './logout'
-import { useQueue } from '~/lib/usePlayQueue'
-import { DotIcon } from '@radix-ui/react-icons'
 
 export async function loader({ request }: LoaderArgs) {
   const user = await authenticator.isAuthenticated(request)
@@ -18,10 +18,11 @@ export async function loader({ request }: LoaderArgs) {
 export default function Layout() {
   const { user } = useLoaderData()
   const player = usePlayer()
+
   return (
-    <div className="min-h-full">
-      <header className="bg-gradient-to-r from-brand-primary to-brand-secondary">
-        <div className="flex justify-between p-4 ">
+    <div className="flex-col flex-1 flex justify-center ">
+      <header className=" w-full bg-gradient-to-r from-brand-primary to-brand-secondary">
+        <div className="flex justify-between  p-4 ">
           <Logo />
           <div className="p-4">
             {user ? <LogoutButton /> : <GitHubLoginButton />}
@@ -29,31 +30,41 @@ export default function Layout() {
         </div>
         <NavBar />
       </header>
-      <div className="flex flex-col">
-        <div className="bg-slate-400 sticky top-0 -z--1">
-          <Player />
-        </div>
-        <div className='flex'>
-        <div className=' w-2/3'>
+      <div className="container">
         <Outlet />
-        </div>
-        <div className='bg-brand-primary w-1/3 py-8'>
-          
-          <ul className='w-full'>
-          {player?.tracks.map((track, i) => {
-           const style = (player.track?.uid === track.uid) ?
-           "bg-black text-white flex items-center" :
-           "bg-brand-secondary text-white pl-4" 
-          return <li  key = {i} className={style}>
-            {player.track?.uid === track.uid && <DotIcon/>}
-            <p className='px-2 text-sm '>{track.title}</p></li>
+      </div>
+      <div className={'fixed bottom-0 w-full  -z--1 flex-col  bg-sky-500'}>
+        <div
+          className={
+            player?.queueVisibility ? 'bg-brand-primary  py-8' : 'hidden'
           }
-              
-          )}
+        >
+          <ul className="truncate w-full">
+            {player?.tracks.map((track, i) => {
+              const style =
+                player.track?.uid === track.uid
+                  ? ' bg-white text-black flex items-center my-2'
+                  : 'bg-brand-primary text-white flex items-center pl-4 my-2'
+              return (
+                <li key={i} className={style}>
+                  {player.track?.uid === track.uid && <PlayIcon />}
+                  <Button
+                    onClick={() => player.setTrackIndex(i)}
+                    className="p-2 text-sm truncate"
+                  >
+                    {track.title}
+                  </Button>
+                  <Button>
+                    <Link to={'/items/' + track.contentItemUid}>
+                      <ReaderIcon />
+                    </Link>
+                  </Button>
+                </li>
+              )
+            })}
           </ul>
         </div>
-        </div>
-        
+        <Player />
       </div>
     </div>
   )

@@ -11,6 +11,7 @@ export const buttonStyles = cva(
     variants: {
       intent: {
         primary: ' bg-brand-primary  hover:bg-brand-secondary',
+        active: 'bg-brand-secondary hover:bg-brand-primary',
         secondary: 'bg-brand-contrast hover:bg-slate-400',
         danger: 'bg-red-500 hover:bg-red-300 ',
       },
