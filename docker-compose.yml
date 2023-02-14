@@ -15,3 +15,11 @@ services:
       POSTGRES_USER: repco
       POSTGRES_DB: repco
 
+  meilisearch:
+    image: getmeili/meilisearch:v1.0
+    ports: 
+      - 7700:7700
+    environment:
+      - MEILI_MASTER_KEY=${MEILISEARCH_API_KEY}
+    volumes:
+      - ./data/meilisearch:/meili_data

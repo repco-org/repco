@@ -9,4 +9,5 @@ packages/*/generated
 packages/*/docs
 packages/*/node_modules
 packages/repco-frontend/public
+packages/repco-docs-website/public
 **/SANDBOX/**

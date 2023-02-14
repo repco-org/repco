@@ -1,13 +1,29 @@
+---
+title: Intro
+weight: -10
+---
 # repco
 
-_repco_ deals with repositories of Community Media. Community Media is defined as media (audio, video, pictures) that are produced by community-based, mostly non-commercial media creators. This includes Community Radio stations, recordings of events and lectures, Podcasters and other media collections.
+_Repco_ (Replication & Collector) is an application that deals with the collection, management and distribution of community-based media. Community media is defined as media (audio, video, pictures) that are produced by community-based, mostly non-commercial media creators. This includes Community Radio stations, recordings of events and lectures, Podcasters, and other media collections.
 
-This repo contains both an [in-progress specification document](SPEC.md) and a first implementation of repco.
+Goals:
+
+* To provide a decentralized platform for community media creators to store, manage and distribute their media content.
+* To enable easy replication of community media content between different Repco nodes.
+* To provide a public-facing API for accessing community media content.
+* To support different data sources and make it easy to add new data sources.
+* To ensure the scalability and reliability of the application.
+* To provide an easy-to-use interface for media creators and other stakeholders to manage their content.
+* To make the application easy to deploy and maintain.
+* To use state-of-the-art technologies for data storage, data access and data replication.
+* To make the codebase open-source, to encourage contributions from the community and to foster further development of the application.
+
+This repo contains both an [in-progress specification document](#) and a first implementation of repco.
 
 The implementation is written in TypeScript. Currently, it consists of two packages:
 
-- [repco-prisma](./packages/repco-prisma) contains the Repco datamodel written as a [Prisma](https://www.prisma.io/) schema definition for PostgreSQL. The Prisma schema definition also emits TypeScript types for all parts of the datamodel.
-- [repco-core](./packages/repco-core) is the first implementation of a Repco node that can ingest content from different data sources into a local database, replicate the content between Repco nodes and provide a public-facing API. It is a work-in-progress and not yet fully functional.
+- [repco-prisma](#) contains the Repco datamodel written as a [Prisma](https://www.prisma.io/) schema definition for PostgreSQL. The Prisma schema definition also emits TypeScript types for all parts of the datamodel.
+- [repco-core](#) is the first implementation of a Repco node that can ingest content from different data sources into a local database, replicate the content between Repco nodes and provide a public-facing API. It is a work-in-progress and not yet fully functional.
 
 ## Installation and usage
 
@@ -43,6 +59,7 @@ curl http://localhost:8765/changes
 # browse through contentItems via GUI
 http://localhost:3000
 ```
+
 
 ## Development notes
 
