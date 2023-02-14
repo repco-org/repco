@@ -1,3 +1,5 @@
+*Status: Working Draft, work in progress, unedited*
+
 # Repco v0.1.0
 
 ## Editors and Authors
