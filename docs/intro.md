@@ -12,8 +12,6 @@ It is aimed at facilitating the **exchange of content, metadata and audiences** 
 
 Repco **deals with repositories of community media**, which is defined as media (audio, video, pictures) that are produced by community-based, mostly non-commercial media creators. This includes community radio stations, recordings of events and lectures, podcasters and other media collections.  
 
-The Repco datamodel is written as a Prisma schema definition for PostgreSQL and the **Repco node is responsible for ingesting content from different data sources, replicating content between Repco nodes and providing a public-facing API**. 
-
 The project started with a conference in Linz titled ["Building a European Cultural Backbone"](https://cba.fro.at/building-a-european-cultural-backbone). 
 
 Repco is open to contributions of all kinds. Find us on [GitHub](https://github.com/openaudiosearch/repco-specs), [Discord](http://discord.arso.xyz/) and Matrix (soon, link coming).
@@ -58,6 +56,8 @@ Repco also includes a **DataSource feature, which allows you to fetch updates fr
 Repco provides a **command-line interface (CLI)** to control the system and manage repositories and DataSources. You can create a repo, mirror an existing repo, list repos, import and export data, and much more.
 
 The core logic of Repco is implemented in TypeScript in the repco-core module. Repco uses PostgreSQL for data storage.
+
+The Repco datamodel is written as a Prisma schema definition for PostgreSQL.
 
 
 ## Future plans
