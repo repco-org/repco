@@ -1,9 +1,12 @@
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import sanitize from 'sanitize-html'
+import { HamburgerMenuIcon, PlusCircledIcon } from '@radix-ui/react-icons'
 import type { LoaderFunction } from '@remix-run/node'
 import { NavLink, useLoaderData, useSearchParams } from '@remix-run/react'
+import { PlayTrackButton } from '~/components/player/Player'
 import { Pager } from '~/components/ui/Pager'
 import { PlaylistDialog } from '~/components/ui/playlists/addTrackToPlaylistDialog'
-import { Button } from '~/components/ui/primitives/Button'
+import { Button, IconButton } from '~/components/ui/primitives/Button'
 import { ContentItemCard } from '~/components/ui/primitives/Card'
 import { ContentItemsQuery } from '~/graphql/queries/contentItems'
 import type {
@@ -16,7 +19,42 @@ import type {
   StringFilter,
 } from '~/graphql/types.js'
 import { graphqlQuery, parsePagination } from '~/lib/graphql.server'
+import { Track } from '~/lib/usePlaylists'
 import { useQueue } from '~/lib/usePlayQueue'
+
+const DropdownMenuTrack = ({ track }: { track: Track }) => {
+  const { addTrack } = useQueue()
+  return (
+    <DropdownMenu.Root>
+      <DropdownMenu.Trigger asChild>
+        <Button aria-label="Customise options">
+          <HamburgerMenuIcon />{' '}
+        </Button>
+      </DropdownMenu.Trigger>
+
+      <DropdownMenu.Portal>
+        <DropdownMenu.Content
+          className=" bg-slate-200 flex flex-col space-y-1 text-white p-4 shadow-md"
+          sideOffset={5}
+        >
+          <DropdownMenu.Arrow className=" fill-slate-200" />
+          <IconButton
+            onClick={() => {
+              console.log(track)
+              addTrack(track)
+            }}
+            disabled={track ? false : true}
+            variantSize={'sm'}
+            icon={<PlusCircledIcon />}
+          >
+            add to queue
+          </IconButton>
+          <PlaylistDialog track={track} />
+        </DropdownMenu.Content>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Root>
+  )
+}
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url)
@@ -30,12 +68,11 @@ export const loader: LoaderFunction = async ({ request }) => {
     filter = { title: titleFilter }
   }
 
-  if (repoDid && repoDid !== "all") {
-    const repoFilter = {repoDid: {equalTo: repoDid}}
-    filter = {...filter, revision:repoFilter}
+  if (repoDid && repoDid !== 'all') {
+    const repoFilter = { repoDid: { equalTo: repoDid } }
+    filter = { ...filter, revision: repoFilter }
   }
-  console.warn("AFTER", filter, repoDid)
-  
+
   const queryVariables = {
     first,
     last,
@@ -90,7 +127,10 @@ function useFileWidget(mediaAsset: MediaAsset, contentItemUid: string) {
   return
 }
 
-export function MediaDisplay({ mediaAssets, contentItemUid }: MediaDisplayProps) {
+export function MediaDisplay({
+  mediaAssets,
+  contentItemUid,
+}: MediaDisplayProps) {
   return (
     <table className="table-fixed">
       <thead>
@@ -121,24 +161,46 @@ export default function ItemsIndex() {
   return (
     <div>
       <div>
-        {nodes.length === 0 && <div>There is no content here that matches the set filters!</div>}
+        {nodes.length === 0 && (
+          <div>There is no content here that matches the set filters!</div>
+        )}
         {nodes.map((node: ContentItem, i: number) => {
+          const imageSrc = node.mediaAssets.nodes.find(
+            (mediaAsset) => mediaAsset.mediaType === 'image',
+          )?.file?.contentUrl
+          const firstAudioAsset = node.mediaAssets.nodes.find(
+            (mediaAsset) => mediaAsset.mediaType === 'audio',
+          )
+          const track = firstAudioAsset &&
+            firstAudioAsset.file && {
+              uid: firstAudioAsset?.uid,
+              title: firstAudioAsset?.title,
+              src: firstAudioAsset?.file?.contentUrl,
+              contentItemUid: node.uid,
+            }
           return (
-            <ContentItemCard key={i} node={node.uid} variant={'hover'}>
-              <div>
-                <div className="inline-flex w-full justify-between">
-                  <NavLink to={`/items/${node.uid}`}>
-                    <h5 className="break-words  font-medium leading-tight text-xl text-brand-primary">
-                      {node.title}
-                    </h5>
-                  </NavLink>
+            <ContentItemCard key={i} variant={'hover'}>
+              <div className="flex flex-col">
+                <div className="flex align-middle space-x-4">
+                  <div className="flex align-middle w-1/3 xl:w-1/6">
+                    <img className=" object-contain" src={imageSrc} />
+                  </div>
+                  <div className="w-2/3 xl:w-5/6">
+                    <NavLink to={`/items/${node.uid}`}>
+                      <h5 className="break-words  font-medium leading-tight text-xl text-brand-primary">
+                        {node.title}
+                      </h5>
+                    </NavLink>
+
+                    <p className="text-xs">{node.summary || ''}</p>
+                  </div>
                 </div>
-                <p className="text-sm">
-                  <i className="break-all">{node.uid}</i>
-                </p>
-                <p className="break-words">{node.summary || ''}</p>
               </div>
-              <MediaDisplay contentItemUid={node.uid} mediaAssets={node.mediaAssets.nodes} />
+              <div className="flex my-4 align-middle justify-between">
+                {track && <PlayTrackButton track={track} />}
+                {firstAudioAsset?.file?.duration}
+                {track && <DropdownMenuTrack track={track} />}{' '}
+              </div>
             </ContentItemCard>
           )
         })}

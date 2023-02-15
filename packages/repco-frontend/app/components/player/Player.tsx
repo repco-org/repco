@@ -52,6 +52,29 @@ const PlaystateContext = React.createContext<PlaystateContext | undefined>(
   undefined,
 )
 
+export function PlayTrackButton({ track }: { track: Track }) {
+  const { tracks, replaceCurrentQueue } = useQueue()
+  const player = usePlayer()
+
+  const clickHandler = () => {
+    const currentIndex = player?.trackIndex || 0
+    if (tracks.find((item) => track.uid === item.uid)) {
+      const index = tracks.findIndex((item) => track.uid === item.uid)
+      player?.setTrackIndex(index)
+    } else {
+      tracks.splice(currentIndex + 1, 0, track)
+      replaceCurrentQueue(tracks)
+      player?.setTrackIndex(currentIndex + 1)
+    }
+  }
+
+  return (
+    <Button onClick={clickHandler}>
+      <PlayIcon />
+    </Button>
+  )
+}
+
 /**
  * The player provider provides the player and playstate contexts and renders an (invisible) audio element.
  * It also implements basic logic: Set audio element src on track change, change position on mark change, etc.
@@ -272,10 +295,10 @@ export default function Player() {
     ? (state?.duration || 0) * draggingPos
     : state?.currentTime
   return (
-    <div className="flex flex-col py-2 px-4 bg-sky-500  text-white z-50">
+    <div className="flex flex-col container py-2  text-white z-50">
       <div className="flex flex-col">
-        <div className="flex flex-row space-x-4">
-          <div>
+        <div className="flex flex-row justify-between space-x-4">
+          <div className="flex space-x-1">
             <Button onClickCapture={player?.previousTrack}>
               <TrackPreviousIcon />
             </Button>
@@ -287,7 +310,7 @@ export default function Player() {
               <TrackNextIcon />
             </Button>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center justify-between space-x-2">
             <div className="text-xs">{formatDuration(displayTime || 0)}</div>
 
             <Timeslider

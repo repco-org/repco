@@ -13,7 +13,7 @@ export function NavBar() {
   ]
   return (
     <nav aria-label="main navigation">
-      <ul className="flex text-white pl-4">
+      <ul className="flex text-white space-x-1">
         {links.map((l, i) => (
           <li key={i}>
             <NavLink

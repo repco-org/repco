@@ -2,6 +2,7 @@ import { useLoaderData } from '@remix-run/react'
 import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js'
 import { Doughnut } from 'react-chartjs-2'
 import { LoaderFunction } from 'react-router'
+import { ContentItemCard } from '~/components/ui/primitives/Card'
 import { DashboardQuery } from '~/graphql/queries/dashboard'
 import { RepoStatsQuery } from '~/graphql/queries/repoStats'
 import {
@@ -127,7 +128,7 @@ export default function Index() {
   } = useLoaderData<typeof loader>()
 
   return (
-    <div className="px-6 py-6">
+    <div>
       <div className="bg-hero h-52 p-4 text-white text-xl flex items-center justify-center">
         <div className="w-1/2">
           {totalContentItems} ContentItems from
@@ -146,14 +147,6 @@ export default function Index() {
           <Doughnut data={repoChartData} />
         </div>
         <div className="w-1/3 flex flex-col p-4 text-sm bg-slate-300 align-middle">
-          <h3>Repositorys ({data?.repos.totalCount})</h3>
-          <ul className="p-2">
-            {data?.repos.nodes.map(
-              (repo: { name: string; did: string }, i: number) => (
-                <li key={i}>{repo.name}</li>
-              ),
-            )}
-          </ul>
           <h3>PublicationServices ({data?.publicationServices.totalCount})</h3>
           <ul className="p-2">
             {data?.publicationServices.nodes.map(
@@ -162,6 +155,25 @@ export default function Index() {
               ),
             )}
           </ul>
+        </div>
+      </div>
+
+      <div>
+        <h3>Repositorys ({data?.repos.totalCount})</h3>
+        <div className="flex flex-col space-y-2 ">
+          {data?.repos.nodes.map(
+            (repo: { name: string; did: string }, i: number) => (
+              <ContentItemCard>
+                <div className="flex items-baseline space-x-4">
+                  {' '}
+                  <h3 className="text-brand-primary text-lg" key={i}>
+                    {repo.name}
+                  </h3>
+                  <span className="text-xs italic">{repo.did}</span>
+                </div>
+              </ContentItemCard>
+            ),
+          )}
         </div>
       </div>
     </div>

@@ -37,11 +37,8 @@ export function ContentItemCard(props: CardProps) {
     </div>
   )
 }
-type Props = {
-  node: string
-}
+
 export type CardProps = CardBaseProps &
   React.DetailsHTMLAttributes<HTMLDivElement> &
-  ClassProp &
-  Props
+  ClassProp
 export interface CardBaseProps extends VariantProps<typeof styles> {}
