@@ -1,25 +1,18 @@
 import { ListBulletIcon } from '@radix-ui/react-icons'
-import { Outlet, useSearchParams } from '@remix-run/react'
+import { Outlet } from '@remix-run/react'
 import { useState } from 'react'
 import { Button } from '~/components/ui/primitives/Button'
 import { InputWithIcon } from '~/components/ui/primitives/Input'
 import { usePlaylists } from '~/lib/usePlaylists'
 
 export default function ItemsMenuWrapper() {
-  const [searchParams] = useSearchParams()
-  const orderBy = searchParams.get('orderBy')
   const [name, setName] = useState<string>()
 
-  const {
-   
-    createPlaylist,
-    
-    error,
-  } = usePlaylists()
+  const { createPlaylist, error } = usePlaylists()
 
   return (
     <div className="flex h-full">
-      <div className="flex flex-col p-4 overflow-y-auto border-r w-80 ">
+      <div className="flex flex-col p-4 border-r w-80 ">
         <div className="flex flex-col justify-between mt-6 ">
           <aside>
             <form className="inline">

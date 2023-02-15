@@ -10,9 +10,9 @@ interface DialogProps {
   track: Track | undefined
 }
 
-export function PlaylistDialog(props: DialogProps) {
+export function PlaylistDialog({ track }: DialogProps) {
   const [playlist, setPlaylist] = useState<Playlist>()
-  const { track } = props
+
   const { playlists, updatePlaylist } = usePlaylists()
   const [open, setOpen] = useState(false)
   return (
@@ -63,12 +63,11 @@ export function PlaylistDialog(props: DialogProps) {
                     tracks: [
                       ...playlist.tracks,
                       {
-                        title: track.title ,
+                        title: track.title,
                         uid: track.uid,
                         description: track.description,
                         src: track.src,
-                        contentItemUid: track.contentItemUid
-
+                        contentItemUid: track.contentItemUid,
                       },
                     ],
                   })
