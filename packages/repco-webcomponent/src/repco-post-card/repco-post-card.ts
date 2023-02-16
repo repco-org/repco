@@ -1,7 +1,7 @@
-import './repco-post-card-header'
-import './repco-post-card-thumbnail'
-import './repco-post-card-body'
-import './repco-post-card-footer'
+import './repco-post-card-header.js'
+import './repco-post-card-thumbnail.js'
+import './repco-post-card-body.js'
+import './repco-post-card-footer.js'
 import { css, html, LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
