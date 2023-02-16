@@ -1,4 +1,4 @@
-import { PlayIcon } from '@radix-ui/react-icons'
+import { PlayIcon, TrashIcon } from '@radix-ui/react-icons'
 import type { LoaderFunction } from '@remix-run/node'
 import { NavLink } from '@remix-run/react'
 import { Button } from '@ui/primitives/Button'
@@ -46,7 +46,7 @@ export default function PlaylistIndex() {
                   variantSize={'sm'}
                   onClick={() => deletePlaylist(p.id)}
                 >
-                  delete
+                  <TrashIcon />
                 </Button>
               </div>
             </div>

@@ -126,7 +126,7 @@ export default function Index() {
     totalContentItems,
     totalPublicationServices,
   } = useLoaderData<typeof loader>()
-
+  console.log(data)
   return (
     <div>
       <div className="bg-hero h-52 p-4 text-white text-xl flex items-center justify-center">
@@ -156,11 +156,22 @@ export default function Index() {
             )}
           </ul>
         </div>
+        <div className="w-1/3 flex flex-col p-4 text-sm bg-slate-300 align-middle">
+          <h3>Stats</h3>
+          <ul className="p-2">
+            <li>
+              <span>ContentItems:</span> {data?.contentItems.totalCount}
+            </li>
+            <li>Files: {data?.files.totalCount}</li>
+            <li>mediaAssets: {data?.mediaAssets.totalCount}</li>
+            <li>Commits: {data?.commits.totalCount}</li>
+          </ul>
+        </div>
       </div>
 
       <div>
         <h3>Repositorys ({data?.repos.totalCount})</h3>
-        <div className="flex flex-col space-y-2 overflow-visible">
+        <div className="flex flex-col p-1">
           {data?.repos.nodes.map(
             (repo: { name: string; did: string }, i: number) => (
               <ContentItemCard key={i}>

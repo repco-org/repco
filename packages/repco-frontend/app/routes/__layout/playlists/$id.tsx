@@ -12,10 +12,13 @@ export default function Playlist() {
   const { id } = useLoaderData()
   const { playlists, usePlaylist } = usePlaylists()
   const { addTrack, tracks, removeTrack } = usePlaylist(id)
+
   return (
-    <main className="px-2">
+    <main className="px-2 flex flex-col space-y-4">
       <Link to="/playlists">
-        <ArrowLeftIcon />
+        <div className="flex items-center text-brand-primary">
+          <ArrowLeftIcon /> <span>back</span>
+        </div>
       </Link>
       <h2 className="text-xl border-b-2">{id}</h2>
       <div className="pt-4">
