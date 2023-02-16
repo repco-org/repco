@@ -1,8 +1,8 @@
 import { ArrowLeftIcon } from '@radix-ui/react-icons'
 import type { LoaderFunction } from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
+import { usePlaylists } from '~/components/player/usePlaylists'
 import { Button } from '~/components/ui/primitives/Button'
-import { usePlaylists } from '~/lib/usePlaylists'
 
 export const loader: LoaderFunction = async ({ params }) => {
   return { id: params.id }
@@ -10,8 +10,8 @@ export const loader: LoaderFunction = async ({ params }) => {
 
 export default function Playlist() {
   const { id } = useLoaderData()
-  const {playlists, usePlaylist} = usePlaylists()
-  const [addTrack, removeTrack, tracks] = usePlaylist(id)
+  const { playlists, usePlaylist } = usePlaylists()
+  const { addTrack, tracks, removeTrack } = usePlaylist(id)
   return (
     <main className="px-2">
       <Link to="/playlists">
@@ -46,7 +46,6 @@ export default function Playlist() {
           <div>loading...</div>
         )}
       </div>
-      
     </main>
   )
 }

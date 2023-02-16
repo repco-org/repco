@@ -13,8 +13,8 @@ import {
   TrackNextIcon,
   TrackPreviousIcon,
 } from '@radix-ui/react-icons'
-import { Track } from '~/lib/usePlaylists'
 import { useQueue } from '~/lib/usePlayQueue'
+import type { Track } from './usePlaylists'
 import { Button } from '../ui/primitives/Button'
 
 type PlayerContext = {
@@ -62,9 +62,14 @@ export function PlayTrackButton({ track }: { track: Track }) {
       const index = tracks.findIndex((item) => track.uid === item.uid)
       player?.setTrackIndex(index)
     } else {
-      tracks.splice(currentIndex + 1, 0, track)
-      replaceCurrentQueue(tracks)
-      player?.setTrackIndex(currentIndex + 1)
+      if (tracks.length === 0) {
+        replaceCurrentQueue([track])
+        player?.setTrackIndex(0)
+      } else {
+        tracks.splice(currentIndex + 1, 0, track)
+        replaceCurrentQueue(tracks)
+        player?.setTrackIndex(currentIndex + 1)
+      }
     }
   }
 
@@ -203,7 +208,9 @@ function useAudioElement({ src }: { src: string | null }) {
 
   useEffect(() => {
     if (!audio || !src) return
+    console.log('src: ', src)
     audio.src = src
+    console.log('ausioSrc: ', audio.src)
   }, [audio, src])
 
   useEffect(() => {
@@ -320,12 +327,12 @@ export default function Player() {
               onDraggingChange={setDraggingPos}
             />
 
-            <div className="text-xs">
+            <div className="text-xs ">
               {formatDuration(state?.duration || 0)}
             </div>
           </div>
-          <div className="flex items-center">
-            <p className="truncate">{player?.track?.title}</p>
+          <div className="flex items-center truncate">
+            <p>{player?.track?.title}</p>
           </div>
           <Button
             intent={player?.queueVisibility ? 'active' : 'primary'}

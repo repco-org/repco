@@ -1,12 +1,10 @@
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import sanitize from 'sanitize-html'
-import { HamburgerMenuIcon, PlusCircledIcon } from '@radix-ui/react-icons'
 import type { LoaderFunction } from '@remix-run/node'
 import { NavLink, useLoaderData, useSearchParams } from '@remix-run/react'
 import { PlayTrackButton } from '~/components/player/Player'
+import { TrackDropdown } from '~/components/player/trackDropdown'
+import { createTrackFromMediaAsset } from '~/components/player/util'
 import { Pager } from '~/components/ui/Pager'
-import { PlaylistDialog } from '~/components/ui/playlists/addTrackToPlaylistDialog'
-import { Button, IconButton } from '~/components/ui/primitives/Button'
 import { ContentItemCard } from '~/components/ui/primitives/Card'
 import { ContentItemsQuery } from '~/graphql/queries/contentItems'
 import type {
@@ -15,46 +13,9 @@ import type {
   ContentItemsOrderBy,
   LoadContentItemsQuery,
   LoadContentItemsQueryVariables,
-  MediaAsset,
   StringFilter,
 } from '~/graphql/types.js'
 import { graphqlQuery, parsePagination } from '~/lib/graphql.server'
-import { Track } from '~/lib/usePlaylists'
-import { useQueue } from '~/lib/usePlayQueue'
-
-const DropdownMenuTrack = ({ track }: { track: Track }) => {
-  const { addTrack } = useQueue()
-  return (
-    <DropdownMenu.Root>
-      <DropdownMenu.Trigger asChild>
-        <Button aria-label="Customise options">
-          <HamburgerMenuIcon />{' '}
-        </Button>
-      </DropdownMenu.Trigger>
-
-      <DropdownMenu.Portal>
-        <DropdownMenu.Content
-          className=" bg-slate-200 flex flex-col space-y-1 text-white p-4 shadow-md"
-          sideOffset={5}
-        >
-          <DropdownMenu.Arrow className=" fill-slate-200" />
-          <IconButton
-            onClick={() => {
-              console.log(track)
-              addTrack(track)
-            }}
-            disabled={track ? false : true}
-            variantSize={'sm'}
-            icon={<PlusCircledIcon />}
-          >
-            add to queue
-          </IconButton>
-          <PlaylistDialog track={track} />
-        </DropdownMenu.Content>
-      </DropdownMenu.Portal>
-    </DropdownMenu.Root>
-  )
-}
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url)
@@ -98,61 +59,6 @@ export const loader: LoaderFunction = async ({ request }) => {
   }
 }
 
-interface MediaDisplayProps {
-  mediaAssets: MediaAsset[]
-  contentItemUid: string
-}
-
-function useFileWidget(mediaAsset: MediaAsset, contentItemUid: string) {
-  const { addTrack } = useQueue()
-  if (!mediaAsset.file?.contentUrl) return
-  if (mediaAsset.mediaType === 'image')
-    return <img className="w-32" src={mediaAsset.file?.contentUrl} />
-
-  const track = {
-    title: mediaAsset.title,
-    src: mediaAsset.file.contentUrl,
-    uid: mediaAsset.fileUid,
-    description: mediaAsset.description || undefined,
-    contentItemUid: contentItemUid,
-  }
-
-  if (mediaAsset.mediaType === 'audio')
-    return (
-      <>
-        <PlaylistDialog track={track} />
-        <Button onClick={() => addTrack(track)}>add to Queue</Button>{' '}
-      </>
-    )
-  return
-}
-
-export function MediaDisplay({
-  mediaAssets,
-  contentItemUid,
-}: MediaDisplayProps) {
-  return (
-    <table className="table-fixed">
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Title</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {mediaAssets.map((mediaAsset, i) => (
-          <tr key={i}>
-            <td>{mediaAsset.mediaType}</td>
-            <td>{mediaAsset.title}</td>
-            <td>{useFileWidget(mediaAsset, contentItemUid)}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  )
-}
-
 export default function ItemsIndex() {
   const { nodes, pageInfo, repos } = useLoaderData<typeof loader>()
   const [searchParams] = useSearchParams()
@@ -168,16 +74,14 @@ export default function ItemsIndex() {
           const imageSrc = node.mediaAssets.nodes.find(
             (mediaAsset) => mediaAsset.mediaType === 'image',
           )?.file?.contentUrl
+
           const firstAudioAsset = node.mediaAssets.nodes.find(
             (mediaAsset) => mediaAsset.mediaType === 'audio',
           )
-          const track = firstAudioAsset &&
-            firstAudioAsset.file && {
-              uid: firstAudioAsset?.uid,
-              title: firstAudioAsset?.title,
-              src: firstAudioAsset?.file?.contentUrl,
-              contentItemUid: node.uid,
-            }
+
+          const track =
+            firstAudioAsset &&
+            createTrackFromMediaAsset(firstAudioAsset, node.uid)
           return (
             <ContentItemCard key={i} variant={'hover'}>
               <div className="flex flex-col">
@@ -199,7 +103,7 @@ export default function ItemsIndex() {
               <div className="flex my-4 align-middle justify-between">
                 {track && <PlayTrackButton track={track} />}
                 {firstAudioAsset?.file?.duration}
-                {track && <DropdownMenuTrack track={track} />}{' '}
+                {track && <TrackDropdown track={track} />}
               </div>
             </ContentItemCard>
           )

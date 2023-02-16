@@ -11,6 +11,8 @@ export const ContentItemQuery = gql`
         nodes {
           uid
           mediaType
+          title
+          duration
           file {
             uid
             contentUrl
