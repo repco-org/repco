@@ -1,9 +1,9 @@
 import { ListBulletIcon } from '@radix-ui/react-icons'
 import { Outlet } from '@remix-run/react'
 import { useState } from 'react'
+import { usePlaylists } from '~/components/player/usePlaylists'
 import { Button } from '~/components/ui/primitives/Button'
 import { InputWithIcon } from '~/components/ui/primitives/Input'
-import { usePlaylists } from '~/lib/usePlaylists'
 
 export default function ItemsMenuWrapper() {
   const [name, setName] = useState<string>()

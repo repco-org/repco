@@ -2,19 +2,16 @@ import { PlayIcon } from '@radix-ui/react-icons'
 import type { LoaderFunction } from '@remix-run/node'
 import { NavLink } from '@remix-run/react'
 import { Button } from '@ui/primitives/Button'
+import { usePlaylists } from '~/components/player/usePlaylists'
 import { useQueue } from '~/lib/usePlayQueue'
-import { usePlaylists } from '~/lib/usePlaylists'
 
 export const loader: LoaderFunction = async ({ request }) => {
   return { status: 200 }
 }
 
 export default function PlaylistIndex() {
-  const {
-    playlists,
-    deletePlaylist,
-  } = usePlaylists()
-  const {loadPlaylistToQueue} = useQueue()
+  const { playlists, deletePlaylist } = usePlaylists()
+  const { loadPlaylistToQueue } = useQueue()
   if (!playlists) return <div>loading...</div>
 
   return (
@@ -37,22 +34,21 @@ export default function PlaylistIndex() {
                 </span>
                 {p.description}{' '}
               </NavLink>
-              <div className='flex items-center align-middle space-x-1'>
-              <Button
-                
-                variantSize={'sm'}
-                onClick={() => loadPlaylistToQueue(p)}
-              >
-                <PlayIcon />
-              </Button>
-              <Button
-                intent="danger"
-                variantSize={'sm'}
-                onClick={() => deletePlaylist(p.id)}
-              >
-                delete
-              </Button>
-            </div>
+              <div className="flex items-center align-middle space-x-1">
+                <Button
+                  variantSize={'sm'}
+                  onClick={() => loadPlaylistToQueue(p)}
+                >
+                  <PlayIcon />
+                </Button>
+                <Button
+                  intent="danger"
+                  variantSize={'sm'}
+                  onClick={() => deletePlaylist(p.id)}
+                >
+                  delete
+                </Button>
+              </div>
             </div>
           ))
         ) : (

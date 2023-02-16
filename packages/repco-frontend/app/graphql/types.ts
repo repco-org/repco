@@ -7596,6 +7596,8 @@ export type LoadContentItemQuery = {
       nodes: Array<{
         uid: string
         mediaType: string
+        title: string
+        duration?: number | null
         file?: { uid: string; contentUrl: string } | null
       }>
     }

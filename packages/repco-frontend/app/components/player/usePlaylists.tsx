@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react'
-import { ContextManager } from './LocalStorageContext'
+import { ContextManager } from '../../lib/LocalStorageContext'
 
 export interface Track {
   uid: string
@@ -65,15 +65,16 @@ export function usePlaylists() {
   }
 
   function usePlaylist(name: string) {
-    function addTrack(uid: string, title: string, src: string) {
+    function addTrack(track: Track) {
       const playlist = store.get(name) || { tracks: [] }
+      if (playlist.tracks.find((item) => item.uid === track.uid)) return
       dispatch({
         type: 'UPDATE',
         payload: {
           id: name,
           data: {
             id: name,
-            tracks: [...playlist.tracks, { uid, title, src }],
+            tracks: [...playlist.tracks, track],
           },
         },
       })
@@ -101,7 +102,7 @@ export function usePlaylists() {
       setTracks(store.get(name)?.tracks || [])
     }, [state])
 
-    return [addTrack, removeTrack, tracks] as const
+    return { addTrack, removeTrack, tracks } as const
   }
 
   return {

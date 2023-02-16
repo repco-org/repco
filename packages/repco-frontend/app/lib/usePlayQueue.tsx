@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react'
 import { ContextManager, Entity } from '~/lib/LocalStorageContext'
-import { Playlist, Track } from './usePlaylists'
+import { Playlist, Track } from '../components/player/usePlaylists'
 
 export function useQueue() {
   const context = ContextManager.getInstance().getListContext<Track>('queue')

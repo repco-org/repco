@@ -1,10 +1,10 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { PlusCircledIcon } from '@radix-ui/react-icons'
 import { Form } from '@remix-run/react'
-import { useState } from 'react'
-import type { Playlist, Track } from '~/lib/usePlaylists'
-import { usePlaylists } from '~/lib/usePlaylists'
-import { Button, IconButton } from '../primitives/Button'
+import { useEffect, useState } from 'react'
+import type { Playlist, Track } from './usePlaylists'
+import { usePlaylists } from './usePlaylists'
+import { Button, IconButton } from '../ui/primitives/Button'
 
 interface DialogProps {
   track: Track | undefined
@@ -13,7 +13,16 @@ interface DialogProps {
 export function PlaylistDialog({ track }: DialogProps) {
   const [playlist, setPlaylist] = useState<Playlist>()
 
-  const { playlists, updatePlaylist } = usePlaylists()
+  const { playlists, usePlaylist } = usePlaylists()
+  const [trackToUpdate, setTrackToUpdate] = useState<Track | null>(null)
+  const { addTrack } = usePlaylist(playlist ? playlist.id : '')
+
+  useEffect(() => {
+    if (playlist && trackToUpdate && addTrack) {
+      addTrack(trackToUpdate)
+    }
+  }, [trackToUpdate])
+
   const [open, setOpen] = useState(false)
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
@@ -57,21 +66,7 @@ export function PlaylistDialog({ track }: DialogProps) {
             <Button
               onClick={(e) => {
                 e.preventDefault()
-                if (playlist && track) {
-                  updatePlaylist(playlist.id, {
-                    ...playlist,
-                    tracks: [
-                      ...playlist.tracks,
-                      {
-                        title: track.title,
-                        uid: track.uid,
-                        description: track.description,
-                        src: track.src,
-                        contentItemUid: track.contentItemUid,
-                      },
-                    ],
-                  })
-                }
+                track && setTrackToUpdate(track)
                 setOpen(false)
               }}
             >

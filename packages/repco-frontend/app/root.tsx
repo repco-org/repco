@@ -9,8 +9,8 @@ import {
 } from '@remix-run/react'
 import styles from './styles/app.css'
 import { PlayerProvider } from './components/player/Player'
+import type { Playlist, Track } from './components/player/usePlaylists'
 import { ContextManager } from './lib/LocalStorageContext'
-import type { Playlist, Track } from './lib/usePlaylists'
 
 export function links() {
   return [{ rel: 'stylesheet', href: styles }]

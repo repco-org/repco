@@ -1,5 +1,6 @@
 import type { LoaderFunction, MetaFunction } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
+import { MediaDisplay } from '~/components/mediaDisplay/mediaAssetDisplay'
 import { SanitizedHTML } from '~/components/sanitized-html'
 import { ContentItemQuery } from '~/graphql/queries/contentItem'
 import type {
@@ -34,7 +35,7 @@ export const meta: MetaFunction = ({ data }) => {
 }
 
 export default function IndexRoute() {
-  const { data } = useLoaderData<LoaderData>()
+  const { data } = useLoaderData<typeof loader>()
 
   if (!data) {
     return 'Ooops, something went wrong :('
@@ -44,7 +45,7 @@ export default function IndexRoute() {
     return 'Not found'
   }
   return (
-    <div className="w-1/2 px-2 py-4">
+    <div>
       <h2 className="font-medium leading-tight text-4xl mt-0 mb-2 text-grey-600">
         {node.title}
       </h2>
@@ -56,28 +57,12 @@ export default function IndexRoute() {
       <div className="text-lg font-normal leading-normal mt-6 mb-4 text-grey-600">
         <SanitizedHTML html={node.content} />
       </div>
-      <ul className="list-disc">
-        {node.mediaAssets.nodes.map((node: any) => (
-          <li key={node.uid}>
-            <p className="font-light leading-relaxed mt-0 mb-4 text-grey-600">
-              <b>media asset </b>
-              {node.uid}
-            </p>
-            <br />
-
-            {node.file && (
-              <div>
-                <a
-                  className="text-lg px-0 py-4 font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                  href={node.file.contentUrl}
-                >
-                  DOWNLOAD
-                </a>
-              </div>
-            )}
-          </li>
-        ))}
-      </ul>
+      {node.mediaAssets.nodes && (
+        <MediaDisplay
+          mediaAssets={node.mediaAssets.nodes}
+          contentItemUid={node.uid}
+        />
+      )}
     </div>
   )
 }

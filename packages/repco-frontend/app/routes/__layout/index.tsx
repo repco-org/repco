@@ -160,10 +160,10 @@ export default function Index() {
 
       <div>
         <h3>Repositorys ({data?.repos.totalCount})</h3>
-        <div className="flex flex-col space-y-2 ">
+        <div className="flex flex-col space-y-2 overflow-visible">
           {data?.repos.nodes.map(
             (repo: { name: string; did: string }, i: number) => (
-              <ContentItemCard>
+              <ContentItemCard key={i}>
                 <div className="flex items-baseline space-x-4">
                   {' '}
                   <h3 className="text-brand-primary text-lg" key={i}>
