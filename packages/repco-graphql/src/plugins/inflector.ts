@@ -12,7 +12,7 @@ export default function InflectorPlugin(builder) {
       // Include Uid as suffixes to remove from column names when getting field names.
       getBaseName(columnName: string) {
         const matches = columnName.match(
-          /^(.+?)(_row_id|_id|_uid|Uid|_uuid|_fk|_pk|RowId|Id|Uuid|UUID|Fk|Pk)$/,
+          /^(.+?)(_row_id|_id|_uid|Uid|_uuid|Did|_did|_fk|_pk|RowId|Id|Uuid|UUID|Fk|Pk)$/,
         )
         if (matches) {
           return matches[1]
@@ -64,6 +64,8 @@ export default function InflectorPlugin(builder) {
           constraint,
         )
         if (res.endsWith('Uid')) res = res.substring(0, res.length - 3)
+        if (res.endsWith('Did')) res = res.substring(0, res.length - 3)
+
         // console.log(
         //   'mrbk',
         //   res,
