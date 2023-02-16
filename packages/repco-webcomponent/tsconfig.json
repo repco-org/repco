@@ -1,15 +1,15 @@
 {
- "$schema": "https://json.schemastore.org/tsconfig",
+  "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "../../tsconfig.json",
-  
+  "include": ["src/**/*"],
   "compilerOptions": {
+    "outDir": "./dist",
     "target": "es2019",
     "declaration": true,
     "declarationMap": true,
     "inlineSources": true,
-        "outDir": "./dist",
-
-    "rootDir": "./",
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
@@ -25,6 +25,4 @@
       { "name": "typescript-lit-html-plugin" }
     ]
   },
-  "include": ["src/**/*.ts"]
-
 }

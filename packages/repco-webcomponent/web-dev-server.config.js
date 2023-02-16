@@ -1,18 +1,11 @@
-import { legacyPlugin } from '@web/dev-server-legacy'
-
-const mode = process.env.MODE || 'dev'
-if (!['dev', 'prod'].includes(mode)) {
-  throw new Error(`MODE must be "dev" or "prod", was "${mode}"`)
-}
+import { esbuildPlugin } from '@web/dev-server-esbuild'
 
 export default {
-  nodeResolve: { exportConditions: mode === 'dev' ? ['development'] : [] },
+  open: true,
+  watch: true,
+  appIndex: './demo/index.html',
   preserveSymlinks: true,
-  plugins: [
-    legacyPlugin({
-      polyfills: {
-        webcomponents: false,
-      },
-    }),
-  ],
+  nodeResolve: true,
+  plugins: [esbuildPlugin({ ts: true, target: 'es2020' })],
+  esbuildTarget: 'auto',
 }
