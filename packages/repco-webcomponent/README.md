@@ -1,4 +1,4 @@
-# RepcoPostElement
+# repco-webcomponent
 
 A web component that fetches post data from a specified endpoint, displays the fetched data in cards, and provides the ability to open the original post in a new tab.
 

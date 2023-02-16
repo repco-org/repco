@@ -1,6 +1,6 @@
 {
   "name": "repco-webcomponent",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Webcomponent to display content from a Repco node",
   "main": "./dist/repco-webcomponent.esm.js",
   "module": "./dist/repco-webcomponent.esm.js",
@@ -22,11 +22,17 @@
     "format": "prettier \"**/*.{cjs,html,js,json,md,ts}\" --ignore-path ./.eslintignore --write"
   },
   "author": "arso-collective",
-  "license": "MIT OR APACHE-2.0",
+  "license": "MIT OR Apache-2.0",
   "dependencies": {
     "dompurify": "^2.4.3",
     "lit": "^2.2.4"
   },
+  "files": [
+    "src",
+    "dist",
+    "*.js",
+    "*.json"
+  ],
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^15.0.1",
     "@types/dompurify": "^2.4.0",
