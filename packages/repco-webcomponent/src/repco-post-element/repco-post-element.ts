@@ -1,8 +1,9 @@
-import '../repco-post-card/repco-post-card'
-import './repco-fetch-api'
+import '../repco-post-card/repco-post-card.js'
+import './repco-fetch-api.js'
 import { css, html, LitElement } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import { MediaAssetType, PostType } from './types'
+import { classMap } from 'lit/directives/class-map.js'
+import type { MediaAssetType, PostType } from './types.js'
 
 @customElement('repco-post-element')
 export class RepcoPostElement extends LitElement {
@@ -10,6 +11,7 @@ export class RepcoPostElement extends LitElement {
     :host {
       display: flex;
       flex-direction: column;
+      font-family: var(--font-family, sans-serif);
     }
 
     :host.card {
@@ -33,6 +35,18 @@ export class RepcoPostElement extends LitElement {
       box-shadow: var(--dark-card-hover-shadow, 0px 4px 6px rgba(0, 0, 0, 0.1));
       border-color: var(--dark-card-hover-border-color, #cbd5e0);
     }
+
+    :host > div {
+      display: flex;
+      flex-direction: column;
+    }
+    :host > div.horizontal {
+      flex-direction: row;
+    }
+    .card-link {
+      text-decoration: none;
+      color: inherit;
+    }
   `
   @property({ type: String, reflect: true })
   theme = 'light'
@@ -51,8 +65,8 @@ export class RepcoPostElement extends LitElement {
 
   @property({ type: String })
   query = `
-  query {
-    contentItems {
+  query FetchContentItems($count: Int) {
+    contentItems(first: $count) {
       nodes {
         title
         content
@@ -70,26 +84,33 @@ export class RepcoPostElement extends LitElement {
   }
 `
   @state()
-  private _state: { posts: PostType[] } = { posts: [] }
+  private _items: PostType[] = []
 
-  private _repcoFetchClient: any
+  private _fetchClient: any
 
   override async firstUpdated() {
-    this.fetchData()
+    if (!this.shadowRoot) throw new Error('missing shadow root')
+    this._fetchClient = this.shadowRoot.querySelector('repco-fetch-api')
+    this._fetchClient.addEventListener(
+      'data-fetched',
+      (event: CustomEvent<{ posts: PostType[] }>) => this.updateData(event.detail.posts)
+    )
+  }
+
+  updateData(data: PostType[]) {
+    this._items = [...data]
   }
 
   override render() {
+    const cls = { horizontal: this.layout === 'horizontal' }
     return html` <repco-fetch-api
         .endpoint="${this.endpoint}"
         .query="${this.query}"
+        .count="${this.count}"
       >
       </repco-fetch-api>
-      <div
-        style="display: flex; flex-direction: ${this.layout === 'horizontal'
-          ? 'row'
-          : 'column'};"
-      >
-        ${this._state.posts.slice(0, this.count).map((post) => {
+      <div class=${classMap(cls)}>
+        ${this._items.slice(0, this.count).map((post) => {
           let thumbnail = this._defaultThumbnail
           post.mediaAssets.nodes.map((asset: MediaAssetType) => {
             if (asset.mediaType == 'image') {
@@ -99,7 +120,6 @@ export class RepcoPostElement extends LitElement {
 
           const header = post.title
           const subheader = post.uid
-
           const body = `${this.trimContent(post.content)}...`
           const footer = `source: ${this.endpoint}`
           const endpointBase = this.endpoint.substring(
@@ -109,38 +129,19 @@ export class RepcoPostElement extends LitElement {
           const link = `${endpointBase}/items/${post.uid}`
 
           return html`
-            <repco-post-card
-              class="card"
-              .thumbnail="${thumbnail}"
-              .header="${header}"
-              .subheader="${subheader}"
-              .body="${body}"
-              .footer="${footer}"
-              @click=${() => this.cardClick(link)}
-            ></repco-post-card>
+            <a href="${link}" target="_blank" class="card-link">
+              <repco-post-card
+                class="card"
+                .thumbnail="${thumbnail}"
+                .header="${header}"
+                .subheader="${subheader}"
+                .body="${body}"
+                .footer="${footer}"
+              ></repco-post-card>
+            </a>
           `
         })}
       </div>`
-  }
-
-  private async fetchData() {
-    if (this.shadowRoot) {
-      this._repcoFetchClient =
-        this.shadowRoot.querySelector('repco-fetch-client')
-
-      if (this._repcoFetchClient) {
-        await this._repcoFetchClient.updateComplete
-        this._repcoFetchClient.addEventListener(
-          'data-fetched',
-          (event: CustomEvent<{ posts: PostType[] }>) => {
-            this._state = event.detail
-          },
-        )
-      }
-    }
-  }
-  private cardClick(url: string) {
-    window.open(url, '_blank')
   }
 
   private trimContent(content: string) {

@@ -1,6 +1,11 @@
 import { css, html, LitElement } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import { PostType } from './types'
+import type { PostType } from './types.js'
+
+type State = {
+  posts: PostType[]
+  error?: Error
+}
 
 @customElement('repco-fetch-api')
 class RepcoFetchApi extends LitElement {
@@ -15,12 +20,11 @@ class RepcoFetchApi extends LitElement {
   @property({ type: String })
   query = ''
 
-  override firstUpdated() {
-    this.fetchData()
-  }
+  @property({ type: Number })
+  count = 10
 
   @state()
-  private _state: { posts: PostType[] } = { posts: [] }
+  private _state: State = { posts: [] }
 
   override connectedCallback() {
     super.connectedCallback()
@@ -34,6 +38,7 @@ class RepcoFetchApi extends LitElement {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           query: this.query,
+          variables: { count: this.count },
         }),
       })
       if (!response.ok) {
@@ -45,8 +50,8 @@ class RepcoFetchApi extends LitElement {
       const posts = json.data.contentItems.nodes
       this._state = { posts }
     } catch (error) {
-      console.error(error)
-      this._state = { posts: [] }
+      console.error(`Failed to fetch data from ${this.endpoint}`, error)
+      this._state = { posts: [], error: error as Error }
     }
     this.dispatchEvent(new CustomEvent('data-fetched', { detail: this._state }))
   }
