@@ -136,7 +136,9 @@ export class CbaDataSource implements DataSource {
     const endpoint = endpointMap[type]
 
     if (!endpoint) {
-      throw new Error('Unsupported CBA data type: ' + parsed.type)
+      throw new Error(
+        `Unsupported data type for ${this.definition.name}: ${parsed.type}`,
+      )
     }
 
     const url = this._url(`/${endpoint}/${id}`)

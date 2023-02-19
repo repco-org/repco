@@ -40,21 +40,6 @@ import { ConceptKind, ContentGroupingVariant, EntityForm } from '../entity.js'
 import { FetchOpts } from '../util/datamapping.js'
 import { HttpError } from '../util/error.js'
 
-type ParsedUri =
-  | {
-      kind: string
-      type: string
-      id: string
-      revisionId?: undefined
-    }
-  | {
-      kind: string
-      type: string
-      id: string
-      revisionId: string
-    }
-  | null
-
 /**
  * The default endpoint for the XRCB WordPress API.
  */
@@ -159,7 +144,9 @@ export class XrcbDataSource implements DataSource {
     const endpoint = endpointMap[type]
 
     if (!endpoint) {
-      throw new Error('Unsupported XRCB data type: ' + parsed.type)
+      throw new Error(
+        `Unsupported data type for ${this.definition.name}: ${parsed.type}`,
+      )
     }
 
     const url = this._url(`/${endpoint}/${id}`)
