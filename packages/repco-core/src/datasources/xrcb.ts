@@ -140,36 +140,40 @@ export class XrcbDataSource implements DataSource {
    * @returns An array of source record forms containing the fetched data.
    * @throws An error if the URI is invalid or if the data type is not supported.
    */
+
   async fetchByUri(uri: string): Promise<SourceRecordForm[]> {
-    try {
-      const parsed: ParsedUri = this.parseUri(uri)
-      if (!parsed) throw new Error('Invalid URI')
-
-      const urls: { [key: string]: string } = {
-        post: `/podcasts/${parsed.id}`,
-        station: `/radios/${parsed.id}`,
-        series: `/podcast_programa/${parsed.id}`,
-        category: `/podcast_category/${parsed.id}`,
-        tag: `/podcast_tag/${parsed.id}`,
-      }
-
-      const url = this._url(urls[parsed.type])
-      const body = await this._fetch(url)
-
-      return [
-        {
-          body: JSON.stringify(body),
-          contentType: CONTENT_TYPE_JSON,
-          sourceType: parsed.type,
-          sourceUri: url,
-        },
-      ]
-    } catch (error) {
-      console.error(`Error fetching data for URI ${uri}: ${error}`)
-      throw new Error(`Error fetching data for URI ${uri}: ${error}`)
+    const parsed = this.parseUri(uri)
+    if (!parsed) {
+      throw new Error('Invalid URI')
     }
-  }
 
+    const endpointMap: { [key: string]: string } = {
+      post: 'podcasts',
+      series: 'podcast_programa',
+      category: 'podcast_category',
+      tag: 'podcast_tag',
+      station: 'radios',
+    }
+
+    const { id, type } = parsed
+    const endpoint = endpointMap[type]
+
+    if (!endpoint) {
+      throw new Error('Unsupported XRCB data type: ' + parsed.type)
+    }
+
+    const url = this._url(`/${endpoint}/${id}`)
+    const [body] = await Promise.all([this._fetch(url)])
+
+    return [
+      {
+        body: JSON.stringify(body),
+        contentType: CONTENT_TYPE_JSON,
+        sourceType: type,
+        sourceUri: url,
+      },
+    ]
+  }
   /**
    * Fetches updates to the data from the XRCB WordPress API.
    *
@@ -178,33 +182,28 @@ export class XrcbDataSource implements DataSource {
    */
   async fetchUpdates(cursorString: string | null): Promise<FetchUpdatesResult> {
     const cursor = cursorString ? JSON.parse(cursorString) : {}
-    const records = []
-
+    const { posts: postsCursor = '1970-01-01T01:00:00' } = cursor
+    const perPage = 100
+    const url = this._url(
+      `/podcasts?page=1&per_page=${perPage}&_embed&orderby=modified&order=asc&modified_after=${postsCursor}`,
+    )
     try {
-      let postsCursor = cursor.posts
-      if (!postsCursor) postsCursor = '1970-01-01T01:00:00'
-      const perPage = 100
-      const url = this._url(
-        `/podcasts?page=1&per_page=${perPage}&_embed&orderby=modified&order=asc&modified_after=${postsCursor}`,
-      )
       const posts = await this._fetch<XrcbPost[]>(url)
-
-      const lastPost = posts[posts.length - 1]
-      if (lastPost) cursor.posts = lastPost.modified
-      records.push({
-        body: JSON.stringify(posts),
-        contentType: CONTENT_TYPE_JSON,
-        sourceType: 'posts',
-        sourceUri: url,
-      })
+      cursor.posts = posts?.[posts.length - 1]?.modified || cursor.posts
+      return {
+        cursor: JSON.stringify(cursor),
+        records: [
+          {
+            body: JSON.stringify(posts),
+            contentType: CONTENT_TYPE_JSON,
+            sourceType: 'posts',
+            sourceUri: url,
+          },
+        ],
+      }
     } catch (error) {
       console.error('Error fetching updates:', error)
-      throw new Error('Error fetching updates')
-    }
-
-    return {
-      cursor: JSON.stringify(cursor),
-      records,
+      throw error
     }
   }
 
