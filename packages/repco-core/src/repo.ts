@@ -478,9 +478,12 @@ export class Repo {
       if (!fullOpts.commitEmpty && !entities.length) return null
 
       // Create the actual commit as a single prisma transaction
-      return await this.$transaction((repo) =>
-        repo.saveBatchInner(entities, fullOpts),
-      )
+      // TODO: The transaction can get very big and times out.
+      // Therefore the Prisma transaction is removed for now.
+      // We still have the repo-wide txlock.
+      // return await this.$transaction((repo) =>
+      this.saveBatchInner(entities, fullOpts),
+      // )
     } finally {
       release()
     }

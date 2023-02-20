@@ -116,6 +116,64 @@ export class CbaDataSource implements DataSource {
     return !!parsed
   }
 
+  async fetchByUriBatch(uris: string[]): Promise<SourceRecordForm[]> {
+    const batchEndpoints: Record<string, string> = {
+      post: 'post',
+      audio: 'media',
+      image: 'media',
+      category: 'categories',
+      tag: 'tags',
+    }
+    const buckets: Record<
+      string,
+      { type: string; ids: { uri: string; id: string }[] }
+    > = {}
+    const unbatched = []
+    for (const uri of uris) {
+      const parsed = this.parseUri(uri)
+      if (!parsed) continue
+      const { id, type } = parsed
+      const batchEndpoint = batchEndpoints[type]
+      if (batchEndpoint) {
+        if (!buckets[batchEndpoint]) buckets[batchEndpoint] = { type, ids: [] }
+        buckets[batchEndpoint].ids.push({ uri, id })
+      } else {
+        unbatched.push(uri)
+      }
+    }
+
+    const batchedPromises: Promise<SourceRecordForm[][]> = Promise.all(
+      Object.entries(buckets).map(async ([endpoint, { type, ids }]) => {
+        try {
+          const params = new URLSearchParams()
+          params.append('include', ids.map((id) => id.id).join(','))
+          const url = this._url(`/${endpoint}?${params}`)
+          const bodies = await this._fetch(url)
+          return bodies.map((body: any, i: number) => {
+            const uri = ids[i].uri
+            return {
+              body: JSON.stringify(body),
+              contentType: CONTENT_TYPE_JSON,
+              sourceType: type,
+              sourceUri: uri,
+            }
+          })
+        } catch (error) {
+          log.warn({ msg: `CBA datasource failure`, error })
+          return []
+        }
+      }),
+    )
+    const unbatchedPromises = Promise.all(
+      unbatched.map((uri) => this.fetchByUri(uri)),
+    )
+    const [batchedRes, unbatchedRes] = await Promise.all([
+      batchedPromises,
+      unbatchedPromises,
+    ])
+    return [...batchedRes.flat(), ...unbatchedRes.flat()]
+  }
+
   async fetchByUri(uri: string): Promise<SourceRecordForm[]> {
     const parsed = this.parseUri(uri)
     if (!parsed) {
@@ -176,7 +234,7 @@ export class CbaDataSource implements DataSource {
     try {
       const cursor = cursorString ? JSON.parse(cursorString) : {}
       const { posts: postsCursor = '1970-01-01T01:00:00' } = cursor
-      const perPage = 100
+      const perPage = 30
       const url = this._url(
         `/posts?page=1&per_page=${perPage}&_embed&orderby=modified&order=asc&modified_after=${postsCursor}`,
       )

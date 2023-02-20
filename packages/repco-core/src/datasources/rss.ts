@@ -9,6 +9,7 @@ import {
 } from 'repco-prisma/generated/repco/zod.js'
 import { fetch } from 'undici'
 import {
+  BaseDataSource,
   DataSource,
   DataSourceDefinition,
   DataSourcePlugin,
@@ -91,11 +92,12 @@ function getDateRangeFromFeed(feed: RssParser.Output<any>): [Date, Date] {
   return [newest, oldest]
 }
 
-export class RssDataSource implements DataSource {
+export class RssDataSource extends BaseDataSource implements DataSource {
   endpoint: URL
   baseUri: string
   parser: RssParser = new RssParser()
   constructor(config: ConfigSchema) {
+    super()
     const endpoint = new URL(config.endpoint)
     endpoint.hash = ''
     this.endpoint = endpoint

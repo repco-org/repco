@@ -4,6 +4,7 @@ import { DataSourcePluginRegistry } from './plugins.js'
 import { Prisma, PrismaCore, SourceRecord } from './prisma.js'
 import { Repo } from './repo.js'
 import { createSourceRecordId } from './util/id.js'
+import { notEmpty } from './util/misc.js'
 import { Registry } from './util/registry.js'
 
 export const log = createLogger('ingest')
@@ -78,6 +79,7 @@ export interface DataSource {
    * @returns A `Promise` that resolves to the fetched record, or `null` if no record was found.
    */
   fetchByUri(uid: string): Promise<SourceRecordForm[] | null>
+  fetchByUriBatch(uids: string[]): Promise<SourceRecordForm[]>
   /**
    * Determines whether the data source is capable of fetching records by UID.
    *
@@ -94,10 +96,24 @@ export interface DataSource {
   mapSourceRecord(record: SourceRecordForm): Promise<EntityForm[]>
 }
 
-export abstract class BaseDataSource {
-  get config() {
+export abstract class BaseDataSource implements DataSource {
+  get config(): any {
     return null
   }
+
+  abstract get definition(): DataSourceDefinition
+  abstract fetchByUri(uid: string): Promise<SourceRecordForm[] | null>
+  abstract mapSourceRecord(record: SourceRecordForm): Promise<EntityForm[]>
+
+  get uid() {
+    return this.definition.uid
+  }
+
+  async fetchByUriBatch(uris: string[]): Promise<SourceRecordForm[]> {
+    const res = await Promise.all(uris.map((uri) => this.fetchByUri(uri)))
+    return res.filter(notEmpty).flat()
+  }
+
   canFetchUri(_uid: string): boolean {
     return false
   }
@@ -120,49 +136,74 @@ export class DataSourceRegistry extends Registry<DataSource> {
   }
 
   async fetchEntities(repo: Repo, uris: string[]) {
+    console.log('fetchEntities', uris)
     const fetched: EntityForm[] = []
-    const notFound = []
+    const notFound = new Set<string>()
+    const found = new Set<string>()
+    const buckets: Record<string, string[]> = {}
     for (const uri of uris) {
       const matchingSources = this.allForUri(uri)
-      let found = false
-      for (const datasource of matchingSources) {
-        try {
-          const sourceRecords = await datasource.fetchByUri(uri)
-          if (sourceRecords && sourceRecords.length) {
-            const entities = await mapAndPersistSourceRecord(
-              repo,
-              datasource,
-              sourceRecords,
-            )
-            fetched.push(...entities)
-            found = true
-            break
-          }
-        } catch (err) {
-          // The datasource failed to fetch the entity.
-          // Log the error and proceed.
-          const fail = {
-            uri,
-            datasourceUid: datasource.definition.uid,
-            timestamp: new Date(),
-            errorMessage: (err as Error).message,
-            errorDetails: errToSerializable(err as Error),
-          }
-          await repo.prisma.failedDatasourceFetches.upsert({
-            create: { ...fail },
-            update: { ...fail },
-            where: {
-              uri_datasourceUid: {
-                uri: fail.uri,
-                datasourceUid: fail.datasourceUid,
-              },
-            },
-          })
-        }
+      for (const ds of matchingSources) {
+        const uid = ds.definition.uid
+        if (!buckets[uid]) buckets[uid] = []
+        buckets[uid].push(uri)
       }
-      if (!found) notFound.push(uri)
     }
-    return { fetched, notFound }
+    console.log('buckets', buckets)
+
+    for (const [uid, uris] of Object.entries(buckets)) {
+      const filteredUris = uris.filter((uri) => !found.has(uri))
+      const ds = this.get(uid)!
+      const sourceRecords = await ds.fetchByUriBatch(filteredUris)
+      const entities = await mapAndPersistSourceRecord(repo, ds, sourceRecords)
+      for (const e of entities) {
+        e.entityUris?.forEach((uri) => found.add(uri))
+      }
+    }
+    for (const uri of uris) {
+      if (!found.has(uri)) notFound.add(uri)
+    }
+
+    //
+    //   let found = false
+    //   for (const datasource of matchingSources) {
+    //     try {
+    //       const sourceRecords = await datasource.fetchByUri(uri)
+    //       if (sourceRecords && sourceRecords.length) {
+    //         const entities = await mapAndPersistSourceRecord(
+    //           repo,
+    //           datasource,
+    //           sourceRecords,
+    //         )
+    //         fetched.push(...entities)
+    //         found = true
+    //         break
+    //       }
+    //     } catch (err) {
+    //       // The datasource failed to fetch the entity.
+    //       // Log the error and proceed.
+    //       const fail = {
+    //         uri,
+    //         datasourceUid: datasource.definition.uid,
+    //         timestamp: new Date(),
+    //         errorMessage: (err as Error).message,
+    //         errorDetails: errToSerializable(err as Error),
+    //       }
+    //       await repo.prisma.failedDatasourceFetches.upsert({
+    //         create: { ...fail },
+    //         update: { ...fail },
+    //         where: {
+    //           uri_datasourceUid: {
+    //             uri: fail.uri,
+    //             datasourceUid: fail.datasourceUid,
+    //           },
+    //         },
+    //       })
+    //     }
+    //   }
+    //   if (!found) notFound.push(uri)
+    // }
+    return { fetched, notFound: Array.from(notFound) }
   }
 
   registerFromPlugins(

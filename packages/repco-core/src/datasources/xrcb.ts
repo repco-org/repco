@@ -30,6 +30,8 @@ import {
   XrcbTag,
 } from './xrcb/types.js'
 import {
+  log,
+  BaseDataSource,
   DataSource,
   DataSourceDefinition,
   DataSourcePlugin,
@@ -88,12 +90,13 @@ export class XrcbDataSourcePlugin implements DataSourcePlugin {
  * @param config - The configuration object for the plugin.
  * @returns A new instance of the plugin.
  */
-export class XrcbDataSource implements DataSource {
+export class XrcbDataSource extends BaseDataSource implements DataSource {
   endpoint: string
   endpointOrigin: string
   uriPrefix: string
   apiKey?: string
   constructor(config: ConfigSchema) {
+    super()
     this.endpoint = config.endpoint || DEFAULT_ENDPOINT
     this.apiKey = config.apiKey || process.env.XRCB_API_KEY || undefined
     const endpointUrl = new URL(this.endpoint)
@@ -189,7 +192,7 @@ export class XrcbDataSource implements DataSource {
         ],
       }
     } catch (error) {
-      console.error('Error fetching updates:', error)
+      log.warn({ msg: 'XRCB datasource - error fetching updates', error })
       throw error
     }
   }
@@ -263,7 +266,7 @@ export class XrcbDataSource implements DataSource {
     category: XrcbCategory | undefined | null,
   ): EntityForm[] {
     if (!category) {
-      console.error('XrcbCategory is null or undefined')
+      log.warn('XrcbCategory is null or undefined')
       return []
     }
     const content: form.ConceptInput = {
@@ -288,7 +291,7 @@ export class XrcbDataSource implements DataSource {
 
   private _mapTag(tag: XrcbTag | undefined | null): EntityForm[] {
     if (!tag) {
-      console.error('XrcbTag is null or undefined')
+      log.warn('XrcbTag is null or undefined')
       return []
     }
     const content: form.ConceptInput = {
@@ -330,18 +333,18 @@ export class XrcbDataSource implements DataSource {
 
       return [{ type: 'PublicationService', content, ...headers }]
     } catch (error) {
-      console.error(`Error mapping station: ${station.id}`, error)
+      log.warn(`Error mapping station: ${station.id}`, error)
       return []
     }
   }
 
   private _mapSeries(series: XrcbPrograma | undefined | null): EntityForm[] {
     if (!series) {
-      console.error('XrcbSeries is null or undefined')
+      log.warn('XrcbSeries is null or undefined')
       return []
     }
     if (!series.name) {
-      console.error('Missing name for series:', series.id)
+      log.warn('Missing name for series:', series.id)
       return []
     }
 
@@ -381,7 +384,7 @@ export class XrcbDataSource implements DataSource {
       }
       return conceptsUris
     } catch (error) {
-      console.error('Error extracting concept URIs from post:', error)
+      log.warn('Error extracting concept URIs from post:', error)
       return defaultValue
     }
   }
@@ -392,7 +395,7 @@ export class XrcbDataSource implements DataSource {
         return { uri: this._uri('station', post.acf.radio.ID) }
       }
     } catch (error) {
-      console.error('Error extracting publicationService from post:', error)
+      log.warn('Error extracting publicationService from post:', error)
       return defaultValue
     }
   }
@@ -406,7 +409,7 @@ export class XrcbDataSource implements DataSource {
       }
       return defaultValue
     } catch (error) {
-      console.error('Error extracting primary grouping from post:', error)
+      log.warn('Error extracting primary grouping from post:', error)
       return defaultValue
     }
   }
@@ -454,7 +457,7 @@ export class XrcbDataSource implements DataSource {
         },
       ]
     } catch (error) {
-      console.error('Error in _mapPost:', error)
+      log.warn('Error in _mapPost:', error)
       throw error
     }
   }
@@ -498,7 +501,7 @@ export class XrcbDataSource implements DataSource {
         mediaAssetUris.push(audioId)
       }
     } catch (error) {
-      console.error(`Error processing audio file: ${error}`)
+      log.warn(`Error processing audio file: ${error}`)
     }
 
     try {
@@ -538,7 +541,7 @@ export class XrcbDataSource implements DataSource {
         mediaAssetUris.push(imageId)
       }
     } catch (error) {
-      console.error(`Error processing image file: ${error}`)
+      log.warn(`Error processing image file: ${error}`)
     }
 
     return mediaAssetEntities

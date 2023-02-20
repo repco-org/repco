@@ -31,3 +31,4 @@ export function extractCursorAndMap<T>(
   }
   return { cursor: nextCursor, entities }
 }
+
