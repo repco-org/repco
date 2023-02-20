@@ -1,6 +1,7 @@
 import * as ucans from '@ucans/ucans'
 import * as common from 'repco-common/zod'
 import { CID } from 'multiformats/cid.js'
+import { createLogger, Logger } from 'repco-common'
 import {
   Prisma,
   PrismaClient,
@@ -51,7 +52,6 @@ import { MapList } from './util/collections.js'
 import { ParseError } from './util/error.js'
 import { createEntityId, createRevisionId } from './util/id.js'
 import { Mutex } from './util/mutex.js'
-import { createLogger, Logger } from 'repco-common'
 
 export * from './repo/types.js'
 
@@ -504,6 +504,18 @@ export class Repo {
       parent,
     )
     if (!bundle) return null
+    const counts = bundle.revisions.reduce<Record<string, number>>((agg, r) => {
+      const key = r.revision.entityType
+      if (!agg[key]) agg[key] = 0
+      agg[key] += 1
+      return agg
+    }, {})
+    const details = {
+      entities: counts,
+      revisions: bundle.revisions.length,
+      root: bundle.root.cid.toString(),
+    }
+    this.log.debug({ msg: 'Created commit', details })
     const ret = await this.saveFromIpld(bundle)
     return ret
   }

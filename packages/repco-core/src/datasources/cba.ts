@@ -230,40 +230,64 @@ export class CbaDataSource implements DataSource {
    *
    * @param post The post for which to expand the attachment links.
    */
-  async expandAttachments(post: CbaPost) {
-    const attachmentLinks = post._links['wp:attachment']
-    if (!attachmentLinks || attachmentLinks.length === 0) {
-      return
-    }
+  async expandAttachments(posts: CbaPost[]) {
+    const links = posts
+      .map((post) => post._links['wp:attachment'])
+      .flat()
+      .map((about) => about.href)
+      .map((l) => new URL(l))
 
-    const attachmentPromises = attachmentLinks.map((attachment) =>
-      this._fetch(attachment.href),
-    )
-    const attachments = await Promise.all(attachmentPromises)
-    post._fetchedAttachements = attachments.flat()
+    const parents: [string, string][] = []
+    const other = []
+    for (const link of links) {
+      if (
+        link.pathname === '/wp-json/wp/v2/media' &&
+        link.searchParams.has('parent')
+      ) {
+        const parent = link.searchParams.get('parent')
+        if (parent) parents.push([link.toString(), parent])
+      } else {
+        other.push(link.toString())
+      }
+    }
+    const params = new URLSearchParams()
+    params.append('parent', parents.map((id) => id[1]).join(','))
+    params.append('per_page', '100')
+    const url = this._url(`/media?${params}`)
+    const fetched = (await this._fetch(url)) as any[]
+    const res: Record<string, any> = {}
+    fetched.forEach((body, i) => {
+      res[parents[i][0]] = body
+    })
+    if (other.length) {
+      await Promise.all(
+        other.map(async (link) => {
+          const fetched = await this._fetch(link)
+          res[link] = fetched
+        }),
+      )
+    }
+    for (const post of posts) {
+      if (!post._fetchedAttachements) post._fetchedAttachements = []
+      for (const link of post._links['wp:attachment']) {
+        if (link.href && res[link.href]) {
+          post._fetchedAttachements.push(res[link.href])
+        }
+      }
+    }
   }
 
   async fetchUpdates(cursorString: string | null): Promise<FetchUpdatesResult> {
     try {
       const cursor = cursorString ? JSON.parse(cursorString) : {}
       const { posts: postsCursor = '1970-01-01T01:00:00' } = cursor
-      const perPage = 30
+      const perPage = 3
       const url = this._url(
         `/posts?page=1&per_page=${perPage}&_embed&orderby=modified&order=asc&modified_after=${postsCursor}`,
       )
       const posts = await this._fetch<CbaPost[]>(url)
 
-      await Promise.all(
-        posts.map(async (post) => {
-          try {
-            await this.expandAttachments(post)
-          } catch (error) {
-            console.error(
-              `Error expanding attachments for post ${post.id}: ${error}`,
-            )
-          }
-        }),
-      )
+      await this.expandAttachments(posts)
 
       cursor.posts = posts?.[posts.length - 1]?.modified || cursor.posts
 
@@ -564,7 +588,6 @@ export class CbaDataSource implements DataSource {
         .flat()
 
       const mappedMediaAssets = mediaAssetUris.map((uri) => ({ uri }))
-      mediaAssetUris.forEach((e) => this.fetchByUri(e))
 
       const featured_image = { uri: this._uri('image', post.featured_image) }
       mappedMediaAssets.push(featured_image)
