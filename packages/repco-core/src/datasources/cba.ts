@@ -233,14 +233,16 @@ export class CbaDataSource implements DataSource {
    */
   async expandAttachments(posts: CbaPost[]) {
     const links = posts
-      .map((post) => post._links['wp:attachment'])
+      .map((post) =>
+        post._links['wp:attachment'].map(
+          (link) => [post.id, new URL(link.href)] as const,
+        ),
+      )
       .flat()
-      .map((about) => about.href)
-      .map((l) => new URL(l))
 
     const parents: [string, string][] = []
     const other = []
-    for (const link of links) {
+    for (const [postId, link] of links) {
       if (
         link.pathname === '/wp-json/wp/v2/media' &&
         link.searchParams.has('parent')
@@ -248,32 +250,32 @@ export class CbaDataSource implements DataSource {
         const parent = link.searchParams.get('parent')
         if (parent) parents.push([link.toString(), parent])
       } else {
-        other.push(link.toString())
+        other.push([postId, link.toString()] as const)
       }
     }
     const params = new URLSearchParams()
     params.append('parent', parents.map((id) => id[1]).join(','))
     params.append('per_page', '100')
     const url = this._url(`/media?${params}`)
-    const fetched = (await this._fetch(url)) as any[]
-    const res: Record<string, any> = {}
-    fetched.forEach((body, i) => {
-      res[parents[i][0]] = body
+    const fetched = (await this._fetch(url)) as CbaAudio[]
+    const res: Record<number, CbaAudio[]> = {}
+    fetched.forEach((body) => {
+      if (!res[body.post]) res[body.post] = []
+      res[body.post].push(body)
     })
     if (other.length) {
       await Promise.all(
-        other.map(async (link) => {
+        other.map(async ([postId, link]) => {
           const fetched = await this._fetch(link)
-          res[link] = fetched
+          if (!res[postId]) res[postId] = []
+          res[postId].push(fetched)
         }),
       )
     }
     for (const post of posts) {
       if (!post._fetchedAttachements) post._fetchedAttachements = []
-      for (const link of post._links['wp:attachment']) {
-        if (link.href && res[link.href]) {
-          post._fetchedAttachements.push(res[link.href])
-        }
+      if (res[post.id]) {
+        post._fetchedAttachements.push(...res[post.id])
       }
     }
   }
