@@ -282,7 +282,7 @@ export class CbaDataSource implements DataSource {
     try {
       const cursor = cursorString ? JSON.parse(cursorString) : {}
       const { posts: postsCursor = '1970-01-01T01:00:00' } = cursor
-      const perPage = 3
+      const perPage = 30
       const url = this._url(
         `/posts?page=1&per_page=${perPage}&_embed&orderby=modified&order=asc&modified_after=${postsCursor}`,
       )
