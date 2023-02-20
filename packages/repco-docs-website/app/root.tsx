@@ -8,7 +8,7 @@ import {
   ScrollRestoration,
   useLoaderData,
 } from '@remix-run/react'
-import tailwindStyles from './styles/app.css'
+import styles from './styles/app.css'
 import { Layout } from './components/layout'
 import {
   ThemeBody,
@@ -20,7 +20,7 @@ import { getThemeSession } from './lib/theme.server'
 import { loadTree } from './lib/util.server'
 
 export function links() {
-  return [{ rel: 'stylesheet', href: tailwindStyles }]
+  return [{ rel: 'stylesheet', href: styles }]
 }
 
 export const meta: MetaFunction = ({ data }) => {
