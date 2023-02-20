@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Demo - properties</title>
+    <script type="module" src="../src/index.ts"></script>
+    <style>
+      .container {
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <repco-post-element
+        count="3"
+        _defaultThumbnail="https://upload.wikimedia.org/wikipedia/commons/e/e8/Play_blauw.png"
+        endpoint="https://node2.repco.openaudiosearch.org/graphql"
+      />
+    </div>
+  </body>
+</html>

@@ -8,7 +8,7 @@
   },
   "type": "module",
   "scripts": {
-    "build": "run-s build:prisma-generate build:prisma build:frontend build:tsc build:cli-bundle",
+    "build": "run-s build:prisma-generate build:prisma build:frontend build:tsc build:cli-bundle build:webcomponent",
     "build:docker": "run-s build build:docs",
     "build:tsc": "tsc --build",
     "build:prisma-generate": "yarn --cwd packages/repco-prisma-generate build",
@@ -18,9 +18,11 @@
     "build:docs": "run-s build:docs-core build:docs-website",
     "build:docs-website": "yarn --cwd packages/repco-docs-website build",
     "build:docs-core": "yarn --cwd packages/repco-core docs",
+    "build:webcomponent": "yarn --cwd packages/repco-webcomponent build",
     "dev:server": "yarn --cwd packages/repco-server dev",
     "dev:frontend": "yarn --cwd packages/repco-frontend dev",
     "dev:docs": "yarn --cwd packages/repco-docs-website dev",
+    "dev:webcomponent": "yarn --cwd packages/repco-webcomponent dev",
     "start:frontend": "yarn --cwd packages/repco-frontend start",
     "start:docs": "yarn --cwd packages/repco-docs-website start",
     "watch": "run-p watch:*",
@@ -37,7 +39,8 @@
     "cli": "node packages/repco-cli/bin.js",
     "lint": "eslint packages",
     "lint:fix": "eslint packages --fix",
-    "update-ts-references": "node scripts/update-ts-references.js"
+    "update-ts-references": "node scripts/update-ts-references.js",
+    "frontend": "yarn --cwd packages/repco-frontend dev"
   },
   "devDependencies": {
     "@mattinton/prettier-plugin-tidy-imports": "^1.1.12",
@@ -55,3 +58,4 @@
     "typescript": "^4.8"
   }
 }
+
