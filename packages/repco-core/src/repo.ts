@@ -482,7 +482,7 @@ export class Repo {
       // Therefore the Prisma transaction is removed for now.
       // We still have the repo-wide txlock.
       // return await this.$transaction((repo) =>
-      this.saveBatchInner(entities, fullOpts),
+      this.saveBatchInner(entities, fullOpts)
       // )
     } finally {
       release()
