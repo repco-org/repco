@@ -136,7 +136,6 @@ export class DataSourceRegistry extends Registry<DataSource> {
   }
 
   async fetchEntities(repo: Repo, uris: string[]) {
-    console.log('fetchEntities', uris)
     const fetched: EntityForm[] = []
     const notFound = new Set<string>()
     const found = new Set<string>()
@@ -149,7 +148,6 @@ export class DataSourceRegistry extends Registry<DataSource> {
         buckets[uid].push(uri)
       }
     }
-    console.log('buckets', buckets)
 
     for (const [uid, uris] of Object.entries(buckets)) {
       const filteredUris = uris.filter((uri) => !found.has(uri))
@@ -159,6 +157,7 @@ export class DataSourceRegistry extends Registry<DataSource> {
       for (const e of entities) {
         e.entityUris?.forEach((uri) => found.add(uri))
       }
+      fetched.push(...entities)
     }
     for (const uri of uris) {
       if (!found.has(uri)) notFound.add(uri)

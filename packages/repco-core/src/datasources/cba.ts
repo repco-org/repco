@@ -145,19 +145,30 @@ export class CbaDataSource implements DataSource {
     const batchedPromises: Promise<SourceRecordForm[][]> = Promise.all(
       Object.entries(buckets).map(async ([endpoint, { type, ids }]) => {
         try {
-          const params = new URLSearchParams()
-          params.append('include', ids.map((id) => id.id).join(','))
-          const url = this._url(`/${endpoint}?${params}`)
-          const bodies = await this._fetch(url)
-          return bodies.map((body: any, i: number) => {
-            const uri = ids[i].uri
-            return {
-              body: JSON.stringify(body),
-              contentType: CONTENT_TYPE_JSON,
-              sourceType: type,
-              sourceUri: uri,
-            }
-          })
+          let idx = 0
+          const perPage = 50
+          const res = []
+          while (idx + perPage < ids.length) {
+            const slice = ids.slice(idx, idx + perPage)
+            idx += perPage
+            const params = new URLSearchParams()
+            params.append('include', slice.map((id) => id.id).join(','))
+            params.append('per_page', '100')
+            const url = this._url(`/${endpoint}?${params}`)
+            const bodies = await this._fetch(url)
+            res.push(
+              ...bodies.map((body: any, i: number) => {
+                const uri = slice[i].uri
+                return {
+                  body: JSON.stringify(body),
+                  contentType: CONTENT_TYPE_JSON,
+                  sourceType: type,
+                  sourceUri: uri,
+                }
+              }),
+            )
+          }
+          return res
         } catch (error) {
           log.warn({ msg: `CBA datasource failure`, error })
           return []
