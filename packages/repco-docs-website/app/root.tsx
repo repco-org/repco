@@ -8,9 +8,10 @@ import {
   ScrollRestoration,
   useLoaderData,
 } from '@remix-run/react'
-import styles from './styles/app.css'
+import tailwindStyles from './styles/app.css'
 import { Layout } from './components/layout'
 import {
+  Theme,
   ThemeBody,
   ThemeHead,
   ThemeProvider,
@@ -20,7 +21,7 @@ import { getThemeSession } from './lib/theme.server'
 import { loadTree } from './lib/util.server'
 
 export function links() {
-  return [{ rel: 'stylesheet', href: styles }]
+  return [{ rel: 'stylesheet', href: tailwindStyles }]
 }
 
 export const meta: MetaFunction = ({ data }) => {
@@ -36,6 +37,11 @@ export const meta: MetaFunction = ({ data }) => {
     description,
   }
 }
+
+export type LoaderData = {
+  index: any
+  themeData: Theme | null
+}
 export const loader: LoaderFunction = async ({ request }) => {
   const index = await loadTree()
   const themeSession = await getThemeSession(request)
@@ -44,7 +50,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 }
 
 export function App() {
-  const { index, themeData } = useLoaderData<typeof loader>()
+  const { index, themeData } = useLoaderData<LoaderData>()
   const [theme] = useTheme()
 
   return (
@@ -52,12 +58,12 @@ export function App() {
       <head>
         <Meta />
         <Links />
-        <ThemeHead ssrTheme={Boolean(themeData.theme)} />
+        <ThemeHead ssrTheme={Boolean(themeData)} />
       </head>
       <body className="min-h-full p-0">
         <Layout index={index}>
           <Outlet />
-          <ThemeBody ssrTheme={Boolean(themeData.theme)} />
+          <ThemeBody ssrTheme={Boolean(themeData)} />
         </Layout>
         <ScrollRestoration />
         <Scripts />
@@ -67,10 +73,10 @@ export function App() {
   )
 }
 export default function AppWithProviders() {
-  const { themeData } = useLoaderData<typeof loader>()
+  const { themeData } = useLoaderData<LoaderData>()
 
   return (
-    <ThemeProvider specifiedTheme={themeData.theme}>
+    <ThemeProvider specifiedTheme={themeData}>
       <App />
     </ThemeProvider>
   )

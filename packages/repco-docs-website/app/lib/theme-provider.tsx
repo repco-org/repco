@@ -1,5 +1,5 @@
-import { useFetcher } from "@remix-run/react";
-import type { Dispatch, ReactNode, SetStateAction } from "react";
+import { useFetcher } from '@remix-run/react'
+import type { Dispatch, ReactNode, SetStateAction } from 'react'
 import {
   createContext,
   createElement,
@@ -7,28 +7,28 @@ import {
   useEffect,
   useRef,
   useState,
-} from "react";
+} from 'react'
 
 enum Theme {
-  DARK = "dark",
-  LIGHT = "light",
+  DARK = 'dark',
+  LIGHT = 'light',
 }
-const themes: Array<Theme> = Object.values(Theme);
+const themes: Array<Theme> = Object.values(Theme)
 
-type ThemeContextType = [Theme | null, Dispatch<SetStateAction<Theme | null>>];
+type ThemeContextType = [Theme | null, Dispatch<SetStateAction<Theme | null>>]
 
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
-const prefersDarkMQ = "(prefers-color-scheme: dark)";
+const prefersDarkMQ = '(prefers-color-scheme: dark)'
 const getPreferredTheme = () =>
-  window.matchMedia(prefersDarkMQ).matches ? Theme.DARK : Theme.LIGHT;
+  window.matchMedia(prefersDarkMQ).matches ? Theme.DARK : Theme.LIGHT
 
 function ThemeProvider({
   children,
   specifiedTheme,
 }: {
-  children: ReactNode;
-  specifiedTheme: Theme | null;
+  children: ReactNode
+  specifiedTheme: Theme | null
 }) {
   const [theme, setTheme] = useState<Theme | null>(() => {
     // On the server, if we don't have a specified theme then we should
@@ -37,59 +37,59 @@ function ThemeProvider({
     // value that clientThemeCode got so hydration is happy.
     if (specifiedTheme) {
       if (themes.includes(specifiedTheme)) {
-        return specifiedTheme;
+        return specifiedTheme
       } else {
-        return null;
+        return null
       }
     }
 
     // there's no way for us to know what the theme should be in this context
     // the client will have to figure it out before hydration.
-    if (typeof document === "undefined") {
-      return null;
+    if (typeof document === 'undefined') {
+      return null
     }
 
-    return getPreferredTheme();
-  });
+    return getPreferredTheme()
+  })
 
-  const persistTheme = useFetcher();
+  const persistTheme = useFetcher()
   // TODO: remove this when persistTheme is memoized properly
-  const persistThemeRef = useRef(persistTheme);
+  const persistThemeRef = useRef(persistTheme)
   useEffect(() => {
-    persistThemeRef.current = persistTheme;
-  }, [persistTheme]);
+    persistThemeRef.current = persistTheme
+  }, [persistTheme])
 
-  const mountRun = useRef(false);
+  const mountRun = useRef(false)
 
   useEffect(() => {
     if (!mountRun.current) {
-      mountRun.current = true;
-      return;
+      mountRun.current = true
+      return
     }
     if (!theme) {
-      return;
+      return
     }
 
     persistThemeRef.current.submit(
       { theme },
-      { action: "action/set-theme", method: "post" }
-    );
-  }, [theme]);
+      { action: 'action/set-theme', method: 'post' },
+    )
+  }, [theme])
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia(prefersDarkMQ);
+    const mediaQuery = window.matchMedia(prefersDarkMQ)
     const handleChange = () => {
-      setTheme(mediaQuery.matches ? Theme.DARK : Theme.LIGHT);
-    };
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
-  }, []);
+      setTheme(mediaQuery.matches ? Theme.DARK : Theme.LIGHT)
+    }
+    mediaQuery.addEventListener('change', handleChange)
+    return () => mediaQuery.removeEventListener('change', handleChange)
+  }, [])
 
   return (
     <ThemeContext.Provider value={[theme, setTheme]}>
       {children}
     </ThemeContext.Provider>
-  );
+  )
 }
 
 const clientThemeCode = `
@@ -124,7 +124,7 @@ const clientThemeCode = `
     );
   }
 })();
-`;
+`
 
 const themeStylesCode = `
   /* default light, but app-preference is "dark" */
@@ -158,10 +158,10 @@ const themeStylesCode = `
       }
     }
   }
-`;
+`
 
 function ThemeHead({ ssrTheme }: { ssrTheme: boolean }) {
-  const [theme] = useTheme();
+  const [theme] = useTheme()
 
   return (
     <>
@@ -171,7 +171,7 @@ function ThemeHead({ ssrTheme }: { ssrTheme: boolean }) {
       */}
       <meta
         name="color-scheme"
-        content={theme === "light" ? "light dark" : "dark light"}
+        content={theme === 'light' ? 'light dark' : 'dark light'}
       />
       {/*
         If we know what the theme is from the server then we don't need
@@ -190,7 +190,7 @@ function ThemeHead({ ssrTheme }: { ssrTheme: boolean }) {
         </>
       )}
     </>
-  );
+  )
 }
 
 const clientDarkAndLightModeElsCode = `;(() => {
@@ -215,22 +215,22 @@ const clientDarkAndLightModeElsCode = `;(() => {
     }
     lightEl.remove();
   }
-})();`;
+})();`
 
 function ThemeBody({ ssrTheme }: { ssrTheme: boolean }) {
   return ssrTheme ? null : (
     <script
       dangerouslySetInnerHTML={{ __html: clientDarkAndLightModeElsCode }}
     />
-  );
+  )
 }
 
 function useTheme() {
-  const context = useContext(ThemeContext);
+  const context = useContext(ThemeContext)
   if (context === undefined) {
-    throw new Error("useTheme must be used within a ThemeProvider");
+    throw new Error('useTheme must be used within a ThemeProvider')
   }
-  return context;
+  return context
 }
 
 /**
@@ -243,40 +243,31 @@ function Themed({
   light,
   initialOnly = false,
 }: {
-  dark: ReactNode | string;
-  light: ReactNode | string;
-  initialOnly?: boolean;
+  dark: ReactNode | string
+  light: ReactNode | string
+  initialOnly?: boolean
 }) {
-  const [theme] = useTheme();
-  const [initialTheme] = useState(theme);
-  const themeToReference = initialOnly ? initialTheme : theme;
-  const serverRenderWithUnknownTheme =
-    !theme && typeof document === "undefined";
+  const [theme] = useTheme()
+  const [initialTheme] = useState(theme)
+  const themeToReference = initialOnly ? initialTheme : theme
+  const serverRenderWithUnknownTheme = !theme && typeof document === 'undefined'
 
   if (serverRenderWithUnknownTheme) {
     // stick them both in and our little script will update the DOM to match
     // what we'll render in the client during hydration.
     return (
       <>
-        {createElement("dark-mode", null, dark)}
-        {createElement("light-mode", null, light)}
+        {createElement('dark-mode', null, dark)}
+        {createElement('light-mode', null, light)}
       </>
-    );
+    )
   }
 
-  return <>{themeToReference === "light" ? light : dark}</>;
+  return <>{themeToReference === 'light' ? light : dark}</>
 }
 
 function isTheme(value: unknown): value is Theme {
-  return typeof value === "string" && themes.includes(value as Theme);
+  return typeof value === 'string' && themes.includes(value as Theme)
 }
 
-export {
-  isTheme,
-  Theme,
-  Themed,
-  ThemeBody,
-  ThemeHead,
-  ThemeProvider,
-  useTheme,
-};
+export { isTheme, Theme, Themed, ThemeBody, ThemeHead, ThemeProvider, useTheme }

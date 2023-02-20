@@ -27,7 +27,7 @@ export function DarkModeToggle({
       )}
     >
       {/* note that the duration is longer then the one on body, controlling the bg-color */}
-      <div className="relative h-7 w-7">
+      <div className="search-form relative h-7 w-7">
         <span
           className="absolute inset-0 rotate-90 transform transition duration-1000 motion-reduce:duration-[0s] dark:rotate-0"
           style={iconTransformOrigin}
