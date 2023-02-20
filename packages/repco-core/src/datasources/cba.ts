@@ -390,13 +390,21 @@ export class CbaDataSource implements DataSource {
       throw new Error('Media details are missing.')
     }
 
+    let duration = null
+    if (media.media_details?.length !== undefined) {
+      if (typeof media.media_details.length === 'number') {
+        duration = media.media_details.length
+      } else if (typeof media.media_details.length === 'string') {
+        duration = parseFloat(media.media_details.length)
+      }
+    }
     const file: form.FileInput = {
       contentUrl: media.source_url,
       bitrate: media.media_details.bitrate
         ? Math.round(media.media_details.bitrate)
         : undefined,
       codec: media.media_details.codec,
-      duration: media.media_details.length,
+      duration,
       mimeType: media.mime_type || null,
       cid: null,
       resolution: null,
@@ -406,7 +414,7 @@ export class CbaDataSource implements DataSource {
       title: media.title.rendered,
       description: media.description?.rendered,
       mediaType: 'audio',
-      duration: media.media_details.length || null,
+      duration,
       Concepts: media.media_tag.map((cbaId) => ({
         uri: this._uri('tag', cbaId),
       })),
