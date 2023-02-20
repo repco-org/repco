@@ -123,6 +123,8 @@ export class CbaDataSource implements DataSource {
       image: 'media',
       category: 'categories',
       tag: 'tags',
+      station: 'station',
+      series: 'series',
     }
     const buckets: Record<
       string,

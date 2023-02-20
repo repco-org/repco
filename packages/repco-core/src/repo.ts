@@ -724,7 +724,8 @@ export class IpldRepo {
   ) {
     const agentDid = agentKeypair.did()
     const timestamp = new Date()
-    this.blockstore = this.blockstore.transaction()
+    // TODO: Reactive transaction support once timing issues with Prisma are fixed.
+    // this.blockstore = this.blockstore.transaction()
 
     // save all revisions in blockstore
     const revisions = []
