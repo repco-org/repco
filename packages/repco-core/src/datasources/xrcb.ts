@@ -30,12 +30,12 @@ import {
   XrcbTag,
 } from './xrcb/types.js'
 import {
-  log,
   BaseDataSource,
   DataSource,
   DataSourceDefinition,
   DataSourcePlugin,
   FetchUpdatesResult,
+  log,
   SourceRecordForm,
 } from '../datasource.js'
 import { ConceptKind, ContentGroupingVariant, EntityForm } from '../entity.js'
@@ -510,19 +510,17 @@ export class XrcbDataSource extends BaseDataSource implements DataSource {
         const fileId = this._uri('imageFile', post.acf.img_podcast.ID)
 
         const imageFileContent: form.FileInput = {
-          contentUrl: post.acf.img_podcast.url || '',
-          contentSize: post.acf.img_podcast.filesize || 0,
-          mimeType: post.acf.img_podcast.mime_type || '',
+          contentUrl: post.acf?.img_podcast?.url ?? null,
+          contentSize: post.acf?.img_podcast?.filesize ?? null,
+          mimeType: post.acf?.img_podcast?.mime_type ?? null,
           resolution:
-            post.acf.img_podcast.height && post.acf.img_podcast.width
-              ? post.acf.img_podcast.height.toString() +
-                'x' +
-                post.acf.img_podcast.width.toString()
+            post.acf?.img_podcast.height && post.acf?.img_podcast.width
+              ? `${post.acf.img_podcast.height}x${post.acf.img_podcast.width}`
               : '',
         }
 
         const imageContent: form.MediaAssetInput = {
-          title: post.acf.img_podcast.title || '',
+          title: post.acf?.img_podcast?.title ?? '',
           mediaType: 'image',
           File: { uri: fileId },
         }
@@ -566,11 +564,17 @@ export class XrcbDataSource extends BaseDataSource implements DataSource {
     if (this.apiKey) {
       url.searchParams.set('api_key', this.apiKey)
     }
-    const res = await fetch(url.toString(), opts)
-    if (!res.ok) {
-      throw await HttpError.fromResponseJson(res, url)
+    try {
+      const res = await fetch(url.toString(), opts)
+      log.debug(`fetch (${res.status}, url: ${url})`)
+      if (!res.ok) {
+        throw await HttpError.fromResponseJson(res, url)
+      }
+      const json = await res.json()
+      return json as T
+    } catch (err) {
+      log.debug(`fetch failed (url: ${url}, error: ${err})`)
+      throw err
     }
-    const json = await res.json()
-    return json as T
   }
 }
