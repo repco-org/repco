@@ -27,6 +27,7 @@ export class RepcoPostCardElement extends LitElement {
       justify-content: space-between;
       overflow: hidden;
       text-overflow: ellipsis;
+      min-height: var(--repco-post-card-height, 13em);
     }
 
     post-card-thumbnail {
