@@ -19,7 +19,7 @@ export function DarkModeToggle({
         )
       }}
       className={clsx(
-        'ml-1 p-1 inline-flex items-center rounded-[5px] justify-center overflow-hidden transition text-[1.2rem] bg-[#ffa8dc]',
+        'ml-1 p-1 inline-flex  items-center rounded-[5px] justify-center overflow-hidden transition text-[1.2rem] bg-[#ffa8dc]',
         {
           'w-10': variant === 'icon',
           'px-8': variant === 'labelled',
@@ -29,20 +29,20 @@ export function DarkModeToggle({
       {/* note that the duration is longer then the one on body, controlling the bg-color */}
       <div className="relative h-7 w-7">
         <span
-          className="absolute inset-0 rotate-90 transform text-black transition duration-1000 motion-reduce:duration-[0s] dark:rotate-0 dark:text-white"
+          className="absolute inset-0 rotate-90 transform transition duration-1000 motion-reduce:duration-[0s] dark:rotate-0"
           style={iconTransformOrigin}
         >
           <MoonIcon />
         </span>
         <span
-          className="absolute inset-0 rotate-0 transform text-white transition duration-1000 motion-reduce:duration-[0s] dark:-rotate-90 dark:text-white"
+          className="absolute inset-0 rotate-0 transform transition duration-1000 motion-reduce:duration-[0s] dark:-rotate-90 "
           style={iconTransformOrigin}
         >
           <SunIcon />
         </span>
       </div>
       <span
-        className={clsx('ml-4 text-black dark:text-white', {
+        className={clsx('ml-4  ', {
           'sr-only': variant === 'icon',
         })}
       >
