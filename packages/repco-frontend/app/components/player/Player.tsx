@@ -208,9 +208,7 @@ function useAudioElement({ src }: { src: string | null }) {
 
   useEffect(() => {
     if (!audio || !src) return
-    console.log('src: ', src)
     audio.src = src
-    console.log('ausioSrc: ', audio.src)
   }, [audio, src])
 
   useEffect(() => {

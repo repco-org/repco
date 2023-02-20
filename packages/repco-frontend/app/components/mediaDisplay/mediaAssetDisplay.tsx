@@ -10,7 +10,6 @@ export function MediaDisplay({
   mediaAssets,
   contentItemUid,
 }: MediaDisplayProps) {
-  console.log(mediaAssets)
   return (
     <div className="flex flex-col">
       <div className="py-2 inline-block min-w-full ">
