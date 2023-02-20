@@ -43,6 +43,7 @@ import {
 import { ConceptKind, ContentGroupingVariant, EntityForm } from '../entity.js'
 import { FetchOpts } from '../util/datamapping.js'
 import { HttpError } from '../util/error.js'
+import { notEmpty } from '../util/misc.js'
 
 // Endpoint of the Datasource
 const DEFAULT_ENDPOINT = 'https://cba.fro.at/wp-json/wp/v2'
@@ -362,6 +363,11 @@ export class CbaDataSource implements DataSource {
     return `${this.uriPrefix}:e:${type}:${id}`
   }
 
+  private _uriLink(type: string, id: string | number): { uri: string } | null {
+    if (id === undefined || id === null) return null
+    return { uri: this._uri(type, id) }
+  }
+
   private _revisionUri(
     type: string,
     id: string | number,
@@ -578,27 +584,37 @@ export class CbaDataSource implements DataSource {
 
   private _mapPost(post: CbaPost): EntityForm[] {
     try {
-      const mediaAssetsAndFiles = post._fetchedAttachements
-        .map((attachement) => this._mapAudio(attachement))
-        .flat()
+      const mediaAssetLinks = []
+      const entities: EntityForm[] = []
 
-      const mediaAssetUris = mediaAssetsAndFiles
-        .filter((entity) => entity.type === 'MediaAsset')
-        .map((x) => x.entityUris || [])
-        .flat()
+      if (post._fetchedAttachements?.length) {
+        const mediaAssetsAndFiles = post._fetchedAttachements
+          .map((attachement) => this._mapAudio(attachement))
+          .flat()
 
-      const mappedMediaAssets = mediaAssetUris.map((uri) => ({ uri }))
+        const mediaAssetUris = mediaAssetsAndFiles
+          .filter((entity) => entity.type === 'MediaAsset')
+          .map((x) => x.entityUris || [])
+          .flat()
+          .map((uri) => ({ uri }))
 
-      const featured_image = { uri: this._uri('image', post.featured_image) }
-      mappedMediaAssets.push(featured_image)
+        mediaAssetLinks.push(...mediaAssetUris)
+        entities.push(...mediaAssetsAndFiles)
+      }
 
-      const categories = post.categories.map((cbaId) => ({
-        uri: this._uri('category', cbaId),
-      }))
-      const tags = post.tags.map((cbaId) => ({
-        uri: this._uri('tag', cbaId),
-      }))
-      const conceptsUris = categories.concat(tags)
+      if (post.featured_image) {
+        mediaAssetLinks.push({ uri: this._uri('image', post.featured_image) })
+      }
+
+      const categories =
+        post.categories
+          ?.map((cbaId) => this._uriLink('category', cbaId))
+          .filter(notEmpty) ?? []
+      const tags =
+        post.tags
+          ?.map((cbaId) => this._uriLink('tag', cbaId))
+          .filter(notEmpty) ?? []
+      const conceptLinks = [...categories, ...tags]
 
       const content: form.ContentItemInput = {
         pubDate: new Date(post.date),
@@ -607,10 +623,10 @@ export class CbaDataSource implements DataSource {
         title: post.title.rendered,
         subtitle: 'missing',
         summary: post.excerpt.rendered,
-        PublicationService: { uri: this._uri('station', post.meta.station_id) },
-        Concepts: conceptsUris,
-        MediaAssets: mappedMediaAssets,
-        PrimaryGrouping: { uri: this._uri('series', post.post_parent) },
+        PublicationService: this._uriLink('station', post.meta.station_id),
+        Concepts: conceptLinks,
+        MediaAssets: mediaAssetLinks,
+        PrimaryGrouping: this._uriLink('series', post.post_parent),
         //licenseUid
         //primaryGroupingUid
         //contributor
@@ -629,10 +645,12 @@ export class CbaDataSource implements DataSource {
         revisionUris: [revisionId],
         entityUris: [entityUri],
       }
-      return [
-        ...mediaAssetsAndFiles,
-        { type: 'ContentItem', content, ...headers },
-      ]
+      entities.push({
+        type: 'ContentItem',
+        content,
+        ...headers,
+      })
+      return entities
     } catch (error) {
       console.error(`Error mapping post with ID ${post.id}:`, error)
       throw error
