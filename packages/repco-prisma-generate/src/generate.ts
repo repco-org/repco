@@ -3,7 +3,7 @@ import { SourceFile } from 'ts-morph'
 import { findRelations, isRepcoEntity } from './util.js'
 
 export function generateTypes(dmmf: DMMF.Document, file: SourceFile) {
-  const imports = ['PrismaPromise', 'Prisma']
+  const imports = ['Prisma']
   const entityModels = dmmf.datamodel.models.filter(isRepcoEntity)
   file.addImportDeclaration({
     moduleSpecifier: '@prisma/client',
@@ -216,7 +216,7 @@ function generateUpsertFunction(models: DMMF.Model[], file: SourceFile) {
       { name: 'revisionId', type: 'string' },
       { name: 'input', type: 'EntityInput' },
     ],
-    returnType: 'PrismaPromise<any>',
+    returnType: 'Prisma.PrismaPromise<any>',
     statements: code,
   })
 }

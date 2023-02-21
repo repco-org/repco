@@ -3,7 +3,6 @@ node_modules
 yarn-error*
 package-lock.json
 .env
-docs
 SANDBOX
 data
 yarn.lock

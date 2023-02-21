@@ -41,6 +41,7 @@ import {
 } from '../datasource.js'
 import { ConceptKind, ContentGroupingVariant, EntityForm } from '../entity.js'
 import { FetchOpts } from '../util/datamapping.js'
+import { log } from '../datasource.js'
 import { HttpError } from '../util/error.js'
 
 // Endpoint of the Datasource
@@ -232,7 +233,7 @@ export class CbaDataSource implements DataSource {
     {
       let postsCursor = cursor.posts
       if (!postsCursor) postsCursor = '1970-01-01T01:00:00'
-      const perPage = 2
+      const perPage = 100
       const url = this._url(
         `/posts?page=1&per_page=${perPage}&_embed&orderby=modified&order=asc&modified_after=${postsCursor}`,
       )
@@ -322,18 +323,20 @@ export class CbaDataSource implements DataSource {
 
     const file: form.FileInput = {
       contentUrl: media.source_url,
-      bitrate: media.media_details.bitrate,
+      bitrate: media.media_details.bitrate
+        ? Math.round(media.media_details.bitrate)
+        : undefined,
       codec: media.media_details.codec,
       duration: media.media_details.length,
       mimeType: media.mime_type,
       cid: null,
-      resolution: media.media_details.bitrate.toString(),
+      resolution: null,
     }
     const asset: form.MediaAssetInput = {
       title: media.title.rendered,
       description: media.description?.rendered,
       mediaType: 'audio',
-      duration: media.media_details.length,
+      duration: media.media_details.length || null,
       //License: null,
       //contributor
       Concepts: media.media_tag.map((cbaId) => ({
@@ -360,16 +363,19 @@ export class CbaDataSource implements DataSource {
 
     const file: form.FileInput = {
       contentUrl: media.source_url,
-      contentSize: media.media_details.filesize,
+      contentSize: media.media_details.filesize || null,
       mimeType: media.mime_type,
-      resolution:
+      resolution: null,
+    }
+    if (media.media_details.width && media.media_details.height) {
+      file.resolution =
         media.media_details.height.toString() +
         'x' +
-        media.media_details.width.toString(),
+        media.media_details.width.toString()
     }
     const asset: form.MediaAssetInput = {
       title: media.title.rendered,
-      description: media.description?.rendered,
+      description: media.description?.rendered || null,
       mediaType: 'image',
       //License: null,
       //contributor
@@ -552,11 +558,17 @@ export class CbaDataSource implements DataSource {
     if (this.apiKey) {
       url.searchParams.set('api_key', this.apiKey)
     }
-    const res = await fetch(url.toString(), opts)
-    if (!res.ok) {
-      throw await HttpError.fromResponseJson(res, url)
+    try {
+      const res = await fetch(url.toString(), opts)
+      log.debug(`fetch (${res.status}, url: ${url})`)
+      if (!res.ok) {
+        throw await HttpError.fromResponseJson(res, url)
+      }
+      const json = await res.json()
+      return json as T
+    } catch (err) {
+      log.debug(`fetch failed (url: ${url}, error: ${err})`)
+      throw err
     }
-    const json = await res.json()
-    return json as T
   }
 }

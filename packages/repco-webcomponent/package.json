@@ -1,0 +1,55 @@
+{
+  "name": "repco-webcomponent",
+  "version": "0.0.2",
+  "description": "Webcomponent to display content from a Repco node",
+  "main": "./dist/repco-webcomponent.esm.js",
+  "module": "./dist/repco-webcomponent.esm.js",
+  "type": "module",
+  "types": "./dist/src/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/openaudiosearch/repco.git"
+  },
+  "scripts": {
+    "build": "run-s build:typescript build:rollup",
+    "build:rollup": "rollup -c rollup.config.js",
+    "build:typescript": "tsc",
+    "clean": "rimraf dist/",
+    "dev": "web-dev-server --watch",
+    "lint": "run-s lint:*",
+    "lint:eslint": "eslint 'src/**/*.ts'",
+    "lint:lit-analyzer": "lit-analyzer",
+    "format": "prettier \"**/*.{cjs,html,js,json,md,ts}\" --ignore-path ./.eslintignore --write"
+  },
+  "author": "arso-collective",
+  "license": "MIT OR Apache-2.0",
+  "dependencies": {
+    "dompurify": "^2.4.3",
+    "lit": "^2.2.4"
+  },
+  "files": [
+    "src",
+    "dist",
+    "*.js",
+    "*.json"
+  ],
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@types/dompurify": "^2.4.0",
+    "@typescript-eslint/eslint-plugin": "^5.25.0",
+    "@typescript-eslint/parser": "^5.25.0",
+    "@web/dev-server": "^0.1.31",
+    "@web/dev-server-esbuild": "^0.3.3",
+    "@web/rollup-plugin-html": "^1.11.0",
+    "eslint": "^8.15.0",
+    "lit-analyzer": "^1.2.1",
+    "prettier": "^2.6.2",
+    "rimraf": "^3.0.2",
+    "rollup": "^3.15.0",
+    "rollup-plugin-esbuild": "^5.0.0",
+    "rollup-plugin-terser": "^7.0.2",
+    "ts-lit-plugin": "^1.2.1",
+    "typescript": "^4.7.4",
+    "typescript-lit-html-plugin": "^0.9.0"
+  }
+}

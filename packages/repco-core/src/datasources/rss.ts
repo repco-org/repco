@@ -146,7 +146,7 @@ export class RssDataSource implements DataSource {
     const pagination = {
       offsetParam: 'start',
       limitParam: 'anzahl',
-      limit: 5,
+      limit: 100,
     }
 
     const page = cursor.pageNumber || 0

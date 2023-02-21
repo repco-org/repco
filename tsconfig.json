@@ -40,6 +40,12 @@
   ],
   "references": [
     {
+      "path": "./packages/repco-cli"
+    },
+    {
+      "path": "./packages/repco-common"
+    },
+    {
       "path": "./packages/repco-core"
     },
     {
@@ -55,7 +61,7 @@
       "path": "./packages/repco-server"
     },
     {
-      "path": "./packages/repco-cli"
+      "path": "./packages/repco-webcomponent"
     }
   ]
 }

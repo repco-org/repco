@@ -1,6 +1,11 @@
+---
+title: Create a data source
+weight: 2
+---
+
 # Implementing a Datasource
 
-A DataSource is an external provider for repco data. The interface is implemented for individual providers (like CBA, XRCB, media.cccc.de). The DataSource includes methods to fetch data from the external source and converts this data into the repco data model.
+A DataSource is an external provider for Repco data. The interface is implemented for individual providers (like CBA, XRCB, media.cccc.de). The DataSource includes methods to fetch data from the external source and converts this data into the Repco data model.
 
 Datasources are configured for each repo seperately. Once enabled, the ds ingest command will fetch and store new content from all datasources withing a repo.
 
@@ -10,11 +15,13 @@ Fetch updates from a data source, using the cursor persisted after the last invo
 
 A cursor may be any string; it's format is left to the datasource itself. Oftenly, you can use a timestamp of the last modification that was ingested. If you need to store more than a single value for a reliable cursor, you may put any stringified JSON into the cursor as well.
 
+## Creating a Datasource
+
 To implement a datasource, a DatasourcePlugin must be created which implements the DataSourcePlugins interface. A DatasourcePlugin returns a `name` and a `uid`. Repco prefers urns as uid.
 
 ` {uid: 'urn:repco:datasource:cba', name: 'CBA',}`
 
-Furthermore the actual datasource is created which is responsible for the mapping of the data to the repco data model. For this the interface DataSource is implemented.
+Furthermore the actual datasource is created which is responsible for the mapping of the data to the Repco data model. For this the interface DataSource is implemented.
 
 A datasource has a definition consisting of uid, name, and pluginId. Further it provides at least the methods
 
@@ -26,10 +33,16 @@ A datasource has a definition consisting of uid, name, and pluginId. Further it 
 
 For the special case of RSS feeds, we implement a RssDatasourcePlugin.
 
-The algorithm works as follows:
+## Using a DataSource
 
-- fetch the newest page
+Once a DataSource has been created, it can be added to a REPO and its content can be included in the REPO. To fetch updates from a DataSource, you can use the ds ingest command, which will fetch and store new content from all DataSources within a REPO.
 
-- Case A: Oldest date of the page is older than the most recent date of the last fetch. This means that we have caught up with the new elements. We reset to page 0. We are done if this fetch was already on page 0.
+The algorithm used to fetch updates from a DataSource works as follows:
 
-- Case B: The oldest date from this page is still newer than the most recent date of the last complete fetch. This means: increase the page number to continue the fetch until we reach the most recent publication date.
+1. Fetch the newest page.
+2. Check if the oldest date of the page is older than the most recent date of the last fetch.
+    * If the oldest date is older, reset to page 0. If already on page 0, the fetch is complete.
+    * If the oldest date is newer, increase the page number to continue the fetch until the most recent publication date is reached.
+
+In this way, Repco ensures that all updates from the external source are fetched and stored in the local database.
+
