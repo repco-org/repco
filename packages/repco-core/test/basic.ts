@@ -47,5 +47,4 @@ test.solo('update', async (assert) => {
   console.log('revisions 2', revisions2)
   console.log('contentItems 2', await repo.prisma.contentItem.findMany())
   assert.is(true, true)
-
 })

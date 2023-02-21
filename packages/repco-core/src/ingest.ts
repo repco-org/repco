@@ -1,4 +1,4 @@
-import { log, UntilStopped } from 'repco-common'
+import { UntilStopped } from 'repco-common'
 import {
   DataSourceRegistry,
   ingestUpdatesFromDataSource,
