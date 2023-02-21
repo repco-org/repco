@@ -20,8 +20,9 @@ export function AddTrackDialog({ track }: DialogProps) {
   useEffect(() => {
     if (playlist && trackToUpdate && addTrack) {
       addTrack(trackToUpdate)
+      setTrackToUpdate(null)
     }
-  }, [trackToUpdate])
+  }, [trackToUpdate, addTrack, playlist])
 
   const [open, setOpen] = useState(false)
   return (
