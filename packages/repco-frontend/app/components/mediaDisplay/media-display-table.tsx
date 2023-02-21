@@ -1,12 +1,12 @@
 import type { MediaAsset } from '~/graphql/types'
-import { FileWidget } from './fileWidgets'
+import { FileWidget } from './file-widget'
 
 interface MediaDisplayProps {
   mediaAssets: MediaAsset[]
   contentItemUid: string
 }
 
-export function MediaDisplay({
+export function MediaDisplayTable({
   mediaAssets,
   contentItemUid,
 }: MediaDisplayProps) {

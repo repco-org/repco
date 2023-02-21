@@ -13,9 +13,9 @@ import {
   TrackNextIcon,
   TrackPreviousIcon,
 } from '@radix-ui/react-icons'
-import { useQueue } from '~/lib/usePlayQueue'
-import type { Track } from './usePlaylists'
-import { Button } from '../ui/primitives/Button'
+import type { Track } from './use-playlists'
+import { useQueue } from './use-queue'
+import { Button } from '../primitives/button'
 
 type PlayerContext = {
   track: Track | null
@@ -115,7 +115,7 @@ export function PlayerProvider({ children }: PropsWithChildren) {
       audio.play()
     }
     setDidMount(true)
-  }, [audio, track])
+  }, [audio, track, didMount])
 
   function nextTrack() {
     if (trackIndex + 1 < tracks.length) {

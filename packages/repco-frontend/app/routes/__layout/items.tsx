@@ -12,8 +12,8 @@ import {
   useSearchParams,
   useSubmit,
 } from '@remix-run/react'
-import { IconButton } from '~/components/ui/primitives/Button'
-import { InputWithIcon } from '~/components/ui/primitives/Input'
+import { IconButton } from '~/components/primitives/button'
+import { InputWithIcon } from '~/components/primitives/input'
 import { ReposQuery } from '~/graphql/queries/repos'
 import type { LoadReposQuery, Repo } from '~/graphql/types.js'
 import { graphqlQuery } from '~/lib/graphql.server'
@@ -39,7 +39,7 @@ export default function ItemsMenuWrapper() {
               action={'.'}
               method="get"
               onChange={(e) => submit(e.currentTarget)}
-              className='space-y-2'
+              className="space-y-2"
             >
               <InputWithIcon
                 name="includes"

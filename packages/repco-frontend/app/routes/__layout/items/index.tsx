@@ -1,12 +1,12 @@
 import sanitize from 'sanitize-html'
 import type { LoaderFunction } from '@remix-run/node'
 import { NavLink, useLoaderData, useSearchParams } from '@remix-run/react'
-import { PlayTrackButton } from '~/components/player/Player'
-import { TrackDropdown } from '~/components/player/trackDropdown'
+import { PlayTrackButton } from '~/components/player/player'
+import { TrackDropdown } from '~/components/player/track-dropdown'
 import { createTrackFromMediaAsset } from '~/components/player/util'
-import { Pager } from '~/components/ui/Pager'
-import { ContentItemCard } from '~/components/ui/primitives/Card'
-import { ContentItemsQuery } from '~/graphql/queries/contentItems'
+import { ContentItemCard } from '~/components/primitives/card'
+import { Pager } from '~/components/primitives/pager'
+import { ContentItemsQuery } from '~/graphql/queries/content-items'
 import type {
   ContentItem,
   ContentItemFilter,

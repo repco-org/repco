@@ -1,8 +1,8 @@
 import type { LoaderFunction, MetaFunction } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
-import { MediaDisplay } from '~/components/mediaDisplay/mediaAssetDisplay'
+import { MediaDisplayTable } from '~/components/mediaDisplay/media-display-table'
 import { SanitizedHTML } from '~/components/sanitized-html'
-import { ContentItemQuery } from '~/graphql/queries/contentItem'
+import { ContentItemQuery } from '~/graphql/queries/content-item'
 import type {
   LoadContentItemQuery,
   LoadContentItemQueryVariables,
@@ -58,7 +58,7 @@ export default function IndexRoute() {
         <SanitizedHTML html={node.content} />
       </div>
       {node.mediaAssets.nodes && (
-        <MediaDisplay
+        <MediaDisplayTable
           mediaAssets={node.mediaAssets.nodes}
           contentItemUid={node.uid}
         />

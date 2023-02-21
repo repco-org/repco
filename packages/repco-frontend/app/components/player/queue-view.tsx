@@ -7,10 +7,10 @@ import {
 } from '@radix-ui/react-icons'
 import { Link } from '@remix-run/react'
 import { useState } from 'react'
-import { usePlayer } from '~/components/player/Player'
-import { Button } from '~/components/ui/primitives/Button'
-import { useQueue } from '~/lib/usePlayQueue'
-import { usePlaylists } from './usePlaylists'
+import { usePlayer } from '~/components/player/player'
+import { Button } from '~/components/primitives/button'
+import { usePlaylists } from './use-playlists'
+import { useQueue } from './use-queue'
 
 export const QueueView = () => {
   const player = usePlayer()

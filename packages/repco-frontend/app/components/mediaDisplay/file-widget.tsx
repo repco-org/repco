@@ -1,7 +1,7 @@
 import type { MediaAsset } from '~/graphql/types'
-import { useQueue } from '~/lib/usePlayQueue'
-import { PlayTrackButton } from '../player/Player'
-import { TrackDropdown } from '../player/trackDropdown'
+import { PlayTrackButton } from '../player/player'
+import { TrackDropdown } from '../player/track-dropdown'
+import { useQueue } from '../player/use-queue'
 
 export function FileWidget({
   mediaAsset,

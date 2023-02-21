@@ -8,9 +8,9 @@ import {
   ScrollRestoration,
 } from '@remix-run/react'
 import styles from './styles/app.css'
-import { PlayerProvider } from './components/player/Player'
-import type { Playlist, Track } from './components/player/usePlaylists'
-import { ContextManager } from './lib/LocalStorageContext'
+import { PlayerProvider } from './components/player/player'
+import type { Playlist, Track } from './components/player/use-playlists'
+import { LocalstorageContexts } from './lib/localstorage-contexts'
 
 export function links() {
   return [{ rel: 'stylesheet', href: styles }]
@@ -21,7 +21,7 @@ export const meta: MetaFunction = () => ({
   viewport: 'width=device-width,initial-scale=1',
 })
 
-const contextManager = ContextManager.getInstance()
+const contextManager = LocalstorageContexts.getInstance()
 const PlaylistProvider = contextManager.addMapContext<Playlist>('playlists')
 const QueueProvider = contextManager.addListContext<Track[]>('queue')
 export default function App() {
