@@ -6,7 +6,7 @@
  */
 
 import { repco } from 'repco-prisma'
-import { Headers } from './mod.js'
+import { HeadersForm } from './mod.js'
 import {
   ConceptKind,
   ContentGrouping,
@@ -27,10 +27,10 @@ export type EntityBatch = {
   entities: EntityForm[]
 }
 
-export type EntityForm = repco.EntityInput & Headers
+export type EntityForm = repco.EntityInput & HeadersForm
 
 export type EntityInputWithHeaders = repco.EntityInputWithUid & {
-  headers: Headers
+  headers: HeadersForm
   prevContentCid?: string
 }
 

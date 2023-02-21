@@ -96,7 +96,7 @@ export const ingest = createCommand({
       short: 'd',
       help: 'Datasource UID (optional)',
     },
-    loop: { type: 'boolean', short: 'r', help: 'Keep running in a loop' },
+    loop: { type: 'boolean', short: 'l', help: 'Keep running in a loop' },
   },
   async run(opts, _args) {
     const repo = await Repo.openWithDefaults(opts.repo)
