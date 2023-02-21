@@ -2,15 +2,15 @@ import * as Dialog from '@radix-ui/react-dialog'
 import { PlusCircledIcon } from '@radix-ui/react-icons'
 import { Form } from '@remix-run/react'
 import { useEffect, useState } from 'react'
-import type { Playlist, Track } from './usePlaylists'
-import { usePlaylists } from './usePlaylists'
-import { Button, IconButton } from '../ui/primitives/Button'
+import type { Playlist, Track } from './use-playlists'
+import { usePlaylists } from './use-playlists'
+import { Button, IconButton } from '../primitives/button'
 
 interface DialogProps {
   track: Track | undefined
 }
 
-export function PlaylistDialog({ track }: DialogProps) {
+export function AddTrackDialog({ track }: DialogProps) {
   const [playlist, setPlaylist] = useState<Playlist>()
 
   const { playlists, usePlaylist } = usePlaylists()

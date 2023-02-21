@@ -1,9 +1,9 @@
 import { PlayIcon, TrashIcon } from '@radix-ui/react-icons'
 import type { LoaderFunction } from '@remix-run/node'
 import { NavLink } from '@remix-run/react'
-import { Button } from '@ui/primitives/Button'
-import { usePlaylists } from '~/components/player/usePlaylists'
-import { useQueue } from '~/lib/usePlayQueue'
+import { usePlaylists } from '~/components/player/use-playlists'
+import { useQueue } from '~/components/player/use-queue'
+import { Button } from '~/components/primitives/button'
 
 export const loader: LoaderFunction = async ({ request }) => {
   return { status: 200 }

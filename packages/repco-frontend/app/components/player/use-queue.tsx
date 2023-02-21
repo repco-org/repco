@@ -1,9 +1,10 @@
 import { useContext, useEffect, useState } from 'react'
-import { ContextManager, Entity } from '~/lib/LocalStorageContext'
-import { Playlist, Track } from '../components/player/usePlaylists'
+import { Entity, LocalstorageContexts } from '~/lib/localstorage-contexts'
+import { Playlist, Track } from './use-playlists'
 
 export function useQueue() {
-  const context = ContextManager.getInstance().getListContext<Track>('queue')
+  const context =
+    LocalstorageContexts.getInstance().getListContext<Track>('queue')
   if (!context) {
     throw new Error('No store context found')
   }

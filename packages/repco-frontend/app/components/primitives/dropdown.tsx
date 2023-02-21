@@ -1,7 +1,7 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { HamburgerMenuIcon } from '@radix-ui/react-icons'
 import { Form, NavLink } from '@remix-run/react'
-import { Button } from './primitives/Button'
+import { Button } from '../primitives/button'
 
 type Props = {
   node: string

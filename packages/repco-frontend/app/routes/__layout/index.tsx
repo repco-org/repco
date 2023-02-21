@@ -2,9 +2,9 @@ import { useLoaderData } from '@remix-run/react'
 import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js'
 import { Doughnut } from 'react-chartjs-2'
 import { LoaderFunction } from 'react-router'
-import { ContentItemCard } from '~/components/ui/primitives/Card'
+import { ContentItemCard } from '~/components/primitives/card'
 import { DashboardQuery } from '~/graphql/queries/dashboard'
-import { RepoStatsQuery } from '~/graphql/queries/repoStats'
+import { RepoStatsQuery } from '~/graphql/queries/repo-stats'
 import {
   LoadDashboardDataQuery,
   LoadRepoStatsQuery,

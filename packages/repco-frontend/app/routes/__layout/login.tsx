@@ -3,7 +3,7 @@ import type { LoaderArgs } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import { Form, useLoaderData } from '@remix-run/react'
 import { SocialsProvider } from 'remix-auth-socials'
-import { IconButton } from '~/components/ui/primitives/Button'
+import { IconButton } from '~/components/primitives/button'
 import { authenticator } from '~/services/auth.server'
 import { getSession } from '~/services/session.server'
 

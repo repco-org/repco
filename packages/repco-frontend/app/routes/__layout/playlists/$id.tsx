@@ -1,8 +1,8 @@
 import { ArrowLeftIcon } from '@radix-ui/react-icons'
 import type { LoaderFunction } from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
-import { usePlaylists } from '~/components/player/usePlaylists'
-import { Button } from '~/components/ui/primitives/Button'
+import { usePlaylists } from '~/components/player/use-playlists'
+import { Button } from '~/components/primitives/button'
 
 export const loader: LoaderFunction = async ({ params }) => {
   return { id: params.id }

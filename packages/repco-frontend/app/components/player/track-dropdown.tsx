@@ -1,9 +1,9 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { HamburgerMenuIcon, PlusCircledIcon } from '@radix-ui/react-icons'
-import { Track } from '~/components/player/usePlaylists'
-import { Button, IconButton } from '~/components/ui/primitives/Button'
-import { useQueue } from '~/lib/usePlayQueue'
-import { PlaylistDialog } from './addTrackToPlaylistDialog'
+import { Button, IconButton } from '~/components/primitives/button'
+import { AddTrackDialog } from './add-track-dialog'
+import { Track } from './use-playlists'
+import { useQueue } from './use-queue'
 
 export const TrackDropdown = ({ track }: { track: Track }) => {
   const { addTrack, tracks } = useQueue()
@@ -37,7 +37,7 @@ export const TrackDropdown = ({ track }: { track: Track }) => {
             add to queue
           </IconButton>
 
-          <PlaylistDialog track={track} />
+          <AddTrackDialog track={track} />
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
     </DropdownMenu.Root>

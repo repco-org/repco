@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react'
-import { ContextManager } from '../../lib/LocalStorageContext'
+import { LocalstorageContexts } from '../../lib/localstorage-contexts'
 
 export interface Track {
   uid: string
@@ -17,7 +17,7 @@ export interface Playlist {
 
 export function usePlaylists() {
   const context =
-    ContextManager.getInstance().getMapContext<Playlist>('playlists')
+    LocalstorageContexts.getInstance().getMapContext<Playlist>('playlists')
   if (!context) {
     throw new Error('No store context found')
   }

@@ -16,7 +16,7 @@ interface State<T> {
 
 interface Create<T> {
   type: 'CREATE'
-  payload: Entity<T> 
+  payload: Entity<T>
 }
 
 interface Delete<T> {
@@ -26,7 +26,7 @@ interface Delete<T> {
 
 interface Update<T> {
   type: 'UPDATE'
-  payload: Entity<T> 
+  payload: Entity<T>
 }
 
 interface Failure {
@@ -43,8 +43,8 @@ function assertNever(x: never): never {
   throw new Error('Unexpected object: ' + x)
 }
 
-export class ContextManager {
-  private static instance: ContextManager
+export class LocalstorageContexts {
+  private static instance: LocalstorageContexts
   private listContexts: Map<string, React.Context<Context<any>>>
   private mapContexts: Map<string, React.Context<Context<any>>>
 
@@ -53,11 +53,11 @@ export class ContextManager {
     this.mapContexts = new Map<string, any>()
   }
 
-  public static getInstance(): ContextManager {
-    if (!ContextManager.instance) {
-      ContextManager.instance = new ContextManager()
+  public static getInstance(): LocalstorageContexts {
+    if (!LocalstorageContexts.instance) {
+      LocalstorageContexts.instance = new LocalstorageContexts()
     }
-    return ContextManager.instance
+    return LocalstorageContexts.instance
   }
 
   public addListContext<T>(name: string) {
@@ -204,15 +204,12 @@ function reducerInner<T>(state: State<T>, action: Action<T>): State<T> {
       return { ...state }
 
     case 'REPLACE': {
-      if (state.store instanceof Map && action.payload instanceof Map)  {
+      if (state.store instanceof Map && action.payload instanceof Map) {
         state.store = action.payload
-        
-      } 
-      else if (Array.isArray(state.store) && Array.isArray(action.payload)) {
+      } else if (Array.isArray(state.store) && Array.isArray(action.payload)) {
         state.store = action.payload
-        }
-      
-      
+      }
+
       return { ...state }
     }
 
