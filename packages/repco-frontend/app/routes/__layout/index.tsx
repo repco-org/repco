@@ -1,3 +1,4 @@
+import ClosableJumbotron from '~/components/jumbotron/jumbotron'
 import { useLoaderData } from '@remix-run/react'
 import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js'
 import { Doughnut } from 'react-chartjs-2'
@@ -126,16 +127,27 @@ export default function Index() {
     totalContentItems,
     totalPublicationServices,
   } = useLoaderData<typeof loader>()
+  console.log(data)
+  data?.publicationServices.nodes.map(
+    (publicationService: { name: string }, i: number) =>
+      console.log(publicationService),
+  )
 
   return (
     <div className="felx flex-col space-y-4">
-      <div className="bg-hero h-52 p-4 text-white text-xl flex items-center justify-center">
+      {/* <div className="bg-hero h-52 p-4 text-white text-xl flex items-center justify-center">
         <div className="w-1/2">
           {totalContentItems} ContentItems from {totalPublicationServices}{' '}
           different publication services have been indexed so far
         </div>
-      </div>
+      </div> */}
 
+      <div className="w-1/2 mx-auto">
+        <ClosableJumbotron
+          title="Welcome to RepCo"
+          message={`${totalContentItems} ContentItems from ${totalPublicationServices} different publication services have been indexed so far`}
+        />
+      </div>
       <div className="flex space-x-2 my-2">
         <div className="w-1/3 flex flex-col items-center p-2 bg-slate-300 align-middle">
           <h3 className="text-xl">PublicationServices</h3>
