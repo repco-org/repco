@@ -1,3 +1,4 @@
+import React from 'react'
 import type { VariantProps } from 'class-variance-authority'
 import { cva, cx } from 'class-variance-authority'
 import type { ClassProp } from 'class-variance-authority/dist/types'
@@ -29,17 +30,26 @@ const styles = cva(
 
 export type InputIconProps = InputProps & {
   icon?: React.ReactNode
+  tooltip?: string
 }
 
 export function InputWithIcon(props: InputIconProps) {
   const className = cx(styles({ ...props, variant: 'icon' }))
-  const { icon } = props
+  const { icon, tooltip, ...inputProps } = props
   return (
-    <div className=" relative">
-      <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
+    <div className="relative">
+      <div
+        className="flex absolute inset-y-0 left-0 items-center pl-3"
+        aria-hidden="true"
+      >
         {icon ? icon : null}
       </div>
-      <input className={className} {...props} />
+      <input
+        className={className}
+        {...inputProps}
+        title={tooltip}
+        aria-label={tooltip} // Add aria-label attribute
+      />
     </div>
   )
 }
