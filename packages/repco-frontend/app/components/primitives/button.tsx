@@ -4,6 +4,7 @@ import type { VariantProps } from 'class-variance-authority'
 import { cva, cx } from 'class-variance-authority'
 import type { ClassProp } from 'class-variance-authority/dist/types'
 import { forwardRef } from 'react'
+import { NextPageIcon, PrevPageIcon } from '../icons'
 
 export const buttonStyles = cva(
   '  text-white font-bold shrink-0 items-center transition-colors duration-100 cursor-default disabled:opacity-50',
@@ -85,51 +86,42 @@ export function NavButton(props: NavButtonProps) {
   const className = cx(buttonStyles(props))
   return (
     <NavLink {...props}>
-      <button className={className} {...props} />
+      <button
+        className={className}
+        aria-label={props['aria-label']}
+        aria-disabled={props.disabled}
+        title={props.title}
+        {...props}
+      />
     </NavLink>
   )
 }
 
-export function NextButton(props: NavButtonProps) {
+export function NextPageButton(props: NavButtonProps) {
   return (
     <NavButton {...props}>
-      <div className="flex flex-row align-middle">
-        <span className="mr-2"> Next </span>
-        <svg
-          className="w-5 ml-1"
-          fill="currentColor"
-          viewBox="0 0 20 20"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            fillRule="evenodd"
-            d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
-            clipRule="evenodd"
-          ></path>
-        </svg>
+      <div
+        className="flex flex-row align-middle"
+        title="Go to next page"
+        aria-label="Go to next page"
+      >
+        <span> Next </span>
+        <NextPageIcon />
       </div>
     </NavButton>
   )
 }
 
-export function PrevButton(props: NavButtonProps) {
+export function PrevPageButton(props: NavButtonProps) {
   return (
-    <NavButton {...props}>
+    <NavButton
+      {...props}
+      title="Go to Previous Page"
+      aria-label="Go to Previous Page"
+    >
       <div className="flex flex-row align-middle">
-        <span className="mr-2"> Prev </span>
-
-        <svg
-          className="w-5 mr-1"
-          fill="currentColor"
-          viewBox="0 0 20 20"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            fillRule="evenodd"
-            d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z"
-            clipRule="evenodd"
-          ></path>
-        </svg>
+        <PrevPageIcon />
+        <span> Prev </span>
       </div>
     </NavButton>
   )

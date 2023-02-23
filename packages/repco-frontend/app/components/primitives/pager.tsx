@@ -1,5 +1,5 @@
 import type { PageInfo } from '~/graphql/types.js'
-import { NextButton, PrevButton } from '../primitives/button'
+import { NextPageButton, PrevPageButton } from '../primitives/button'
 
 export function Pager({
   pageInfo,
@@ -14,13 +14,13 @@ export function Pager({
   return (
     <div className="py-4 flex justify-center flex-row mx-auto">
       {pageInfo?.hasPreviousPage && (
-        <PrevButton
+        <PrevPageButton
           prefetch="render"
           to={`/items?before=${pageInfo?.startCursor}&orderBy=${orderBy}&includes=${includes}`}
         />
       )}
       {pageInfo?.hasNextPage && (
-        <NextButton
+        <NextPageButton
           prefetch="render"
           to={`/items?after=${pageInfo?.endCursor}&orderBy=${orderBy}&includes=${includes}`}
         />

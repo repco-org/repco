@@ -19,6 +19,8 @@ export function NavBar() {
             <NavLink
               className={({ isActive }) => (isActive ? active : inactive)}
               to={l.to}
+              title={l.label}
+              aria-label={`${l.label} navigation link`}
             >
               {l.label}
             </NavLink>
