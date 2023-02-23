@@ -26,6 +26,7 @@ export default function ItemsMenuWrapper() {
                   name="createPlaylist"
                   id="createPlaylist"
                   type="text"
+                  tooltip="Input for the Name"
                   autoFocus
                   icon={<ListBulletIcon />}
                   placeholder="createPlaylist.."

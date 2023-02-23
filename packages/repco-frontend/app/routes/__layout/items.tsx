@@ -47,6 +47,7 @@ export default function ItemsMenuWrapper() {
                 type="text"
                 autoFocus
                 placeholder="Title contains.."
+                tooltip="Search Input"
                 icon={<MagnifyingGlassIcon />}
                 defaultValue={searchParams.get('includes') || ''}
                 onChange={(e) => {
