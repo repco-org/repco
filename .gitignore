@@ -7,3 +7,4 @@ SANDBOX
 data
 yarn.lock
 *.0x
+packages/repco-frontend/app/styles
