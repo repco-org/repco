@@ -1,8 +1,8 @@
 import pc from 'picocolors'
 import { parseArgs } from '@pkgjs/parseargs'
+import { log } from 'repco-common'
 import { commands } from './commands.js'
 import { shortUsage } from './commands/help.js'
-import { log } from 'repco-common'
 
 // helpers
 

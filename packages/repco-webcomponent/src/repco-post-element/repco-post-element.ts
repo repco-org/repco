@@ -93,7 +93,8 @@ export class RepcoPostElement extends LitElement {
     this._fetchClient = this.shadowRoot.querySelector('repco-fetch-api')
     this._fetchClient.addEventListener(
       'data-fetched',
-      (event: CustomEvent<{ posts: PostType[] }>) => this.updateData(event.detail.posts)
+      (event: CustomEvent<{ posts: PostType[] }>) =>
+        this.updateData(event.detail.posts),
     )
   }
 

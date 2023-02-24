@@ -2,11 +2,11 @@ import ClosableJumbotron from '~/components/jumbotron/jumbotron'
 import { useLoaderData } from '@remix-run/react'
 import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js'
 import { Doughnut } from 'react-chartjs-2'
-import { LoaderFunction } from 'react-router'
+import type { LoaderFunction } from 'react-router'
 import { ContentItemCard } from '~/components/primitives/card'
 import { DashboardQuery } from '~/graphql/queries/dashboard'
 import { RepoStatsQuery } from '~/graphql/queries/repo-stats'
-import {
+import type {
   LoadDashboardDataQuery,
   LoadRepoStatsQuery,
   LoadRepoStatsQueryVariables,

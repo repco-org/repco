@@ -1,4 +1,4 @@
-import type { LoaderArgs, LoaderFunction, MetaFunction } from '@remix-run/node'
+import type { LoaderFunction, MetaFunction } from '@remix-run/node'
 import {
   Links,
   LiveReload,
@@ -8,11 +8,10 @@ import {
   ScrollRestoration,
   useLoaderData,
 } from '@remix-run/react'
-import { loadTree } from './lib/util.server'
-
 import appStyles from './css/app.css'
 import normalize from './css/normalize.css'
 import { Layout } from './components/layout'
+import { loadTree } from './lib/util.server'
 
 export function links() {
   return [

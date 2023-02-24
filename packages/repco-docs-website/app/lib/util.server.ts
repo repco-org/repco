@@ -25,7 +25,7 @@ if (WATCH_MODE) {
         if (path.endsWith('.md'))
           await loadPage(path, { reload: true, absolutePath: true })
         await loadTree()
-      } catch (err) { }
+      } catch (err) {}
     })
 }
 
@@ -76,7 +76,7 @@ async function* index(dir: string): AsyncIterable<Entry> {
           path: p.join(parent, basename),
           data,
         }
-      } catch (_err) { }
+      } catch (_err) {}
     } else if (type === 'folder') {
       let data
       try {
