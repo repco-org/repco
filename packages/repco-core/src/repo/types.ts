@@ -24,7 +24,7 @@ export const headersForm = z.object({
   isDeleted: z.string().nullish(),
   derivedFromUid: common.uid.optional(),
 })
-export interface Headers extends z.infer<typeof headersForm> {}
+export interface HeadersForm extends z.infer<typeof headersForm> {}
 
 export const entityForm = z.object({
   type: z.string(),

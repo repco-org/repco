@@ -30,10 +30,12 @@ import {
   XrcbTag,
 } from './xrcb/types.js'
 import {
+  BaseDataSource,
   DataSource,
   DataSourceDefinition,
   DataSourcePlugin,
   FetchUpdatesResult,
+  log,
   SourceRecordForm,
 } from '../datasource.js'
 import { ConceptKind, ContentGroupingVariant, EntityForm } from '../entity.js'
@@ -88,12 +90,13 @@ export class XrcbDataSourcePlugin implements DataSourcePlugin {
  * @param config - The configuration object for the plugin.
  * @returns A new instance of the plugin.
  */
-export class XrcbDataSource implements DataSource {
+export class XrcbDataSource extends BaseDataSource implements DataSource {
   endpoint: string
   endpointOrigin: string
   uriPrefix: string
   apiKey?: string
   constructor(config: ConfigSchema) {
+    super()
     this.endpoint = config.endpoint || DEFAULT_ENDPOINT
     this.apiKey = config.apiKey || process.env.XRCB_API_KEY || undefined
     const endpointUrl = new URL(this.endpoint)
@@ -125,74 +128,42 @@ export class XrcbDataSource implements DataSource {
    * @returns An array of source record forms containing the fetched data.
    * @throws An error if the URI is invalid or if the data type is not supported.
    */
+
   async fetchByUri(uri: string): Promise<SourceRecordForm[]> {
     const parsed = this.parseUri(uri)
-    if (!parsed) throw new Error('Invalid URI')
-    switch (parsed.type) {
-      case 'post': {
-        const url = this._url(`/podcasts/${parsed.id}`)
-        const podcast = await this._fetch<XrcbPost>(url)
-        return [
-          {
-            body: JSON.stringify(podcast),
-            contentType: CONTENT_TYPE_JSON,
-            sourceType: 'post',
-            sourceUri: url,
-          },
-        ]
-      }
-      case 'station': {
-        const url = this._url(`/radios/${parsed.id}`)
-        const body = await this._fetch(url)
-        return [
-          {
-            body: JSON.stringify(body),
-            contentType: CONTENT_TYPE_JSON,
-            sourceType: 'station',
-            sourceUri: url,
-          },
-        ]
-      }
-      case 'series': {
-        const url = this._url(`/podcast_programa/${parsed.id}`)
-        const body = await this._fetch(url)
-        return [
-          {
-            body: JSON.stringify(body),
-            contentType: CONTENT_TYPE_JSON,
-            sourceType: 'series',
-            sourceUri: url,
-          },
-        ]
-      }
-      case 'category': {
-        const url = this._url(`/podcast_category/${parsed.id}`)
-        const body = await this._fetch(url)
-        return [
-          {
-            body: JSON.stringify(body),
-            contentType: CONTENT_TYPE_JSON,
-            sourceType: 'category',
-            sourceUri: url,
-          },
-        ]
-      }
-      case 'tag': {
-        const url = this._url(`/podcast_tag/${parsed.id}`)
-        const body = await this._fetch(url)
-        return [
-          {
-            body: JSON.stringify(body),
-            contentType: CONTENT_TYPE_JSON,
-            sourceType: 'tag',
-            sourceUri: url,
-          },
-        ]
-      }
+    if (!parsed) {
+      throw new Error('Invalid URI')
     }
-    throw new Error('Unsupported XRCB data type: ' + parsed.type)
-  }
 
+    const endpointMap: { [key: string]: string } = {
+      post: 'podcasts',
+      series: 'podcast_programa',
+      category: 'podcast_category',
+      tag: 'podcast_tag',
+      station: 'radios',
+    }
+
+    const { id, type } = parsed
+    const endpoint = endpointMap[type]
+
+    if (!endpoint) {
+      throw new Error(
+        `Unsupported data type for ${this.definition.name}: ${parsed.type}`,
+      )
+    }
+
+    const url = this._url(`/${endpoint}/${id}`)
+    const [body] = await Promise.all([this._fetch(url)])
+
+    return [
+      {
+        body: JSON.stringify(body),
+        contentType: CONTENT_TYPE_JSON,
+        sourceType: type,
+        sourceUri: url,
+      },
+    ]
+  }
   /**
    * Fetches updates to the data from the XRCB WordPress API.
    *
@@ -201,29 +172,28 @@ export class XrcbDataSource implements DataSource {
    */
   async fetchUpdates(cursorString: string | null): Promise<FetchUpdatesResult> {
     const cursor = cursorString ? JSON.parse(cursorString) : {}
-    const records = []
-    {
-      let postsCursor = cursor.posts
-      if (!postsCursor) postsCursor = '1970-01-01T01:00:00'
-      const perPage = 100
-      const url = this._url(
-        `/podcasts?page=1&per_page=${perPage}&_embed&orderby=modified&order=asc&modified_after=${postsCursor}`,
-      )
+    const { posts: postsCursor = '1970-01-01T01:00:00' } = cursor
+    const perPage = 100
+    const url = this._url(
+      `/podcasts?page=1&per_page=${perPage}&_embed&orderby=modified&order=asc&modified_after=${postsCursor}`,
+    )
+    try {
       const posts = await this._fetch<XrcbPost[]>(url)
-
-      const lastPost = posts[posts.length - 1]
-      if (lastPost) cursor.posts = lastPost.modified
-      records.push({
-        body: JSON.stringify(posts),
-        contentType: CONTENT_TYPE_JSON,
-        sourceType: 'posts',
-        sourceUri: url,
-      })
-    }
-
-    return {
-      cursor: JSON.stringify(cursor),
-      records,
+      cursor.posts = posts?.[posts.length - 1]?.modified || cursor.posts
+      return {
+        cursor: JSON.stringify(cursor),
+        records: [
+          {
+            body: JSON.stringify(posts),
+            contentType: CONTENT_TYPE_JSON,
+            sourceType: 'posts',
+            sourceUri: url,
+          },
+        ],
+      }
+    } catch (error) {
+      log.warn({ msg: 'XRCB datasource - error fetching updates', error })
+      throw error
     }
   }
 
@@ -292,10 +262,16 @@ export class XrcbDataSource implements DataSource {
     return `${this.uriPrefix}:r:${type}:${id}:${revisionId}`
   }
 
-  private _mapCategory(category: XrcbCategory): EntityForm[] {
+  private _mapCategory(
+    category: XrcbCategory | undefined | null,
+  ): EntityForm[] {
+    if (!category) {
+      log.warn('XrcbCategory is null or undefined')
+      return []
+    }
     const content: form.ConceptInput = {
       name: category.name,
-      description: category.description,
+      description: category.description || '',
       kind: ConceptKind.CATEGORY,
       originNamespace: 'https://xrcb.cat/wp-json/wp/v2/podcast_category',
     }
@@ -313,10 +289,14 @@ export class XrcbDataSource implements DataSource {
     return [{ type: 'Concept', content, ...headers }]
   }
 
-  private _mapTag(tag: XrcbTag): EntityForm[] {
+  private _mapTag(tag: XrcbTag | undefined | null): EntityForm[] {
+    if (!tag) {
+      log.warn('XrcbTag is null or undefined')
+      return []
+    }
     const content: form.ConceptInput = {
       name: tag.name,
-      description: tag.description,
+      description: tag.description || '',
       kind: ConceptKind.TAG,
       originNamespace: 'https://xrcb.cat/wp-json/wp/v2/podcast_tag',
     }
@@ -330,33 +310,47 @@ export class XrcbDataSource implements DataSource {
   }
 
   private _mapStation(station: XrcbStation): EntityForm[] {
-    const content: form.PublicationServiceInput = {
-      name: station.title.rendered,
-      address: station.acf.location.address,
-      //NOTE:   xrcb provides further interesting information like
-      //        the history of the radio station, detailed address etc.
-      //        Maybe we will update this at a later time.
+    try {
+      const content: form.PublicationServiceInput = {
+        name: station.title.rendered,
+        address: '',
+      }
+
+      if (station.acf?.location?.address) {
+        content.address = station.acf.location.address
+      }
+
+      const revisionId = this._revisionUri(
+        'station',
+        station.id,
+        new Date(station.modified).getTime(),
+      )
+      const uri = this._uri('station', station.id)
+      const headers = {
+        revisionUris: [revisionId],
+        entityUris: [uri],
+      }
+
+      return [{ type: 'PublicationService', content, ...headers }]
+    } catch (error) {
+      log.warn(`Error mapping station: ${station.id}`, error)
+      return []
     }
-    if (station.acf.location.address) {
-      content.address = station.acf.location.address
-    }
-    const revisionId = this._revisionUri(
-      'station',
-      station.id,
-      new Date(station.modified).getTime(),
-    )
-    const uri = this._uri('station', station.id)
-    const headers = {
-      revisionUris: [revisionId],
-      entityUris: [uri],
-    }
-    return [{ type: 'PublicationService', content, ...headers }]
   }
 
-  private _mapSeries(series: XrcbPrograma): EntityForm[] {
+  private _mapSeries(series: XrcbPrograma | undefined | null): EntityForm[] {
+    if (!series) {
+      log.warn('XrcbSeries is null or undefined')
+      return []
+    }
+    if (!series.name) {
+      log.warn('Missing name for series:', series.id)
+      return []
+    }
+
     const content: form.ContentGroupingInput = {
       title: series.name,
-      description: series.description,
+      description: series.description || '',
       variant: ContentGroupingVariant.SERIAL,
       groupingType: 'series',
     }
@@ -373,6 +367,53 @@ export class XrcbDataSource implements DataSource {
     return [{ type: 'ContentGrouping', content, ...headers }]
   }
 
+  private _getConceptURIs(post: XrcbPost, defaultValue: any = null): any {
+    try {
+      const conceptsUris = []
+      if (post.podcast_tag) {
+        const tags = post.podcast_tag.map((xrcbId) => ({
+          uri: this._uri('tag', xrcbId),
+        }))
+        conceptsUris.push(...tags)
+      }
+      if (post.podcast_category) {
+        const categories = post.podcast_category.map((xrcbId) => ({
+          uri: this._uri('category', xrcbId),
+        }))
+        conceptsUris.push(...categories)
+      }
+      return conceptsUris
+    } catch (error) {
+      log.warn('Error extracting concept URIs from post:', error)
+      return defaultValue
+    }
+  }
+
+  private _getPublicationService(post: XrcbPost, defaultValue: any): any {
+    try {
+      if (post.acf.radio && post.acf.radio.ID) {
+        return { uri: this._uri('station', post.acf.radio.ID) }
+      }
+    } catch (error) {
+      log.warn('Error extracting publicationService from post:', error)
+      return defaultValue
+    }
+  }
+  private _getPrimaryGrouping(post: XrcbPost, defaultValue: any = null): any {
+    try {
+      if (post.podcast_programa) {
+        const primaryGrouping = post.podcast_programa.map((xrcbId) => ({
+          uri: this._uri('series', xrcbId),
+        }))[0]
+        return primaryGrouping
+      }
+      return defaultValue
+    } catch (error) {
+      log.warn('Error extracting primary grouping from post:', error)
+      return defaultValue
+    }
+  }
+
   /**
    * Maps a post object to an array of EntityForm objects.
    * The post Object is a Podcast Post from the xrcb API.
@@ -382,133 +423,126 @@ export class XrcbDataSource implements DataSource {
    * @returns An array of EntityForm objects that represent the post.
    */
   private _mapPost(post: XrcbPost): EntityForm[] {
-    const entities: EntityForm[] = []
+    try {
+      const mediaAssetUris: string[] = []
+      const {
+        content: { rendered: postContent = '' },
+        title: { rendered: postTitle = '' },
+      } = post
 
-    const postEntity: EntityForm = {
-      type: 'ContentItem',
-      content: {
-        pubDate: new Date(post.date),
-        content: post.content.rendered,
-        contentFormat: 'text/html',
-        title: post.title.rendered,
-        subtitle: 'missing',
-        summary: 'misisng',
-      },
-      entityUris: [this._uri('post', post.id)],
-      revisionUris: [
-        this._revisionUri('post', post.id, new Date(post.modified).getTime()),
-      ],
-    }
-
-    const conceptsUris = []
-
-    if (post.podcast_tag) {
-      const tags = post.podcast_tag.map((xrcbId) => ({
-        uri: this._uri('tag', xrcbId),
-      }))
-      conceptsUris.push(...tags)
-    }
-    if (post.podcast_category) {
-      const categories = post.podcast_category.map((xrcbId) => ({
-        uri: this._uri('category', xrcbId),
-      }))
-      conceptsUris.push(...categories)
-    }
-    postEntity.content.Concepts = conceptsUris
-
-    if (post.acf.radio && post.acf.radio.ID) {
-      const station = { uri: this._uri('station', post.acf.radio.ID) }
-      postEntity.content.PublicationService = station
-    }
-
-    if (post.podcast_programa) {
-      const primaryGroupingUris = []
-      const primaryGrouping = post.podcast_programa.map((xrcbId) => ({
-        uri: this._uri('series', xrcbId),
-      }))
-      primaryGroupingUris.push(...primaryGrouping)
-      postEntity.content.PrimaryGrouping = primaryGroupingUris[0]
-    }
-
-    if (post.acf.file_mp3 && post.acf.file_mp3.id) {
-      const fileId = this._uri('file', post.acf.file_mp3.id)
-      const audioId = this._uri('audio', post.acf.file_mp3.id)
-
-      const audioFileContent: form.FileInput = {
-        contentUrl: post.acf.file_mp3.url,
-        codec: post.acf.file_mp3.subtype,
-        mimeType: post.acf.file_mp3.mime_type,
-        cid: null,
-      }
-
-      const audioContent: form.MediaAssetInput = {
-        title: post.acf.file_mp3.title,
-        description: post.acf.file_mp3.description,
-        mediaType: 'audio',
-        //License: null,
-        //contributor
-        File: { uri: fileId },
-      }
-
-      const audioFileEntity: EntityForm = {
-        type: 'File',
-        content: audioFileContent,
-        entityUris: [fileId],
-      }
-      const audioEntity: EntityForm = {
-        type: 'MediaAsset',
-        content: audioContent,
-        entityUris: [audioId],
-      }
-      postEntity.content.MediaAssets = [
-        ...(postEntity.content.MediaAssets || []),
-        { uri: audioId },
+      return [
+        ...this._mapMediaAssets(post, mediaAssetUris),
+        {
+          type: 'ContentItem',
+          content: {
+            pubDate: new Date(),
+            content: postContent,
+            contentFormat: 'text/html',
+            title: postTitle,
+            subtitle: '',
+            summary: '',
+            Concepts: this._getConceptURIs(post, []),
+            PublicationService: this._getPublicationService(post, { uri: '' }),
+            PrimaryGrouping: this._getPrimaryGrouping(post, { uri: '' }),
+            MediaAssets: mediaAssetUris.map((uri) => ({ uri })),
+          },
+          entityUris: [this._uri('post', post.id)],
+          revisionUris: [
+            this._revisionUri(
+              'post',
+              post.id,
+              new Date(post.modified).getTime(),
+            ),
+          ],
+        },
       ]
-      entities.push(audioFileEntity, audioEntity)
+    } catch (error) {
+      log.warn('Error in _mapPost:', error)
+      throw error
+    }
+  }
+
+  private _mapMediaAssets(
+    post: XrcbPost,
+    mediaAssetUris: string[],
+  ): EntityForm[] {
+    const mediaAssetEntities: EntityForm[] = []
+
+    try {
+      if (post.acf.file_mp3 && post.acf.file_mp3.id) {
+        const fileId = this._uri('file', post.acf.file_mp3.id)
+        const audioId = this._uri('audio', post.acf.file_mp3.id)
+
+        const audioFileContent: form.FileInput = {
+          contentUrl: post.acf.file_mp3.url || '',
+          codec: post.acf.file_mp3.subtype || '',
+          mimeType: post.acf.file_mp3.mime_type || '',
+          cid: null,
+        }
+
+        const audioContent: form.MediaAssetInput = {
+          title: post.acf.file_mp3.title || '',
+          description: post.acf.file_mp3.description || '',
+          mediaType: 'audio',
+          File: { uri: fileId },
+        }
+
+        const audioFileEntity: EntityForm = {
+          type: 'File',
+          content: audioFileContent,
+          entityUris: [fileId],
+        }
+        const audioEntity: EntityForm = {
+          type: 'MediaAsset',
+          content: audioContent,
+          entityUris: [audioId],
+        }
+        mediaAssetEntities.push(audioFileEntity, audioEntity)
+        mediaAssetUris.push(audioId)
+      }
+    } catch (error) {
+      log.warn(`Error processing audio file: ${error}`)
     }
 
-    if (post.acf.img_podcast && post.acf.img_podcast.ID) {
-      const imageId = this._uri('image', post.acf.img_podcast.ID)
-      const fileId = this._uri('imageFile', post.acf.img_podcast.ID)
+    try {
+      if (post.acf.img_podcast && post.acf.img_podcast.ID) {
+        const imageId = this._uri('image', post.acf.img_podcast.ID)
+        const fileId = this._uri('imageFile', post.acf.img_podcast.ID)
 
-      const imageFileContent: form.FileInput = {
-        contentUrl: post.acf.img_podcast.url,
-        contentSize: post.acf.img_podcast.filesize,
-        mimeType: post.acf.img_podcast.mime_type,
-        resolution:
-          post.acf.img_podcast.height.toString() +
-          'x' +
-          post.acf.img_podcast.width.toString(),
-      }
+        const imageFileContent: form.FileInput = {
+          contentUrl: post.acf?.img_podcast?.url ?? null,
+          contentSize: post.acf?.img_podcast?.filesize ?? null,
+          mimeType: post.acf?.img_podcast?.mime_type ?? null,
+          resolution:
+            post.acf?.img_podcast.height && post.acf?.img_podcast.width
+              ? `${post.acf.img_podcast.height}x${post.acf.img_podcast.width}`
+              : '',
+        }
 
-      const imageContent: form.MediaAssetInput = {
-        title: post.acf.img_podcast.title,
-        mediaType: 'image',
-        //License: null,
-        //contributor
-        File: { uri: fileId },
-      }
+        const imageContent: form.MediaAssetInput = {
+          title: post.acf?.img_podcast?.title ?? '',
+          mediaType: 'image',
+          File: { uri: fileId },
+        }
 
-      const imageFileEntity: EntityForm = {
-        type: 'File',
-        content: imageFileContent,
-        entityUris: [fileId],
+        const imageFileEntity: EntityForm = {
+          type: 'File',
+          content: imageFileContent,
+          entityUris: [fileId],
+        }
+        const imageEntity: EntityForm = {
+          type: 'MediaAsset',
+          content: imageContent,
+          entityUris: [imageId],
+        }
+        mediaAssetEntities.push(imageFileEntity, imageEntity)
+        mediaAssetUris.push(imageId)
       }
-      const imageEntity: EntityForm = {
-        type: 'MediaAsset',
-        content: imageContent,
-        entityUris: [imageId],
-      }
-
-      postEntity.content.MediaAssets = [
-        ...(postEntity.content.MediaAssets || []),
-        { uri: imageId },
-      ]
-      entities.push(imageFileEntity, imageEntity)
+    } catch (error) {
+      log.warn(`Error processing image file: ${error}`)
     }
-    entities.push(postEntity)
-    console.log(post.id)
-    return entities
+
+    return mediaAssetEntities
   }
 
   private _url(urlString: string, opts: FetchOpts = {}) {
@@ -530,11 +564,17 @@ export class XrcbDataSource implements DataSource {
     if (this.apiKey) {
       url.searchParams.set('api_key', this.apiKey)
     }
-    const res = await fetch(url.toString(), opts)
-    if (!res.ok) {
-      throw await HttpError.fromResponseJson(res, url)
+    try {
+      const res = await fetch(url.toString(), opts)
+      log.debug(`fetch (${res.status}, url: ${url})`)
+      if (!res.ok) {
+        throw await HttpError.fromResponseJson(res, url)
+      }
+      const json = await res.json()
+      return json as T
+    } catch (err) {
+      log.debug(`fetch failed (url: ${url}, error: ${err})`)
+      throw err
     }
-    const json = await res.json()
-    return json as T
   }
 }
