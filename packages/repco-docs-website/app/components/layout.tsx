@@ -1,6 +1,7 @@
 import { NavLink, useLocation, useParams } from '@remix-run/react'
 import { PropsWithChildren, useEffect, useMemo, useState } from 'react'
 import { Entry, EntryNode, intoFolders } from '~/lib/util'
+import { DarkModeToggle } from './DarkModeToggle'
 import { SearchForm } from './search'
 
 type NavProps = { index: Entry[] }
@@ -18,6 +19,7 @@ export function Layout(props: LayoutProps) {
         <div className="layout-header--slug">{slug}</div>
         <div className="flex-space" />
         <SearchForm />
+        <DarkModeToggle />
       </div>
       <div className="layout-main">
         <Nav index={props.index} />
@@ -49,9 +51,12 @@ function Nav(props: NavProps) {
       >
         {isVisible ? 'Hide menu' : 'Show menu'}
       </button>
+
       <ul id="layout-nav--menu">
         <li>
-          <a href='https://github.com/openaudiosearch/repco' target='_blank'>Source code on GitHub</a>
+          <a href="https://github.com/openaudiosearch/repco" target="_blank">
+            Source code on GitHub
+          </a>
         </li>
         {root.children.map((entry) => (
           <li key={entry.path}>

@@ -3,6 +3,7 @@ module.exports = {
 // export default {
   future: {
      // unstable_dev: true
+     //unstable_tailwind: true,
   },
   ignoredRouteFiles: ['**/.*'],
   // appDirectory: "app",

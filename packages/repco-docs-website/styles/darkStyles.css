@@ -1,0 +1,59 @@
+/* Dark mode */
+
+
+
+.dark :root {
+  --c-border1: #f8c;
+  filter: invert(1);
+}
+
+.dark body {
+  font-family: sans-serif;
+  line-height: 1.35;
+  font-size: 16px;
+  background-color: #fafafa;
+  filter: invert(1);
+}
+
+
+.dark .layout-header h1 {
+  margin-right: 1rem;
+  font-size: 1.6rem;
+  text-shadow: 2px 2px #f0e;
+  filter: invert(1);
+}
+
+.dark .layout-nav h2 {
+  font-weight: normal;
+  padding: 0;
+  margin: 1rem 0 0 0;
+  font-size: 1.35rem;
+  /* color: #0ec; */
+  color: #086;
+  padding: .125rem .5rem;
+  /* text-shadow: 1px 1px #f0e; */
+  filter: invert(1);
+}
+
+.dark .layout-nav a:visited {
+  color: #423;
+  filter: invert(1);
+}
+
+.dark .layout-nav a.active {
+  /* color: #f6b; */
+  /* color: #d4a; */
+  color: #c29;
+  filter: invert(1);
+}
+
+.dark .search-results--content em {
+  font-style: normal;
+  background: #fea;
+}
+
+.dark .markdown td, .markdown th {
+  padding: .5rem;
+  border: 1px solid #ddd;
+  filter: invert(1);
+}

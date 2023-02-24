@@ -1,3 +1,4 @@
+
 * {
   box-sizing: border-box;
 }
@@ -6,12 +7,13 @@
   --c-border1: #f8c;
 }
 
-body {
+.light body {
   font-family: sans-serif;
   line-height: 1.35;
   font-size: 16px;
   background-color: #fafafa;
 }
+
 
 .layout-header {
   display: flex;
@@ -227,6 +229,12 @@ body {
 
   .layout-main > main {
     padding-left: 1rem;
-    paddingt-top: 0;
+    padding-top: 0;
   }
 }
+
+
+
+
+
+

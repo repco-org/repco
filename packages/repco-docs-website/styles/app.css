@@ -1,0 +1,6 @@
+@import url(./frandosStyles.css);
+@import url(./darkStyles.css);
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
