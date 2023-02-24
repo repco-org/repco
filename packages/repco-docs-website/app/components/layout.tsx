@@ -1,6 +1,8 @@
 import { NavLink, useLocation, useParams } from '@remix-run/react'
-import { PropsWithChildren, useEffect, useMemo, useState } from 'react'
-import { Entry, EntryNode, intoFolders } from '~/lib/util'
+import type { PropsWithChildren } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import type { Entry, EntryNode } from '~/lib/util'
+import { intoFolders } from '~/lib/util'
 import { SearchForm } from './search'
 
 type NavProps = { index: Entry[] }
@@ -51,7 +53,13 @@ function Nav(props: NavProps) {
       </button>
       <ul id="layout-nav--menu">
         <li>
-          <a href='https://github.com/openaudiosearch/repco' target='_blank'>Source code on GitHub</a>
+          <a
+            href="https://github.com/openaudiosearch/repco"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Source code on GitHub
+          </a>
         </li>
         {root.children.map((entry) => (
           <li key={entry.path}>

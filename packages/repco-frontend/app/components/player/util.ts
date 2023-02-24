@@ -1,4 +1,4 @@
-import { MediaAsset } from '~/graphql/types'
+import type { MediaAsset } from '~/graphql/types'
 
 export function createTrackFromMediaAsset(
   mediaAsset: MediaAsset,

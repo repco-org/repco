@@ -1,8 +1,8 @@
 /** @type {import('@remix-run/dev').AppConfig} */
 module.exports = {
-// export default {
+  // export default {
   future: {
-     // unstable_dev: true
+    // unstable_dev: true
   },
   ignoredRouteFiles: ['**/.*'],
   // appDirectory: "app",
@@ -41,5 +41,5 @@ module.exports = {
     /^remark$/,
     /^remark-stringify$/,
     /^longest-streak$/,
-  ]
+  ],
 }

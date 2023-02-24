@@ -1044,6 +1044,7 @@ function parseEntity(input: unknown): EntityFormWithHeaders {
 }
 
 function parseEntities(inputs: unknown[]): EntityFormWithHeaders[] {
+  // eslint-disable-next-line no-useless-catch
   try {
     return inputs.map(parseEntity)
   } catch (err) {

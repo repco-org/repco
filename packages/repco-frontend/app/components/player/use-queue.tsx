@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from 'react'
-import { Entity, LocalstorageContexts } from '~/lib/localstorage-contexts'
-import { Playlist, Track } from './use-playlists'
+import type { Entity } from '~/lib/localstorage-contexts'
+import { LocalstorageContexts } from '~/lib/localstorage-contexts'
+import type { Playlist, Track } from './use-playlists'
 
 export function useQueue() {
   const context =

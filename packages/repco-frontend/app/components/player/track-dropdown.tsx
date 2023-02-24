@@ -2,7 +2,7 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { HamburgerMenuIcon, PlusCircledIcon } from '@radix-ui/react-icons'
 import { Button, IconButton } from '~/components/primitives/button'
 import { AddTrackDialog } from './add-track-dialog'
-import { Track } from './use-playlists'
+import type { Track } from './use-playlists'
 import { useQueue } from './use-queue'
 
 export const TrackDropdown = ({ track }: { track: Track }) => {
