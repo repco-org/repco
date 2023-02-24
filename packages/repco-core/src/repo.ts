@@ -1,6 +1,7 @@
 import * as ucans from '@ucans/ucans'
 import * as common from 'repco-common/zod'
 import { CID } from 'multiformats/cid.js'
+import { createLogger, Logger } from 'repco-common'
 import {
   Prisma,
   PrismaClient,
@@ -42,6 +43,7 @@ import {
   CommitBundle,
   CommitIpld,
   entityForm,
+  HeadersForm,
   headersForm,
   RevisionIpld,
   revisionIpldToDb,
@@ -50,8 +52,8 @@ import {
 import { MapList } from './util/collections.js'
 import { ParseError } from './util/error.js'
 import { createEntityId, createRevisionId } from './util/id.js'
+import { notEmpty } from './util/misc.js'
 import { Mutex } from './util/mutex.js'
-import { createLogger, Logger } from 'repco-common'
 
 export * from './repo/types.js'
 
@@ -95,6 +97,7 @@ const REVISION_SELECT = {
   dateCreated: true,
   uid: true,
   contentCid: true,
+  entityUris: true,
 }
 
 const log = createLogger('repo')
@@ -466,21 +469,24 @@ export class Repo {
     const release = await this.txlock.lock()
 
     try {
+      // Parse all entities
+      const parsedInputs = parseEntities(inputs)
       // Assign UIDs to all entities
-      const parsedInputs = await Promise.all(
-        inputs.map((input) => this.parseAndAssignUid(input)),
-      )
+      const entityForms = await this.assignUids(parsedInputs)
 
       // Resolve missing relations.
-      const entities = await RelationFinder.resolve(this, parsedInputs)
+      const entities = await RelationFinder.resolve(this, entityForms)
 
       // Abort early if there's nothing to save.
       if (!fullOpts.commitEmpty && !entities.length) return null
 
       // Create the actual commit as a single prisma transaction
-      return await this.$transaction((repo) =>
-        repo.saveBatchInner(entities, fullOpts),
-      )
+      // TODO: The transaction can get very big and times out.
+      // Therefore the Prisma transaction is removed for now.
+      // We still have the repo-wide txlock.
+      // return await this.$transaction((repo) =>
+      return this.saveBatchInner(entities, fullOpts)
+      // )
     } finally {
       release()
     }
@@ -501,6 +507,18 @@ export class Repo {
       parent,
     )
     if (!bundle) return null
+    const counts = bundle.revisions.reduce<Record<string, number>>((agg, r) => {
+      const key = r.revision.entityType
+      if (!agg[key]) agg[key] = 0
+      agg[key] += 1
+      return agg
+    }, {})
+    const details = {
+      entities: counts,
+      revisions: bundle.revisions.length,
+      root: bundle.root.cid.toString(),
+    }
+    this.log.debug({ msg: 'Created commit', details })
     const ret = await this.saveFromIpld(bundle)
     return ret
   }
@@ -552,34 +570,56 @@ export class Repo {
     return ret
   }
 
-  async parseAndAssignUid(input: unknown): Promise<EntityInputWithHeaders> {
-    try {
-      const headers = headersForm.parse(input)
-      const parsed = entityForm.parse(input)
-      const entity = repco.parseEntity(parsed.type, parsed.content)
+  async assignUids(
+    input: EntityFormWithHeaders[],
+  ): Promise<EntityInputWithHeaders[]> {
+    const entityUris = new Set(
+      input.map((input) => input.headers.entityUris || []).flat(),
+    )
+    const entityUids = new Set(
+      input.map((input) => input.entity.content.uid).filter(notEmpty),
+    )
+    const uidsForUris = await this.prisma.revision.groupBy({
+      where: { entityUris: { hasSome: Array.from(entityUris) } },
+      by: ['uid'],
+    })
+    uidsForUris.forEach((row) => entityUids.add(row.uid))
+    const prevEntitiesWithRevisions = await this.prisma.entity.findMany({
+      where: { uid: { in: Array.from(entityUids) } },
+      include: {
+        Revision: {
+          select: {
+            id: true,
+            uid: true,
+            entityUris: true,
+            entityType: true,
+            dateCreated: true,
+            contentCid: true,
+          },
+        },
+      },
+    })
+    const prevRevisions = prevEntitiesWithRevisions.map((e) => e.Revision)
+    const prevRevisionsByKey = prevRevisions.reduce<
+      Record<string, (typeof prevRevisions)[number]>
+    >((agg, r) => {
+      agg[r.uid] = r
+      r.entityUris.forEach((u) => (agg[u] = r))
+      return agg
+    }, {})
 
-      // check for previous revision
-      let prevRevision
+    const res = []
+    for (const { entity, headers } of input) {
       let uid = entity.content.uid
-      if (uid) {
-        prevRevision = await this.prisma.revision.findFirst({
-          where: { uid },
-          select: REVISION_SELECT,
-          orderBy: { id: 'desc' },
-        })
-      } else if (headers.entityUris?.length) {
-        prevRevision = await this.prisma.revision.findFirst({
-          where: { entityUris: { hasSome: headers.entityUris } },
-          select: REVISION_SELECT,
-          orderBy: { id: 'desc' },
-        })
-      }
-
+      const keys = [uid, ...(headers.entityUris || [])].filter(notEmpty)
+      const prevRevision = keys
+        .map((key) => prevRevisionsByKey[key])
+        .filter(notEmpty)[0]
       let prevContentCid
       if (prevRevision) {
         if (prevRevision.entityType !== entity.type) {
           throw new Error(
-            `Type mismatch: Previous revision has type ${prevRevision.entityType} and input has type ${entity.type}`,
+            `Type mismatch for ${uid}: Previous revision has type ${prevRevision.entityType} and input has type ${entity.type}`,
           )
         }
         if (uid && uid !== prevRevision.uid) {
@@ -598,15 +638,9 @@ export class Repo {
       }
 
       setUid(entity, uid)
-
-      return { ...entity, headers, prevContentCid }
-    } catch (err) {
-      if (err instanceof ZodError) {
-        throw new ParseError(err, (input as any).type)
-      } else {
-        throw err
-      }
+      res.push({ ...entity, headers, prevContentCid })
     }
+    return res
   }
 
   private async ensureAgent(did: string) {
@@ -708,7 +742,7 @@ export class Repo {
 }
 
 export class IpldRepo {
-  constructor(public record: RepoRecord, public blockstore: IpldBlockStore) { }
+  constructor(public record: RepoRecord, public blockstore: IpldBlockStore) {}
   get did() {
     return this.record.did
   }
@@ -721,7 +755,8 @@ export class IpldRepo {
   ) {
     const agentDid = agentKeypair.did()
     const timestamp = new Date()
-    this.blockstore = this.blockstore.transaction()
+    // TODO: Reactive transaction support once timing issues with Prisma are fixed.
+    // this.blockstore = this.blockstore.transaction()
 
     // save all revisions in blockstore
     const revisions = []
@@ -811,7 +846,7 @@ function setUid(
   input: repco.EntityInput,
   uid: string,
 ): asserts input is repco.EntityInputWithUid {
-  ; (input as any).uid = uid
+  ;(input as any).uid = uid
   input.content.uid = uid
 }
 
@@ -941,21 +976,27 @@ export class RelationFinder {
         this.missingUris.add(uri)
         this.pendingUris.delete(uri)
       })
-      // parse the fetched records and assign uids
-      const entities = await Promise.all(
-        fetched.map((input) => {
-          if (input.entityUris) {
-            // check if the entity was already fetched in this resolver session
-            for (const uri of input.entityUris) {
-              const entity = this.getByUri(uri)
-              if (entity) return entity
+      const existingEntities = []
+      const newEntityInputs = []
+      for (const input of fetched) {
+        let existing = false
+        if (input.entityUris) {
+          // check if the entity was already fetched in this resolver session
+          for (const uri of input.entityUris) {
+            const entity = this.getByUri(uri)
+            if (entity) {
+              existingEntities.push(entity)
+              existing = true
+              break
             }
           }
-          // otherwise, parse the newly found entity
-          return this.repo.parseAndAssignUid(input)
-        }),
+        }
+        if (!existing) newEntityInputs.push(input)
+      }
+      const newEntities = await this.repo.assignUids(
+        parseEntities(newEntityInputs),
       )
-      this.pushBatch(entities)
+      this.pushBatch([...existingEntities, ...newEntities])
     }
 
     // Sort the results. This also throws for ciruclar references.
@@ -982,5 +1023,30 @@ function assertFullClient(
   // @ts-ignore
   if (prisma.$transaction === undefined) {
     throw new Error('Transaction may not be nested.')
+  }
+}
+
+type EntityFormWithHeaders = { entity: repco.EntityInput; headers: HeadersForm }
+
+function parseEntity(input: unknown): EntityFormWithHeaders {
+  try {
+    const headers = headersForm.parse(input)
+    const parsed = entityForm.parse(input)
+    const entity = repco.parseEntity(parsed.type, parsed.content)
+    return { entity, headers }
+  } catch (err) {
+    if (err instanceof ZodError) {
+      throw new ParseError(err, (input as any).type)
+    } else {
+      throw err
+    }
+  }
+}
+
+function parseEntities(inputs: unknown[]): EntityFormWithHeaders[] {
+  try {
+    return inputs.map(parseEntity)
+  } catch (err) {
+    throw err
   }
 }

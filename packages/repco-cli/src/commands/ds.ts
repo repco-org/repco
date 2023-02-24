@@ -90,7 +90,13 @@ export const ingest = createCommand({
   arguments: [],
   options: {
     repo: { type: 'string', short: 'r', help: 'Repo name or DID' },
-    loop: { type: 'boolean', short: 'r', help: 'Keep running in a loop' },
+    ds: {
+      type: 'string',
+      required: false,
+      short: 'd',
+      help: 'Datasource UID (optional)',
+    },
+    loop: { type: 'boolean', short: 'l', help: 'Keep running in a loop' },
   },
   async run(opts, _args) {
     const repo = await Repo.openWithDefaults(opts.repo)
@@ -101,8 +107,14 @@ export const ingest = createCommand({
         console.log(result)
       }
     } else {
-      const result = await ingester.ingestAll()
-      console.log(result)
+      if (!opts.ds) {
+        const result = await ingester.ingestAll()
+        console.log(result)
+      } else {
+        console.log('Ingesting datasource ' + opts.ds)
+        const result = await ingester.ingest(opts.ds)
+        console.log(result)
+      }
     }
   },
 })
