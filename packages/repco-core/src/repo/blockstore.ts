@@ -1,8 +1,7 @@
-import * as codec from '@ipld/dag-cbor'
+import * as codec from './codec.js'
 import * as Block from 'multiformats/block'
 import * as uint8arrays from 'uint8arrays'
 import { blake2b256 as hasher } from '@multiformats/blake2/blake2b'
-// import { sha256 as hasher } from 'multiformats/hashes/sha2'
 import { Level } from 'level'
 import { CID } from 'multiformats/cid'
 import { Prisma } from 'repco-prisma'
@@ -19,8 +18,7 @@ class CIDNotFoundError extends Error {
 }
 
 export function parseToIpld(bytes: Uint8Array | Buffer) {
-  const decoded = codec.decode(bytes)
-  const value = postDecode(decoded as any as IpldRecord)
+  const value = codec.decode(bytes)
   return value
 }
 
@@ -83,14 +81,12 @@ export abstract class IpldBlockStoreBase implements IpldBlockStore {
   }
 
   parse(bytes: Uint8Array | Buffer) {
-    const decoded = codec.decode(bytes)
-    const value = postDecode(decoded as any as IpldRecord)
+    const value = codec.decode(bytes)
     return value
   }
 
   // TODO: Rename putData
-  async put(record: any): Promise<CID> {
-    const value = preEncode(record)
+  async put(value: any): Promise<CID> {
     const block = await Block.encode({ value, hasher, codec })
     await this.putBytes(block.cid, block.bytes)
     return block.cid
@@ -139,8 +135,7 @@ export abstract class IpldBlockStoreBase implements IpldBlockStore {
 
 export class PrismaIpldBlockStoreTransaction
   extends IpldBlockStoreBase
-  implements IpldBlockStore
-{
+  implements IpldBlockStore {
   batch: Record<string, Uint8Array> = {}
   constructor(private prisma: Prisma.TransactionClient) {
     super()
@@ -213,8 +208,7 @@ export class PrismaIpldBlockStoreTransaction
 
 export class PrismaIpldBlockStore
   extends IpldBlockStoreBase
-  implements IpldBlockStore
-{
+  implements IpldBlockStore {
   constructor(private prisma: Prisma.TransactionClient) {
     super()
   }
@@ -274,8 +268,7 @@ export class PrismaIpldBlockStore
 
 export class LevelIpldBlockStore
   extends IpldBlockStoreBase
-  implements IpldBlockStore
-{
+  implements IpldBlockStore {
   db: Level<Uint8Array, Uint8Array>
   opened = false
   _open?: Promise<void>
@@ -335,8 +328,6 @@ export class LevelIpldBlockStore
   }
 }
 
-const ISO_DATE_REGEX = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/
-
 type IpldScalar = string | number | CID | boolean | Uint8Array | null
 interface IpldRecord {
   [k: string]: IpldValue
@@ -351,47 +342,3 @@ interface ParseObj<T> {
   parse: ParseFn<T>
 }
 type ParseFnOrObj<T> = ParseFn<T> | ParseObj<T>
-
-function preEncode(value: any): IpldValue {
-  const map = (value: any) => {
-    if (value instanceof Date) return value.toISOString()
-    if (value instanceof CID) return value
-    if (value instanceof Uint8Array) return value
-    if (value instanceof Buffer) return value
-    if (value === undefined || value === null) return null
-    return walker(map, value)
-  }
-  return map(value)
-}
-
-function postDecode(value: IpldValue): any {
-  const map = (value: any) => {
-    if (typeof value === 'string') {
-      if (ISO_DATE_REGEX.test(value)) {
-        const date = new Date(value)
-        if (date.toISOString() === value) return date
-      }
-    }
-    if (value instanceof CID) return value
-    if (value instanceof Uint8Array) return value
-    if (value instanceof Buffer) return value
-    if (value === undefined || value === null) return null
-    return walker(map, value)
-  }
-  return map(value)
-}
-
-function walker(map: (value: any) => any, value: any): any {
-  if (value instanceof Set) return walker(map, Array.from(value.entries()))
-  if (value instanceof Map)
-    return walker(map, Object.fromEntries(value.entries()))
-  if (Array.isArray(value)) return value.map(map)
-  if (value && typeof value === 'object') {
-    return Object.fromEntries(
-      Object.entries(value).map(([k, v]) => [k, map(v)]),
-      // not needed because cborg already sorts
-      // .sort((a, b) => (a[0] > b[0] ? 1 : -1)
-    )
-  }
-  return value
-}

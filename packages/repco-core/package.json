@@ -18,9 +18,9 @@
   },
   "dependencies": {
     "@ipld/car": "^4.1.6",
-    "@ipld/dag-cbor": "^7.0.3",
     "@multiformats/blake2": "^1.0.11",
     "@ucans/ucans": "^0.11.2",
+    "cbor-x": "^1.5.1",
     "dotenv": "^16.0.1",
     "level": "^8.0.0",
     "multiformats": "^9.9.0",
