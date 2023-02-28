@@ -5,9 +5,11 @@ import { Doughnut } from 'react-chartjs-2'
 import type { LoaderFunction } from 'react-router'
 import { ContentItemCard } from '~/components/primitives/card'
 import { DashboardQuery } from '~/graphql/queries/dashboard'
+import { PublicationServicesQuery } from '~/graphql/queries/publicationServices'
 import { RepoStatsQuery } from '~/graphql/queries/repo-stats'
 import type {
   LoadDashboardDataQuery,
+  LoadPublicationServicesQuery,
   LoadRepoStatsQuery,
   LoadRepoStatsQueryVariables,
 } from '~/graphql/types'
@@ -68,11 +70,99 @@ export const backgroundColor = [
   '#6666FF',
 ]
 
+// export const loader: LoaderFunction = async ({ request }) => {
+//   const { data } = await graphqlQuery<LoadDashboardDataQuery>(
+//     DashboardQuery,
+//     undefined,
+//   )
+//   const repoStats = data?.repos?.nodes.length
+//     ? await Promise.all(
+//         data.repos.nodes.map(async (item) => {
+//           return await graphqlQuery<
+//             LoadRepoStatsQuery,
+//             LoadRepoStatsQueryVariables
+//           >(RepoStatsQuery, {
+//             repoDid: item.did,
+//           })
+//         }),
+//       )
+//     : []
+
+//   const publicationServicesChartData = {
+//     labels: data?.publicationServices?.nodes.map((item) => {
+//       return item.name
+//     }),
+//     datasets: [
+//       {
+//         data: data?.publicationServices?.nodes.map((item) => {
+//           return item.contentItems.totalCount
+//         }),
+//         backgroundColor,
+//       },
+//     ],
+//   }
+
+//   const repoChartData = {
+//     labels: repoStats?.map((item) => item.data?.repos?.nodes[0].name),
+//     datasets: [
+//       {
+//         data: repoStats?.map((item) => item.data?.contentItems?.totalCount),
+//         backgroundColor,
+//       },
+//     ],
+//   }
+
+//   return {
+//     data,
+//     repoChartData,
+//     publicationServicesChartData,
+//     totalContentItems: data?.contentItems?.totalCount,
+//     totalPublicationServices: data?.publicationServices?.totalCount,
+//   }
+// }
+
 export const loader: LoaderFunction = async ({ request }) => {
   const { data } = await graphqlQuery<LoadDashboardDataQuery>(
     DashboardQuery,
     undefined,
   )
+
+  let publicationServicesChartData = {}
+  if (data?.publicationServices?.totalCount === undefined) {
+    publicationServicesChartData = { labels: [], datasets: [] }
+  } else if (data.publicationServices.totalCount <= 10) {
+    publicationServicesChartData = {
+      labels: data.publicationServices.nodes.map((item) => item.name),
+      datasets: [
+        {
+          data: data.publicationServices.nodes.map(
+            (item) => item.contentItems.totalCount,
+          ),
+          backgroundColor,
+        },
+      ],
+    }
+  } else {
+    const { data: pubServicesData } =
+      await graphqlQuery<LoadPublicationServicesQuery>(
+        PublicationServicesQuery,
+        { totalCount: data.publicationServices.totalCount },
+      )
+    publicationServicesChartData = {
+      labels: pubServicesData?.publicationServices?.nodes.map(
+        (item) => item.name,
+      ),
+      datasets: [
+        {
+          data: pubServicesData?.publicationServices?.nodes.map(
+            (item) => item.contentItems.totalCount,
+          ),
+          backgroundColor,
+        },
+      ],
+    }
+  }
+
   const repoStats = data?.repos?.nodes.length
     ? await Promise.all(
         data.repos.nodes.map(async (item) => {
@@ -85,20 +175,6 @@ export const loader: LoaderFunction = async ({ request }) => {
         }),
       )
     : []
-
-  const publicationServicesChartData = {
-    labels: data?.publicationServices?.nodes.map((item) => {
-      return item.name
-    }),
-    datasets: [
-      {
-        data: data?.publicationServices?.nodes.map((item) => {
-          return item.contentItems.totalCount
-        }),
-        backgroundColor,
-      },
-    ],
-  }
 
   const repoChartData = {
     labels: repoStats?.map((item) => item.data?.repos?.nodes[0].name),
@@ -127,11 +203,6 @@ export default function Index() {
     totalContentItems,
     totalPublicationServices,
   } = useLoaderData<typeof loader>()
-  console.log(data)
-  data?.publicationServices.nodes.map(
-    (publicationService: { name: string }, i: number) =>
-      console.log(publicationService),
-  )
 
   return (
     <div className="felx flex-col space-y-4">
@@ -162,9 +233,9 @@ export default function Index() {
             PublicationServices ({data?.publicationServices.totalCount})
           </h3>
           <ul className="p-2">
-            {data?.publicationServices.nodes.map(
-              (publicationService: { name: string }, i: number) => (
-                <li key={i}>{publicationService.name}</li>
+            {publicationServicesChartData.labels.map(
+              (publicationService: string, i: number) => (
+                <li key={i}>{publicationService}</li>
               ),
             )}
           </ul>
