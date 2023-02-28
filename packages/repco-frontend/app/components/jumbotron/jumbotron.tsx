@@ -18,7 +18,7 @@ export default function ClosableJumbotron({
   return (
     <>
       {show && (
-        <div className="h-52 p-4 text-white text-xl flex flex-col items-center justify-center relative bg-gradient-to-l from-brand-primary to-brand-secondary">
+        <div className="relative bg-gradient-to-r from-brand-primary to-brand-secondary rounded-md shadow-md h-52 p-4 text-white text-center flex flex-col items-center justify-center">
           <IconButton
             title="Close"
             aria-label="Close"
@@ -27,7 +27,7 @@ export default function ClosableJumbotron({
           >
             <CloseIcon />
           </IconButton>
-          <h1 className="font-bold text-3xl text-center mb-4">{title}</h1>
+          <h1 className="text-3xl font-bold mb-4">{title}</h1>
           <p className="w-3/4 text-center">{message}</p>
         </div>
       )}

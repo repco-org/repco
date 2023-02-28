@@ -17,109 +17,18 @@ import { graphqlQuery } from '~/lib/graphql.server'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
-export const backgroundColor = [
-  '#FF6633',
-  '#FFB399',
-  '#FF33FF',
-  '#FFFF99',
-  '#00B3E6',
-  '#E6B333',
-  '#3366E6',
-  '#999966',
-  '#99FF99',
-  '#B34D4D',
-  '#80B300',
-  '#809900',
-  '#E6B3B3',
-  '#6680B3',
-  '#66991A',
-  '#FF99E6',
-  '#CCFF1A',
-  '#FF1A66',
-  '#E6331A',
-  '#33FFCC',
-  '#66994D',
-  '#B366CC',
-  '#4D8000',
-  '#B33300',
-  '#CC80CC',
-  '#66664D',
-  '#991AFF',
-  '#E666FF',
-  '#4DB3FF',
-  '#1AB399',
-  '#E666B3',
-  '#33991A',
-  '#CC9999',
-  '#B3B31A',
-  '#00E680',
-  '#4D8066',
-  '#809980',
-  '#E6FF80',
-  '#1AFF33',
-  '#999933',
-  '#FF3380',
-  '#CCCC00',
-  '#66E64D',
-  '#4D80CC',
-  '#9900B3',
-  '#E64D66',
-  '#4DB380',
-  '#FF4D4D',
-  '#99E6E6',
-  '#6666FF',
-]
-
-// export const loader: LoaderFunction = async ({ request }) => {
-//   const { data } = await graphqlQuery<LoadDashboardDataQuery>(
-//     DashboardQuery,
-//     undefined,
-//   )
-//   const repoStats = data?.repos?.nodes.length
-//     ? await Promise.all(
-//         data.repos.nodes.map(async (item) => {
-//           return await graphqlQuery<
-//             LoadRepoStatsQuery,
-//             LoadRepoStatsQueryVariables
-//           >(RepoStatsQuery, {
-//             repoDid: item.did,
-//           })
-//         }),
-//       )
-//     : []
-
-//   const publicationServicesChartData = {
-//     labels: data?.publicationServices?.nodes.map((item) => {
-//       return item.name
-//     }),
-//     datasets: [
-//       {
-//         data: data?.publicationServices?.nodes.map((item) => {
-//           return item.contentItems.totalCount
-//         }),
-//         backgroundColor,
-//       },
-//     ],
-//   }
-
-//   const repoChartData = {
-//     labels: repoStats?.map((item) => item.data?.repos?.nodes[0].name),
-//     datasets: [
-//       {
-//         data: repoStats?.map((item) => item.data?.contentItems?.totalCount),
-//         backgroundColor,
-//       },
-//     ],
-//   }
-
-//   return {
-//     data,
-//     repoChartData,
-//     publicationServicesChartData,
-//     totalContentItems: data?.contentItems?.totalCount,
-//     totalPublicationServices: data?.publicationServices?.totalCount,
-//   }
-// }
+const backgroundColor = Array.from(
+  { length: 50 },
+  () =>
+    `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(
+      Math.random() * 256,
+    )}, ${Math.floor(Math.random() * 256)}, 0.7)`,
+)
+function onlyResolved<T>(
+  results: PromiseSettledResult<T>,
+): results is PromiseFulfilledResult<T> {
+  return results.status === 'fulfilled'
+}
 
 export const loader: LoaderFunction = async ({ request }) => {
   const { data } = await graphqlQuery<LoadDashboardDataQuery>(
@@ -127,64 +36,76 @@ export const loader: LoaderFunction = async ({ request }) => {
     undefined,
   )
 
-  let publicationServicesChartData = {}
-  if (data?.publicationServices?.totalCount === undefined) {
-    publicationServicesChartData = { labels: [], datasets: [] }
-  } else if (data.publicationServices.totalCount <= 10) {
-    publicationServicesChartData = {
-      labels: data.publicationServices.nodes.map((item) => item.name),
-      datasets: [
-        {
-          data: data.publicationServices.nodes.map(
-            (item) => item.contentItems.totalCount,
-          ),
-          backgroundColor,
-        },
-      ],
-    }
-  } else {
+  const labels =
+    data?.publicationServices?.nodes?.map((item) => item.name) ?? []
+  const dataPoints =
+    data?.publicationServices?.nodes?.map(
+      (item) => item.contentItems?.totalCount,
+    ) ?? []
+
+  let publicationServicesChartData = {
+    labels,
+    datasets: [{ data: dataPoints, backgroundColor }],
+  }
+
+  if (
+    data?.publicationServices?.totalCount &&
+    data.publicationServices.totalCount > 10
+  ) {
     const { data: pubServicesData } =
       await graphqlQuery<LoadPublicationServicesQuery>(
         PublicationServicesQuery,
-        { totalCount: data.publicationServices.totalCount },
+        {
+          totalCount: data.publicationServices.totalCount,
+        },
       )
+    const pubServicesNodes = pubServicesData?.publicationServices?.nodes ?? []
     publicationServicesChartData = {
-      labels: pubServicesData?.publicationServices?.nodes.map(
-        (item) => item.name,
-      ),
+      labels: pubServicesNodes.map((item) => item.name),
       datasets: [
         {
-          data: pubServicesData?.publicationServices?.nodes.map(
-            (item) => item.contentItems.totalCount,
-          ),
+          data: pubServicesNodes.map((item) => item.contentItems?.totalCount),
           backgroundColor,
         },
       ],
     }
   }
 
-  const repoStats = data?.repos?.nodes.length
-    ? await Promise.all(
-        data.repos.nodes.map(async (item) => {
-          return await graphqlQuery<
-            LoadRepoStatsQuery,
-            LoadRepoStatsQueryVariables
-          >(RepoStatsQuery, {
-            repoDid: item.did,
-          })
-        }),
+  const repoStats = data?.repos?.nodes?.length
+    ? await Promise.allSettled(
+        data.repos.nodes.map((item) =>
+          graphqlQuery<LoadRepoStatsQuery, LoadRepoStatsQueryVariables>(
+            RepoStatsQuery,
+            { repoDid: item.did },
+          ).catch((error) => {
+            console.error(`Failed to load repo stats for ${item.did}: ${error}`)
+            return Promise.resolve(null) // resolve with null to filter out rejected promises later
+          }),
+        ),
       )
     : []
 
+  const resolved = repoStats.filter(onlyResolved)
+  for (const value of resolved) {
+    value.value
+  }
+
   const repoChartData = {
-    labels: repoStats?.map((item) => item.data?.repos?.nodes[0].name),
+    labels: resolved
+      .map((result) => result.value?.data?.repos?.nodes?.[0]?.name)
+      .filter((name) => !!name),
     datasets: [
       {
-        data: repoStats?.map((item) => item.data?.contentItems?.totalCount),
+        data: resolved
+          .map((result) => result.value?.data?.contentItems?.totalCount)
+          .filter((count) => !!count),
         backgroundColor,
       },
     ],
   }
+
+  // Filter out rejected promises
+  const filteredRepoStats = repoStats.filter((result) => result !== null)
 
   return {
     data,
@@ -192,6 +113,9 @@ export const loader: LoaderFunction = async ({ request }) => {
     publicationServicesChartData,
     totalContentItems: data?.contentItems?.totalCount,
     totalPublicationServices: data?.publicationServices?.totalCount,
+    rejectedPromises: filteredRepoStats.filter(
+      (result) => !onlyResolved(result),
+    ),
   }
 }
 
@@ -205,49 +129,45 @@ export default function Index() {
   } = useLoaderData<typeof loader>()
 
   return (
-    <div className="felx flex-col space-y-4">
-      {/* <div className="bg-hero h-52 p-4 text-white text-xl flex items-center justify-center">
-        <div className="w-1/2">
-          {totalContentItems} ContentItems from {totalPublicationServices}{' '}
-          different publication services have been indexed so far
-        </div>
-      </div> */}
-
+    <div className="flex flex-col space-y-4">
       <div className="w-1/2 mx-auto">
         <ClosableJumbotron
           title="Welcome to RepCo"
-          message={`${totalContentItems} ContentItems from ${totalPublicationServices} different publication services have been indexed so far`}
+          message={`${totalContentItems} ContentItems from ${totalPublicationServices} publication services have been indexed so far`}
         />
       </div>
       <div className="flex space-x-2 my-2">
-        <div className="w-1/3 flex flex-col items-center p-2 bg-slate-300 align-middle">
-          <h3 className="text-xl">PublicationServices</h3>
+        <div className="w-1/3 flex flex-col items-center p-2 bg-white shadow-lg rounded-lg hover:shadow-xl">
+          <h3 className="text-xl">Publication Services</h3>
           <Doughnut data={publicationServicesChartData} />
         </div>
-        <div className="w-1/3 flex flex-col items-center p-2 bg-slate-300 align-middle">
-          <h3 className="text-xl">Repositorys</h3>
+        <div className="w-1/3 flex flex-col items-center p-2 bg-white shadow-lg rounded-lg hover:shadow-xl">
+          <h3 className="text-xl">Repositories</h3>
           <Doughnut data={repoChartData} />
         </div>
-        <div className="w-1/3 flex flex-col p-4 text-sm bg-slate-300 align-middle">
+        <div className="w-1/3 flex flex-col p-4 text-sm bg-white shadow-lg rounded-lg hover:shadow-xl">
           <h3 className="text-xl">
-            PublicationServices ({data?.publicationServices.totalCount})
+            Publication Services ({data?.publicationServices.totalCount})
           </h3>
           <ul className="p-2">
-            {publicationServicesChartData.labels.map(
-              (publicationService: string, i: number) => (
-                <li key={i}>{publicationService}</li>
-              ),
+            {publicationServicesChartData.labels
+              .slice(0, 15)
+              .map((label: string, index: number) => (
+                <li key={index}>{label}</li>
+              ))}
+            {publicationServicesChartData.labels.length > 15 && (
+              <li className="italic">...and more</li>
             )}
           </ul>
         </div>
-        <div className="w-1/3 flex flex-col p-4 text-sm bg-slate-300 align-middle">
+        <div className="w-1/3 flex flex-col p-4 text-sm bg-white shadow-lg rounded-lg hover:shadow-xl">
           <h3 className="text-xl">Stats</h3>
           <ul className="p-2">
             <li>
-              <span>ContentItems:</span> {data?.contentItems.totalCount}
+              <span>Content Items:</span> {data?.contentItems.totalCount}
             </li>
             <li>Files: {data?.files.totalCount}</li>
-            <li>mediaAssets: {data?.mediaAssets.totalCount}</li>
+            <li>Media Assets: {data?.mediaAssets.totalCount}</li>
             <li>Commits: {data?.commits.totalCount}</li>
           </ul>
         </div>
