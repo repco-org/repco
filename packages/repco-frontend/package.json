@@ -30,6 +30,7 @@
     "autoprefixer": "^10.4.12",
     "chart.js": "^4.2.1",
     "class-variance-authority": "^0.3.0",
+    "date-fns": "^2.29.3",
     "dotenv": "^16.0.3",
     "graphql": "^15.8.0",
     "postcss": "^8.4.18",

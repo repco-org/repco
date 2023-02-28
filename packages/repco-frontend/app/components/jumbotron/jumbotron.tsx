@@ -18,7 +18,7 @@ export default function ClosableJumbotron({
   return (
     <>
       {show && (
-        <div className="bg-white rounded-md shadow-md p-6 relative">
+        <div className="bg-white rounded-md shadow-md p-6 relative hover:shadow-xl">
           <IconButton
             title="Close"
             aria-label="Close"

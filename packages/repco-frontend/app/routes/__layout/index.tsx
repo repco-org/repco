@@ -1,15 +1,14 @@
 import ClosableJumbotron from '~/components/jumbotron/jumbotron'
 import { NavLink, useLoaderData } from '@remix-run/react'
 import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js'
+import { endOfMonth, startOfMonth, subMonths } from 'date-fns'
 import { Doughnut } from 'react-chartjs-2'
 import type { LoaderFunction } from 'react-router'
 import { ContentItemCard } from '~/components/primitives/card'
 import { DashboardQuery } from '~/graphql/queries/dashboard'
-import { PublicationServicesQuery } from '~/graphql/queries/publicationServices'
 import { RepoStatsQuery } from '~/graphql/queries/repo-stats'
 import type {
   LoadDashboardDataQuery,
-  LoadPublicationServicesQuery,
   LoadRepoStatsQuery,
   LoadRepoStatsQueryVariables,
 } from '~/graphql/types'
@@ -29,47 +28,41 @@ function onlyResolved<T>(
 ): results is PromiseFulfilledResult<T> {
   return results.status === 'fulfilled'
 }
+const now = new Date()
+const start = startOfMonth(subMonths(now, 3))
+const end = endOfMonth(now)
+
+const dateRange = { start, end }
 
 export const loader: LoaderFunction = async ({ request }) => {
   const { data } = await graphqlQuery<LoadDashboardDataQuery>(
     DashboardQuery,
-    undefined,
+    dateRange,
   )
-
-  const labels =
-    data?.publicationServices?.nodes?.map((item) => item.name) ?? []
-  const dataPoints =
-    data?.publicationServices?.nodes?.map(
-      (item) => item.contentItems?.totalCount,
-    ) ?? []
-
-  let publicationServicesChartData = {
-    labels,
-    datasets: [{ data: dataPoints, backgroundColor }],
+  let publicationServicesNodes = data?.publicationServices?.nodes ?? []
+  if (publicationServicesNodes.length > 1) {
+    // Sort the publication services by the number of content items in descending order
+    publicationServicesNodes = publicationServicesNodes.sort(
+      (a, b) => b.contentItems?.totalCount - a.contentItems?.totalCount,
+    )
+    // Extract the top 5 publication services and combine the rest as "Others"
+    const top10 = publicationServicesNodes.slice(0, 10)
+    const othersCount = publicationServicesNodes
+      .slice(5)
+      .reduce((sum, node) => sum + (node.contentItems?.totalCount ?? 0), 0)
+    publicationServicesNodes = [
+      ...top10,
+      {
+        name: `..and more (${othersCount})`,
+        contentItems: { totalCount: othersCount },
+      },
+    ]
   }
 
-  if (
-    data?.publicationServices?.totalCount &&
-    data.publicationServices.totalCount > 10
-  ) {
-    const { data: pubServicesData } =
-      await graphqlQuery<LoadPublicationServicesQuery>(
-        PublicationServicesQuery,
-        {
-          totalCount: data.publicationServices.totalCount,
-        },
-      )
-    const pubServicesNodes = pubServicesData?.publicationServices?.nodes ?? []
-    publicationServicesChartData = {
-      labels: pubServicesNodes.map((item) => item.name),
-      datasets: [
-        {
-          data: pubServicesNodes.map((item) => item.contentItems?.totalCount),
-          backgroundColor,
-        },
-      ],
-    }
-  }
+  const labels = publicationServicesNodes.map((item) => item.name)
+  const dataPoints = publicationServicesNodes.map(
+    (item) => item.contentItems?.totalCount,
+  )
 
   const repoStats = data?.repos?.nodes?.length
     ? await Promise.allSettled(
@@ -79,7 +72,7 @@ export const loader: LoaderFunction = async ({ request }) => {
             { repoDid: item.did },
           ).catch((error) => {
             console.error(`Failed to load repo stats for ${item.did}: ${error}`)
-            return Promise.resolve(null) // resolve with null to filter out rejected promises later
+            return Promise.resolve(null)
           }),
         ),
       )
@@ -104,13 +97,15 @@ export const loader: LoaderFunction = async ({ request }) => {
     ],
   }
 
-  // Filter out rejected promises
   const filteredRepoStats = repoStats.filter((result) => result !== null)
 
   return {
     data,
     repoChartData,
-    publicationServicesChartData,
+    publicationServicesChartData: {
+      labels,
+      datasets: [{ data: dataPoints, backgroundColor }],
+    },
     totalContentItems: data?.contentItems?.totalCount,
     totalPublicationServices: data?.publicationServices?.totalCount,
     rejectedPromises: filteredRepoStats.filter(
@@ -127,7 +122,7 @@ export default function Index() {
     totalContentItems,
     totalPublicationServices,
   } = useLoaderData<typeof loader>()
-
+  console.log(data?.latestConetentItems?.nodes)
   return (
     <div className="flex flex-col space-y-4">
       <div className="w-1/2 mx-auto">
@@ -138,25 +133,28 @@ export default function Index() {
       </div>
       <div className="flex space-x-2 my-2">
         <div className="w-1/3 flex flex-col items-center p-2 bg-white shadow-lg rounded-lg hover:shadow-xl">
-          <h3 className="text-xl">Publication Services</h3>
+          <h3 className="text-xl text-center">
+            Publication Services by ContentItems (last 3 Month)
+          </h3>
           <Doughnut data={publicationServicesChartData} />
         </div>
         <div className="w-1/3 flex flex-col items-center p-2 bg-white shadow-lg rounded-lg hover:shadow-xl">
-          <h3 className="text-xl">Repositories</h3>
+          <h3 className="text-xl text-center">Repositories</h3>
           <Doughnut data={repoChartData} />
         </div>
         <div className="w-1/3 flex flex-col p-4 text-sm bg-white shadow-lg rounded-lg hover:shadow-xl">
-          <h3 className="text-xl">
-            Publication Services ({data?.publicationServices.totalCount})
-          </h3>
+          <h3 className="text-xl text-center">latest ContentItems</h3>
           <ul className="p-2">
-            {publicationServicesChartData.labels
-              .slice(0, 15)
-              .map((label: string, index: number) => (
-                <li key={index}>{label}</li>
-              ))}
-            {publicationServicesChartData.labels.length > 15 && (
-              <li className="italic">...and more</li>
+            {data?.latestConetentItems?.nodes.map(
+              (node: any, index: number) => (
+                <li key={index} title={node.title}>
+                  <NavLink to={`/items/${node.uid}`}>
+                    {node.title.length > 20
+                      ? node.title.slice(0, 45) + '...'
+                      : node.title}
+                  </NavLink>
+                </li>
+              ),
             )}
           </ul>
         </div>
@@ -164,11 +162,19 @@ export default function Index() {
           <h3 className="text-xl">Stats</h3>
           <ul className="p-2">
             <li>
-              <span>Content Items:</span> {data?.contentItems.totalCount}
+              <span>Content Items:</span> {data?.totalContentItems.totalCount}
             </li>
             <li>Files: {data?.files.totalCount}</li>
             <li>Media Assets: {data?.mediaAssets.totalCount}</li>
             <li>Commits: {data?.commits.totalCount}</li>
+            <li>
+              Publication Services: {data?.publicationServices.totalCount}
+            </li>
+            <li>Repositories: {data?.repos.totalCount}</li>
+            <li>Concepts: {data?.concepts.totalCount}</li>
+            <li>Content Groupings: {data?.contentGroupings.totalCount}</li>
+            <li>Datasources: {data?.dataSources.totalCount}</li>
+            <li>Source Records: {data?.sourceRecords.totalCount}</li>
           </ul>
         </div>
       </div>
