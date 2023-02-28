@@ -50,8 +50,8 @@ import { ParseError } from './util/error.js'
 import { createEntityId } from './util/id.js'
 import { notEmpty } from './util/misc.js'
 import { Mutex } from './util/mutex.js'
-import { RelationFinder } from './repo/relation-finder'
-import { IpldRepo } from './repo/ipld-repo'
+import { RelationFinder } from './repo/relation-finder.js'
+import { IpldRepo } from './repo/ipld-repo.js'
 
 export * from './repo/types.js'
 
@@ -599,7 +599,7 @@ export class Repo {
     })
     const prevRevisions = prevEntitiesWithRevisions.map((e) => e.Revision)
     const prevRevisionsByKey = prevRevisions.reduce<
-      Record<string, (typeof prevRevisions)[number]>
+      Record<string, typeof prevRevisions[number]>
     >((agg, r) => {
       agg[r.uid] = r
       r.entityUris.forEach((u) => (agg[u] = r))
