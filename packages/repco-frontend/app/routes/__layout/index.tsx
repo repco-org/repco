@@ -1,5 +1,5 @@
 import ClosableJumbotron from '~/components/jumbotron/jumbotron'
-import { useLoaderData } from '@remix-run/react'
+import { NavLink, useLoaderData } from '@remix-run/react'
 import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js'
 import { Doughnut } from 'react-chartjs-2'
 import type { LoaderFunction } from 'react-router'
@@ -187,15 +187,17 @@ export default function Index() {
         <div className="flex flex-col p-1">
           {data?.repos.nodes.map(
             (repo: { name: string; did: string }, i: number) => (
-              <ContentItemCard key={i}>
-                <div className="flex items-baseline space-x-4">
-                  {' '}
-                  <h3 className="text-brand-primary text-lg" key={i}>
-                    {repo.name}
-                  </h3>
-                  <span className="text-xs italic">{repo.did}</span>
-                </div>
-              </ContentItemCard>
+              <NavLink to={`items?includes=&repoDid=${repo.did}`}>
+                <ContentItemCard key={i}>
+                  <div className="flex items-baseline space-x-4">
+                    {' '}
+                    <h3 className="text-brand-primary text-lg" key={i}>
+                      {repo.name}
+                    </h3>
+                    <span className="text-xs italic">{repo.did}</span>
+                  </div>
+                </ContentItemCard>
+              </NavLink>
             ),
           )}
         </div>

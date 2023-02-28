@@ -47,7 +47,6 @@ export function InputWithIcon(props: InputIconProps) {
       <input
         className={className}
         {...inputProps}
-        title={tooltip}
         aria-label={tooltip} // Add aria-label attribute
       />
     </div>
