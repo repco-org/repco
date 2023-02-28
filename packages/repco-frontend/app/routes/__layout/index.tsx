@@ -132,7 +132,7 @@ export default function Index() {
     <div className="flex flex-col space-y-4">
       <div className="w-1/2 mx-auto">
         <ClosableJumbotron
-          title="Welcome to RepCo"
+          title="Welcome to REPCO"
           message={`${totalContentItems} ContentItems from ${totalPublicationServices} publication services have been indexed so far`}
         />
       </div>
