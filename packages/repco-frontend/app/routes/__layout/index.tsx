@@ -39,24 +39,27 @@ export const loader: LoaderFunction = async ({ request }) => {
     DashboardQuery,
     dateRange,
   )
-  let publicationServicesNodes = data?.publicationServices?.nodes ?? []
+  let publicationServicesNodes = data?.publicationServices?.nodes || []
   if (publicationServicesNodes.length > 1) {
     // Sort the publication services by the number of content items in descending order
-    publicationServicesNodes = publicationServicesNodes.sort(
+    publicationServicesNodes.sort(
       (a, b) => b.contentItems?.totalCount - a.contentItems?.totalCount,
     )
-    // Extract the top 5 publication services and combine the rest as "Others"
-    const top10 = publicationServicesNodes.slice(0, 10)
+    // Extract the top 10 publication services and combine the rest as "... and more"
+    const top10 = []
     const othersCount = publicationServicesNodes
-      .slice(5)
-      .reduce((sum, node) => sum + (node.contentItems?.totalCount ?? 0), 0)
-    publicationServicesNodes = [
-      ...top10,
-      {
+      .slice(10)
+      .reduce((sum, node) => sum + (node.contentItems?.totalCount || 0), 0)
+    for (let i = 0; i < 10 && i < publicationServicesNodes.length; i++) {
+      top10.push(publicationServicesNodes[i])
+    }
+    if (othersCount > 0) {
+      top10.push({
         name: `..and more (${othersCount})`,
         contentItems: { totalCount: othersCount },
-      },
-    ]
+      })
+    }
+    publicationServicesNodes = top10
   }
 
   const labels = publicationServicesNodes.map((item) => item.name)
@@ -79,9 +82,6 @@ export const loader: LoaderFunction = async ({ request }) => {
     : []
 
   const resolved = repoStats.filter(onlyResolved)
-  for (const value of resolved) {
-    value.value
-  }
 
   const repoChartData = {
     labels: resolved
@@ -125,24 +125,32 @@ export default function Index() {
   console.log(data?.latestConetentItems?.nodes)
   return (
     <div className="flex flex-col space-y-4">
-      <div className="w-1/2 mx-auto">
+      <div className="mx-auto w-full" aria-label="Jumbotron">
         <ClosableJumbotron
           title="Welcome to REPCO"
           message={`${totalContentItems} ContentItems from ${totalPublicationServices} publication services have been indexed so far`}
+          aria-live="assertive"
+          aria-atomic="true"
         />
       </div>
-      <div className="flex space-x-2 my-2">
-        <div className="w-1/3 flex flex-col items-center p-2 bg-white shadow-lg rounded-lg hover:shadow-xl">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="flex flex-col items-center p-2 bg-white shadow-lg rounded-lg hover:shadow-xl">
           <h3 className="text-xl text-center">
             Publication Services by ContentItems (last 3 Month)
           </h3>
-          <Doughnut data={publicationServicesChartData} />
+          <Doughnut
+            aria-label="Publication services by content items chart"
+            data={publicationServicesChartData}
+          />
         </div>
-        <div className="w-1/3 flex flex-col items-center p-2 bg-white shadow-lg rounded-lg hover:shadow-xl">
+        <div className="flex flex-col items-center p-2 bg-white shadow-lg rounded-lg hover:shadow-xl">
           <h3 className="text-xl text-center">Repositories</h3>
-          <Doughnut data={repoChartData} />
+          <Doughnut
+            aria-label="Repositories viewed as chart"
+            data={repoChartData}
+          />
         </div>
-        <div className="w-1/3 flex flex-col p-4 text-sm bg-white shadow-lg rounded-lg hover:shadow-xl">
+        <div className="flex flex-col p-4 text-sm bg-white shadow-lg rounded-lg hover:shadow-xl">
           <h3 className="text-xl text-center">latest ContentItems</h3>
           <ul className="p-2">
             {data?.latestConetentItems?.nodes.map(
@@ -158,7 +166,7 @@ export default function Index() {
             )}
           </ul>
         </div>
-        <div className="w-1/3 flex flex-col p-4 text-sm bg-white shadow-lg rounded-lg hover:shadow-xl">
+        <div className="flex flex-col p-4 text-sm bg-white shadow-lg rounded-lg hover:shadow-xl">
           <h3 className="text-xl">Stats</h3>
           <ul className="p-2">
             <li>
@@ -184,10 +192,11 @@ export default function Index() {
         <div className="flex flex-col p-1">
           {data?.repos.nodes.map(
             (repo: { name: string; did: string }, i: number) => (
-              <NavLink to={`items?includes=&repoDid=${repo.did}`}>
-                <ContentItemCard key={i}>
+              <NavLink key={i} to={`items?includes=&repoDid=${repo.did}`}>
+                <ContentItemCard
+                  aria-label={`Repository ${repo.name} with DID ${repo.did}`}
+                >
                   <div className="flex items-baseline space-x-4">
-                    {' '}
                     <h3 className="text-brand-primary text-lg" key={i}>
                       {repo.name}
                     </h3>
@@ -208,24 +217,25 @@ export default function Index() {
                 <img
                   className="object-contain"
                   src={'https://github.com/arso-project.png'}
+                  alt="arso-logo"
                 />
               </a>
-
               <a href="https://cba.media" className="w-1/6 flex">
                 <img
                   className=" object-contain"
                   src="https://cba.media/wp-content/themes/cba2020/images/cba_logo.svg"
+                  alt="cba-logo"
                 />
               </a>
             </div>
           </div>
           <div className="flex flex-col w-1/3 space-y-2">
             <h4 className="text-xl">And kindly supported by:</h4>
-
             <a className="flex w-1/2" href="https://culturalfoundation.eu">
               <img
                 className=" object-contain"
                 src="https://culturalfoundation.eu/wp-content/themes/ecf/img/logo.svg"
+                alt="ecf-logo"
               />
             </a>
           </div>

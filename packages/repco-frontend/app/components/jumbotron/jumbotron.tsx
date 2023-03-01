@@ -18,17 +18,24 @@ export default function ClosableJumbotron({
   return (
     <>
       {show && (
-        <div className="bg-white rounded-md shadow-md p-6 relative hover:shadow-xl">
+        <div
+          className="bg-white rounded-md shadow-md p-4 sm:p-6 relative hover:shadow-xl"
+          role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
+        >
           <IconButton
             title="Close"
             aria-label="Close"
-            className="absolute top-0 right-0 m-3 border-none bg-transparent cursor-pointer"
+            className="absolute top-0 right-0 m-2 sm:m-3 border-none bg-transparent cursor-pointer"
             onClick={handleClose}
           >
             <CloseIcon />
           </IconButton>
-          <h1 className="text-2xl font-bold mb-2">{title}</h1>
-          <p className="text-gray-600">{message}</p>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-2 sm:mb-4">
+            {title}
+          </h2>
+          <p className="text-lg sm:text-xl text-gray-600">{message}</p>
         </div>
       )}
     </>

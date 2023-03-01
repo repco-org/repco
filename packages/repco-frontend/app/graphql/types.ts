@@ -7676,16 +7676,6 @@ export type LoadDashboardDataQuery = {
   sourceRecords?: { totalCount: number } | null
 }
 
-export type LoadPublicationServicesQueryVariables = Exact<{
-  totalCount: Scalars['Int']
-}>
-
-export type LoadPublicationServicesQuery = {
-  publicationServices?: {
-    nodes: Array<{ name: string; contentItems: { totalCount: number } }>
-  } | null
-}
-
 export type LoadRepoStatsQueryVariables = Exact<{
   repoDid: InputMaybe<Scalars['String']>
 }>
