@@ -45,5 +45,13 @@
     "get-port": "^6.1.2",
     "nanobench-utils": "^1.0.0",
     "tempy": "^3.0.0"
+  },
+  "overrides": {
+    "blake3-wasm": "^3.0.0",
+    "@c4312/blake3-internal": "^3.0.0"
+  },
+  "resolutions": {
+    "blake3/**/blake3-wasm": "^3.0.0",
+    "blake3/**/@c4312/blake3-internal": "^3.0.0"
   }
 }

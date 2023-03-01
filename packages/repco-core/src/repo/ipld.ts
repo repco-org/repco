@@ -208,16 +208,3 @@ export function typedRevisionBundle<T extends typeof common.ipld>(bodyType: T) {
 export type TypedRevisionBundle<T extends typeof common.ipld> = z.infer<
   ReturnType<typeof typedRevisionBundle<T>>
 >
-
-// Demo
-// const contentItem = z.object({
-//   title: z.string(),
-// })
-// const contentItemRevision = typedRevision(contentItem)
-// type ContentItemRevision = z.infer<typeof contentItemRevision>
-// type B = ContentItemRevision['body']
-
-// export type TypedRevisionForm<T> = {
-//   headers: RevisionForm['headers']
-//   body: T
-// }
