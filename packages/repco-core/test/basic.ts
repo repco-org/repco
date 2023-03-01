@@ -23,7 +23,7 @@ test('smoke', async (assert) => {
   assert.is((revision.content as any).title, 'foo')
 })
 
-test.solo('update', async (assert) => {
+test('update', async (assert) => {
   const prisma = await setup(assert)
   const repo = await Repo.create(prisma, 'default')
   const input: EntityForm = {

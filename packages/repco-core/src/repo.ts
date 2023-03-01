@@ -13,9 +13,12 @@ import { fetch } from 'undici'
 import { ZodError } from 'zod'
 import { DataSource, DataSourceRegistry } from './datasource.js'
 import {
+  entityForm,
   EntityInputWithHeaders,
   EntityInputWithRevision,
   EntityMaybeContent,
+  headersForm,
+  HeadersForm,
 } from './entity.js'
 import {
   createRepoKeypair,
@@ -33,6 +36,8 @@ import {
   exportRepoToCarReversed,
 } from './repo/export.js'
 import { importRepoFromCar, OnProgressCallback } from './repo/import.js'
+import { IpldRepo } from './repo/ipld-repo.js'
+import { RelationFinder } from './repo/relation-finder.js'
 import {
   ContentLoaderStream,
   RevisionFilter,
@@ -40,20 +45,15 @@ import {
 } from './repo/stream.js'
 import {
   CommitBundle,
-  entityForm,
-  HeadersForm,
-  headersForm,
-  RevisionIpld,
-  revisionIpldToDb,
-} from './repo/types.js'
+  CommitHeaders,
+  RevisionBundle,
+} from './repo/ipld.js'
 import { ParseError } from './util/error.js'
 import { createEntityId } from './util/id.js'
 import { notEmpty } from './util/misc.js'
 import { Mutex } from './util/mutex.js'
-import { RelationFinder } from './repo/relation-finder.js'
-import { IpldRepo } from './repo/ipld-repo.js'
 
-export * from './repo/types.js'
+// export * from './repo/types.js'
 
 export type SaveBatchOpts = {
   commitEmpty: boolean
@@ -64,11 +64,11 @@ export const SAVE_BATCH_DEFAULTS = {
 }
 
 export type RevisionWithoutCid = Omit<Revision, 'revisionCid'>
-export type RevisionWithUnknownContent = {
-  content: unknown
-  revision: RevisionIpld
-  revisionCid: CID
-}
+// export type RevisionWithUnknownContent = {
+//   content: unknown
+//   revision: RevisionIpld
+//   revisionCid: CID
+// }
 
 export enum ErrorCode {
   NOT_FOUND = 'NOT_FOUND',
@@ -252,7 +252,7 @@ export class Repo {
     this.dsr = dsr || new DataSourceRegistry()
     this.blockstore = bs || defaultBlockStore(prisma)
     this.publishingCapability = cap
-    this.ipld = new IpldRepo(record, this.blockstore)
+    this.ipld = new IpldRepo(record.did, this.blockstore)
     this.log = log.child({ repo: this.did })
   }
 
@@ -505,16 +505,16 @@ export class Repo {
       parent,
     )
     if (!bundle) return null
-    const counts = bundle.revisions.reduce<Record<string, number>>((agg, r) => {
-      const key = r.revision.entityType
+    const counts = bundle.body.reduce<Record<string, number>>((agg, r) => {
+      const key = r.headers.EntityType
       if (!agg[key]) agg[key] = 0
       agg[key] += 1
       return agg
     }, {})
     const details = {
       entities: counts,
-      revisions: bundle.revisions.length,
-      root: bundle.root.cid.toString(),
+      revisions: bundle.body.length,
+      root: bundle.headers.Cid,
     }
     this.log.debug({ msg: 'Created commit', details })
     const ret = await this.saveFromIpld(bundle)
@@ -522,45 +522,51 @@ export class Repo {
   }
 
   async saveFromIpld(bundle: CommitBundle) {
-    const commit = bundle.commit.body
-    await this.ensureAgent(commit.agentDid)
-    const revisions = bundle.revisions.map((r) => ({
-      ...r,
-      revisionDb: revisionIpldToDb(r.revision, r.revisionCid),
-    }))
-    await this.saveRevisionBatch(revisions.map((r) => r.revisionDb))
+    const { headers, body } = bundle
+    await this.ensureAgent(headers.Author)
+    const revisionsDb = body.map((revision) =>
+      revisionIpldToDb(revision, headers),
+    )
+    await this.saveRevisionBatch(revisionsDb)
+    let parent = null
+    if (headers.Parents?.length && headers.Parents[0])
+      parent = headers.Parents[0].toString()
     await this.prisma.commit.create({
       data: {
-        rootCid: bundle.root.cid.toString(),
-        commitCid: bundle.commit.cid.toString(),
-        repoDid: commit.repoDid,
-        agentDid: commit.agentDid,
-        parent: commit.parent ? commit.parent.toString() : null,
-        timestamp: commit.timestamp,
+        rootCid: headers.Cid.toString(),
+        commitCid: headers.BodyCid.toString(),
+        repoDid: headers.Repo,
+        agentDid: headers.Author,
+        parent,
+        timestamp: headers.DateCreated,
         Revisions: {
-          connect: commit.revisions.map((r) => ({
-            revisionCid: r.toString(),
+          connect: body.map((revisionBundle) => ({
+            revisionCid: revisionBundle.headers.Cid.toString(),
           })),
         },
       },
     })
-    const head = bundle.root.cid.toString()
-    const tail = commit.parent ? undefined : head
+    const head = headers.Cid.toString()
+    const tail = parent ? undefined : head
     await this.prisma.repo.update({
       where: { did: this.did },
       data: { head, tail },
     })
 
     const ret = []
+    const data = body.map(
+      (revisionBundle, i) => [revisionBundle, revisionsDb[i]] as const,
+    )
     // update domain views
-    for (const row of revisions) {
-      const input =
-        row.parsedContent ||
-        repco.parseEntity(row.revision.entityType, row.content)
+    for (const [revisionBundle, revisionDb] of data) {
+      const input = repco.parseEntity(
+        revisionBundle.headers.EntityType,
+        revisionBundle.body,
+      )
       const data = {
         ...input,
-        revision: row.revisionDb,
-        uid: row.revision.uid,
+        revision: revisionDb,
+        uid: revisionBundle.headers.EntityUid,
       }
       await this.updateDomainView(data)
       ret.push(data)
@@ -599,7 +605,7 @@ export class Repo {
     })
     const prevRevisions = prevEntitiesWithRevisions.map((e) => e.Revision)
     const prevRevisionsByKey = prevRevisions.reduce<
-      Record<string, typeof prevRevisions[number]>
+      Record<string, (typeof prevRevisions)[number]>
     >((agg, r) => {
       agg[r.uid] = r
       r.entityUris.forEach((u) => (agg[u] = r))
@@ -783,4 +789,31 @@ function parseEntity(input: unknown): EntityFormWithHeaders {
 
 export function parseEntities(inputs: unknown[]): EntityFormWithHeaders[] {
   return inputs.map(parseEntity)
+}
+
+export function revisionIpldToDb(
+  input: RevisionBundle,
+  commitHeaders: CommitHeaders,
+): Revision {
+  const { headers } = input
+  let prevRevisionId = null
+  if (headers.ParentRevision) {
+    prevRevisionId = headers.ParentRevision
+  }
+  return {
+    id: input.headers.RevisionUid,
+    prevRevisionId,
+    uid: headers.EntityUid,
+    repoDid: commitHeaders.Repo,
+    agentDid: commitHeaders.Author,
+    entityType: headers.EntityType,
+    dateModified: headers.DateModified,
+    dateCreated: headers.DateCreated || headers.DateModified,
+    isDeleted: headers.Deleted || false,
+    entityUris: headers.EntityUris,
+    revisionUris: headers.RevisionUris,
+    contentCid: headers.BodyCid.toString(),
+    revisionCid: headers.Cid.toString(),
+    derivedFromUid: headers.DerivedFrom || null,
+  }
 }

@@ -1,5 +1,10 @@
 import * as cbor from 'cbor-x'
 import { CID } from 'multiformats/cid'
+import type { Ipld } from 'repco-common/zod'
+
+// Encode JS objects as DAG-CBOR with the cbor-x encoder.
+// Decode ISO-8601 strings into Date objects.
+// Preprocess data to convert date to strings.
 
 // https://github.com/ipfs/go-ipfs/issues/3570#issuecomment-273931692
 const CID_CBOR_TAG = 42
@@ -10,6 +15,7 @@ export const code = 0x71
 const encoder = new cbor.Encoder({
   useRecords: false,
   mapsAsObjects: true,
+  // tagUint8Array: false,
 })
 cbor.addExtension({
   Class: CID,
@@ -28,7 +34,8 @@ cbor.addExtension({
     return CID.decode(bytes.subarray(1)) // ignore leading 0x00
   },
 })
-export function encode(node: any) {
+
+export function encode(node: any): Uint8Array {
   return encoder.encode(preEncode(node))
 }
 
@@ -39,16 +46,9 @@ export function decode(bytes: Uint8Array) {
 const ISO_DATE_REGEX = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/
 const ISO_DATE_LENGTH = 24
 
-type IpldScalar = string | number | CID | boolean | Uint8Array | null
-interface IpldRecord {
-  [k: string]: IpldValue
-}
-type IpldArray = IpldValue[]
-export type IpldValue = IpldRecord | IpldArray | IpldScalar
-
-function preEncode(value: any): IpldValue {
+function preEncode(value: any): Ipld {
   const map = (value: any): any => {
-    if (isNaN(value))
+    if (typeof value === 'number' && isNaN(value))
       throw new Error('NaN is not permitted in the IPLD data model')
     if (value === Infinity || value === -Infinity)
       throw new Error('Infinity is not permitted in the IPLD data model')
@@ -83,6 +83,7 @@ function postDecode(value: any): any {
         const date = new Date(value)
         if (date.toISOString() === value) return date
       }
+      return value
     }
     if (value instanceof CID) return value
     if (value instanceof Uint8Array) return value

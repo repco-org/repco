@@ -10,19 +10,23 @@ import {
 } from './blockstore.js'
 import {
   CommitBundle,
-  commitIpld,
   CommitIpld,
-  Repo,
+  commitIpld,
   RevisionIpld,
   revisionIpld,
   RootIpld,
   rootIpld,
-} from '../repo.js'
+} from './ipld.js'
+import { Repo } from '../repo.js'
 
 export type OnProgressCallback = (progress: ImportProgress) => void
 
 export class UnexpectedCidError extends Error {
-  constructor(public received: CID, public expected: CID, public kind: string) {
+  constructor(
+    public received: CID,
+    public expected: CID | null,
+    public kind: string,
+  ) {
     super(`Wrong CID: Expected ${kind} ${expected}, but received ${received}`)
   }
 }
@@ -38,7 +42,7 @@ export async function importRepoFromCar(
     reader,
     repo,
   )) {
-    if (await repo.hasRoot(bundle.root.cid)) {
+    if (await repo.hasRoot(bundle.headers.Cid)) {
       updateCounter(skipped, bundle, blocks)
     } else {
       await repo.blockstore.putBytesBatch(blocks)
@@ -55,6 +59,7 @@ type CommitBundlePartial = {
     revision: RevisionIpld
     revisionCid: CID
     content: any
+    contentCid: CID
   }[]
 }
 
@@ -85,9 +90,9 @@ function updateCounter(
   bundle: CommitBundle,
   blocks: BlockT[],
 ) {
-  counter.revisions += bundle.revisions.length
+  counter.revisions += bundle.body.length
   counter.commits += 1
-  counter.blocks += bundle.revisions.length * 2 + 2
+  counter.blocks += bundle.body.length * 2 + 2
   counter.bytes += blocks.reduce((sum, b) => sum + blocklen(b), 0)
 }
 
@@ -127,27 +132,23 @@ async function* readCommitBundles(
         break
       case State.Commit:
         if (!bundle.root) throw new Error('invalid state')
-        await verifyRoot(bundle.root.body, repo.did)
-        if (!bundle.root.body.commit.equals(block.cid)) {
-          throw new UnexpectedCidError(
-            block.cid,
-            bundle.root.body.commit,
-            state,
-          )
-        }
         progress.commits += 1
         bundle.commit = {
           body: parseBytesWith(block.bytes, commitIpld),
           cid: block.cid,
         }
-        if (bundle.commit.body.repoDid !== repo.did) {
+        if (!bundle.root.body.body.equals(block.cid)) {
+          throw new UnexpectedCidError(block.cid, bundle.root.body.body, state)
+        }
+        await verifyRoot(bundle.root.body, bundle.commit.body, repo.did)
+        if (bundle.commit.body.headers.Repo !== repo.did) {
           throw new Error('commit does not belong to repo')
         }
         state = State.Revision
         break
       case State.Revision:
         if (!bundle.commit) throw new Error('invalid state')
-        if (!bundle.commit.body.revisions.find((x) => block.cid.equals(x))) {
+        if (!bundle.commit.body.body.find((x) => block.cid.equals(x[0]))) {
           throw new Error('revision is not in commit')
         }
         progress.revisions += 1
@@ -159,10 +160,10 @@ async function* readCommitBundles(
         break
       case State.Content:
         if (!revision) throw new Error('invalid state')
-        if (!revision.body.contentCid.equals(block.cid)) {
+        if (!revision.body.body?.equals(block.cid)) {
           throw new UnexpectedCidError(
             block.cid,
-            revision.body.contentCid,
+            revision.body.body || null,
             state,
           )
         }
@@ -170,6 +171,7 @@ async function* readCommitBundles(
           revision: revision.body,
           revisionCid: revision.cid,
           content: parseToIpld(block.bytes),
+          contentCid: block.cid,
         })
         revision = undefined
         state = State.Revision
@@ -180,16 +182,28 @@ async function* readCommitBundles(
     blocks.push(block)
     if (
       state === State.Revision &&
-      bundle.revisions.length === bundle.commit?.body.revisions.length
+      bundle.revisions.length === bundle.commit?.body.body.length
     ) {
       if (!bundle.root) throw new Error('missing root block')
       if (!bundle.commit) throw new Error('missing commit block')
-      yield {
-        bundle: {
-          root: bundle.root,
-          commit: bundle.commit,
-          revisions: bundle.revisions,
+      const realBundle: CommitBundle = {
+        headers: {
+          ...bundle.commit.body.headers,
+          ...bundle.root.body.headers,
+          Cid: bundle.root.cid,
+          BodyCid: bundle.commit.cid,
         },
+        body: bundle.revisions.map((revision) => ({
+          headers: {
+            ...revision.revision.headers,
+            Cid: revision.revisionCid,
+            BodyCid: revision.contentCid,
+          },
+          body: revision.content,
+        })),
+      }
+      yield {
+        bundle: realBundle,
         progress,
         blocks,
       }

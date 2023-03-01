@@ -1,5 +1,6 @@
 import * as ucans from '@ucans/ucans'
-import { RootIpld } from './types.js'
+import { CID } from 'multiformats/cid'
+import { CommitIpld, RootIpld } from './ipld.js'
 
 const PUBLISH_ABILITY = { namespace: 'repco', segments: ['PUBLISH'] }
 const DEFAULT_LIFETIME = 3600 * 24 * 365 * 10 // 10 years
@@ -12,9 +13,24 @@ export async function verifySignature(
   return ucans.defaults.verifySignature(did, payload, sig)
 }
 
-export async function verifyRoot(root: RootIpld, repoDid: string) {
-  await verifySignature(root.agent, root.commit.bytes, root.sig)
-  await verifyPublishingCapability(root.cap, root.agent, repoDid)
+export async function verifyRoot(
+  root: RootIpld,
+  commit: CommitIpld,
+  repoDid: string,
+) {
+  await verifySignature(
+    commit.headers.Author,
+    root.body.bytes,
+    root.headers.Signature,
+  )
+  const proof = commit.headers.Proofs[0]
+  if (!proof) {
+    throw new Error('Missing proof')
+  } else if (proof instanceof CID) {
+    throw new Error('CID proofs are not yet supported')
+  } else {
+    await verifyPublishingCapability(proof, commit.headers.Author, repoDid)
+  }
 }
 
 export async function delegatePublishingCapability(

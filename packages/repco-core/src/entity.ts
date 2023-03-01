@@ -5,8 +5,9 @@
  * Furthermore the EntityBatch has a cursor which is usually a timestamp of the last retrieval of the entity.
  */
 
+import * as common from 'repco-common/zod'
+import z from 'zod'
 import { repco } from 'repco-prisma'
-import { HeadersForm } from './mod.js'
 import {
   ConceptKind,
   ContentGrouping,
@@ -18,6 +19,26 @@ import {
 
 export type { ContentItem, MediaAsset, ContentGrouping, Revision }
 export { ContentGroupingVariant, ConceptKind }
+
+// TODO: Remove and replace with revisionHeaders
+export const headersForm = z.object({
+  // TODO: uid / did
+  agentDid: z.string().nullish(),
+  dateModified: z.date().nullish(),
+  dateCreated: z.date().nullish(),
+  revisionUris: z.array(z.string()).optional(),
+  entityUris: z.array(z.string()).optional(),
+  prevRevisionId: z.string().nullish(),
+  isDeleted: z.boolean().nullish(),
+  derivedFromUid: common.uid.nullish(),
+})
+export interface HeadersForm extends z.infer<typeof headersForm> {}
+
+export const entityForm = z.object({
+  type: z.string(),
+  content: z.object({}).passthrough(),
+  headers: headersForm.nullish(),
+})
 
 export type AnyEntityContent = { uid: string }
 export type AllEntityTypes = repco.EntityOutput['type']
