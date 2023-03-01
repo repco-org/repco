@@ -20,10 +20,16 @@ const styles = cva(
         icon: ['block w-full', 'text-gray-900 placeholder-gray-400', 'pl-10'],
         bare: '',
       },
+      responsive: {
+        md: ['text-md'],
+        lg: ['text-lg'],
+        xl: ['text-xl'],
+      },
     },
     defaultVariants: {
       variantSize: 'md',
       variant: 'default',
+      responsive: null,
     },
   },
 )
@@ -31,11 +37,13 @@ const styles = cva(
 export type InputIconProps = InputProps & {
   icon?: React.ReactNode
   tooltip?: string
+  label?: string
+  responsive?: 'md' | 'lg' | 'xl' | null
 }
 
 export function InputWithIcon(props: InputIconProps) {
   const className = cx(styles({ ...props, variant: 'icon' }))
-  const { icon, tooltip, ...inputProps } = props
+  const { icon, tooltip, label, responsive, ...inputProps } = props
   return (
     <div className="relative">
       <div
@@ -44,10 +52,14 @@ export function InputWithIcon(props: InputIconProps) {
       >
         {icon ? icon : null}
       </div>
+      <label htmlFor={inputProps.id} className="sr-only">
+        {label}
+      </label>
+
       <input
-        className={className}
+        className={cx(className, responsive && styles({ responsive }))}
         {...inputProps}
-        aria-label={tooltip} // Add aria-label attribute
+        aria-label={tooltip}
       />
     </div>
   )

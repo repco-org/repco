@@ -1,3 +1,4 @@
+import React from 'react'
 import { GitHubLogoIcon } from '@radix-ui/react-icons'
 import type { LoaderArgs } from '@remix-run/node'
 import { json } from '@remix-run/node'
@@ -19,7 +20,9 @@ const SocialButton: React.FC<SocialButtonProps> = ({
   icon,
 }) => (
   <Form action={`/auth/${provider}`} method="post">
-    <IconButton icon={icon}>{label}</IconButton>
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <IconButton icon={icon}>{label}</IconButton>
+    </React.Suspense>
   </Form>
 )
 
@@ -44,10 +47,7 @@ export async function loader({ request }: LoaderArgs) {
 export default function Login() {
   const { error } = useLoaderData()
   return (
-    <div
-      className="flex p-4
-     w-full justify-center items-center"
-    >
+    <div className="flex p-4 w-full justify-center items-center">
       {error && <div>{error}</div>}
       <GitHubLoginButton />
     </div>

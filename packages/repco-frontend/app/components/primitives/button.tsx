@@ -23,8 +23,8 @@ export const buttonStyles = cva(
         true: 'opacity-70 pointer-events-none cursor-not-allowed',
       },
       variantSize: {
-        md: 'py-1 px-3 text-base ',
-        sm: 'py-1 px-2 text-sm h-8',
+        md: 'py-1 px-3 text-base  ',
+        sm: 'py-1 px-2 text-sm h-auto',
       },
     },
     defaultVariants: {
