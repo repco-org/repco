@@ -2,3 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
+.menu-wrapper {
+  overflow: hidden;
+  width: 0;
+  transition: width 0.3s ease-in-out;
+}
+
+.menu {
+  background-color: #fff;
+  width: 80px;
+  height: 100%;
+  transition: transform 0.3s ease-in-out;
+  transform: translateX(-100%);
+}
+
+.menu-wrapper.active .menu {
+  transform: translateX(0);
+}
+
+.menu-wrapper.active {
+  width: 80px;
+}
+
+.main {
+  width: calc(100% - 80px); /* subtract the width of the filter sidebar */
+}
+
+.main--full {
+  width: 100%;
+}

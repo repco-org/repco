@@ -26,8 +26,7 @@ export function NavBar() {
           <button
             onClick={handleMenuToggle}
             type="button"
-            className="text-brand-secondary hover:text-gray-300 focus:text-gray-300 focus:outline-none ml-0"
-            style={{ color: 'currentColor', fontSize: '1.25rem' }}
+            className="text-white hover:text-gray-300 focus:text-gray-300 focus:outline-none ml-0"
             aria-expanded={isMenuOpen}
             aria-controls="menu-list"
             title={isMenuOpen ? 'Close menu' : 'Open menu'}
@@ -41,7 +40,7 @@ export function NavBar() {
         id="menu-list"
         className={`${
           isMenuOpen ? 'block' : 'hidden'
-        } sm:block sm:flex text-white space-y-2 sm:space-y-0 sm:space-x-1`}
+        }  sm:flex text-white space-y-2 sm:space-y-0 sm:space-x-1`}
       >
         {links.map((l, i) => (
           <li key={i}>
