@@ -51,9 +51,12 @@ export default function ItemsMenuWrapper() {
   }
   return (
     <div>
-      <Button onClick={toggleSidebar} aria-label={buttonText}>
-        {buttonText}
-      </Button>
+      <div className="block lg:hidden">
+        <Button onClick={toggleSidebar} aria-label={buttonText}>
+          {buttonText}
+        </Button>
+      </div>
+
       <Sidebar
         sidebarWidth="w-60"
         sidebarOpen={sidebarOpen}
@@ -203,6 +206,24 @@ export default function ItemsMenuWrapper() {
               </IconButton>
             )}
           </div>
+          <Button
+            type="button"
+            onClick={() => {
+              setSearchParams({
+                q: '',
+                type: 'title',
+                repoDid: 'all',
+                orderBy: 'TITLE_DESC',
+              })
+              setSearchInput('')
+              setSearchType('title')
+              handleRepoDidChange('all')
+              document.getElementById('all')?.click()
+            }}
+            className="text-white font-bold bg-brand-primary w-full py-2 px-4  hover:bg-brand-secondary focus:outline-none focus:ring-2 "
+          >
+            Reset
+          </Button>
         </Form>
       </Sidebar>
     </div>
