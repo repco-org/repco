@@ -25,13 +25,12 @@ export const loader: LoaderFunction = async ({ request }) => {
 }
 
 export default function ItemsMenuWrapper() {
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const orderBy = searchParams.get('orderBy')
   const repoDid = searchParams.get('repoDid') || 'all'
   const repos = useLoaderData<typeof loader>()
   const handleRepoDidChange = (value: string) => {
-    searchParams.set('repoDid', value)
-    submit(searchParams)
+    setSearchParams({ ...searchParams, repoDid: value })
   }
   const [sidebarOpen, setSidebarOpen] = useState(true)
 
@@ -40,9 +39,16 @@ export default function ItemsMenuWrapper() {
   }
 
   const buttonText = sidebarOpen ? 'Hide Sidebar' : 'Show Sidebar'
-
+  const [searchInput, setSearchInput] = useState(searchParams.get('q') || '')
+  const [searchType, setSearchType] = useState(
+    searchParams.get('type') || 'title',
+  )
   const submit = useSubmit()
 
+  const handleRadioChange = (value: string) => {
+    setSearchType(value)
+    submit
+  }
   return (
     <div>
       <Button onClick={toggleSidebar} aria-label={buttonText}>
@@ -61,25 +67,64 @@ export default function ItemsMenuWrapper() {
           className="space-y-2"
         >
           <InputWithIcon
-            name="includes"
-            id="includes"
+            name="q"
+            id="q"
             type="text"
             autoFocus
-            placeholder="Title contains.."
+            placeholder="Search"
             tooltip="Search Input"
             icon={<MagnifyingGlassIcon />}
-            defaultValue={searchParams.get('includes') || ''}
-            onChange={(e) => {
-              if (e.currentTarget.value !== '') {
-                searchParams.set('includes', e.currentTarget.value)
-              } else {
-                searchParams.delete('includes')
-              }
-              submit(searchParams)
-              e.stopPropagation()
-            }}
-            aria-label="Search by title"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            aria-label="Search"
           />
+
+          <h2 className="text-lg pt-2 w-full border-b-2 border-gray-200">
+            Search by
+          </h2>
+
+          <div className="flex items-center space-x-2">
+            <RadioGroup.Root
+              className="flex flex-col space-y-2"
+              value={searchType}
+              onValueChange={handleRadioChange}
+              aria-label="Search by"
+              name="type"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroup.Item
+                  className="bg-brand-primary w-4 h-4 rounded-full"
+                  value="title"
+                  id="title"
+                >
+                  <RadioGroup.Indicator
+                    className="flex
+                        items-center  justify-center w-full h-full relative
+                        after:block   after:w-2 after:h-2 after:rounded-full after:bg-white"
+                  />
+                </RadioGroup.Item>
+                <label className="text-sm" htmlFor="title">
+                  Search by title
+                </label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroup.Item
+                  className="bg-brand-primary w-4 h-4 rounded-full"
+                  value="fulltext"
+                  id="fulltext"
+                >
+                  <RadioGroup.Indicator
+                    className="flex
+                        items-center  justify-center w-full h-full relative
+                        after:block   after:w-2 after:h-2 after:rounded-full after:bg-white"
+                  />
+                </RadioGroup.Item>
+                <label className="text-sm" htmlFor="fulltext">
+                  Search by full text
+                </label>
+              </div>
+            </RadioGroup.Root>
+          </div>
           <h2 className="text-lg pt-2 w-full border-b-2 border-gray-200">
             Filter by Repositorys
           </h2>

@@ -19,14 +19,21 @@ import { graphqlQuery, parsePagination } from '~/lib/graphql.server'
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url)
-  const includes = url.searchParams.get('includes')
+  const type = url.searchParams.get('type')
+  const q = url.searchParams.get('q')
   const orderBy = url.searchParams.get('orderBy') || 'TITLE_ASC'
   const repoDid = url.searchParams.get('repoDid') || 'all'
   const { first, last, after, before } = parsePagination(url)
   let filter: ContentItemFilter | undefined = undefined
-  if (includes) {
-    const titleFilter: StringFilter = { includesInsensitive: includes }
+  if (type === 'title' && q) {
+    const titleFilter: StringFilter = { includesInsensitive: q }
     filter = { title: titleFilter }
+  }
+
+  if (type === 'fulltext' && q) {
+    const titleFilter: StringFilter = { includesInsensitive: q }
+    const contentFilter: StringFilter = { includesInsensitive: q }
+    filter = { or: [{ title: titleFilter }, { content: contentFilter }] }
   }
 
   if (repoDid && repoDid !== 'all') {
@@ -62,8 +69,11 @@ export const loader: LoaderFunction = async ({ request }) => {
 export default function ItemsIndex() {
   const { nodes, pageInfo, repos } = useLoaderData<typeof loader>()
   const [searchParams] = useSearchParams()
-  const includes = searchParams.getAll('includes')
+  const type = searchParams.getAll('type')
   const orderBy = searchParams.getAll('orderBy')
+  const q = searchParams.getAll('q')
+  const repoDid = searchParams.getAll('repoDid')
+
   return (
     <div>
       <div>
@@ -109,7 +119,13 @@ export default function ItemsIndex() {
           )
         })}
       </div>
-      <Pager pageInfo={pageInfo} orderBy={orderBy} includes={includes} />
+      <Pager
+        pageInfo={pageInfo}
+        orderBy={orderBy}
+        type={type}
+        q={q}
+        repoDid={repoDid}
+      />
     </div>
   )
 }

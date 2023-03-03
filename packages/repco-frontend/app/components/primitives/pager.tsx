@@ -4,11 +4,15 @@ import { NextPageButton, PrevPageButton } from '../primitives/button'
 export function Pager({
   pageInfo,
   orderBy,
-  includes,
+  type,
+  q,
+  repoDid,
 }: {
   pageInfo: PageInfo | undefined
   orderBy: string[]
-  includes: string[]
+  type: string[]
+  q: string[]
+  repoDid: string[]
 }) {
   if (!pageInfo) return null
   return (
@@ -16,13 +20,13 @@ export function Pager({
       {pageInfo?.hasPreviousPage && (
         <PrevPageButton
           prefetch="render"
-          to={`/items?before=${pageInfo?.startCursor}&orderBy=${orderBy}&includes=${includes}`}
+          to={`/items?before=${pageInfo?.startCursor}&orderBy=${orderBy}&type=${type}&q=${q}&repoDid=${repoDid}`}
         />
       )}
       {pageInfo?.hasNextPage && (
         <NextPageButton
           prefetch="render"
-          to={`/items?after=${pageInfo?.endCursor}&orderBy=${orderBy}&includes=${includes}`}
+          to={`/items?after=${pageInfo?.endCursor}&orderBy=${orderBy}&type=${type}&q=${q}&repoDid=${repoDid}`}
         />
       )}
     </div>
