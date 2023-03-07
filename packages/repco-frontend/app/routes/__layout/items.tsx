@@ -53,7 +53,7 @@ export default function ItemsMenuWrapper() {
             searchParams={searchParams}
             aria-label="Filter by Repository Select"
           />
-          <SortBy aria-label="Sort By Select" />{' '}
+          <SortBy aria-label="Sort By Select" />
           <Button
             type="button"
             onClick={() => {

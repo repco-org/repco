@@ -97,7 +97,7 @@ export default function ItemsIndex() {
               <div className="flex flex-col">
                 <div className="flex align-middle space-x-4">
                   <div className="flex align-middle w-1/3 xl:w-1/6">
-                    <img className=" object-contain" src={imageSrc} />
+                    <img className="object-contain" src={imageSrc} />
                   </div>
                   <div className="w-2/3 xl:w-5/6">
                     <NavLink to={`/items/${node.uid}`}>
