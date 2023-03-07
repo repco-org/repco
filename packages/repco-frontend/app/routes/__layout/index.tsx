@@ -175,7 +175,7 @@ export default function Index() {
           <ul className="p-2">
             {data?.latestConetentItems?.nodes.map(
               (node: any, index: number) => (
-                <li key={index} title={node.title}>
+                <li key={index}>
                   <NavLink to={`/items/${node.uid}`}>
                     {node.title.length > 20
                       ? node.title.slice(0, 45) + '...'
