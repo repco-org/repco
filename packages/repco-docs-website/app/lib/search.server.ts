@@ -1,7 +1,7 @@
-import { MeiliSearch } from 'meilisearch'
-import { Doc } from './util'
-import { remark } from 'remark'
 import strip from 'strip-markdown'
+import { MeiliSearch } from 'meilisearch'
+import { remark } from 'remark'
+import type { Doc } from './util'
 
 async function stripMarkdown(md: string) {
   return String(await remark().use(strip).process(md))
@@ -16,12 +16,14 @@ export const documentIndex = client.index('docs')
 
 export async function indexDocs(docs: Record<string, Doc>) {
   try {
-    const rows = await Promise.all(Object.entries(docs).map(async ([id, doc]) => ({
-      id: id.replace(/[^a-zA-z0-9\-_]/g, ''),
-      ...doc.data,
-      content: await stripMarkdown(doc.content),
-      path: id,
-    })))
+    const rows = await Promise.all(
+      Object.entries(docs).map(async ([id, doc]) => ({
+        id: id.replace(/[^a-zA-z0-9\-_]/g, ''),
+        ...doc.data,
+        content: await stripMarkdown(doc.content),
+        path: id,
+      })),
+    )
     return await documentIndex.addDocuments(rows)
   } catch (err) {
     console.error('failed to index docs', err)

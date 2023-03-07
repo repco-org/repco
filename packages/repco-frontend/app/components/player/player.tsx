@@ -1,11 +1,4 @@
-import React, {
-  PropsWithChildren,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ListBulletIcon,
   PauseIcon,
@@ -13,6 +6,7 @@ import {
   TrackNextIcon,
   TrackPreviousIcon,
 } from '@radix-ui/react-icons'
+import type { PropsWithChildren } from 'react'
 import type { Track } from './use-playlists'
 import { useQueue } from './use-queue'
 import { Button } from '../primitives/button'
@@ -41,6 +35,7 @@ type PlaystateContext = {
  * The player context holds setters and values for the
  * currently playing media track.
  */
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 export const PlayerContext = React.createContext<PlayerContext | undefined>(
   undefined,
 )
@@ -48,6 +43,7 @@ export const PlayerContext = React.createContext<PlayerContext | undefined>(
 /**
  * The playstate context holds the audio element and play state (time, play/pause, ...)
  */
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 const PlaystateContext = React.createContext<PlaystateContext | undefined>(
   undefined,
 )
@@ -109,7 +105,7 @@ export function PlayerProvider({ children }: PropsWithChildren) {
       audio.src = ''
       return
     }
-    let pos = 0
+    const pos = 0
     audio.currentTime = pos
     if (didMount) {
       audio.play()

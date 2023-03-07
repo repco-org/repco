@@ -1,7 +1,7 @@
 import { gql } from 'urql'
 
 export const DashboardQuery = gql`
-  query LoadDashboardData {
+  query LoadDashboardData($start: Datetime!, $end: Datetime!) {
     repos {
       nodes {
         did
@@ -9,7 +9,14 @@ export const DashboardQuery = gql`
       }
       totalCount
     }
-    contentItems {
+    contentItems(
+      filter: {
+        pubDate: { greaterThanOrEqualTo: $start, lessThanOrEqualTo: $end }
+      }
+    ) {
+      nodes {
+        pubDate
+      }
       totalCount
     }
     mediaAssets {
@@ -21,14 +28,39 @@ export const DashboardQuery = gql`
     commits {
       totalCount
     }
+    concepts {
+      totalCount
+    }
     publicationServices {
       totalCount
       nodes {
         name
-        contentItems {
+        contentItems(
+          filter: {
+            pubDate: { greaterThanOrEqualTo: $start, lessThanOrEqualTo: $end }
+          }
+        ) {
           totalCount
         }
       }
+    }
+    latestConetentItems: contentItems(last: 10) {
+      nodes {
+        title
+        uid
+      }
+    }
+    totalContentItems: contentItems {
+      totalCount
+    }
+    contentGroupings {
+      totalCount
+    }
+    dataSources {
+      totalCount
+    }
+    sourceRecords {
+      totalCount
     }
   }
 `

@@ -7647,21 +7647,33 @@ export type LoadContentItemsQuery = {
   } | null
 }
 
-export type LoadDashboardDataQueryVariables = Exact<{ [key: string]: never }>
+export type LoadDashboardDataQueryVariables = Exact<{
+  start: Scalars['Datetime']
+  end: Scalars['Datetime']
+}>
 
 export type LoadDashboardDataQuery = {
   repos?: {
     totalCount: number
     nodes: Array<{ did: string; name?: string | null }>
   } | null
-  contentItems?: { totalCount: number } | null
+  contentItems?: {
+    totalCount: number
+    nodes: Array<{ pubDate?: any | null }>
+  } | null
   mediaAssets?: { totalCount: number } | null
   files?: { totalCount: number } | null
   commits?: { totalCount: number } | null
+  concepts?: { totalCount: number } | null
   publicationServices?: {
     totalCount: number
     nodes: Array<{ name: string; contentItems: { totalCount: number } }>
   } | null
+  latestConetentItems?: { nodes: Array<{ title: string; uid: string }> } | null
+  totalContentItems?: { totalCount: number } | null
+  contentGroupings?: { totalCount: number } | null
+  dataSources?: { totalCount: number } | null
+  sourceRecords?: { totalCount: number } | null
 }
 
 export type LoadRepoStatsQueryVariables = Exact<{
