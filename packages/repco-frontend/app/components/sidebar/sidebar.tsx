@@ -8,7 +8,7 @@ type Props = {
   children: ReactNode
 }
 
-export default function FilterableMain({
+export default function Sidebar({
   sidebarWidth,
   children,
   sidebarOpen,
