@@ -10,7 +10,7 @@ const styles = cva(
   {
     variants: {
       disabled: {
-        true: 'opacity-70 pointer-events-none',
+        true: 'opacity-70 pointer-events-none cursor-not-allowed',
       },
       size: {
         md: 'py-2 px-4 text-md font-medium',
