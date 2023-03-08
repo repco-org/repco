@@ -4,7 +4,7 @@ import { Form } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 import type { Playlist, Track } from './use-playlists'
 import { usePlaylists } from './use-playlists'
-import { Button, IconButton } from '../primitives/button'
+import { Button, ButtonWithIcon } from '../primitives/button'
 
 interface DialogProps {
   track: Track | undefined
@@ -28,13 +28,13 @@ export function AddTrackDialog({ track }: DialogProps) {
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
-        <IconButton
+        <ButtonWithIcon
           disabled={track ? false : true}
           variantSize={'sm'}
           icon={<PlusCircledIcon />}
         >
           add to Playlist
-        </IconButton>
+        </ButtonWithIcon>
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-slate-500 opacity-70" />
