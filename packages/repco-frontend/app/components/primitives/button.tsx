@@ -26,7 +26,9 @@ export const buttonStyles = cva(
       variantSize: {
         md: 'py-1 px-3 text-base  ',
         sm: 'py-1 px-2 text-sm h-auto',
+        iconSm: 'py-1 px-2 text-sm h-8',
       },
+      
     },
     defaultVariants: {
       variantSize: 'sm',
