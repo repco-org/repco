@@ -1,4 +1,4 @@
-import { ArrowDownIcon, ArrowUpIcon } from '@radix-ui/react-icons'
+import { ArrowDownIcon, ArrowUpIcon, MinusIcon } from '@radix-ui/react-icons'
 import { useSearchParams } from '@remix-run/react'
 import { IconButton } from '../primitives/button'
 
@@ -15,9 +15,21 @@ type SortOrder = {
     icon: JSX.Element
     ariaLabel: string
   }
+  PUB_DATE_ASC: {
+    name: string
+    value: string
+    icon: JSX.Element
+    ariaLabel: string
+  }
+  PUB_DATE_DESC: {
+    name: string
+    value: string
+    icon: JSX.Element
+    ariaLabel: string
+  }
 }
 
-export default function SortBy(): JSX.Element {
+export default function SortBy() {
   const [searchParams, setSearchParams] = useSearchParams()
   const orderBy = searchParams.get('orderBy')
   const sortOrder: SortOrder = {
@@ -33,29 +45,95 @@ export default function SortBy(): JSX.Element {
       icon: <ArrowUpIcon />,
       ariaLabel: 'Sort by title in ascending order',
     },
+    PUB_DATE_ASC: {
+      name: 'Publication date',
+      value: 'PUB_DATE_ASC',
+      icon: <ArrowUpIcon />,
+      ariaLabel: 'Sort by publication date in ascending order',
+    },
+    PUB_DATE_DESC: {
+      name: 'Publication date ',
+      value: 'PUB_DATE_DESC',
+      icon: <ArrowDownIcon />,
+      ariaLabel: 'Sort by publication date in descending order',
+    },
   }
-  const sortOrderKeys = Object.keys(sortOrder) as Array<keyof SortOrder>
-  const order = sortOrderKeys.find((key) => key === orderBy) || sortOrderKeys[0]
-  const { name, value, icon, ariaLabel } = sortOrder[order]
+  const titleSortOrder = sortOrder.TITLE_ASC.value
+  const pubDateSortOrder = sortOrder.PUB_DATE_ASC.value
 
-  const handleClick = () => setSearchParams({ orderBy: value })
+  const handleTitleSortClick = () => {
+    const newOrderBy =
+      orderBy === titleSortOrder ? sortOrder.TITLE_DESC.value : titleSortOrder
+    setSearchParams({ orderBy: newOrderBy })
+  }
+
+  const handlePubDateSortClick = () => {
+    const newOrderBy =
+      orderBy === pubDateSortOrder
+        ? sortOrder.PUB_DATE_DESC.value
+        : pubDateSortOrder
+    setSearchParams({ orderBy: newOrderBy })
+  }
 
   return (
     <div>
-      <h2 className="text-lg pt-2 w-full border-b-2 border-gray-200">
+      <h2 className="text-lg pt-2 w-full border-b-2 border-gray-200 mb-2">
         Sort by
       </h2>
       <div>
         <IconButton
-          type="submit"
-          name="orderBy"
-          value={value}
+          type="button"
           className="text-brand-primary"
-          onClick={handleClick}
-          icon={icon}
-          aria-label={ariaLabel}
+          onClick={handleTitleSortClick}
+          icon={
+            orderBy === sortOrder.TITLE_ASC.value
+              ? sortOrder.TITLE_ASC.icon
+             : orderBy === sortOrder.TITLE_DESC.value ? 
+              sortOrder.TITLE_DESC.icon
+            : 
+              <MinusIcon />
+            
+          }
+          aria-label={
+              orderBy === sortOrder.TITLE_ASC.value
+                ? sortOrder.TITLE_ASC.ariaLabel
+               : orderBy === sortOrder.TITLE_DESC.ariaLabel ? 
+                sortOrder.TITLE_DESC.ariaLabel
+              : 
+                "not selected"
+              
+            }
         >
-          {name}
+          {orderBy === sortOrder.TITLE_ASC.value
+            ? sortOrder.TITLE_ASC.name
+            : sortOrder.TITLE_DESC.name}
+        </IconButton>
+        <IconButton
+          type="button"
+          className="text-brand-primary"
+          onClick={handlePubDateSortClick}
+          icon={
+            orderBy === sortOrder.PUB_DATE_ASC.value
+              ? sortOrder.PUB_DATE_ASC.icon
+             : orderBy === sortOrder.PUB_DATE_DESC.value ? 
+              sortOrder.PUB_DATE_DESC.icon
+            : 
+              <MinusIcon />
+            
+          }
+          aria-label={
+              orderBy === sortOrder.PUB_DATE_ASC.value
+                ? sortOrder.PUB_DATE_ASC.ariaLabel
+               : orderBy === sortOrder.PUB_DATE_DESC.ariaLabel ? 
+                sortOrder.PUB_DATE_DESC.ariaLabel
+              : 
+                "not selected"
+              
+            }
+        >
+          {orderBy === sortOrder.PUB_DATE_ASC.value
+            ? sortOrder.PUB_DATE_ASC.name
+            : sortOrder.PUB_DATE_DESC.name}
         </IconButton>
       </div>
     </div>

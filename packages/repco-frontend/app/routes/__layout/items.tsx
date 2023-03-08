@@ -53,7 +53,7 @@ export default function ItemsMenuWrapper() {
             searchParams={searchParams}
             aria-label="Filter by Repository Select"
           />
-          <SortBy aria-label="Sort By Select" />{' '}
+          <SortBy aria-label="Sort By Select" />
           <Button
             type="button"
             onClick={() => {
@@ -61,7 +61,7 @@ export default function ItemsMenuWrapper() {
                 q: '',
                 type: 'title',
                 repoDid: 'all',
-                orderBy: 'TITLE_DESC',
+                orderBy: 'TITLE_ASC',
               })
             }}
             className="text-white font-bold bg-brand-primary w-full py-2 px-4  hover:bg-brand-secondary focus:outline-none focus:ring-2 "

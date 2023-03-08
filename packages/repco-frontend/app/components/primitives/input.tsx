@@ -6,7 +6,7 @@ import { cva, cx } from 'class-variance-authority'
 import type { ClassProp } from 'class-variance-authority/dist/types'
 
 const styles = cva(
-  'border rounded-lg transition-colors duration-100 outline-none focus:border-primary-500 disabled:opacity-50',
+  'border  transition-colors duration-100 outline-none focus:border-primary-500 disabled:opacity-50',
   {
     variants: {
       disabled: {

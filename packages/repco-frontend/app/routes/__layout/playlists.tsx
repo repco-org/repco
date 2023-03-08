@@ -20,9 +20,11 @@ export default function ItemsMenuWrapper() {
 
   return (
     <div>
-      <Button onClick={toggleSidebar} aria-label={buttonText}>
-        {buttonText}
-      </Button>
+      <div className="block lg:hidden">
+        <Button onClick={toggleSidebar} aria-label={buttonText}>
+          {buttonText}
+        </Button>
+      </div>
       <Sidebar
         sidebarWidth="w-60"
         sidebarOpen={sidebarOpen}

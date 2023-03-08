@@ -16,13 +16,34 @@ import { graphqlQuery } from '~/lib/graphql.server'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
-const backgroundColor = Array.from(
-  { length: 50 },
-  () =>
-    `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(
-      Math.random() * 256,
-    )}, ${Math.floor(Math.random() * 256)}, 0.7)`,
-)
+export const backgroundColor = [
+  '#FF6633',
+  '#FFB399',
+  '#FF33FF',
+  '#FFFF99',
+  '#00B3E6',
+  '#E6B333',
+  '#3366E6',
+  '#999966',
+  '#99FF99',
+  '#B34D4D',
+  '#80B300',
+  '#809900',
+  '#E6B3B3',
+  '#6680B3',
+  '#66991A',
+  '#FF99E6',
+  '#CCFF1A',
+  '#FF1A66',
+  '#E6331A',
+  '#33FFCC',
+  '#66994D',
+  '#B366CC',
+  '#4D8000',
+  '#B33300',
+  '#CC80CC',
+  '#66664D',
+]
 function onlyResolved<T>(
   results: PromiseSettledResult<T>,
 ): results is PromiseFulfilledResult<T> {
@@ -122,7 +143,6 @@ export default function Index() {
     totalContentItems,
     totalPublicationServices,
   } = useLoaderData<typeof loader>()
-  console.log(data?.latestConetentItems?.nodes)
   return (
     <div className="flex flex-col space-y-4">
       <div className="mx-auto w-full" aria-label="Jumbotron">
@@ -155,7 +175,7 @@ export default function Index() {
           <ul className="p-2">
             {data?.latestConetentItems?.nodes.map(
               (node: any, index: number) => (
-                <li key={index} title={node.title}>
+                <li key={index}>
                   <NavLink to={`/items/${node.uid}`}>
                     {node.title.length > 20
                       ? node.title.slice(0, 45) + '...'
