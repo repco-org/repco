@@ -70,7 +70,6 @@ export default function ItemsMenuWrapper() {
           >
             Reset
           </Button>
-          <IconButton tooltip="HORST" icon={<MagnifyingGlassIcon />} />
         </Form>
       </Sidebar>
     </div>
