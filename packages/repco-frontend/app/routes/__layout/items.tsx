@@ -61,7 +61,7 @@ export default function ItemsMenuWrapper() {
                 q: '',
                 type: 'title',
                 repoDid: 'all',
-                orderBy: 'TITLE_DESC',
+                orderBy: 'TITLE_ASC',
               })
             }}
             className="text-white font-bold bg-brand-primary w-full py-2 px-4  hover:bg-brand-secondary focus:outline-none focus:ring-2 "

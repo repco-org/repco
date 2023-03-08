@@ -1,4 +1,4 @@
-import { ArrowDownIcon, ArrowUpIcon } from '@radix-ui/react-icons'
+import { ArrowDownIcon, ArrowUpIcon, MinusIcon } from '@radix-ui/react-icons'
 import { useSearchParams } from '@remix-run/react'
 import { IconButton } from '../primitives/button'
 
@@ -88,13 +88,21 @@ export default function SortBy() {
           icon={
             orderBy === sortOrder.TITLE_ASC.value
               ? sortOrder.TITLE_ASC.icon
-              : sortOrder.TITLE_DESC.icon
+             : orderBy === sortOrder.TITLE_DESC.value ? 
+              sortOrder.TITLE_DESC.icon
+            : 
+              <MinusIcon />
+            
           }
           aria-label={
-            orderBy === sortOrder.TITLE_ASC.value
-              ? sortOrder.TITLE_ASC.ariaLabel
-              : sortOrder.TITLE_DESC.ariaLabel
-          }
+              orderBy === sortOrder.TITLE_ASC.value
+                ? sortOrder.TITLE_ASC.ariaLabel
+               : orderBy === sortOrder.TITLE_DESC.ariaLabel ? 
+                sortOrder.TITLE_DESC.ariaLabel
+              : 
+                "not selected"
+              
+            }
         >
           {orderBy === sortOrder.TITLE_ASC.value
             ? sortOrder.TITLE_ASC.name
@@ -107,13 +115,21 @@ export default function SortBy() {
           icon={
             orderBy === sortOrder.PUB_DATE_ASC.value
               ? sortOrder.PUB_DATE_ASC.icon
-              : sortOrder.PUB_DATE_DESC.icon
+             : orderBy === sortOrder.PUB_DATE_DESC.value ? 
+              sortOrder.PUB_DATE_DESC.icon
+            : 
+              <MinusIcon />
+            
           }
           aria-label={
-            orderBy === sortOrder.PUB_DATE_ASC.value
-              ? sortOrder.PUB_DATE_ASC.ariaLabel
-              : sortOrder.PUB_DATE_DESC.ariaLabel
-          }
+              orderBy === sortOrder.PUB_DATE_ASC.value
+                ? sortOrder.PUB_DATE_ASC.ariaLabel
+               : orderBy === sortOrder.PUB_DATE_DESC.ariaLabel ? 
+                sortOrder.PUB_DATE_DESC.ariaLabel
+              : 
+                "not selected"
+              
+            }
         >
           {orderBy === sortOrder.PUB_DATE_ASC.value
             ? sortOrder.PUB_DATE_ASC.name
