@@ -7,7 +7,7 @@ const styles = cva('p-4', {
     disabled: {
       true: 'opacity-70 pointer-events-none cursor-not-allowed',
     },
-    variantSize: {
+    variantsize: {
       md: 'w-3/4',
       full: 'w-full',
     },
@@ -27,10 +27,8 @@ export function ContentItemCard(props: CardProps) {
   const className = cx(styles(props))
   return (
     <div className={className} {...props}>
-      <div className="flex flex-row">
-        <div className="px-4">
-          <div>{props.children}</div>
-        </div>
+      <div className="flex flex-row w-full">
+        <div className="px-4 w-full">{props.children}</div>
       </div>
     </div>
   )

@@ -9,9 +9,9 @@ import {
 import type { PropsWithChildren } from 'react'
 import type { Track } from './use-playlists'
 import { useQueue } from './use-queue'
-import { Button } from '../primitives/button'
+import { Button, IconButton } from '../primitives/button'
 
-type PlayerContext = {
+type PlayerContextType = {
   track: Track | null
   setTrack: React.Dispatch<React.SetStateAction<Track | null>>
   trackIndex: number
@@ -23,7 +23,7 @@ type PlayerContext = {
   setQueueVisibility: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-type PlaystateContext = {
+type PlaystateContextType = {
   audio: HTMLAudioElement | null
   isPlaying: boolean
   isReady: boolean
@@ -35,16 +35,14 @@ type PlaystateContext = {
  * The player context holds setters and values for the
  * currently playing media track.
  */
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const PlayerContext = React.createContext<PlayerContext | undefined>(
+export const PlayerContext = React.createContext<PlayerContextType | undefined>(
   undefined,
 )
 
 /**
  * The playstate context holds the audio element and play state (time, play/pause, ...)
  */
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-const PlaystateContext = React.createContext<PlaystateContext | undefined>(
+const PlaystateContext = React.createContext<PlaystateContextType | undefined>(
   undefined,
 )
 
@@ -87,7 +85,7 @@ export function PlayerProvider({ children }: PropsWithChildren) {
   const [trackIndex, setTrackIndex] = useState(0)
   const [queueVisibility, setQueueVisibility] = useState(false)
 
-  const src = track ? track.src : null
+  const src = track ? track.src : ''
   const { audio, element, ...state } = useAudioElement({ src })
 
   useEffect(() => {
@@ -95,19 +93,17 @@ export function PlayerProvider({ children }: PropsWithChildren) {
       setTrack(tracks.at(trackIndex) || null)
     } else if (tracks.length === 0 && audio) {
       setTrack(null)
-      audio.src = ''
     }
-  }, [tracks, trackIndex])
+  }, [tracks, trackIndex, audio])
 
   useEffect(() => {
     if (!audio) return
-    if (!track) {
-      audio.src = ''
-      return
-    }
+
     const pos = 0
     audio.currentTime = pos
+    console.log(didMount, audio.src)
     if (didMount) {
+      audio.load()
       audio.play()
     }
     setDidMount(true)
@@ -145,7 +141,7 @@ export function PlayerProvider({ children }: PropsWithChildren) {
       ...state,
       audio,
     }),
-    [audio, state.currentTime, state.duration, state.isPlaying, state.isReady],
+    [audio, state],
   )
 
   return (
@@ -183,7 +179,7 @@ export function usePlaystate() {
 }
 
 function useRerender() {
-  const [rerender, setRerender] = useState(0)
+  const [, setRerender] = useState(0)
   return function () {
     setRerender((counter) => {
       return counter + 1
@@ -241,7 +237,7 @@ function useAudioElement({ src }: { src: string | null }) {
       audio.removeEventListener('canplay', updateState)
       audio.removeEventListener('durationchange', updateState)
     }
-  }, [audio])
+  }, [audio, rerender])
 
   let state
   if (!audio) {
@@ -276,7 +272,10 @@ export default function Player() {
   function togglePlay() {
     if (!audio) return
     if (state.isPlaying) audio.pause()
-    else if (state.isReady) audio.play()
+    else if (state.isReady) {
+      audio.load()
+      audio.play()
+    }
   }
 
   let posPercent = 0
@@ -300,16 +299,22 @@ export default function Player() {
       <div className="flex flex-col">
         <div className="flex flex-row justify-between space-x-4">
           <div className="flex space-x-1">
-            <Button onClickCapture={player?.previousTrack}>
-              <TrackPreviousIcon />
-            </Button>
-            <Button onClickCapture={togglePlay}>
-              {state?.isPlaying ? <PauseIcon /> : <PlayIcon />}
-            </Button>
-            <Button onClickCapture={player?.nextTrack}>
-              {' '}
-              <TrackNextIcon />
-            </Button>
+            <IconButton
+              onClickCapture={player?.previousTrack}
+              icon={<TrackPreviousIcon />}
+              tooltip="previous"
+            />
+            <IconButton
+              onClickCapture={togglePlay}
+              icon={state?.isPlaying ? <PauseIcon /> : <PlayIcon />}
+              tooltip="play"
+            />
+
+            <IconButton
+              onClickCapture={player?.nextTrack}
+              icon={<TrackNextIcon />}
+              tooltip="next"
+            />
           </div>
           <div className="flex items-center justify-between space-x-2">
             <div className="text-xs">{formatDuration(displayTime || 0)}</div>
@@ -328,14 +333,14 @@ export default function Player() {
           <div className="flex items-center truncate">
             <p>{player?.track?.title}</p>
           </div>
-          <Button
-            intent={player?.queueVisibility ? 'active' : 'primary'}
+          <IconButton
+            icon={<ListBulletIcon />}
+            tooltip={player?.queueVisibility ? 'hide queue' : 'show queue'}
+            label={'show Queue'}
             onClick={() =>
               player?.setQueueVisibility(player.queueVisibility ? false : true)
             }
-          >
-            <ListBulletIcon />
-          </Button>
+          />
         </div>
       </div>
     </div>

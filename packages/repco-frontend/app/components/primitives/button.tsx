@@ -28,7 +28,6 @@ export const buttonStyles = cva(
         sm: 'py-1 px-2 text-sm h-auto',
         iconSm: 'py-1 px-2 text-sm h-8',
       },
-      
     },
     defaultVariants: {
       variantSize: 'sm',

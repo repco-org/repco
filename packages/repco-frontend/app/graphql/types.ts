@@ -7643,6 +7643,7 @@ export type LoadContentItemsQuery = {
           } | null
         }>
       }
+      publicationService?: { name: string } | null
     }>
   } | null
 }

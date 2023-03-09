@@ -45,6 +45,9 @@ export const ContentItemsQuery = gql`
             }
           }
         }
+        publicationService {
+          name
+        }
       }
     }
   }
