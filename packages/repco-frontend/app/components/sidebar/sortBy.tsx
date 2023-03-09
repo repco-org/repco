@@ -80,57 +80,61 @@ export default function SortBy() {
       <h2 className="text-lg pt-2 w-full border-b-2 border-gray-200 mb-2">
         Sort by
       </h2>
-      <div>
-        <ButtonWithIcon
-          type="button"
-          className="text-brand-primary"
-          onClick={handleTitleSortClick}
-          icon={
-            orderBy === sortOrder.TITLE_ASC.value ? (
-              sortOrder.TITLE_ASC.icon
-            ) : orderBy === sortOrder.TITLE_DESC.value ? (
-              sortOrder.TITLE_DESC.icon
-            ) : (
-              <MinusIcon />
-            )
-          }
-          aria-label={
-            orderBy === sortOrder.TITLE_ASC.value
-              ? sortOrder.TITLE_ASC.ariaLabel
-              : orderBy === sortOrder.TITLE_DESC.ariaLabel
-              ? sortOrder.TITLE_DESC.ariaLabel
-              : 'not selected'
-          }
-        >
-          {orderBy === sortOrder.TITLE_ASC.value
-            ? sortOrder.TITLE_ASC.name
-            : sortOrder.TITLE_DESC.name}
-        </ButtonWithIcon>
-        <ButtonWithIcon
-          type="button"
-          className="text-brand-primary"
-          onClick={handlePubDateSortClick}
-          icon={
-            orderBy === sortOrder.PUB_DATE_ASC.value ? (
-              sortOrder.PUB_DATE_ASC.icon
-            ) : orderBy === sortOrder.PUB_DATE_DESC.value ? (
-              sortOrder.PUB_DATE_DESC.icon
-            ) : (
-              <MinusIcon />
-            )
-          }
-          aria-label={
-            orderBy === sortOrder.PUB_DATE_ASC.value
-              ? sortOrder.PUB_DATE_ASC.ariaLabel
-              : orderBy === sortOrder.PUB_DATE_DESC.ariaLabel
-              ? sortOrder.PUB_DATE_DESC.ariaLabel
-              : 'not selected'
-          }
-        >
-          {orderBy === sortOrder.PUB_DATE_ASC.value
-            ? sortOrder.PUB_DATE_ASC.name
-            : sortOrder.PUB_DATE_DESC.name}
-        </ButtonWithIcon>
+      <div className="flex flex-col">
+        <div>
+          <ButtonWithIcon
+            type="button"
+            className="text-brand-primary"
+            onClick={handleTitleSortClick}
+            icon={
+              orderBy === sortOrder.TITLE_ASC.value ? (
+                sortOrder.TITLE_ASC.icon
+              ) : orderBy === sortOrder.TITLE_DESC.value ? (
+                sortOrder.TITLE_DESC.icon
+              ) : (
+                <MinusIcon />
+              )
+            }
+            aria-label={
+              orderBy === sortOrder.TITLE_ASC.value
+                ? sortOrder.TITLE_ASC.ariaLabel
+                : orderBy === sortOrder.TITLE_DESC.ariaLabel
+                ? sortOrder.TITLE_DESC.ariaLabel
+                : 'not selected'
+            }
+          >
+            {orderBy === sortOrder.TITLE_ASC.value
+              ? sortOrder.TITLE_ASC.name
+              : sortOrder.TITLE_DESC.name}
+          </ButtonWithIcon>
+        </div>
+        <div>
+          <ButtonWithIcon
+            type="button"
+            className="text-brand-primary"
+            onClick={handlePubDateSortClick}
+            icon={
+              orderBy === sortOrder.PUB_DATE_ASC.value ? (
+                sortOrder.PUB_DATE_ASC.icon
+              ) : orderBy === sortOrder.PUB_DATE_DESC.value ? (
+                sortOrder.PUB_DATE_DESC.icon
+              ) : (
+                <MinusIcon />
+              )
+            }
+            aria-label={
+              orderBy === sortOrder.PUB_DATE_ASC.value
+                ? sortOrder.PUB_DATE_ASC.ariaLabel
+                : orderBy === sortOrder.PUB_DATE_DESC.ariaLabel
+                ? sortOrder.PUB_DATE_DESC.ariaLabel
+                : 'not selected'
+            }
+          >
+            {orderBy === sortOrder.PUB_DATE_ASC.value
+              ? sortOrder.PUB_DATE_ASC.name
+              : sortOrder.PUB_DATE_DESC.name}
+          </ButtonWithIcon>
+        </div>
       </div>
     </div>
   )

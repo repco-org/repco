@@ -55,7 +55,7 @@ export default function Search(props: SearchProps) {
       />
 
       <h2 className="text-lg mt-2 pt-2 w-full border-b-2 border-gray-200">
-        Search by
+        Search
       </h2>
 
       <div className="flex items-center space-x-2">
@@ -79,7 +79,7 @@ export default function Search(props: SearchProps) {
               />
             </RadioGroup.Item>
             <label className="text-sm" htmlFor="title">
-              Search by title
+              Search in titles
             </label>
           </div>
           <div className="flex items-center space-x-2">
@@ -95,7 +95,7 @@ export default function Search(props: SearchProps) {
               />
             </RadioGroup.Item>
             <label className="text-sm" htmlFor="fulltext">
-              Search by full text
+              Search in full text
             </label>
           </div>
         </RadioGroup.Root>

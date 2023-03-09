@@ -38,7 +38,7 @@ const SocialButton: React.FC<SocialButtonProps> = ({
 export const GitHubLoginButton = () => (
   <SocialButton
     provider={SocialsProvider.GITHUB}
-    label="Login with Github"
+    label="Login"
     icon={<GitHubLogoIcon />}
   />
 )
