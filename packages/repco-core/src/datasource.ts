@@ -361,9 +361,12 @@ async function mapAndPersistSourceRecord(
   return entities
 }
 
-export async function remapDataSource(repo: Repo, datasource: DataSource) {
+export async function remapDataSource(
+  repo: Repo,
+  datasource: DataSource,
+  batchSize = 10,
+) {
   const dataSourceUid = datasource.definition.uid
-  const batchSize = 10
 
   let cursor: string | undefined = undefined
   const state = {

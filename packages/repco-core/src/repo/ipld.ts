@@ -17,12 +17,6 @@ export const entryIpld = z.object({
 
 export type EntryIpld = z.infer<typeof entryIpld>
 
-export const parentLink = z.union([
-  z.object({ cid: common.cid }),
-  z.object({ uid: common.uid }),
-  z.object({ cid: common.cid, uid: common.uid }),
-])
-
 // The list of known headers.
 // Most headers are valid and/or required on some entry kinds.
 export const headers = {
