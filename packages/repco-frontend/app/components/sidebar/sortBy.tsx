@@ -1,6 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon, MinusIcon } from '@radix-ui/react-icons'
 import { useSearchParams } from '@remix-run/react'
-import { IconButton } from '../primitives/button'
+import { ButtonWithIcon } from '../primitives/button'
 
 type SortOrder = {
   TITLE_DESC: {
@@ -81,60 +81,56 @@ export default function SortBy() {
         Sort by
       </h2>
       <div>
-        <IconButton
+        <ButtonWithIcon
           type="button"
           className="text-brand-primary"
           onClick={handleTitleSortClick}
           icon={
-            orderBy === sortOrder.TITLE_ASC.value
-              ? sortOrder.TITLE_ASC.icon
-             : orderBy === sortOrder.TITLE_DESC.value ? 
+            orderBy === sortOrder.TITLE_ASC.value ? (
+              sortOrder.TITLE_ASC.icon
+            ) : orderBy === sortOrder.TITLE_DESC.value ? (
               sortOrder.TITLE_DESC.icon
-            : 
+            ) : (
               <MinusIcon />
-            
+            )
           }
           aria-label={
-              orderBy === sortOrder.TITLE_ASC.value
-                ? sortOrder.TITLE_ASC.ariaLabel
-               : orderBy === sortOrder.TITLE_DESC.ariaLabel ? 
-                sortOrder.TITLE_DESC.ariaLabel
-              : 
-                "not selected"
-              
-            }
+            orderBy === sortOrder.TITLE_ASC.value
+              ? sortOrder.TITLE_ASC.ariaLabel
+              : orderBy === sortOrder.TITLE_DESC.ariaLabel
+              ? sortOrder.TITLE_DESC.ariaLabel
+              : 'not selected'
+          }
         >
           {orderBy === sortOrder.TITLE_ASC.value
             ? sortOrder.TITLE_ASC.name
             : sortOrder.TITLE_DESC.name}
-        </IconButton>
-        <IconButton
+        </ButtonWithIcon>
+        <ButtonWithIcon
           type="button"
           className="text-brand-primary"
           onClick={handlePubDateSortClick}
           icon={
-            orderBy === sortOrder.PUB_DATE_ASC.value
-              ? sortOrder.PUB_DATE_ASC.icon
-             : orderBy === sortOrder.PUB_DATE_DESC.value ? 
+            orderBy === sortOrder.PUB_DATE_ASC.value ? (
+              sortOrder.PUB_DATE_ASC.icon
+            ) : orderBy === sortOrder.PUB_DATE_DESC.value ? (
               sortOrder.PUB_DATE_DESC.icon
-            : 
+            ) : (
               <MinusIcon />
-            
+            )
           }
           aria-label={
-              orderBy === sortOrder.PUB_DATE_ASC.value
-                ? sortOrder.PUB_DATE_ASC.ariaLabel
-               : orderBy === sortOrder.PUB_DATE_DESC.ariaLabel ? 
-                sortOrder.PUB_DATE_DESC.ariaLabel
-              : 
-                "not selected"
-              
-            }
+            orderBy === sortOrder.PUB_DATE_ASC.value
+              ? sortOrder.PUB_DATE_ASC.ariaLabel
+              : orderBy === sortOrder.PUB_DATE_DESC.ariaLabel
+              ? sortOrder.PUB_DATE_DESC.ariaLabel
+              : 'not selected'
+          }
         >
           {orderBy === sortOrder.PUB_DATE_ASC.value
             ? sortOrder.PUB_DATE_ASC.name
             : sortOrder.PUB_DATE_DESC.name}
-        </IconButton>
+        </ButtonWithIcon>
       </div>
     </div>
   )

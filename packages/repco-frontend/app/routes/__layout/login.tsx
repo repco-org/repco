@@ -4,7 +4,7 @@ import type { LoaderArgs } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import { Form, useLoaderData } from '@remix-run/react'
 import { SocialsProvider } from 'remix-auth-socials'
-import { IconButton } from '~/components/primitives/button'
+import { ButtonWithIcon, IconButton } from '~/components/primitives/button'
 import { authenticator } from '~/services/auth.server'
 import { getSession } from '~/services/session.server'
 
@@ -21,7 +21,16 @@ const SocialButton: React.FC<SocialButtonProps> = ({
 }) => (
   <Form action={`/auth/${provider}`} method="post">
     <React.Suspense fallback={<div>Loading...</div>}>
-      <IconButton icon={icon}>{label}</IconButton>
+      <div className="hidden sm:block">
+        <ButtonWithIcon icon={icon}>{label}</ButtonWithIcon>{' '}
+      </div>
+      <div className="sm:hidden">
+        <IconButton
+          icon={icon}
+          tooltip="Login with GitHub"
+          variantSize="iconSm"
+        />
+      </div>
     </React.Suspense>
   </Form>
 )

@@ -1,3 +1,4 @@
+import * as Tooltip from '@radix-ui/react-tooltip'
 import type { NavLinkProps } from '@remix-run/react'
 import { NavLink } from '@remix-run/react'
 import type { VariantProps } from 'class-variance-authority'
@@ -25,7 +26,9 @@ export const buttonStyles = cva(
       variantSize: {
         md: 'py-1 px-3 text-base  ',
         sm: 'py-1 px-2 text-sm h-auto',
+        iconSm: 'py-1 px-2 text-sm h-8',
       },
+      
     },
     defaultVariants: {
       variantSize: 'sm',
@@ -40,7 +43,7 @@ export type ButtonProps = ButtonBaseProps &
   React.ButtonHTMLAttributes<HTMLButtonElement> &
   ClassProp
 
-export type IconButtonProps = ButtonBaseProps &
+export type ButtonWithIconProps = ButtonBaseProps &
   React.ButtonHTMLAttributes<HTMLButtonElement> &
   ClassProp & {
     icon?: JSX.Element
@@ -50,6 +53,15 @@ export type NavButtonProps = ButtonBaseProps &
   React.ButtonHTMLAttributes<HTMLButtonElement> &
   NavLinkProps &
   ClassProp
+
+export type IconButtonProps = ButtonBaseProps &
+  React.ButtonHTMLAttributes<HTMLButtonElement> &
+  ClassProp & {
+    icon: JSX.Element
+    children?: never
+    tooltip?: string
+    label?: string
+  }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ fullWidth, variantSize, intent, ...props }, ref) => {
@@ -61,26 +73,80 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 )
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
-  ({ icon, fullWidth, variantSize, intent, ...props }, ref) => {
+  ({ icon, fullWidth, variantSize, intent, tooltip, label, ...props }, ref) => {
     const className = cx(
       buttonStyles({ fullWidth, variantSize, intent, ...props }),
     )
+    const tooltipId = `${props.id}-tooltip`
 
     return (
-      <button
-        ref={ref}
-        className={className}
-        {...props}
-        style={{ minWidth: '2rem' }}
-      >
-        <div className="rounded inline-flex items-center">
-          <div className="mr-2">{props.children}</div>
-          {icon ? icon : null}
-        </div>
-      </button>
+      <Tooltip.Provider>
+        <Tooltip.Root>
+          <Tooltip.Trigger
+            asChild
+            role="button"
+            aria-label={tooltip || label}
+            title={tooltip}
+            tabIndex={0}
+          >
+            <button
+              ref={ref}
+              className={className}
+              {...props}
+              aria-label={label || tooltip}
+              aria-describedby={tooltip}
+            >
+              <div className="items-center">{icon ? icon : null}</div>
+            </button>
+          </Tooltip.Trigger>
+          <Tooltip.Content
+            className="TooltipContent"
+            id={tooltipId}
+            sideOffset={5}
+            style={{
+              backgroundColor: 'white',
+              color: 'black',
+              borderRadius: '4px',
+              border: '1px solid #ccc',
+              padding: '8px',
+            }}
+          >
+            {tooltip}
+            <Tooltip.Arrow
+              className="TooltipArrow"
+              style={{
+                borderColor: 'white transparent transparent transparent',
+              }}
+            />
+          </Tooltip.Content>
+        </Tooltip.Root>
+      </Tooltip.Provider>
     )
   },
 )
+
+export const ButtonWithIcon = forwardRef<
+  HTMLButtonElement,
+  ButtonWithIconProps
+>(({ icon, fullWidth, variantSize, intent, ...props }, ref) => {
+  const className = cx(
+    buttonStyles({ fullWidth, variantSize, intent, ...props }),
+  )
+
+  return (
+    <button
+      ref={ref}
+      className={className}
+      {...props}
+      style={{ minWidth: '2rem' }}
+    >
+      <div className="rounded inline-flex items-center">
+        <div className="mr-2">{props.children}</div>
+        {icon ? icon : null}
+      </div>
+    </button>
+  )
+})
 
 export function NavButton(props: NavButtonProps) {
   const className = cx(buttonStyles(props))
@@ -128,4 +194,5 @@ export function PrevPageButton(props: NavButtonProps) {
 }
 
 Button.displayName = 'Button'
+ButtonWithIcon.displayName = 'ButtonWithIcon'
 IconButton.displayName = 'IconButton'

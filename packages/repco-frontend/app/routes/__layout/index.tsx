@@ -119,7 +119,6 @@ export const loader: LoaderFunction = async ({ request }) => {
   }
 
   const filteredRepoStats = repoStats.filter((result) => result !== null)
-
   return {
     data,
     repoChartData,
@@ -127,7 +126,7 @@ export const loader: LoaderFunction = async ({ request }) => {
       labels,
       datasets: [{ data: dataPoints, backgroundColor }],
     },
-    totalContentItems: data?.contentItems?.totalCount,
+    totalContentItems: data?.totalContentItems?.totalCount,
     totalPublicationServices: data?.publicationServices?.totalCount,
     rejectedPromises: filteredRepoStats.filter(
       (result) => !onlyResolved(result),

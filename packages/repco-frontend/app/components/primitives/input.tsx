@@ -62,7 +62,7 @@ export function InputWithIcon(props: InputIconProps) {
         className={className}
         {...inputProps}
         aria-label={label || tooltip}
-        aria-describedby={tooltipId}
+        aria-describedby={tooltip}
       />
       <div className="absolute inset-y-0 right-0 flex items-center pr-3">
         <Separator.Root
