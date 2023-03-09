@@ -21,7 +21,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url)
   const type = url.searchParams.get('type')
   const q = url.searchParams.get('q')
-  const orderBy = url.searchParams.get('orderBy') || 'TITLE_ASC'
+  const orderBy = url.searchParams.get('orderBy') || 'PUB_DATE_DESC'
   const repoDid = url.searchParams.get('repoDid') || 'all'
   const { first, last, after, before } = parsePagination(url)
   let filter: ContentItemFilter | undefined = undefined
