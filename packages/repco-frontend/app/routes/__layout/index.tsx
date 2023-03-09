@@ -127,7 +127,7 @@ export const loader: LoaderFunction = async ({ request }) => {
       datasets: [{ data: dataPoints, backgroundColor }],
     },
     totalContentItems: data?.totalContentItems?.totalCount,
-    totalPublicationServices: data?.publicationServices?.totalCount,
+    totalPublicationServices: data?.totalPublicationServices?.totalCount,
     rejectedPromises: filteredRepoStats.filter(
       (result) => !onlyResolved(result),
     ),
@@ -195,7 +195,7 @@ export default function Index() {
             <li>Media Assets: {data?.mediaAssets.totalCount}</li>
             <li>Commits: {data?.commits.totalCount}</li>
             <li>
-              Publication Services: {data?.publicationServices.totalCount}
+              Publication Services: {data?.totalPublicationServices?.totalCount}
             </li>
             <li>Repositories: {data?.repos.totalCount}</li>
             <li>Concepts: {data?.concepts.totalCount}</li>

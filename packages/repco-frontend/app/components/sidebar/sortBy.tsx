@@ -31,7 +31,7 @@ type SortOrder = {
 
 export default function SortBy() {
   const [searchParams, setSearchParams] = useSearchParams()
-  const orderBy = searchParams.get('orderBy')
+  const orderBy = searchParams.get('orderBy') || 'PUB_DATE_DESC'
   const sortOrder: SortOrder = {
     TITLE_DESC: {
       name: 'Title (A-Z)',

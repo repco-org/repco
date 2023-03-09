@@ -27,21 +27,18 @@ export default function Search(props: SearchProps) {
 
   const handleInputChange = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
+      const inputValue = e.target.value.trim()
       setSearchParams((params) => {
-        params.set('q', e.target.value)
+        if (inputValue) {
+          params.set('q', inputValue)
+        } else {
+          params.delete('q')
+        }
         return new URLSearchParams(params)
       })
     },
     [setSearchParams],
   )
-
-  React.useEffect(() => {
-    setSearchParams((params) => {
-      params.set('q', input)
-      return new URLSearchParams(params)
-    })
-  }, [input, setSearchParams])
-
   return (
     <div>
       <InputWithIcon

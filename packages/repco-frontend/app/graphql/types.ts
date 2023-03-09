@@ -7670,6 +7670,7 @@ export type LoadDashboardDataQuery = {
     nodes: Array<{ name: string; contentItems: { totalCount: number } }>
   } | null
   latestConetentItems?: { nodes: Array<{ title: string; uid: string }> } | null
+  totalPublicationServices?: { totalCount: number } | null
   totalContentItems?: { totalCount: number } | null
   contentGroupings?: { totalCount: number } | null
   dataSources?: { totalCount: number } | null
