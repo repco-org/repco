@@ -45,9 +45,6 @@ import { FetchOpts } from '../util/datamapping.js'
 import { HttpError } from '../util/error.js'
 import { notEmpty } from '../util/misc.js'
 
-// Endpoint of the Datasource
-const DEFAULT_ENDPOINT = 'https://cba.fro.at/wp-json/wp/v2'
-
 const CONTENT_TYPE_JSON = 'application/json'
 
 export type FormsWithUid = {
@@ -58,18 +55,17 @@ export type FormsWithUid = {
 const configSchema = zod.object({
   endpoint: zod.string().url().optional(),
   apiKey: zod.string().optional(),
-  pageLimit: zod.number().int()
+  pageLimit: zod.number().int(),
 })
 
 type ConfigSchema = zod.infer<typeof configSchema>
 type FullConfigSchema = ConfigSchema & { endpoint: string }
 
-const DEFAULT_CONFIG: FullConfigSchema= {
+const DEFAULT_CONFIG: FullConfigSchema = {
   endpoint: 'https://cba.fro.at/wp-json/wp/v2',
   pageLimit: 50,
-  apiKey: process.env.CBA_API_KEY
+  apiKey: process.env.CBA_API_KEY,
 }
-
 
 /**
  * A plugin for the CbaDataSource class, which implements the DataSourcePlugin interface.
