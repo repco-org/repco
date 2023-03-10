@@ -58,8 +58,18 @@ export type FormsWithUid = {
 const configSchema = zod.object({
   endpoint: zod.string().url().optional(),
   apiKey: zod.string().optional(),
+  pageLimit: zod.number().int()
 })
+
 type ConfigSchema = zod.infer<typeof configSchema>
+type FullConfigSchema = ConfigSchema & { endpoint: string }
+
+const DEFAULT_CONFIG: FullConfigSchema= {
+  endpoint: 'https://cba.fro.at/wp-json/wp/v2',
+  pageLimit: 50,
+  apiKey: process.env.CBA_API_KEY
+}
+
 
 /**
  * A plugin for the CbaDataSource class, which implements the DataSourcePlugin interface.
@@ -88,20 +98,18 @@ export class CbaDataSourcePlugin implements DataSourcePlugin {
 }
 
 export class CbaDataSource implements DataSource {
-  endpoint: string
+  config: FullConfigSchema
   endpointOrigin: string
   uriPrefix: string
-  apiKey?: string
-  constructor(config: ConfigSchema) {
-    this.endpoint = config.endpoint || DEFAULT_ENDPOINT
-    this.apiKey = config.apiKey || process.env.CBA_API_KEY || undefined
+  constructor(config: Partial<ConfigSchema>) {
+    this.config = { ...DEFAULT_CONFIG, ...config }
     const endpointUrl = new URL(this.endpoint)
     this.endpointOrigin = endpointUrl.hostname
     this.uriPrefix = `repco:cba:${this.endpointOrigin}`
   }
 
-  get config() {
-    return { endpoint: this.endpoint, apiKey: this.apiKey }
+  get endpoint() {
+    return this.config.endpoint
   }
 
   get definition(): DataSourceDefinition {
@@ -154,7 +162,7 @@ export class CbaDataSource implements DataSource {
         console.log('buckets', endpoint, type, ids)
         try {
           let idx = 0
-          const perPage = 50
+          const perPage = this.config.pageLimit
           const res = []
           if (idx + perPage < ids.length) {
             while (idx + perPage < ids.length) {
@@ -186,7 +194,8 @@ export class CbaDataSource implements DataSource {
             res.push(
               ...bodies.map((body: any, i: number) => {
                 if (slice[i] === undefined) {
-                  console.warn('uri is undefined', endpoint, type, ids)
+                  console.warn('uri is undefined', { url, slice, idx })
+                  throw new Error('empty slice')
                   return {
                     body: null,
                     contentType: null,
@@ -319,7 +328,7 @@ export class CbaDataSource implements DataSource {
     try {
       const cursor = cursorString ? JSON.parse(cursorString) : {}
       const { posts: postsCursor = '1970-01-01T01:00:00' } = cursor
-      const perPage = 30
+      const perPage = this.config.pageLimit
       const url = this._url(
         `/posts?page=1&per_page=${perPage}&_embed&orderby=modified&order=asc&modified_after=${postsCursor}`,
       )
@@ -347,6 +356,7 @@ export class CbaDataSource implements DataSource {
   }
 
   async mapSourceRecord(record: SourceRecordForm): Promise<EntityForm[]> {
+    console.log(record)
     try {
       const body = JSON.parse(record.body)
 
@@ -740,8 +750,8 @@ export class CbaDataSource implements DataSource {
     opts: FetchOpts = {},
   ): Promise<T> {
     const url = new URL(urlString)
-    if (this.apiKey) {
-      url.searchParams.set('api_key', this.apiKey)
+    if (this.config.apiKey) {
+      url.searchParams.set('api_key', this.config.apiKey)
     }
     try {
       const res = await fetch(url.toString(), opts)
