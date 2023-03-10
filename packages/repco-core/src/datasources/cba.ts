@@ -122,11 +122,12 @@ export class CbaDataSource implements DataSource {
 
   canFetchUri(uri: string): boolean {
     const parsed = this.parseUri(uri)
-    //console.log('canFetchUri', uri)
     return !!parsed
   }
 
+  // Fetch a list of URIs in batches
   async fetchByUriBatch(uris: string[]): Promise<SourceRecordForm[]> {
+    // Map of (source record type) -> (batch endpoint)
     const batchEndpoints: Record<string, string> = {
       post: 'post',
       audio: 'media',
@@ -136,15 +137,18 @@ export class CbaDataSource implements DataSource {
       station: 'station',
       series: 'series',
     }
+
+    // Buckets per batch endpoint
     const buckets: Record<
       string,
       { type: string; ids: { uri: string; id: string }[] }
     > = {}
+    // URIs without batch support
     const unbatched = []
-    //console.log('fetchByUriBatch', uris)
+
+    // Iterate over URIs, parse them, and sort into the correct bucket
     for (const uri of uris) {
       const parsed = this.parseUri(uri)
-      // console.log('parsed')
       if (!parsed) continue
       const { id, type } = parsed
       const batchEndpoint = batchEndpoints[type]
@@ -154,55 +158,27 @@ export class CbaDataSource implements DataSource {
       } else {
         unbatched.push(uri)
       }
-      //console.log('buckets', buckets)
     }
 
+    // Map each endpoint bucket to list of promises.
+    // Each promise in the list fetches a slice of the overall URLs (to respect page limits)
+    // Collect the list of all bucket promises in a single promise.
     const batchedPromises: Promise<SourceRecordForm[][]> = Promise.all(
       Object.entries(buckets).map(async ([endpoint, { type, ids }]) => {
-        console.log('buckets', endpoint, type, ids)
         try {
           let idx = 0
-          const perPage = this.config.pageLimit
+          const pageLimit = this.config.pageLimit
           const res = []
-          if (idx + perPage < ids.length) {
-            while (idx + perPage < ids.length) {
-              const slice = ids.slice(idx, idx + perPage)
-              idx += perPage
-              const params = new URLSearchParams()
-              params.append('include', slice.map((id) => id.id).join(','))
-              params.append('per_page', '100')
-              const url = this._url(`/${endpoint}?${params}`)
-              const bodies = await this._fetch(url)
-              res.push(
-                ...bodies.map((body: any, i: number) => {
-                  const uri = slice[i].uri
-                  return {
-                    body: JSON.stringify(body),
-                    contentType: CONTENT_TYPE_JSON,
-                    sourceType: type,
-                    sourceUri: uri,
-                  }
-                }),
-              )
-            }
-          } else {
+          while (idx < ids.length) {
+            const slice = ids.slice(idx, idx + pageLimit)
+            idx += slice.length
             const params = new URLSearchParams()
-
+            params.append('include', slice.map((id) => id.id).join(','))
+            params.append('per_page', slice.length.toString())
             const url = this._url(`/${endpoint}?${params}`)
             const bodies = await this._fetch(url)
-            const slice = ids.slice(idx)
             res.push(
               ...bodies.map((body: any, i: number) => {
-                if (slice[i] === undefined) {
-                  console.warn('uri is undefined', { url, slice, idx })
-                  throw new Error('empty slice')
-                  return {
-                    body: null,
-                    contentType: null,
-                    sourceType: null,
-                    sourceUri: null,
-                  }
-                }
                 const uri = slice[i].uri
                 return {
                   body: JSON.stringify(body),
@@ -213,22 +189,27 @@ export class CbaDataSource implements DataSource {
               }),
             )
           }
-          // console.log('unbatched', unbatched.length, 'batched', res.length)
-
           return res
         } catch (error) {
+          // TODO: Persist the error.
           log.warn({ msg: `CBA datasource failure`, error })
           return []
         }
       }),
     )
+    // Map the URIs without batch support to a promise that resolves this URI.
+    // Combine them all in a single promise.
     const unbatchedPromises = Promise.all(
       unbatched.map((uri) => this.fetchByUri(uri)),
     )
+
+    // Resolve all pending promises-of-promises in a single call
     const [batchedRes, unbatchedRes] = await Promise.all([
       batchedPromises,
       unbatchedPromises,
     ])
+
+    // Flatten the paged arrays
     return [...batchedRes.flat(), ...unbatchedRes.flat()]
   }
 
@@ -356,34 +337,25 @@ export class CbaDataSource implements DataSource {
   }
 
   async mapSourceRecord(record: SourceRecordForm): Promise<EntityForm[]> {
-    console.log(record)
     try {
       const body = JSON.parse(record.body)
 
       switch (record.sourceType) {
         case 'post':
-          console.log('mapSourceRecord post')
           return this._mapPost(body as CbaPost)
         case 'audio':
-          console.log('mapSourceRecord audio')
           return this._mapAudio(body)
         case 'image':
-          console.log('mapSourceRecord image')
           return this._mapImage(body)
         case 'series':
-          console.log('mapSourceRecord series')
           return this._mapSeries(body)
         case 'categories':
-          console.log('mapSourceRecord categories')
           return this._mapCategories(body)
         case 'tags':
-          console.log('mapSourceRecord tags')
           return this._mapTags(body)
         case 'posts':
-          console.log('mapSourceRecord posts')
           return (body as CbaPost[]).map((post) => this._mapPost(post)).flat()
         case 'station':
-          console.log('mapSourceRecord station')
           return this._mapStation(body)
 
         default:
@@ -395,7 +367,6 @@ export class CbaDataSource implements DataSource {
   }
 
   private parseUri(uri: string) {
-    // console.log('parseUri')
     if (!uri.startsWith(this.uriPrefix + ':')) return null
     uri = uri.substring(this.uriPrefix.length + 1)
     const parts = uri.split(':')
@@ -420,12 +391,10 @@ export class CbaDataSource implements DataSource {
   }
 
   private _uri(type: string, id: string | number): string {
-    //console.log('_uri')
     return `${this.uriPrefix}:e:${type}:${id}`
   }
 
   private _uriLink(type: string, id: string | number): { uri: string } | null {
-    //  console.log('_uriLink')
     if (id === undefined || id === null) return null
     return { uri: this._uri(type, id) }
   }
@@ -435,12 +404,10 @@ export class CbaDataSource implements DataSource {
     id: string | number,
     revisionId: string | number,
   ): string {
-    //   console.log('_revisionUri')
     return `${this.uriPrefix}:r:${type}:${id}:${revisionId}`
   }
 
   private _mapAudio(media: CbaAudio): EntityForm[] {
-    // console.log('_mapAudio')
     const fileId = this._uri('file', media.id)
     const audioId = this._uri('audio', media.id)
 
@@ -499,7 +466,6 @@ export class CbaDataSource implements DataSource {
   }
 
   private _mapImage(media: CbaImage): EntityForm[] {
-    //    console.log('_mapImage')
     const fileId = this._uri('file', media.id)
     const imageId = this._uri('image', media.id)
 
@@ -551,7 +517,6 @@ export class CbaDataSource implements DataSource {
   }
 
   private _mapCategories(categories: CbaCategory): EntityForm[] {
-    //  console.log('_mapCategories')
     const content: form.ConceptInput = {
       name: categories.name,
       description: categories.description,
@@ -577,7 +542,6 @@ export class CbaDataSource implements DataSource {
   }
 
   private _mapTags(tags: CbaTag): EntityForm[] {
-    // console.log('_mapTags')
     if (!tags || !tags.name || !tags.id) {
       console.error('Invalid tags input.')
       throw new Error('Invalid tags input.')
@@ -598,7 +562,6 @@ export class CbaDataSource implements DataSource {
   }
 
   private _mapStation(station: CbaStation): EntityForm[] {
-    // console.log('_mapStation')
     if (!station.title || !station.title.rendered) {
       throw new Error(
         `Missing or invalid title for station with ID ${station.id}`,
@@ -628,7 +591,6 @@ export class CbaDataSource implements DataSource {
   }
 
   private _mapSeries(series: CbaSeries): EntityForm[] {
-    //   console.log('_mapSeries')
     if (!series.title || !series.title.rendered) {
       throw new Error('Series title is missing.')
     }
@@ -658,7 +620,6 @@ export class CbaDataSource implements DataSource {
   }
 
   private _mapPost(post: CbaPost): EntityForm[] {
-    // console.log('_mapPost')
     try {
       const mediaAssetLinks = []
       const entities: EntityForm[] = []
@@ -734,7 +695,6 @@ export class CbaDataSource implements DataSource {
   }
 
   private _url(urlString: string, opts: FetchOpts = {}) {
-    //  console.log('_url')
     const url = new URL(this.endpoint + urlString)
     if (opts.params) {
       for (const [key, value] of Object.entries(opts.params)) {
