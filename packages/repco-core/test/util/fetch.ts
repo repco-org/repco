@@ -44,20 +44,3 @@ export async function assertFixture(assert: Test, path: string, data: any) {
   const fixture = JSON.parse(await fs.readFile(path, 'utf8'))
   assert.alike(JSON.parse(JSON.stringify(data)), fixture)
 }
-
-// export const FIXTURE_DIR = p.join(__dirname, '../../../test/fixtures')
-// export function fixtureDir(scope: string): string {
-//   return p.join(FIXTURE_DIR, scope)
-// }
-
-// export function fixturePath(scope: string, name: string) {
-//   return p.join(fixtureDir(scope), name)
-// }
-
-// export async function readTextFile(scope: string, name: string) {
-//   return await fs.readFile(fixturePath(scope, name), 'utf8')
-// }
-//
-// export async function writeTextFile(scope: string, name: string, data: string) {
-//   return await fs.writeFile(fixturePath(scope, name), data)
-// }

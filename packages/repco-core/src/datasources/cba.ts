@@ -2,7 +2,7 @@
 // The CbaDataSourcePlugin is a class that implements the DataSourcePlugin interface,
 // which allows it to be used as a plugin for the Repco data integration system.
 // It provides a way to access data from the CBA WordPress API, which exposes data about
-// radio stations, podcasts, categories, and tagss and so on. The plugin allows you to specify the endpoint
+// radio stations, podcasts, categories, and tags and so on. The plugin allows you to specify the endpoint
 // of the API and an optional API key in the configuration. It provides methods for fetching
 // updates to the data, as well as for transforming the data into forms that can be used in Repco.
 
@@ -550,7 +550,7 @@ export class CbaDataSource implements DataSource {
       name: tags.name,
       description: tags.description,
       kind: ConceptKind.TAG,
-      originNamespace: 'https://cba.fro.at/wp-json/wp/v2/tagss',
+      originNamespace: 'https://cba.fro.at/wp-json/wp/v2/tags',
     }
     const revisionId = this._revisionUri('tags', tags.id, new Date().getTime())
     const uri = this._uri('tags', tags.id)
@@ -647,11 +647,11 @@ export class CbaDataSource implements DataSource {
         post.categories
           ?.map((cbaId) => this._uriLink('categories', cbaId))
           .filter(notEmpty) ?? []
-      const tagss =
+      const tags =
         post.tags
           ?.map((cbaId) => this._uriLink('tags', cbaId))
           .filter(notEmpty) ?? []
-      const conceptLinks = [...categories, ...tagss]
+      const conceptLinks = [...categories, ...tags]
 
       const content: form.ContentItemInput = {
         pubDate: new Date(post.date),
