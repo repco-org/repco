@@ -45,9 +45,6 @@ import { FetchOpts } from '../util/datamapping.js'
 import { HttpError } from '../util/error.js'
 import { notEmpty } from '../util/misc.js'
 
-// Endpoint of the Datasource
-const DEFAULT_ENDPOINT = 'https://cba.fro.at/wp-json/wp/v2'
-
 const CONTENT_TYPE_JSON = 'application/json'
 
 export type FormsWithUid = {
@@ -58,8 +55,17 @@ export type FormsWithUid = {
 const configSchema = zod.object({
   endpoint: zod.string().url().optional(),
   apiKey: zod.string().optional(),
+  pageLimit: zod.number().int(),
 })
+
 type ConfigSchema = zod.infer<typeof configSchema>
+type FullConfigSchema = ConfigSchema & { endpoint: string }
+
+const DEFAULT_CONFIG: FullConfigSchema = {
+  endpoint: 'https://cba.fro.at/wp-json/wp/v2',
+  pageLimit: 50,
+  apiKey: process.env.CBA_API_KEY,
+}
 
 /**
  * A plugin for the CbaDataSource class, which implements the DataSourcePlugin interface.
@@ -88,20 +94,18 @@ export class CbaDataSourcePlugin implements DataSourcePlugin {
 }
 
 export class CbaDataSource implements DataSource {
-  endpoint: string
+  config: FullConfigSchema
   endpointOrigin: string
   uriPrefix: string
-  apiKey?: string
-  constructor(config: ConfigSchema) {
-    this.endpoint = config.endpoint || DEFAULT_ENDPOINT
-    this.apiKey = config.apiKey || process.env.CBA_API_KEY || undefined
+  constructor(config: Partial<ConfigSchema>) {
+    this.config = { ...DEFAULT_CONFIG, ...config }
     const endpointUrl = new URL(this.endpoint)
     this.endpointOrigin = endpointUrl.hostname
     this.uriPrefix = `repco:cba:${this.endpointOrigin}`
   }
 
-  get config() {
-    return { endpoint: this.endpoint, apiKey: this.apiKey }
+  get endpoint() {
+    return this.config.endpoint
   }
 
   get definition(): DataSourceDefinition {
@@ -117,21 +121,28 @@ export class CbaDataSource implements DataSource {
     return !!parsed
   }
 
+  // Fetch a list of URIs in batches
   async fetchByUriBatch(uris: string[]): Promise<SourceRecordForm[]> {
+    // Map of (source record type) -> (batch endpoint)
     const batchEndpoints: Record<string, string> = {
       post: 'post',
       audio: 'media',
       image: 'media',
-      category: 'categories',
-      tag: 'tags',
+      categories: 'categories',
+      tags: 'tags',
       station: 'station',
       series: 'series',
     }
+
+    // Buckets per batch endpoint
     const buckets: Record<
       string,
       { type: string; ids: { uri: string; id: string }[] }
     > = {}
+    // URIs without batch support
     const unbatched = []
+
+    // Iterate over URIs, parse them, and sort into the correct bucket
     for (const uri of uris) {
       const parsed = this.parseUri(uri)
       if (!parsed) continue
@@ -145,18 +156,21 @@ export class CbaDataSource implements DataSource {
       }
     }
 
+    // Map each endpoint bucket to list of promises.
+    // Each promise in the list fetches a slice of the overall URLs (to respect page limits)
+    // Collect the list of all bucket promises in a single promise.
     const batchedPromises: Promise<SourceRecordForm[][]> = Promise.all(
       Object.entries(buckets).map(async ([endpoint, { type, ids }]) => {
         try {
           let idx = 0
-          const perPage = 50
+          const pageLimit = this.config.pageLimit
           const res = []
-          while (idx + perPage < ids.length) {
-            const slice = ids.slice(idx, idx + perPage)
-            idx += perPage
+          while (idx < ids.length) {
+            const slice = ids.slice(idx, idx + pageLimit)
+            idx += slice.length
             const params = new URLSearchParams()
             params.append('include', slice.map((id) => id.id).join(','))
-            params.append('per_page', '100')
+            params.append('per_page', slice.length.toString())
             const url = this._url(`/${endpoint}?${params}`)
             const bodies = await this._fetch(url)
             res.push(
@@ -173,18 +187,25 @@ export class CbaDataSource implements DataSource {
           }
           return res
         } catch (error) {
+          // TODO: Persist the error.
           log.warn({ msg: `CBA datasource failure`, error })
           return []
         }
       }),
     )
+    // Map the URIs without batch support to a promise that resolves this URI.
+    // Combine them all in a single promise.
     const unbatchedPromises = Promise.all(
       unbatched.map((uri) => this.fetchByUri(uri)),
     )
+
+    // Resolve all pending promises-of-promises in a single call
     const [batchedRes, unbatchedRes] = await Promise.all([
       batchedPromises,
       unbatchedPromises,
     ])
+
+    // Flatten the paged arrays
     return [...batchedRes.flat(), ...unbatchedRes.flat()]
   }
 
@@ -198,10 +219,10 @@ export class CbaDataSource implements DataSource {
       post: 'post',
       audio: 'media',
       image: 'media',
-      series: 'series',
-      category: 'categories',
-      tag: 'tags',
+      categories: 'categories',
+      tags: 'tags',
       station: 'station',
+      series: 'series',
     }
 
     const { id, type } = parsed
@@ -284,7 +305,7 @@ export class CbaDataSource implements DataSource {
     try {
       const cursor = cursorString ? JSON.parse(cursorString) : {}
       const { posts: postsCursor = '1970-01-01T01:00:00' } = cursor
-      const perPage = 30
+      const perPage = this.config.pageLimit
       const url = this._url(
         `/posts?page=1&per_page=${perPage}&_embed&orderby=modified&order=asc&modified_after=${postsCursor}`,
       )
@@ -312,28 +333,32 @@ export class CbaDataSource implements DataSource {
   }
 
   async mapSourceRecord(record: SourceRecordForm): Promise<EntityForm[]> {
-    const body = JSON.parse(record.body)
+    try {
+      const body = JSON.parse(record.body)
 
-    switch (record.sourceType) {
-      case 'post':
-        return this._mapPost(body as CbaPost)
-      case 'audio':
-        return this._mapAudio(body)
-      case 'image':
-        return this._mapImage(body)
-      case 'series':
-        return this._mapSeries(body)
-      case 'category':
-        return this._mapCategory(body)
-      case 'tag':
-        return this._mapTag(body)
-      case 'posts':
-        return (body as CbaPost[]).map((post) => this._mapPost(post)).flat()
-      case 'station':
-        return this._mapStation(body)
+      switch (record.sourceType) {
+        case 'post':
+          return this._mapPost(body as CbaPost)
+        case 'audio':
+          return this._mapAudio(body)
+        case 'image':
+          return this._mapImage(body)
+        case 'series':
+          return this._mapSeries(body)
+        case 'categories':
+          return this._mapCategories(body)
+        case 'tags':
+          return this._mapTags(body)
+        case 'posts':
+          return (body as CbaPost[]).map((post) => this._mapPost(post)).flat()
+        case 'station':
+          return this._mapStation(body)
 
-      default:
-        throw new Error('Unknown source type: ' + record.sourceType)
+        default:
+          throw new Error('Unknown source type: ' + record.sourceType)
+      }
+    } catch (error) {
+      throw new Error(`Error body undefined: ${error}`)
     }
   }
 
@@ -416,7 +441,7 @@ export class CbaDataSource implements DataSource {
       mediaType: 'audio',
       duration,
       Concepts: media.media_tag.map((cbaId) => ({
-        uri: this._uri('tag', cbaId),
+        uri: this._uri('tags', cbaId),
       })),
       File: { uri: fileId },
     }
@@ -462,16 +487,12 @@ export class CbaDataSource implements DataSource {
         media.media_details.width.toString()
     }
 
-    if (!media.title || !media.title.rendered) {
-      throw new Error('Media title is missing.')
-    }
-
     const asset: form.MediaAssetInput = {
-      title: media.title.rendered,
+      title: media.title.rendered || '',
       description: media.description?.rendered || null,
       mediaType: 'image',
       Concepts: media.media_tag.map((cbaId) => ({
-        uri: this._uri('tag', cbaId),
+        uri: this._uri('tags', cbaId),
       })),
       File: { uri: fileId },
     }
@@ -491,22 +512,24 @@ export class CbaDataSource implements DataSource {
     return [fileEntity, mediaEntity]
   }
 
-  private _mapCategory(category: CbaCategory): EntityForm[] {
+  private _mapCategories(categories: CbaCategory): EntityForm[] {
     const content: form.ConceptInput = {
-      name: category.name,
-      description: category.description,
+      name: categories.name,
+      description: categories.description,
       kind: ConceptKind.CATEGORY,
       originNamespace: 'https://cba.fro.at/wp-json/wp/v2/categories',
     }
-    if (category.parent !== undefined) {
-      content.ParentConcept = { uri: this._uri('category', category.parent) }
+    if (categories.parent !== undefined) {
+      content.ParentConcept = {
+        uri: this._uri('categories', categories.parent),
+      }
     }
     const revisionId = this._revisionUri(
-      'category',
-      category.id,
+      'categories',
+      categories.id,
       new Date().getTime(),
     )
-    const uri = this._uri('category', category.id)
+    const uri = this._uri('categories', categories.id)
     const headers = {
       revisionUris: [revisionId],
       entityUris: [uri],
@@ -514,19 +537,19 @@ export class CbaDataSource implements DataSource {
     return [{ type: 'Concept', content, ...headers }]
   }
 
-  private _mapTag(tag: CbaTag): EntityForm[] {
-    if (!tag || !tag.name || !tag.id) {
-      console.error('Invalid tag input.')
-      throw new Error('Invalid tag input.')
+  private _mapTags(tags: CbaTag): EntityForm[] {
+    if (!tags || !tags.name || !tags.id) {
+      console.error('Invalid tags input.')
+      throw new Error('Invalid tags input.')
     }
     const content: form.ConceptInput = {
-      name: tag.name,
-      description: tag.description,
+      name: tags.name,
+      description: tags.description,
       kind: ConceptKind.TAG,
       originNamespace: 'https://cba.fro.at/wp-json/wp/v2/tags',
     }
-    const revisionId = this._revisionUri('tag', tag.id, new Date().getTime())
-    const uri = this._uri('tag', tag.id)
+    const revisionId = this._revisionUri('tags', tags.id, new Date().getTime())
+    const uri = this._uri('tags', tags.id)
     const headers = {
       revisionUris: [revisionId],
       entityUris: [uri],
@@ -618,11 +641,11 @@ export class CbaDataSource implements DataSource {
 
       const categories =
         post.categories
-          ?.map((cbaId) => this._uriLink('category', cbaId))
+          ?.map((cbaId) => this._uriLink('categories', cbaId))
           .filter(notEmpty) ?? []
       const tags =
         post.tags
-          ?.map((cbaId) => this._uriLink('tag', cbaId))
+          ?.map((cbaId) => this._uriLink('tags', cbaId))
           .filter(notEmpty) ?? []
       const conceptLinks = [...categories, ...tags]
 
@@ -683,8 +706,8 @@ export class CbaDataSource implements DataSource {
     opts: FetchOpts = {},
   ): Promise<T> {
     const url = new URL(urlString)
-    if (this.apiKey) {
-      url.searchParams.set('api_key', this.apiKey)
+    if (this.config.apiKey) {
+      url.searchParams.set('api_key', this.config.apiKey)
     }
     try {
       const res = await fetch(url.toString(), opts)
