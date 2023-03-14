@@ -59,7 +59,7 @@ const configSchema = zod.object({
 })
 
 type ConfigSchema = zod.infer<typeof configSchema>
-type FullConfigSchema = ConfigSchema & { endpoint: string, pageLimit: number }
+type FullConfigSchema = ConfigSchema & { endpoint: string; pageLimit: number }
 
 const DEFAULT_CONFIG: FullConfigSchema = {
   endpoint: 'https://cba.fro.at/wp-json/wp/v2',
@@ -403,13 +403,24 @@ export class CbaDataSource implements DataSource {
     return `${this.uriPrefix}:r:${type}:${id}:${revisionId}`
   }
 
+  _getAudioSrc(htmlString: string): string {
+    const regex = /src="([^"]*)"/i
+    const match = regex.exec(htmlString)
+    if (match && match[1]) {
+      return match[1]
+    }
+    throw new Error('Src attribute not found in description.')
+  }
+
   private _mapAudio(media: CbaAudio): EntityForm[] {
     const fileId = this._uri('file', media.id)
     const audioId = this._uri('audio', media.id)
 
-    if (!media.source_url) {
+    if (!media.description) {
       throw new Error('Media source URL is missing.')
     }
+
+    const contentSource_url = this._getAudioSrc(media.description.rendered)
 
     if (!media.media_details) {
       throw new Error('Media details are missing.')
@@ -424,7 +435,7 @@ export class CbaDataSource implements DataSource {
       }
     }
     const file: form.FileInput = {
-      contentUrl: media.source_url,
+      contentUrl: contentSource_url,
       bitrate: media.media_details.bitrate
         ? Math.round(media.media_details.bitrate)
         : undefined,
@@ -441,7 +452,7 @@ export class CbaDataSource implements DataSource {
       mediaType: 'audio',
       duration,
       Concepts: media.media_tag.map((cbaId) => ({
-        uri: this._uri('tags', cbaId),
+        uri: this._uri('tag', cbaId),
       })),
       File: { uri: fileId },
     }
