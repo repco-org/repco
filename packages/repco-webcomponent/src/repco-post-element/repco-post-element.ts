@@ -61,7 +61,7 @@ export class RepcoPostElement extends LitElement {
   _defaultThumbnail = ''
 
   @property()
-  endpoint = 'https://node1.repco.openaudiosearch.org/graphql'
+  endpoint = 'https://hub.repco.openaudiosearch.org/graphql'
 
   @property({ type: String })
   query = `

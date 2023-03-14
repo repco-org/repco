@@ -25,7 +25,7 @@
   "license": "MIT OR Apache-2.0",
   "dependencies": {
     "dompurify": "^2.4.3",
-    "lit": "^2.2.4"
+    "lit": "^2.6.1"
   },
   "files": [
     "src",
