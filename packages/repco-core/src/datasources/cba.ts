@@ -421,7 +421,6 @@ export class CbaDataSource implements DataSource {
     }
 
     const contentSource_url = this._getAudioSrc(media.description.rendered)
-
     if (!media.media_details) {
       throw new Error('Media details are missing.')
     }

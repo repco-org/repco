@@ -11,7 +11,6 @@ interface SearchProps {
 export default function Search(props: SearchProps) {
   const { searchParams } = props
   const [, setSearchParams] = useSearchParams()
-
   const input = searchParams.get('q') || ''
   const type = searchParams.get('type') || 'title'
 
@@ -25,20 +24,6 @@ export default function Search(props: SearchProps) {
     [setSearchParams],
   )
 
-  const handleInputChange = React.useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const inputValue = e.target.value.trim()
-      setSearchParams((params) => {
-        if (inputValue) {
-          params.set('q', inputValue)
-        } else {
-          params.delete('q')
-        }
-        return new URLSearchParams(params)
-      })
-    },
-    [setSearchParams],
-  )
   return (
     <div>
       <InputWithIcon
@@ -49,11 +34,9 @@ export default function Search(props: SearchProps) {
         placeholder="Search"
         tooltip="submit the input"
         icon={<MagnifyingGlassIcon />}
-        value={input}
-        onChange={handleInputChange}
+        defaultValue={input}
         aria-label="Search"
       />
-
       <h2 className="text-lg mt-2 pt-2 w-full border-b-2 border-gray-200">
         Search
       </h2>

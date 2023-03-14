@@ -58,6 +58,7 @@ export default function ItemsMenuWrapper() {
                     searchParams={searchParams}
                     aria-label="Search Input"
                   />
+
                   <FilterByRepository
                     searchParams={searchParams}
                     repositories={repositories}
