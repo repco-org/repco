@@ -55,15 +55,15 @@ export type FormsWithUid = {
 const configSchema = zod.object({
   endpoint: zod.string().url().optional(),
   apiKey: zod.string().optional(),
-  pageLimit: zod.number().int(),
+  pageLimit: zod.number().int().optional(),
 })
 
 type ConfigSchema = zod.infer<typeof configSchema>
-type FullConfigSchema = ConfigSchema & { endpoint: string }
+type FullConfigSchema = ConfigSchema & { endpoint: string, pageLimit: number }
 
 const DEFAULT_CONFIG: FullConfigSchema = {
   endpoint: 'https://cba.fro.at/wp-json/wp/v2',
-  pageLimit: 50,
+  pageLimit: 30,
   apiKey: process.env.CBA_API_KEY,
 }
 
