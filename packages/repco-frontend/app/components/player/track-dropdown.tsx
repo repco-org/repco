@@ -10,7 +10,7 @@ export const TrackDropdown = ({ track }: { track: Track }) => {
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
-        <Button aria-label="Customise options">
+        <Button aria-label="options">
           <HamburgerMenuIcon />{' '}
         </Button>
       </DropdownMenu.Trigger>

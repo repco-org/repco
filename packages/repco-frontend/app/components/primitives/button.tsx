@@ -93,7 +93,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
               className={className}
               {...props}
               aria-label={label || tooltip}
-              aria-describedby={tooltip}
+              aria-describedby={tooltipId}
             >
               <div className="items-center">{icon ? icon : null}</div>
             </button>

@@ -56,11 +56,12 @@ export default function FilterByRepository({
                 <RadioGroup.Item
                   className="bg-brand-primary w-4 h-4 rounded-full"
                   value={repo.did}
-                  id={repo.name || i.toString()}
+                  id={i.toString()}
+                  aria-label={repo.name || 'repo'}
                 >
                   <RadioGroup.Indicator className="flex items-center justify-center w-full h-full relative after:block after:w-2 after:h-2 after:rounded-full after:bg-white" />
                 </RadioGroup.Item>
-                <label className="text-sm" htmlFor={repo.name || i.toString()}>
+                <label className="text-sm" htmlFor={i.toString()}>
                   {repo.name}
                 </label>
               </div>

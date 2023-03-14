@@ -54,6 +54,7 @@ export default function Search(props: SearchProps) {
               className="bg-brand-primary w-4 h-4 rounded-full"
               value="title"
               id="title"
+              aria-label="title-label"
             >
               <RadioGroup.Indicator
                 className="flex
@@ -70,14 +71,16 @@ export default function Search(props: SearchProps) {
               className="bg-brand-primary w-4 h-4 rounded-full"
               value="fulltext"
               id="fulltext"
+              aria-label="fulltext-label"
             >
               <RadioGroup.Indicator
+                aria-labelledby="fulltext-label"
                 className="flex
                         items-center  justify-center w-full h-full relative
                         after:block   after:w-2 after:h-2 after:rounded-full after:bg-white"
               />
             </RadioGroup.Item>
-            <label className="text-sm" htmlFor="fulltext">
+            <label id="fulltext-label" className="text-sm" htmlFor="fulltext">
               Search in full text
             </label>
           </div>

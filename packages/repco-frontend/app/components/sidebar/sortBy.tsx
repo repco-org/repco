@@ -7,25 +7,21 @@ type SortOrder = {
     name: string
     value: string
     icon: JSX.Element
-    ariaLabel: string
   }
   TITLE_ASC: {
     name: string
     value: string
     icon: JSX.Element
-    ariaLabel: string
   }
   PUB_DATE_ASC: {
     name: string
     value: string
     icon: JSX.Element
-    ariaLabel: string
   }
   PUB_DATE_DESC: {
     name: string
     value: string
     icon: JSX.Element
-    ariaLabel: string
   }
 }
 
@@ -37,25 +33,21 @@ export default function SortBy() {
       name: 'Title (A-Z)',
       value: 'TITLE_ASC',
       icon: <ArrowDownIcon />,
-      ariaLabel: 'Sort by title in descending order',
     },
     TITLE_ASC: {
       name: 'Title (Z-A)',
       value: 'TITLE_DESC',
       icon: <ArrowUpIcon />,
-      ariaLabel: 'Sort by title in ascending order',
     },
     PUB_DATE_ASC: {
       name: 'Publication date',
       value: 'PUB_DATE_ASC',
       icon: <ArrowUpIcon />,
-      ariaLabel: 'Sort by publication date in ascending order',
     },
     PUB_DATE_DESC: {
       name: 'Publication date ',
       value: 'PUB_DATE_DESC',
       icon: <ArrowDownIcon />,
-      ariaLabel: 'Sort by publication date in descending order',
     },
   }
   const titleSortOrder = sortOrder.TITLE_ASC.value
@@ -95,13 +87,7 @@ export default function SortBy() {
                 <MinusIcon />
               )
             }
-            aria-label={
-              orderBy === sortOrder.TITLE_ASC.value
-                ? sortOrder.TITLE_ASC.ariaLabel
-                : orderBy === sortOrder.TITLE_DESC.value
-                ? sortOrder.TITLE_DESC.ariaLabel
-                : 'not selected'
-            }
+            aria-label={'title az'}
           >
             {orderBy === sortOrder.TITLE_ASC.value
               ? sortOrder.TITLE_ASC.name
@@ -122,13 +108,7 @@ export default function SortBy() {
                 <MinusIcon />
               )
             }
-            aria-label={
-              orderBy === sortOrder.PUB_DATE_ASC.value
-                ? sortOrder.PUB_DATE_ASC.ariaLabel
-                : orderBy === sortOrder.PUB_DATE_DESC.ariaLabel
-                ? sortOrder.PUB_DATE_DESC.ariaLabel
-                : 'not selected'
-            }
+            aria-label="publication date"
           >
             {orderBy === sortOrder.PUB_DATE_ASC.value
               ? sortOrder.PUB_DATE_ASC.name
