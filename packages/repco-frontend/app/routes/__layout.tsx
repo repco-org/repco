@@ -43,7 +43,7 @@ export default function Layout() {
         <div className="bg-slate-200 overflow-y-auto  flex justify-center">
           <QueueView />
         </div>
-        <div className="bg-sky-500 flex  justify-center">
+        <div className="bg-sky-700 flex  justify-center">
           <Player />
         </div>
       </div>

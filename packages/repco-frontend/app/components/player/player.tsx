@@ -68,7 +68,7 @@ export function PlayTrackButton({ track }: { track: Track }) {
   }
 
   return (
-    <Button onClick={clickHandler}>
+    <Button aria-label="Play" onClick={clickHandler}>
       <PlayIcon />
     </Button>
   )
@@ -101,28 +101,27 @@ export function PlayerProvider({ children }: PropsWithChildren) {
 
     const pos = 0
     audio.currentTime = pos
-    console.log(didMount, audio.src)
     if (didMount) {
       audio.load()
-      audio.play()
+      audio.play().catch((e) => console.log(e))
     }
     setDidMount(true)
   }, [audio, track, didMount])
 
-  function nextTrack() {
-    if (trackIndex + 1 < tracks.length) {
-      setTrackIndex(trackIndex + 1)
-    } else setTrackIndex(0)
-  }
+  const playerContext = useMemo(() => {
+    function nextTrack() {
+      if (trackIndex + 1 < tracks.length) {
+        setTrackIndex(trackIndex + 1)
+      } else setTrackIndex(0)
+    }
 
-  function previousTrack() {
-    if (trackIndex - 1 < 0) {
-      setTrackIndex(0)
-    } else setTrackIndex(trackIndex - 1)
-  }
+    function previousTrack() {
+      if (trackIndex - 1 < 0) {
+        setTrackIndex(0)
+      } else setTrackIndex(trackIndex - 1)
+    }
 
-  const playerContext = useMemo(
-    () => ({
+    return {
       track,
       setTrack,
       trackIndex,
@@ -132,9 +131,8 @@ export function PlayerProvider({ children }: PropsWithChildren) {
       tracks,
       queueVisibility,
       setQueueVisibility,
-    }),
-    [track, trackIndex, tracks, queueVisibility],
-  )
+    }
+  }, [track, trackIndex, tracks, queueVisibility])
 
   const playstateContext = useMemo(
     () => ({
@@ -316,7 +314,11 @@ export default function Player() {
               tooltip="next"
             />
           </div>
-          <div className="flex items-center justify-between space-x-2">
+          <div
+            role="region"
+            aria-label="Player information"
+            className="flex items-center justify-between space-x-2"
+          >
             <div className="text-xs">{formatDuration(displayTime || 0)}</div>
 
             <Timeslider
@@ -330,7 +332,11 @@ export default function Player() {
               {formatDuration(state?.duration || 0)}
             </div>
           </div>
-          <div className="flex items-center truncate">
+          <div
+            role="region"
+            aria-label="current track title"
+            className="flex items-center overflow-visible"
+          >
             <p>{player?.track?.title}</p>
           </div>
           <IconButton
@@ -373,6 +379,7 @@ function Timeslider({
         min={0}
         max={100}
         type="range"
+        aria-label="progress"
         value={pos * 100}
         onDragStart={onChangeStart}
         onDragEnd={(e) => onChangeEnd(Number(e.currentTarget.value))}
