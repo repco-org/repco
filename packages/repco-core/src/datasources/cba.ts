@@ -99,6 +99,8 @@ export class CbaDataSource implements DataSource {
   uriPrefix: string
   constructor(config: Partial<ConfigSchema>) {
     this.config = { ...DEFAULT_CONFIG, ...config }
+    console.log(this.config)
+    console.log(config)
     const endpointUrl = new URL(this.endpoint)
     this.endpointOrigin = endpointUrl.hostname
     this.uriPrefix = `repco:cba:${this.endpointOrigin}`
@@ -403,24 +405,24 @@ export class CbaDataSource implements DataSource {
     return `${this.uriPrefix}:r:${type}:${id}:${revisionId}`
   }
 
-  _getAudioSrc(htmlString: string): string {
-    const regex = /src="([^"]*)"/i
-    const match = regex.exec(htmlString)
-    if (match && match[1]) {
-      return match[1]
-    }
-    throw new Error('Src attribute not found in description.')
-  }
+  // _getAudioSrc(htmlString: string): string {
+  //   const regex = /src="([^"]*)"/i
+  //   const match = regex.exec(htmlString)
+  //   if (match && match[1]) {
+  //     return match[1]
+  //   }
+  //   throw new Error('Src attribute not found in description.')
+  // }
 
   private _mapAudio(media: CbaAudio): EntityForm[] {
     const fileId = this._uri('file', media.id)
     const audioId = this._uri('audio', media.id)
 
-    if (!media.description) {
+    if (!media.source_url) {
       throw new Error('Media source URL is missing.')
     }
 
-    const contentSource_url = this._getAudioSrc(media.description.rendered)
+    //const contentSource_url = this._getAudioSrc(media.description.rendered)
     if (!media.media_details) {
       throw new Error('Media details are missing.')
     }
@@ -434,7 +436,7 @@ export class CbaDataSource implements DataSource {
       }
     }
     const file: form.FileInput = {
-      contentUrl: contentSource_url,
+      contentUrl: media.source_url,
       bitrate: media.media_details.bitrate
         ? Math.round(media.media_details.bitrate)
         : undefined,
