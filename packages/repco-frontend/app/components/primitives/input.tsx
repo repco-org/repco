@@ -4,7 +4,7 @@ import React from 'react'
 import type { VariantProps } from 'class-variance-authority'
 import { cva, cx } from 'class-variance-authority'
 import type { ClassProp } from 'class-variance-authority/dist/types'
-import { ButtonBaseProps } from './button'
+import type { ButtonBaseProps } from './button'
 
 const styles = cva(
   'border  transition-colors duration-100 outline-none focus:border-primary-500 disabled:opacity-50',
