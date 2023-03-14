@@ -100,7 +100,7 @@ export default function ItemsIndex() {
               <div className="flex flex-col w-full">
                 <div className="flex align-middle md:space-x-4">
                   {imageSrc && (
-                    <div className="flex align-middle w-1/3 xl:w-1/6">
+                    <div className="flex align-middle mx-2 w-1/3 xl:w-1/6">
                       <img
                         className="object-contain"
                         src={imageSrc}
