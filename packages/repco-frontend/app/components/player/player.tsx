@@ -101,28 +101,27 @@ export function PlayerProvider({ children }: PropsWithChildren) {
 
     const pos = 0
     audio.currentTime = pos
-    console.log(didMount, audio.src)
     if (didMount) {
       audio.load()
-      audio.play()
+      audio.play().catch((e) => console.log(e))
     }
     setDidMount(true)
   }, [audio, track, didMount])
 
-  function nextTrack() {
-    if (trackIndex + 1 < tracks.length) {
-      setTrackIndex(trackIndex + 1)
-    } else setTrackIndex(0)
-  }
+  const playerContext = useMemo(() => {
+    function nextTrack() {
+      if (trackIndex + 1 < tracks.length) {
+        setTrackIndex(trackIndex + 1)
+      } else setTrackIndex(0)
+    }
 
-  function previousTrack() {
-    if (trackIndex - 1 < 0) {
-      setTrackIndex(0)
-    } else setTrackIndex(trackIndex - 1)
-  }
+    function previousTrack() {
+      if (trackIndex - 1 < 0) {
+        setTrackIndex(0)
+      } else setTrackIndex(trackIndex - 1)
+    }
 
-  const playerContext = useMemo(
-    () => ({
+    return {
       track,
       setTrack,
       trackIndex,
@@ -132,9 +131,8 @@ export function PlayerProvider({ children }: PropsWithChildren) {
       tracks,
       queueVisibility,
       setQueueVisibility,
-    }),
-    [track, trackIndex, tracks, queueVisibility],
-  )
+    }
+  }, [track, trackIndex, tracks, queueVisibility])
 
   const playstateContext = useMemo(
     () => ({
