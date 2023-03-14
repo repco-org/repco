@@ -64,7 +64,10 @@ export default function ItemsMenuWrapper() {
                     repositories={repositories}
                     aria-label="Filter by Repository Select"
                   />
-                  <SortBy aria-label="Sort By Select" />
+                  <SortBy
+                    searchParams={searchParams}
+                    aria-label="Sort By Select"
+                  />
                   <Button
                     type="button"
                     onClick={() => {

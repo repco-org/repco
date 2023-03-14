@@ -25,8 +25,12 @@ type SortOrder = {
   }
 }
 
-export default function SortBy() {
-  const [searchParams, setSearchParams] = useSearchParams()
+interface SortByProps {
+  searchParams: URLSearchParams
+}
+
+export default function SortBy({ searchParams }: SortByProps) {
+  const [, setSearchParams] = useSearchParams()
   const orderBy = searchParams.get('orderBy') || 'PUB_DATE_DESC'
   const sortOrder: SortOrder = {
     TITLE_DESC: {
@@ -54,17 +58,23 @@ export default function SortBy() {
   const pubDateSortOrder = sortOrder.PUB_DATE_ASC.value
 
   const handleTitleSortClick = () => {
+    const newSearchParams = new URLSearchParams(searchParams.toString())
+
     const newOrderBy =
       orderBy === titleSortOrder ? sortOrder.TITLE_DESC.value : titleSortOrder
-    setSearchParams({ orderBy: newOrderBy })
+    newSearchParams.set('orderBy', newOrderBy)
+    setSearchParams(newSearchParams)
   }
 
   const handlePubDateSortClick = () => {
+    const newSearchParams = new URLSearchParams(searchParams.toString())
+
     const newOrderBy =
       orderBy === pubDateSortOrder
         ? sortOrder.PUB_DATE_DESC.value
         : pubDateSortOrder
-    setSearchParams({ orderBy: newOrderBy })
+    newSearchParams.set('orderBy', newOrderBy)
+    setSearchParams(newSearchParams)
   }
 
   return (
