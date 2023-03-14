@@ -109,13 +109,13 @@ export default function ItemsIndex() {
                     </div>
                   )}
                   <div className={imageSrc ? 'w-2/3 xl:w-5/6' : 'w-full'}>
-                    <div className="flex flex-col justify-between items-baseline py-2">
+                    <div className="flex overflow-visible flex-col justify-between items-baseline py-2">
                       <NavLink to={`/items/${node.uid}`}>
-                        <h5 className="break-words  font-medium leading-tight text-xl text-brand-primary">
+                        <h3 className="break-words  font-medium leading-tight text-xl text-brand-primary">
                           {node.title}
-                        </h5>
+                        </h3>
                       </NavLink>
-                      <p className="text-xs text-slate-400">
+                      <p className="text-xs text-slate-600">
                         {new Date(node.pubDate).toLocaleDateString()}
                         {node.publicationService?.name && ' - '}
                         {node.publicationService?.name}

@@ -63,7 +63,7 @@ export default function Search(props: SearchProps) {
           className="flex flex-col mt-4 space-y-2"
           value={type}
           onValueChange={handleRadioChange}
-          aria-label="Search by"
+          aria-label="Search"
           name="type"
         >
           <div className="flex items-center space-x-2">

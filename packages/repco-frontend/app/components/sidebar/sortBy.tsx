@@ -98,7 +98,7 @@ export default function SortBy() {
             aria-label={
               orderBy === sortOrder.TITLE_ASC.value
                 ? sortOrder.TITLE_ASC.ariaLabel
-                : orderBy === sortOrder.TITLE_DESC.ariaLabel
+                : orderBy === sortOrder.TITLE_DESC.value
                 ? sortOrder.TITLE_DESC.ariaLabel
                 : 'not selected'
             }

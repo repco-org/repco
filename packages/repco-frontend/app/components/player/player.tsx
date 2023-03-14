@@ -68,7 +68,7 @@ export function PlayTrackButton({ track }: { track: Track }) {
   }
 
   return (
-    <Button onClick={clickHandler}>
+    <Button aria-label="Play" onClick={clickHandler}>
       <PlayIcon />
     </Button>
   )
@@ -314,7 +314,11 @@ export default function Player() {
               tooltip="next"
             />
           </div>
-          <div className="flex items-center justify-between space-x-2">
+          <div
+            role="region"
+            aria-label="Player information"
+            className="flex items-center justify-between space-x-2"
+          >
             <div className="text-xs">{formatDuration(displayTime || 0)}</div>
 
             <Timeslider
@@ -328,7 +332,11 @@ export default function Player() {
               {formatDuration(state?.duration || 0)}
             </div>
           </div>
-          <div className="flex items-center truncate">
+          <div
+            role="region"
+            aria-label="current track title"
+            className="flex items-center overflow-visible"
+          >
             <p>{player?.track?.title}</p>
           </div>
           <IconButton
@@ -371,6 +379,7 @@ function Timeslider({
         min={0}
         max={100}
         type="range"
+        aria-label="progress"
         value={pos * 100}
         onDragStart={onChangeStart}
         onDragEnd={(e) => onChangeEnd(Number(e.currentTarget.value))}
