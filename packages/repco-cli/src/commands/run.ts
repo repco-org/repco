@@ -3,37 +3,49 @@ import { log, UntilStopped } from 'repco-common'
 import { defaultDataSourcePlugins, Ingester, Repo } from 'repco-core'
 import { PrismaClient } from 'repco-prisma'
 import { createCommand } from '../parse.js'
+import { startPostgres } from '../util/postgres.js'
 
 const SYNC_INTERVAL = 1000 * 60
+const DEFAULT_PORT = 8765
 
 export const run = createCommand({
   name: 'run',
   help: 'run a repco node',
   options: {
     httpPort: { type: 'string', short: 'p', help: 'Port to listen on' },
+    temp: { type: 'boolean' },
   },
   async run(opts) {
+    const shutdown: Array<() => Promise<void>> = []
+    if (opts.temp) {
+      log.warn(
+        'Running in temp mode with inmemory PostgreSQL - all changes will be lost',
+      )
+      const db = await startPostgres({ temp: true })
+      process.env.DATABASE_URL = db.databaseUrl
+      shutdown.push(db.shutdown)
+    }
     const prisma = new PrismaClient()
-    const port = Number(opts.httpPort) || Number(process.env.HTTP_PORT) || 8765
+    const port =
+      Number(opts.httpPort) || Number(process.env.HTTP_PORT) || DEFAULT_PORT
+
+    // start sync all repos
+    const sync = syncAllRepos(prisma)
+    shutdown.push(sync.shutdown)
+
+    // start ingest
+    const ingest = ingestAll(prisma)
+    shutdown.push(ingest.shutdown)
 
     // start server
     const { runServer } = await import('repco-server')
     const server = runServer(prisma, port)
-
-    // start sync all repos
-    const sync = syncAllRepos(prisma)
-
-    // start ingest
-    const ingest = ingestAll(prisma)
+    shutdown.push(server.shutdown)
 
     exitHook(async (callback) => {
       log.debug('Exit, wait for tasks to finish...')
       try {
-        await Promise.all([
-          server.shutdown(),
-          sync.shutdown(),
-          ingest.shutdown(),
-        ])
+        await Promise.all(shutdown.map((asyncfn) => asyncfn()))
         log.debug('All tasks finished, now quit.')
         setTimeout(callback, 1)
       } catch (err) {
@@ -77,15 +89,14 @@ function ingestAll(prisma: PrismaClient) {
 }
 
 function syncAllRepos(prisma: PrismaClient) {
-  const interval = SYNC_INTERVAL
-  const untilStopped = new UntilStopped()
+  const shutdownSignal = new UntilStopped()
 
   const tasks = Repo.mapAsync(prisma, async (repo) => {
     if (repo.writeable) return
     try {
-      while (!untilStopped.stopped) {
+      while (!shutdownSignal.stopped) {
         await repo.pullFromGateways()
-        await untilStopped.timeout(interval)
+        await shutdownSignal.timeout(SYNC_INTERVAL)
       }
     } catch (err) {
       // TODO: What to do when sync failed?
@@ -94,7 +105,7 @@ function syncAllRepos(prisma: PrismaClient) {
   })
 
   const shutdown = async () => {
-    untilStopped.stop()
+    shutdownSignal.stop()
     await tasks
   }
 
