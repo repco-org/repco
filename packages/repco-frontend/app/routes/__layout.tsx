@@ -19,9 +19,9 @@ export default function Layout() {
 
   return (
     <div className="flex-col flex-1 space-y-4 h-screen">
-      <header className="w-full flex justify-center bg-gradient-to-r from-brand-primary to-brand-secondary">
+      <header className="w-full px-4 flex justify-center bg-gradient-to-r from-brand-primary to-brand-secondary">
         <div className="flex justify-between container">
-          <div className="flex flex-col justify-start space-y-4">
+          <div className="flex flex-col w-full justify-start space-y-4">
             <Logo />
             <NavBar />
           </div>
@@ -43,7 +43,7 @@ export default function Layout() {
         <div className="bg-slate-200 overflow-y-auto  flex justify-center">
           <QueueView />
         </div>
-        <div className="bg-sky-500 flex  justify-center">
+        <div className="bg-sky-700 flex  justify-center">
           <Player />
         </div>
       </div>

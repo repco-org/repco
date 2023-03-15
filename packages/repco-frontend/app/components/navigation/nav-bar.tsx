@@ -49,7 +49,6 @@ export function NavBar() {
               className={({ isActive }) =>
                 isActive ? `${active} text-gray-900` : inactive
               }
-              title={l.label}
               aria-label={`${l.label} navigation link`}
               onClick={handleMenuToggle}
               aria-current={active ? 'page' : undefined}

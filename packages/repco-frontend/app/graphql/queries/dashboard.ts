@@ -50,6 +50,9 @@ export const DashboardQuery = gql`
         uid
       }
     }
+    totalPublicationServices: publicationServices {
+      totalCount
+    }
     totalContentItems: contentItems {
       totalCount
     }

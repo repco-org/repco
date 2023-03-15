@@ -4,6 +4,7 @@ import React from 'react'
 import type { VariantProps } from 'class-variance-authority'
 import { cva, cx } from 'class-variance-authority'
 import type { ClassProp } from 'class-variance-authority/dist/types'
+import type { ButtonBaseProps } from './button'
 
 const styles = cva(
   'border  transition-colors duration-100 outline-none focus:border-primary-500 disabled:opacity-50',
@@ -43,6 +44,7 @@ export type InputIconProps = InputProps & {
 }
 
 export type InputProps = InputBaseProps &
+  ButtonBaseProps &
   React.InputHTMLAttributes<HTMLInputElement> &
   ClassProp
 
@@ -62,7 +64,7 @@ export function InputWithIcon(props: InputIconProps) {
         className={className}
         {...inputProps}
         aria-label={label || tooltip}
-        aria-describedby={tooltipId}
+        aria-describedby={tooltip}
       />
       <div className="absolute inset-y-0 right-0 flex items-center pr-3">
         <Separator.Root
@@ -75,7 +77,6 @@ export function InputWithIcon(props: InputIconProps) {
               asChild
               role="button"
               aria-label={tooltip}
-              title={tooltip}
               tabIndex={0}
             >
               <button

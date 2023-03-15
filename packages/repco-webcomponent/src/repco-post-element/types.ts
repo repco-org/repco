@@ -9,6 +9,11 @@ export interface PostType {
   content: string
   uid: string
   mediaAssets: MediaAssetsType
+  revision: {
+    repo: {
+      name: string
+    }
+  }
 }
 
 export interface MediaAssetsType {

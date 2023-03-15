@@ -21,7 +21,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url)
   const type = url.searchParams.get('type')
   const q = url.searchParams.get('q')
-  const orderBy = url.searchParams.get('orderBy') || 'TITLE_ASC'
+  const orderBy = url.searchParams.get('orderBy') || 'PUB_DATE_DESC'
   const repoDid = url.searchParams.get('repoDid') || 'all'
   const { first, last, after, before } = parsePagination(url)
   let filter: ContentItemFilter | undefined = undefined
@@ -67,7 +67,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 }
 
 export default function ItemsIndex() {
-  const { nodes, pageInfo, repos } = useLoaderData<typeof loader>()
+  const { nodes, pageInfo } = useLoaderData<typeof loader>()
   const [searchParams] = useSearchParams()
   const type = searchParams.getAll('type')
   const orderBy = searchParams.getAll('orderBy')
@@ -84,6 +84,9 @@ export default function ItemsIndex() {
           const imageSrc = node.mediaAssets.nodes.find(
             (mediaAsset) => mediaAsset.mediaType === 'image',
           )?.file?.contentUrl
+          const altText = node.mediaAssets.nodes.find(
+            (mediaAsset) => mediaAsset.mediaType === 'image',
+          )?.title
 
           const firstAudioAsset = node.mediaAssets.nodes.find(
             (mediaAsset) => mediaAsset.mediaType === 'audio',
@@ -93,18 +96,31 @@ export default function ItemsIndex() {
             firstAudioAsset &&
             createTrackFromMediaAsset(firstAudioAsset, node.uid)
           return (
-            <ContentItemCard key={i} variant={'hover'}>
-              <div className="flex flex-col">
-                <div className="flex align-middle space-x-4">
-                  <div className="flex align-middle w-1/3 xl:w-1/6">
-                    <img className="object-contain" src={imageSrc} />
-                  </div>
-                  <div className="w-2/3 xl:w-5/6">
-                    <NavLink to={`/items/${node.uid}`}>
-                      <h5 className="break-words  font-medium leading-tight text-xl text-brand-primary">
-                        {node.title}
-                      </h5>
-                    </NavLink>
+            <ContentItemCard key={i} variant={'hover'} variantsize={'full'}>
+              <div className="flex flex-col w-full">
+                <div className="flex align-middle md:space-x-4">
+                  {imageSrc && (
+                    <div className="flex align-middle mx-2 w-1/3 xl:w-1/6">
+                      <img
+                        className="object-contain"
+                        src={imageSrc}
+                        alt={altText}
+                      />
+                    </div>
+                  )}
+                  <div className={imageSrc ? 'w-2/3 xl:w-5/6' : 'w-full'}>
+                    <div className="flex overflow-visible flex-col justify-between items-baseline py-2">
+                      <NavLink to={`/items/${node.uid}`}>
+                        <h3 className="break-words  font-medium leading-tight text-xl text-brand-primary">
+                          {node.title}
+                        </h3>
+                      </NavLink>
+                      <p className="text-xs text-slate-600">
+                        {new Date(node.pubDate).toLocaleDateString()}
+                        {node.publicationService?.name && ' - '}
+                        {node.publicationService?.name}
+                      </p>
+                    </div>
 
                     <p className="text-xs">{node.summary || ''}</p>
                   </div>

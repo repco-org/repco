@@ -11,7 +11,6 @@ interface SearchProps {
 export default function Search(props: SearchProps) {
   const { searchParams } = props
   const [, setSearchParams] = useSearchParams()
-
   const input = searchParams.get('q') || ''
   const type = searchParams.get('type') || 'title'
 
@@ -25,23 +24,6 @@ export default function Search(props: SearchProps) {
     [setSearchParams],
   )
 
-  const handleInputChange = React.useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setSearchParams((params) => {
-        params.set('q', e.target.value)
-        return new URLSearchParams(params)
-      })
-    },
-    [setSearchParams],
-  )
-
-  React.useEffect(() => {
-    setSearchParams((params) => {
-      params.set('q', input)
-      return new URLSearchParams(params)
-    })
-  }, [input, setSearchParams])
-
   return (
     <div>
       <InputWithIcon
@@ -52,13 +34,11 @@ export default function Search(props: SearchProps) {
         placeholder="Search"
         tooltip="submit the input"
         icon={<MagnifyingGlassIcon />}
-        value={input}
-        onChange={handleInputChange}
+        defaultValue={input}
         aria-label="Search"
       />
-
       <h2 className="text-lg mt-2 pt-2 w-full border-b-2 border-gray-200">
-        Search by
+        Search
       </h2>
 
       <div className="flex items-center space-x-2">
@@ -66,7 +46,7 @@ export default function Search(props: SearchProps) {
           className="flex flex-col mt-4 space-y-2"
           value={type}
           onValueChange={handleRadioChange}
-          aria-label="Search by"
+          aria-label="Search"
           name="type"
         >
           <div className="flex items-center space-x-2">
@@ -74,6 +54,7 @@ export default function Search(props: SearchProps) {
               className="bg-brand-primary w-4 h-4 rounded-full"
               value="title"
               id="title"
+              aria-label="title-label"
             >
               <RadioGroup.Indicator
                 className="flex
@@ -82,7 +63,7 @@ export default function Search(props: SearchProps) {
               />
             </RadioGroup.Item>
             <label className="text-sm" htmlFor="title">
-              Search by title
+              Search in titles
             </label>
           </div>
           <div className="flex items-center space-x-2">
@@ -90,15 +71,17 @@ export default function Search(props: SearchProps) {
               className="bg-brand-primary w-4 h-4 rounded-full"
               value="fulltext"
               id="fulltext"
+              aria-label="fulltext-label"
             >
               <RadioGroup.Indicator
+                aria-labelledby="fulltext-label"
                 className="flex
                         items-center  justify-center w-full h-full relative
                         after:block   after:w-2 after:h-2 after:rounded-full after:bg-white"
               />
             </RadioGroup.Item>
-            <label className="text-sm" htmlFor="fulltext">
-              Search by full text
+            <label id="fulltext-label" className="text-sm" htmlFor="fulltext">
+              Search in full text
             </label>
           </div>
         </RadioGroup.Root>

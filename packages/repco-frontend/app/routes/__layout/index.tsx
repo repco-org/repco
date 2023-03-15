@@ -119,7 +119,6 @@ export const loader: LoaderFunction = async ({ request }) => {
   }
 
   const filteredRepoStats = repoStats.filter((result) => result !== null)
-
   return {
     data,
     repoChartData,
@@ -127,8 +126,8 @@ export const loader: LoaderFunction = async ({ request }) => {
       labels,
       datasets: [{ data: dataPoints, backgroundColor }],
     },
-    totalContentItems: data?.contentItems?.totalCount,
-    totalPublicationServices: data?.publicationServices?.totalCount,
+    totalContentItems: data?.totalContentItems?.totalCount,
+    totalPublicationServices: data?.totalPublicationServices?.totalCount,
     rejectedPromises: filteredRepoStats.filter(
       (result) => !onlyResolved(result),
     ),
@@ -175,7 +174,7 @@ export default function Index() {
           <ul className="p-2">
             {data?.latestConetentItems?.nodes.map(
               (node: any, index: number) => (
-                <li key={index} title={node.title}>
+                <li key={index}>
                   <NavLink to={`/items/${node.uid}`}>
                     {node.title.length > 20
                       ? node.title.slice(0, 45) + '...'
@@ -196,7 +195,7 @@ export default function Index() {
             <li>Media Assets: {data?.mediaAssets.totalCount}</li>
             <li>Commits: {data?.commits.totalCount}</li>
             <li>
-              Publication Services: {data?.publicationServices.totalCount}
+              Publication Services: {data?.totalPublicationServices?.totalCount}
             </li>
             <li>Repositories: {data?.repos.totalCount}</li>
             <li>Concepts: {data?.concepts.totalCount}</li>

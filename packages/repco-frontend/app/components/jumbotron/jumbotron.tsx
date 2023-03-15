@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { CloseIcon } from '../icons'
-import { IconButton } from '../primitives/button'
+import { ButtonWithIcon } from '../primitives/button'
 
 interface ClosableJumbotronProps {
   title: string
@@ -24,14 +24,14 @@ export default function ClosableJumbotron({
           aria-live="assertive"
           aria-atomic="true"
         >
-          <IconButton
+          <ButtonWithIcon
             title="Close"
             aria-label="Close"
             className="absolute top-0 right-0 m-2 sm:m-3 border-none bg-transparent cursor-pointer"
             onClick={handleClose}
           >
             <CloseIcon />
-          </IconButton>
+          </ButtonWithIcon>
           <h2 className="text-2xl sm:text-3xl font-bold mb-2 sm:mb-4">
             {title}
           </h2>
