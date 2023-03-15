@@ -21,7 +21,7 @@ async function signAndStoreCommit(
   blockstore: IpldBlockStore,
   form: CommitForm,
   author: ucans.EdKeypair,
-  opts: SaveBatchOpts
+  opts: SaveBatchOpts,
 ): Promise<CommitBundle | null> {
   if (form.headers.Author !== author.did()) throw new Error('Invalid keypair')
   // TODO: Check permission from proofs
@@ -36,7 +36,7 @@ async function signAndStoreCommit(
       continue
     }
     const revision = revisionIpld.parse({
-      headers: { ...revisionForm.headers, kind: 'revision' },
+      headers: { ...revisionForm.headers, Kind: 'revision' },
       body: bodyCid,
     })
     const cid = await blockstore.put(revision)
@@ -52,7 +52,7 @@ async function signAndStoreCommit(
   }
   if (!commitBody.length && !opts.commitEmpty) return null
   const commit = commitIpld.parse({
-    headers: { ...form.headers, kind: 'commit' },
+    headers: { ...form.headers, Kind: 'commit' },
     body: commitBody,
   })
   const bodyCid = await blockstore.put(commit)

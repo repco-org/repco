@@ -17,8 +17,7 @@
     "build-test": "yarn build && yarn test"
   },
   "dependencies": {
-    "@ipld/car": "^4.1.6",
-    "@multiformats/blake2": "^1.0.11",
+    "@ipld/car": "^5.1.0",
     "@noble/hashes": "^1.2.0",
     "@types/b4a": "^1.6.0",
     "@ucans/ucans": "^0.11.2",
@@ -26,13 +25,13 @@
     "cbor-x": "^1.5.1",
     "dotenv": "^16.0.1",
     "level": "^8.0.0",
-    "multiformats": "^9.9.0",
+    "multiformats": "^11.0.2",
     "repco-common": "*",
     "repco-prisma": "*",
     "rss-parser": "^3.12.0",
     "speedometer": "^1.1.0",
     "streamx": "^2.12.5",
-    "uint8arrays": "^3.1.1",
+    "uint8arrays": "^4.0.3",
     "undici": "^5.10.0",
     "vscode-uri": "^3.0.6",
     "zod": "^3.19"

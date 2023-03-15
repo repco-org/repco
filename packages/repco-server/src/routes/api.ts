@@ -1,18 +1,26 @@
 import express from 'express'
 import type { Request } from 'express'
 import { CID } from 'multiformats/cid'
-import { ContentLoaderStream, Repo } from 'repco-core'
+import {
+  ContentLoaderStream,
+  DagJSON,
+  encodeHeader,
+  entryIpld,
+  HeadersIpld,
+  HttpError,
+  PrismaIpldBlockStore,
+  Repo,
+  revisionIpld,
+} from 'repco-core'
 import { Readable } from 'stream'
 import { ServerError } from '../error.js'
 import { getLocals } from '../lib.js'
+import { acceptNdJson, collectStream, flattenStream, sendNdJsonStream } from '../util.js'
 
 const router = express.Router()
 
 // const HEADER_JSON = 'application/json'
-const HEADER_NDJSON = 'application/x-ndjson'
 const HEADER_CAR = 'application/vnd.ipld.car'
-
-type RequestT = Request<any, any, any, any, Record<string, any>>
 
 router.get('/repos', async (_req, res) => {
   res.json(await Repo.list(getLocals(res).prisma))
@@ -73,7 +81,52 @@ router.get('/changes/:repoDid', async (req, res) => {
   }
 })
 
+router.get('/entry/:cid', async (req, res) => {
+  const { prisma } = getLocals(res)
+  const { cid } = req.params
+  const store = new PrismaIpldBlockStore(prisma)
+  try {
+    const block = await store.get(CID.parse(cid))
+    const entry = entryIpld.parse(block)
+    setEntryHeaders(res, entry.headers)
+    res.header('content-type', 'application/vnd.ipld.dag-json')
+    res.write(DagJSON.encode(entry.body))
+    res.end()
+  } catch (err) {
+    throw new HttpError(404, 'Block not found: ' + err)
+  }
+})
+
+router.get('/entity/:uid', async (req, res) => {
+  const { prisma } = getLocals(res)
+  const { uid } = req.params
+  const entity = await prisma.entity.findUnique({
+    where: { uid },
+    include: { Revision: true },
+  })
+  if (!entity) throw new HttpError(404, 'Not found')
+  const repo = await Repo.open(prisma, entity.Revision.repoDid)
+  const [revisionEntry, contentEntry] = await Promise.all([
+    repo.ipld.blockstore.getParsed(
+      CID.parse(entity.Revision.revisionCid),
+      revisionIpld,
+    ),
+    repo.ipld.blockstore.get(CID.parse(entity.Revision.contentCid)),
+  ] as const)
+  setEntryHeaders(res, revisionEntry.headers)
+  res.header('content-type', 'application/json')
+  res.write(DagJSON.encode(contentEntry))
+  res.end()
+})
+
+function setEntryHeaders(res: express.Response, headers: HeadersIpld) {
+  for (const [name, values] of Object.entries(headers)) {
+    res.setHeader('X-Repco-' + name, encodeHeader(values))
+  }
+}
+
 router.put('/changes', async (req, res) => {
+  throw new ServerError(404, 'Not found')
   // const { prisma } = getLocals(res)
   // if (req.header('content-type') === HEADER_JSON) {
   //   const revisions = req.body
@@ -90,57 +143,8 @@ router.put('/changes', async (req, res) => {
   //   }
   //   return res.send({ ok: true })
   // }
-  throw new ServerError(400, 'Invalid content-type header.')
+  // throw new ServerError(400, 'Invalid content-type header.')
 })
 
 export default router
 
-export function sendNdJson(
-  res: express.Response,
-  data: any[],
-): express.Response {
-  const body = data.map((r) => JSON.stringify(r)).join('\n') + '\n'
-  return res.header('content-type', 'application/x-ndjson').send(body)
-}
-
-export async function sendNdJsonStream<S extends AsyncIterable<any>>(
-  res: express.Response,
-  stream: S,
-): Promise<void> {
-  res.header('content-type', 'application/x-ndjson')
-  for await (const row of stream) {
-    const line = JSON.stringify(row) + '\n'
-    res.write(line)
-  }
-  res.end()
-}
-
-export async function* flattenStream(stream: AsyncIterable<any>) {
-  for await (const chunk of stream) {
-    if (Array.isArray(chunk)) {
-      for (const row of chunk) {
-        yield row
-      }
-    } else {
-      yield chunk
-    }
-  }
-}
-
-export async function collectStream(
-  stream: AsyncIterable<any>,
-): Promise<any[]> {
-  const rows = []
-  for await (const row of stream) {
-    rows.push(row)
-  }
-  return rows
-}
-
-export function acceptNdJson(req: RequestT) {
-  return (
-    req.query.format?.toString() === 'ndjson' ||
-    req.headers.accept === HEADER_NDJSON ||
-    req.headers.accept === 'ndjson'
-  )
-}

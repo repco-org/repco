@@ -1,7 +1,7 @@
-import * as codec from './codec.js'
 import * as Block from 'multiformats/block'
 import * as uint8arrays from 'uint8arrays'
-import { blake2b256 as hasher } from '@multiformats/blake2/blake2b'
+import * as codec from './codec.js'
+import { blake3 as hasher } from './hash.js'
 import { Level } from 'level'
 import { CID } from 'multiformats/cid'
 import { Prisma } from 'repco-prisma'
@@ -135,7 +135,8 @@ export abstract class IpldBlockStoreBase implements IpldBlockStore {
 
 export class PrismaIpldBlockStoreTransaction
   extends IpldBlockStoreBase
-  implements IpldBlockStore {
+  implements IpldBlockStore
+{
   batch: Record<string, Uint8Array> = {}
   constructor(private prisma: Prisma.TransactionClient) {
     super()
@@ -208,7 +209,8 @@ export class PrismaIpldBlockStoreTransaction
 
 export class PrismaIpldBlockStore
   extends IpldBlockStoreBase
-  implements IpldBlockStore {
+  implements IpldBlockStore
+{
   constructor(private prisma: Prisma.TransactionClient) {
     super()
   }
@@ -268,7 +270,8 @@ export class PrismaIpldBlockStore
 
 export class LevelIpldBlockStore
   extends IpldBlockStoreBase
-  implements IpldBlockStore {
+  implements IpldBlockStore
+{
   db: Level<Uint8Array, Uint8Array>
   opened = false
   _open?: Promise<void>

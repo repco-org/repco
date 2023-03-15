@@ -37,17 +37,13 @@ import {
 } from './repo/export.js'
 import { importRepoFromCar, OnProgressCallback } from './repo/import.js'
 import { IpldRepo } from './repo/ipld-repo.js'
+import { CommitBundle, CommitHeaders, RevisionBundle } from './repo/ipld.js'
 import { RelationFinder } from './repo/relation-finder.js'
 import {
   ContentLoaderStream,
   RevisionFilter,
   RevisionStream,
 } from './repo/stream.js'
-import {
-  CommitBundle,
-  CommitHeaders,
-  RevisionBundle,
-} from './repo/ipld.js'
 import { ParseError } from './util/error.js'
 import { createEntityId } from './util/id.js'
 import { notEmpty } from './util/misc.js'
