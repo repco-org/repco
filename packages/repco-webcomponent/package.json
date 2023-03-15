@@ -1,6 +1,6 @@
 {
   "name": "repco-webcomponent",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "Webcomponent to display content from a Repco node",
   "main": "./dist/repco-webcomponent.esm.js",
   "module": "./dist/repco-webcomponent.esm.js",

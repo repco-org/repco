@@ -71,6 +71,11 @@ export class RepcoPostElement extends LitElement {
         title
         content
         uid
+        revision {
+          repo {
+            name
+          }
+        }
         mediaAssets {
           nodes {
             mediaType
@@ -120,9 +125,8 @@ export class RepcoPostElement extends LitElement {
           })
 
           const header = post.title
-          const subheader = post.uid
           const body = `${this.trimContent(post.content)}...`
-          const footer = `source: ${this.endpoint}`
+          const footer = `source: ${post.revision?.repo?.name}`
           const endpointBase = this.endpoint.substring(
             0,
             this.endpoint.lastIndexOf('/'),
@@ -135,7 +139,6 @@ export class RepcoPostElement extends LitElement {
                 class="card"
                 .thumbnail="${thumbnail}"
                 .header="${header}"
-                .subheader="${subheader}"
                 .body="${body}"
                 .footer="${footer}"
               ></repco-post-card>
