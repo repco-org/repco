@@ -19,7 +19,8 @@
     "lint": "run-s lint:*",
     "lint:eslint": "eslint 'src/**/*.ts'",
     "lint:lit-analyzer": "lit-analyzer",
-    "format": "prettier \"**/*.{cjs,html,js,json,md,ts}\" --ignore-path ./.eslintignore --write"
+    "format": "prettier \"**/*.{cjs,html,js,json,md,ts}\" --ignore-path ./.eslintignore --write",
+    "prepublishOnly": "run-s lint build"
   },
   "author": "arso-collective",
   "license": "MIT OR Apache-2.0",
