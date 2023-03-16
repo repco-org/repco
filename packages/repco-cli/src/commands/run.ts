@@ -23,11 +23,16 @@ export const run = createCommand({
       )
       const db = await startPostgres({ temp: true })
       process.env.DATABASE_URL = db.databaseUrl
+      console.log(`DATABASE_URL=${process.env.DATABASE_URL}`)
       shutdown.push(db.shutdown)
     }
     const prisma = new PrismaClient()
     const port =
       Number(opts.httpPort) || Number(process.env.HTTP_PORT) || DEFAULT_PORT
+
+    if (!process.env.REPCO_URL) {
+      process.env.REPCO_URL = `http://localhost:${port}/graphql`
+    }
 
     // start sync all repos
     const sync = syncAllRepos(prisma)
