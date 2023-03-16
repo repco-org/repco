@@ -1,5 +1,7 @@
 import { SchemaBuilder } from 'graphile-build'
 
+const FORBIDDEN_TABLES = ['Keypair', '_prisma_migrations']
+
 // Custom tags for repco
 // * Do not expose relation tables on their own
 // * Hide prisma migrations table
@@ -16,7 +18,7 @@ export default function CustomTagsPlugin(builder: SchemaBuilder) {
         } else {
           // table.tags.omit = 'manyToMany'
         }
-        if (table.name === '_prisma_migrations') {
+        if (FORBIDDEN_TABLES.indexOf(table.name) !== -1) {
           table.tags.omit = true
         }
         if (table.name.startsWith('directus')) {
