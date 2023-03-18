@@ -6,10 +6,14 @@ import { customElement, property } from 'lit/decorators.js'
 export class RepcoPostCardBodyElement extends LitElement {
   static override styles = css`
     :host {
-      flex-grow: 2;
+      flex-grow: 0;
       overflow: hidden;
       text-overflow: ellipsis;
-      color: var(--medium-body-color);
+      display: -webkit-box;
+      -webkit-line-clamp: 6;
+      -webkit-box-orient: vertical;
+      max-height: 100%;
+      margin-bottom: 0.5rem;
     }
   `
 

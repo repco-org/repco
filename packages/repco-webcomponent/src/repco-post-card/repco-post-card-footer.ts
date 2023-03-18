@@ -1,3 +1,4 @@
+import DOMPurify from 'dompurify'
 import { css, html, LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
@@ -5,7 +6,11 @@ import { customElement, property } from 'lit/decorators.js'
 export class RepcoPostCardFooterElement extends LitElement {
   static override styles = css`
     :host {
-      color: var(--post-footer-color, lightgray);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      font-size: 0.875rem;
+      color: var(--repco-post-card-footer-color, lightgray);
     }
   `
 
@@ -13,7 +18,9 @@ export class RepcoPostCardFooterElement extends LitElement {
   footer = ''
 
   override render() {
-    return html`${this.footer}`
+    return html`${DOMPurify.sanitize(this.footer)
+      .trim()
+      .replace(/<\/?p>/g, '')}`
   }
 }
 

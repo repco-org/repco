@@ -13,12 +13,13 @@ export class RepcoPostCardElement extends LitElement {
       background-color: var(--repco-post-card-background-color, white);
       border: var(--repco-post-card-border, none);
       border-radius: var(--repco-post-card-border-radius, 0px);
-      margin: var(--repco-post-card-margin, 3px);
+      margin: 0.5vw;
       box-shadow: var(
         --repco-post-card-shadow,
         rgba(0, 0, 0, 0.15) 0px 1.95px 2.6px
       );
-      padding: 2%;
+      padding: 2vw;
+      overflow: hidden;
     }
 
     .right {
@@ -27,23 +28,25 @@ export class RepcoPostCardElement extends LitElement {
       justify-content: space-between;
       overflow: hidden;
       text-overflow: ellipsis;
-      min-height: var(--repco-post-card-height, 13em);
+      flex-grow: 1;
+      margin: 0.5vh;
     }
 
-    post-card-thumbnail {
-      --post-thumbnail-height: var(--repco-post-card-height);
-      --post-thumbnail-border-left-radius: var(--repco-post-card-border-radius);
+    repco-post-card-thumbnail {
+      width: 100%;
+      background-size: cover;
+      background-position: center;
     }
 
-    post-card-header {
+    repco-post-card-header {
       --post-header-color: var(--repco-post-card-header-color);
     }
 
-    post-card-body {
+    repco-post-card-body {
       --post-body-color: var(--repco-post-card-body-color);
     }
 
-    post-card-footer {
+    repco-post-card-footer {
       --post-footer-color: var(--repco-post-card-footer-color);
     }
   `
