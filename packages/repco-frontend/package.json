@@ -3,6 +3,7 @@
   "name": "repco-frontend",
   "version": "0.1.0",
   "sideEffects": false,
+  "license": "MIT OR Apache-2.0",
   "scripts": {
     "build": "run-s build:codegen build:css build:remix",
     "build:codegen": "graphql-codegen --config codegen.yml",
