@@ -14,7 +14,11 @@ export const run = createCommand({
   },
   async run(opts) {
     const prisma = new PrismaClient()
-    const port = Number(opts.httpPort) || Number(process.env.HTTP_PORT) || 8765
+    const port =
+      Number(opts.httpPort) ||
+      Number(process.env.HTTP_PORT) ||
+      Number(process.env.PORT) ||
+      8765
 
     // start server
     const { runServer } = await import('repco-server')
