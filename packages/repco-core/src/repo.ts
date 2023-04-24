@@ -54,6 +54,7 @@ import { ParseError } from './util/error.js'
 import { createEntityId, createRevisionId } from './util/id.js'
 import { notEmpty } from './util/misc.js'
 import { Mutex } from './util/mutex.js'
+import { EventEmitter } from 'node:events'
 
 export * from './repo/types.js'
 
@@ -111,7 +112,7 @@ function defaultBlockStore(
   return new PrismaIpldBlockStore(prisma)
 }
 
-export class Repo {
+export class Repo extends EventEmitter {
   public dsr: DataSourceRegistry
   public blockstore: IpldBlockStore
   public prisma: PrismaClient | Prisma.TransactionClient
@@ -249,6 +250,7 @@ export class Repo {
     dsr?: DataSourceRegistry,
     bs?: IpldBlockStore,
   ) {
+    super()
     this.record = record
     this.prisma = prisma
     this.dsr = dsr || new DataSourceRegistry()
@@ -268,7 +270,9 @@ export class Repo {
         this.dsr,
         this.blockstore,
       )
-      return await fn(self)
+      const res = await fn(self)
+      this.emit('update')
+      return res
     })
   }
 

@@ -7,6 +7,7 @@ export type RevisionFilter = {
   from?: string
   type?: string[]
   limit?: number
+  live?: boolean
 }
 
 export async function* ContentLoaderStream<
@@ -53,12 +54,18 @@ export class RevisionStream<
     try {
       const revisions = await this._fetchRevisions()
 
-      if (!revisions.length) {
+      if (!revisions.length && !this.filter.live) {
         // finished!
         this.finished = true
         this.push(null)
         cb(null)
         return
+      }
+      if (!revisions.length && this.filter.live) {
+        await new Promise((resolve) => {
+          this.repo.once('update', resolve)
+        })
+        this._read(cb)
       }
 
       if (this.batch) {
