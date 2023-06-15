@@ -13,6 +13,13 @@ export async function verifySignature(
   return ucans.defaults.verifySignature(did, payload, sig)
 }
 
+// Verify the authorization of a commit
+// This throws if anything of the following is not true
+// * the root contains a signature header
+// * the signature is a valid signature by the commit's author (commit.header.Author)
+//   over the commit cid (root.body).
+// * the commit contains a Proof header that contains a UCAN capability which gives
+//   Author the capability to publish to repo.did
 export async function verifyRoot(
   root: RootIpld,
   commit: CommitIpld,

@@ -73,20 +73,20 @@ export interface DataSource {
    */
   fetchUpdates(cursor: string | null): Promise<FetchUpdatesResult>
   /**
-   * Fetches a record from the data source by its unique identifier (UID).
+   * Fetches a record from the data source by its entity URI (URI).
    *
-   * @param uid - The UID of the record to fetch.
+   * @param uri - The URI of the record to fetch.
    * @returns A `Promise` that resolves to the fetched record, or `null` if no record was found.
    */
-  fetchByUri(uid: string): Promise<SourceRecordForm[] | null>
-  fetchByUriBatch(uids: string[]): Promise<SourceRecordForm[]>
+  fetchByUri(uri: string): Promise<SourceRecordForm[] | null>
+  fetchByUriBatch(uris: string[]): Promise<SourceRecordForm[]>
   /**
    * Determines whether the data source is capable of fetching records by UID.
    *
    * @param uid - The UID of the record to fetch.
    * @returns `true` if the data source can fetch the record, `false` otherwise.
    */
-  canFetchUri(uid: string): boolean
+  canFetchUri(uri: string): boolean
   /**
    * Maps a record from the data source to the corresponding entity form.
    *

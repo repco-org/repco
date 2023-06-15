@@ -41,7 +41,7 @@ export function encodeHeader(value: any): string[] {
   else return [JSON.stringify(mapped)]
 }
 
-export const name = 'dag-cbor'
+export const name = 'dag-json'
 export const code = 0x71
 
 export function encode(node: any): Uint8Array {

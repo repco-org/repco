@@ -132,6 +132,8 @@ export class CbaDataSource implements DataSource {
       image: 'media',
       categories: 'categories',
       tags: 'tags',
+      // @deprecated
+      tag: 'tags',
       station: 'station',
       series: 'series',
     }
@@ -453,7 +455,7 @@ export class CbaDataSource implements DataSource {
       mediaType: 'audio',
       duration,
       Concepts: media.media_tag.map((cbaId) => ({
-        uri: this._uri('tag', cbaId),
+        uri: this._uri('tags', cbaId),
       })),
       File: { uri: fileId },
     }

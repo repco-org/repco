@@ -36,7 +36,8 @@ async function signAndStoreCommit(
       continue
     }
     const revision = revisionIpld.parse({
-      headers: { ...revisionForm.headers, Kind: 'revision' },
+      kind: 'revision',
+      headers: { ...revisionForm.headers },
       body: bodyCid,
     })
     const cid = await blockstore.put(revision)
@@ -52,26 +53,27 @@ async function signAndStoreCommit(
   }
   if (!commitBody.length && !opts.commitEmpty) return null
   const commit = commitIpld.parse({
-    headers: { ...form.headers, Kind: 'commit' },
+    kind: 'commit',
+    headers: { ...form.headers },
     body: commitBody,
   })
-  const bodyCid = await blockstore.put(commit)
-  const signature = await author.sign(bodyCid.bytes)
+  const commitCid = await blockstore.put(commit)
+  const signature = await author.sign(commitCid.bytes)
   const root = rootIpld.parse({
+    kind: 'root',
     headers: {
-      Kind: 'root',
       Signature: signature,
       ProtocolVersion: PROTOCOL_VERSION,
     },
-    body: bodyCid,
+    body: commitCid,
   })
-  const cid = await blockstore.put(root)
+  const rootCid = await blockstore.put(root)
   const bundle: CommitBundle = {
     headers: {
       ...root.headers,
       ...commit.headers,
-      BodyCid: bodyCid,
-      Cid: cid,
+      Cid: commitCid,
+      RootCid: rootCid,
     },
     body: revisionBundles,
   }
@@ -88,6 +90,7 @@ function prepareCommit(
   const now = new Date()
   const revisions = input.map((input) => prepareRevision(input, now))
   const form: CommitForm = {
+    kind: 'commit',
     body: revisions,
     headers: {
       DateCreated: now,
@@ -106,9 +109,9 @@ function prepareRevision(
 ): RevisionForm {
   const { content, headers } = entity
   const form: RevisionForm = {
+    kind: 'revision',
     body: common.ipld.parse(content),
     headers: {
-      Kind: 'revision',
       EntityUid: content.uid || createEntityId(),
       RevisionUid: createRevisionId(),
       DateCreated: headers.dateCreated || now,

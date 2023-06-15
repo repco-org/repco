@@ -164,7 +164,7 @@ async function fetchAndPutParsed<T>(
 ): Promise<T> {
   const bytes = await fetchAndPut(blockstore, writer, cid)
   const data = blockstore.parse(bytes)
-  return data as T
+  return data as unknown as T
 }
 
 class TrackingBlockWriter implements BlockWriter {

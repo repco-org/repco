@@ -529,8 +529,8 @@ export class Repo {
       parent = headers.Parents[0].toString()
     await this.prisma.commit.create({
       data: {
-        rootCid: headers.Cid.toString(),
-        commitCid: headers.BodyCid.toString(),
+        rootCid: headers.RootCid.toString(),
+        commitCid: headers.Cid.toString(),
         repoDid: headers.Repo,
         agentDid: headers.Author,
         parent,

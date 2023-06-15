@@ -9,7 +9,9 @@
   },
   "exports": {
     ".": "./dist/lib.js",
-    "./zod": "./dist/zod.js"
+    "./zod": "./dist/zod.js",
+    "./schema": "./dist/schema.js",
+    "./headers": "./dist/headers.js"
   },
   "dependencies": {
     "@mgcrea/pino-pretty-compact": "^1.1.2",
