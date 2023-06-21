@@ -12,6 +12,16 @@ export const DEFAULT_CACHING_DISPATCHER_OPTS: CachingDispatcherOpts = {
   forward: true,
 }
 
+/**
+ * The undici fetch client used through repco uses a Dispatcher to perform the actual HTTP requests.
+ * This module implements a CachingDispatcher that uses a pluggable cache backend.
+ * It saves responses into the file system under a key derived from the URL. On the next request to the
+ * same URL, the cached response is returned instead. Only enables itself on GET requests.
+ *
+ * Note: This is currently only used in the tests.
+ * Originally this was planned as an alternative to the SourceRecord machinery. For now, it allows us to
+ * mock testing for the datasources. See tests/cba.ts for an example.
+ */
 export class CachingDispatcher extends Dispatcher {
   private cache: ICacheStorage
   private dispatcher: Dispatcher // wrap another dispatcher

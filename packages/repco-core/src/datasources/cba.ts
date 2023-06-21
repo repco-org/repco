@@ -54,7 +54,7 @@ export type FormsWithUid = {
 
 const configSchema = zod.object({
   endpoint: zod.string().url().optional(),
-  apiKey: zod.string().optional(),
+  apiKey: zod.string().or(zod.null()).optional(),
   pageLimit: zod.number().int().optional(),
 })
 
@@ -421,7 +421,8 @@ export class CbaDataSource implements DataSource {
     const audioId = this._uri('audio', media.id)
 
     if (!media.source_url) {
-      throw new Error('Media source URL is missing.')
+      return []
+      // throw new Error('Media source URL is missing.')
     }
 
     //const contentSource_url = this._getAudioSrc(media.description.rendered)

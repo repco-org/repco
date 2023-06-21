@@ -1,4 +1,6 @@
 import test from 'brittle'
+import fs from 'fs/promises'
+import p from 'path'
 import { fileURLToPath } from 'node:url'
 import { assertFixture, mockFetch } from './util/fetch.js'
 import { setup } from './util/setup.js'
@@ -14,7 +16,7 @@ const fixturePath = (name: string) =>
   )
 
 test('cba datasource - basic1', async (assert) => {
-  mockFetch(assert, fixturePath('fetch'))
+  mockFetch(assert, fixturePath('basic1'))
   const prisma = await setup(assert)
   const repo = await Repo.create(prisma, 'test')
   const plugins = new DataSourcePluginRegistry()
@@ -22,6 +24,7 @@ test('cba datasource - basic1', async (assert) => {
   plugins.register(cbaPlugin)
   await repo.dsr.create(repo.prisma, plugins, cbaPlugin.definition.uid, {
     pageLimit: 2,
+    apiKey: null
   })
   await ingestUpdatesFromDataSources(repo)
   // TODO: Provide mocking capability to uids
