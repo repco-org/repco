@@ -542,7 +542,7 @@ export class Repo {
         },
       },
     })
-    const head = headers.Cid.toString()
+    const head = headers.RootCid.toString()
     const tail = parent ? undefined : head
     await this.prisma.repo.update({
       where: { did: this.did },
