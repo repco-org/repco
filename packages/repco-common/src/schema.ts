@@ -140,7 +140,6 @@ export const revisionHeaders = z
     DerivedFrom: true,
     Deleted: true,
   })
-  .passthrough()
 export type RevisionHeaders = z.infer<typeof revisionHeaders>
 export const revisionIpld = z.object({
   kind: z.literal('revision'),
