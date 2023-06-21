@@ -46,6 +46,11 @@ http://localhost:3000
 
 ## Development notes
 
+### Logging
+
+To enable debug output, set `LOG_LEVEL=debug` environment variable.
+to enable Prisma query logging, set `QUERY_LOG=1` environment variable.
+
 ### Package and repo structure
 
 This project is structured as a monorepo of multiple TypeScript packages. We use Yarn workspaces to enable inter-project depencencies. To speed up build times, we also use [TypeScript project references](https://www.typescriptlang.org/docs/handbook/project-references.html). This is all readily setup, so you can just use `yarn build` or `yarn watch` in any of the packages and workspace dependencies will automatically be rebuilt if needed.
