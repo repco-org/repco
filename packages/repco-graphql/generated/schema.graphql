@@ -1,6 +1,6 @@
 type Agent {
   """Reads and enables pagination through a set of `Commit`."""
-  commitsByAgentDid(
+  commits(
     """Read all values in the set after (below) this cursor."""
     after: Cursor
 
@@ -103,7 +103,7 @@ type Agent {
   ): AgentReposByCommitAgentDidAndRepoDidManyToManyConnection!
 
   """Reads and enables pagination through a set of `Revision`."""
-  revisionsByAgentDid(
+  revisions(
     """Read all values in the set after (below) this cursor."""
     after: Cursor
 
@@ -141,7 +141,7 @@ type Agent {
   userByDid: User
 
   """Reads and enables pagination through a set of `User`."""
-  usersByDid(
+  usersBy(
     """Read all values in the set after (below) this cursor."""
     after: Cursor
 
@@ -253,11 +253,11 @@ input AgentFilter {
   """Checks for all expressions in this list."""
   and: [AgentFilter!]
 
-  """Filter by the object’s `commitsByAgentDid` relation."""
-  commitsByAgentDid: AgentToManyCommitFilter
+  """Filter by the object’s `commits` relation."""
+  commits: AgentToManyCommitFilter
 
-  """Some related `commitsByAgentDid` exist."""
-  commitsByAgentDidExist: Boolean
+  """Some related `commits` exist."""
+  commitsExist: Boolean
 
   """Filter by the object’s `did` field."""
   did: StringFilter
@@ -268,11 +268,11 @@ input AgentFilter {
   """Checks for any expressions in this list."""
   or: [AgentFilter!]
 
-  """Filter by the object’s `revisionsByAgentDid` relation."""
-  revisionsByAgentDid: AgentToManyRevisionFilter
+  """Filter by the object’s `revisions` relation."""
+  revisions: AgentToManyRevisionFilter
 
-  """Some related `revisionsByAgentDid` exist."""
-  revisionsByAgentDidExist: Boolean
+  """Some related `revisions` exist."""
+  revisionsExist: Boolean
 
   """Filter by the object’s `type` field."""
   type: AgentTypeFilter
@@ -304,7 +304,7 @@ type AgentReposByCommitAgentDidAndRepoDidManyToManyConnection {
 """A `Repo` edge in the connection, with data from `Commit`."""
 type AgentReposByCommitAgentDidAndRepoDidManyToManyEdge {
   """Reads and enables pagination through a set of `Commit`."""
-  commitsByRepoDid(
+  commits(
     """Read all values in the set after (below) this cursor."""
     after: Cursor
 
@@ -841,7 +841,7 @@ enum ChaptersOrderBy {
 
 type Commit {
   """Reads a single `Agent` that is related to this `Commit`."""
-  agentByAgentDid: Agent
+  agent: Agent
   agentDid: String!
 
   """Reads and enables pagination through a set of `Agent`."""
@@ -918,7 +918,7 @@ type Commit {
   parent: String
 
   """Reads a single `Repo` that is related to this `Commit`."""
-  repoByRepoDid: Repo
+  repo: Repo
   repoDid: String!
 
   """Reads and enables pagination through a set of `Repo`."""
@@ -1012,7 +1012,7 @@ type CommitAgentsByCommitParentAndAgentDidManyToManyConnection {
 """A `Agent` edge in the connection, with data from `Commit`."""
 type CommitAgentsByCommitParentAndAgentDidManyToManyEdge {
   """Reads and enables pagination through a set of `Commit`."""
-  commitsByAgentDid(
+  commits(
     """Read all values in the set after (below) this cursor."""
     after: Cursor
 
@@ -1079,8 +1079,8 @@ input CommitCondition {
 A filter to be used against `Commit` object types. All fields are combined with a logical ‘and.’
 """
 input CommitFilter {
-  """Filter by the object’s `agentByAgentDid` relation."""
-  agentByAgentDid: AgentFilter
+  """Filter by the object’s `agent` relation."""
+  agent: AgentFilter
 
   """Filter by the object’s `agentDid` field."""
   agentDid: StringFilter
@@ -1112,8 +1112,8 @@ input CommitFilter {
   """Filter by the object’s `parent` field."""
   parent: StringFilter
 
-  """Filter by the object’s `repoByRepoDid` relation."""
-  repoByRepoDid: RepoFilter
+  """Filter by the object’s `repo` relation."""
+  repo: RepoFilter
 
   """Filter by the object’s `repoDid` field."""
   repoDid: StringFilter
@@ -1151,7 +1151,7 @@ type CommitReposByCommitParentAndRepoDidManyToManyConnection {
 """A `Repo` edge in the connection, with data from `Commit`."""
 type CommitReposByCommitParentAndRepoDidManyToManyEdge {
   """Reads and enables pagination through a set of `Commit`."""
-  commitsByRepoDid(
+  commits(
     """Read all values in the set after (below) this cursor."""
     after: Cursor
 
@@ -8354,6 +8354,40 @@ type Repo {
   commitByHead: Commit
 
   """Reads and enables pagination through a set of `Commit`."""
+  commits(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: CommitCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: CommitFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `Commit`."""
+    orderBy: [CommitsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): CommitsConnection!
+
+  """Reads and enables pagination through a set of `Commit`."""
   commitsByCommitRepoDidAndParent(
     """Read all values in the set after (below) this cursor."""
     after: Cursor
@@ -8386,47 +8420,13 @@ type Repo {
     """The method to use when ordering `Commit`."""
     orderBy: [CommitsOrderBy!] = [PRIMARY_KEY_ASC]
   ): RepoCommitsByCommitRepoDidAndParentManyToManyConnection!
-
-  """Reads and enables pagination through a set of `Commit`."""
-  commitsByRepoDid(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: CommitCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: CommitFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `Commit`."""
-    orderBy: [CommitsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): CommitsConnection!
   did: String!
   gateways: [String]
   head: String
   name: String
 
   """Reads and enables pagination through a set of `Revision`."""
-  revisionsByRepoDid(
+  revisions(
     """Read all values in the set after (below) this cursor."""
     after: Cursor
 
@@ -8481,7 +8481,7 @@ type RepoAgentsByCommitRepoDidAndAgentDidManyToManyConnection {
 """A `Agent` edge in the connection, with data from `Commit`."""
 type RepoAgentsByCommitRepoDidAndAgentDidManyToManyEdge {
   """Reads and enables pagination through a set of `Commit`."""
-  commitsByAgentDid(
+  commits(
     """Read all values in the set after (below) this cursor."""
     after: Cursor
 
@@ -8614,11 +8614,11 @@ input RepoFilter {
   """A related `commitByHead` exists."""
   commitByHeadExists: Boolean
 
-  """Filter by the object’s `commitsByRepoDid` relation."""
-  commitsByRepoDid: RepoToManyCommitFilter
+  """Filter by the object’s `commits` relation."""
+  commits: RepoToManyCommitFilter
 
-  """Some related `commitsByRepoDid` exist."""
-  commitsByRepoDidExist: Boolean
+  """Some related `commits` exist."""
+  commitsExist: Boolean
 
   """Filter by the object’s `did` field."""
   did: StringFilter
@@ -8638,11 +8638,11 @@ input RepoFilter {
   """Checks for any expressions in this list."""
   or: [RepoFilter!]
 
-  """Filter by the object’s `revisionsByRepoDid` relation."""
-  revisionsByRepoDid: RepoToManyRevisionFilter
+  """Filter by the object’s `revisions` relation."""
+  revisions: RepoToManyRevisionFilter
 
-  """Some related `revisionsByRepoDid` exist."""
-  revisionsByRepoDidExist: Boolean
+  """Some related `revisions` exist."""
+  revisionsExist: Boolean
 
   """Filter by the object’s `tail` field."""
   tail: StringFilter
@@ -8733,7 +8733,7 @@ enum ReposOrderBy {
 
 type Revision {
   """Reads a single `Agent` that is related to this `Revision`."""
-  agentByAgentDid: Agent
+  agent: Agent
   agentDid: String!
 
   """Reads and enables pagination through a set of `BroadcastEvent`."""
@@ -9735,7 +9735,7 @@ type Revision {
   ): RevisionPublicationServicesByContentItemRevisionIdAndPublicationServiceUidManyToManyConnection!
 
   """Reads a single `Repo` that is related to this `Revision`."""
-  repoByRepoDid: Repo
+  repo: Repo
   repoDid: String!
   revisionCid: String!
   revisionUris: [String]
@@ -10444,8 +10444,8 @@ type RevisionFilesByMediaAssetRevisionIdAndTeaserImageUidManyToManyEdge {
 A filter to be used against `Revision` object types. All fields are combined with a logical ‘and.’
 """
 input RevisionFilter {
-  """Filter by the object’s `agentByAgentDid` relation."""
-  agentByAgentDid: AgentFilter
+  """Filter by the object’s `agent` relation."""
+  agent: AgentFilter
 
   """Filter by the object’s `agentDid` field."""
   agentDid: StringFilter
@@ -10570,8 +10570,8 @@ input RevisionFilter {
   """Some related `publicationServices` exist."""
   publicationServicesExist: Boolean
 
-  """Filter by the object’s `repoByRepoDid` relation."""
-  repoByRepoDid: RepoFilter
+  """Filter by the object’s `repo` relation."""
+  repo: RepoFilter
 
   """Filter by the object’s `repoDid` field."""
   repoDid: StringFilter
