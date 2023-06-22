@@ -24,7 +24,7 @@ for (const batch of batchSizes) {
       b.start()
       for (let i = 0; i < batches; i++) {
         const items = Array(batch).fill(null).map(createItem)
-        await repo.saveBatch('me', items)
+        await repo.saveBatch(items)
       }
       b.end()
     })

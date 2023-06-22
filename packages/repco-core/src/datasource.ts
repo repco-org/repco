@@ -300,7 +300,7 @@ export async function ingestUpdatesFromDataSource(
   let count = 0
   if (records.length) {
     const entities = await mapAndPersistSourceRecord(repo, datasource, records)
-    await repo.saveBatch('me', entities) // TODO: Agent
+    await repo.saveBatch(entities) // TODO: Agent
     count = entities.length
   }
   const finished = cursor === nextCursor
@@ -389,7 +389,7 @@ export async function remapDataSource(
 
     const entities = await mapAndPersistSourceRecord(repo, datasource, records)
     state.processedEntities += entities.length
-    const ret = await repo.saveBatch('me', entities)
+    const ret = await repo.saveBatch(entities)
     if (ret) state.savedRevisions += ret.length
 
     cursor = nextCursor

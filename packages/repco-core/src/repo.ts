@@ -24,7 +24,7 @@ import {
   createRepoKeypair,
   getInstanceKeypair,
   getPublishingUcanForInstance,
-} from './instance.js'
+} from './repo/auth-instance.js'
 import {
   IpldBlockStore,
   LevelIpldBlockStore,
@@ -167,7 +167,7 @@ export class Repo {
     })
     const repo = await Repo.open(prisma, did)
     if (repo.writeable) {
-      await repo.saveBatch('_me', [], { commitEmpty: true })
+      await repo.saveBatch([], { commitEmpty: true })
     }
     return repo
   }
@@ -416,12 +416,11 @@ export class Repo {
   }
 
   async saveEntity(
-    agentDid: string,
     input: any,
     headers: any = {},
   ): Promise<EntityInputWithRevision | null> {
     const data = { ...input, ...headers }
-    const res = await this.saveBatch(agentDid, [data])
+    const res = await this.saveBatch([data])
     if (!res) return null
     return res[0]
   }
@@ -452,7 +451,6 @@ export class Repo {
   }
 
   async saveBatch(
-    _agentDid: string,
     inputs: unknown[],
     opts: Partial<SaveBatchOpts> = {},
   ) {
