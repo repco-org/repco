@@ -3,6 +3,11 @@ import * as common from 'repco-common/zod'
 import { CID } from 'multiformats/cid.js'
 import { createLogger, Logger } from 'repco-common'
 import {
+  CommitBundle,
+  CommitHeaders,
+  RevisionBundle,
+} from 'repco-common/schema'
+import {
   Prisma,
   PrismaClient,
   repco,
@@ -37,7 +42,6 @@ import {
 } from './repo/export.js'
 import { importRepoFromCar, OnProgressCallback } from './repo/import.js'
 import { IpldRepo } from './repo/ipld-repo.js'
-import { CommitBundle, CommitHeaders, RevisionBundle } from 'repco-common/schema'
 import { RelationFinder } from './repo/relation-finder.js'
 import {
   ContentLoaderStream,
@@ -60,11 +64,6 @@ export const SAVE_BATCH_DEFAULTS = {
 }
 
 export type RevisionWithoutCid = Omit<Revision, 'revisionCid'>
-// export type RevisionWithUnknownContent = {
-//   content: unknown
-//   revision: RevisionIpld
-//   revisionCid: CID
-// }
 
 export enum ErrorCode {
   NOT_FOUND = 'NOT_FOUND',
@@ -83,15 +82,6 @@ export class RepoError extends Error {
 export type OpenParams = {
   did?: string
   name?: string
-}
-
-const REVISION_SELECT = {
-  id: true,
-  entityType: true,
-  dateCreated: true,
-  uid: true,
-  contentCid: true,
-  entityUris: true,
 }
 
 const log = createLogger('repo')
@@ -547,11 +537,17 @@ export class Repo {
       data: { head, tail },
     })
 
-    const ret = []
     const data = body.map(
       (revisionBundle, i) => [revisionBundle, revisionsDb[i]] as const,
     )
     // update domain views
+    return await this.updateDomainViews(data)
+  }
+
+  private async updateDomainViews(
+    data: (readonly [RevisionBundle, Revision])[],
+  ) {
+    const ret = []
     for (const [revisionBundle, revisionDb] of data) {
       const input = repco.parseEntity(
         revisionBundle.headers.EntityType,
@@ -568,11 +564,21 @@ export class Repo {
     return ret
   }
 
+  private async updateDomainView(entity: EntityInputWithRevision) {
+    const domainUpsertPromise = repco.upsertEntity(
+      this.prisma,
+      entity.revision.uid,
+      entity.revision.id,
+      entity,
+    )
+    await domainUpsertPromise
+  }
+
   async assignUids(
     input: EntityFormWithHeaders[],
   ): Promise<EntityInputWithHeaders[]> {
     const entityUris = new Set(
-      input.map((input) => input.headers.entityUris || []).flat(),
+      input.map((input) => input.headers.EntityUris || []).flat(),
     )
     const entityUids = new Set(
       input.map((input) => input.entity.content.uid).filter(notEmpty),
@@ -609,7 +615,7 @@ export class Repo {
     const res = []
     for (const { entity, headers } of input) {
       let uid = entity.content.uid
-      const keys = [uid, ...(headers.entityUris || [])].filter(notEmpty)
+      const keys = [uid, ...(headers.EntityUris || [])].filter(notEmpty)
       const prevRevision = keys
         .map((key) => prevRevisionsByKey[key])
         .filter(notEmpty)[0]
@@ -626,12 +632,12 @@ export class Repo {
           )
         }
 
-        headers.dateCreated = prevRevision.dateCreated
-        headers.prevRevisionId = prevRevision.id
+        headers.DateCreated = prevRevision.dateCreated
+        headers.ParentRevision = prevRevision.id
         uid = prevRevision.uid
         prevContentCid = prevRevision.contentCid
       } else {
-        headers.prevRevisionId = null
+        headers.ParentRevision = null
         uid = createEntityId()
       }
 
@@ -669,16 +675,6 @@ export class Repo {
     await this.prisma.entity.createMany({
       data: entityUpsert,
     })
-  }
-
-  private async updateDomainView(entity: EntityInputWithRevision) {
-    const domainUpsertPromise = repco.upsertEntity(
-      this.prisma,
-      entity.revision.uid,
-      entity.revision.id,
-      entity,
-    )
-    await domainUpsertPromise
   }
 
   async getUnique<T extends boolean>(

@@ -283,10 +283,10 @@ export class XrcbDataSource extends BaseDataSource implements DataSource {
     )
     const uri = this._uri('category', category.id)
     const headers = {
-      revisionUris: [revisionId],
-      entityUris: [uri],
+      RevisionUris: [revisionId],
+      EntityUris: [uri],
     }
-    return [{ type: 'Concept', content, ...headers }]
+    return [{ type: 'Concept', content, headers }]
   }
 
   private _mapTag(tag: XrcbTag | undefined | null): EntityForm[] {
@@ -303,10 +303,10 @@ export class XrcbDataSource extends BaseDataSource implements DataSource {
     const revisionId = this._revisionUri('tag', tag.id, new Date().getTime())
     const uri = this._uri('tag', tag.id)
     const headers = {
-      revisionUris: [revisionId],
-      entityUris: [uri],
+      RevisionUris: [revisionId],
+      EntityUris: [uri],
     }
-    return [{ type: 'Concept', content, ...headers }]
+    return [{ type: 'Concept', content, headers }]
   }
 
   private _mapStation(station: XrcbStation): EntityForm[] {
@@ -327,11 +327,11 @@ export class XrcbDataSource extends BaseDataSource implements DataSource {
       )
       const uri = this._uri('station', station.id)
       const headers = {
-        revisionUris: [revisionId],
-        entityUris: [uri],
+        RevisionUris: [revisionId],
+        EntityUris: [uri],
       }
 
-      return [{ type: 'PublicationService', content, ...headers }]
+      return [{ type: 'PublicationService', content, headers }]
     } catch (error) {
       log.warn(`Error mapping station: ${station.id}`, error)
       return []
@@ -361,10 +361,10 @@ export class XrcbDataSource extends BaseDataSource implements DataSource {
     )
     const uri = this._uri('series', series.id)
     const headers = {
-      revisionUris: [revisionId],
-      entityUris: [uri],
+      RevisionUris: [revisionId],
+      EntityUris: [uri],
     }
-    return [{ type: 'ContentGrouping', content, ...headers }]
+    return [{ type: 'ContentGrouping', content, headers }]
   }
 
   private _getConceptURIs(post: XrcbPost, defaultValue: any = null): any {
@@ -446,14 +446,16 @@ export class XrcbDataSource extends BaseDataSource implements DataSource {
             PrimaryGrouping: this._getPrimaryGrouping(post, { uri: '' }),
             MediaAssets: mediaAssetUris.map((uri) => ({ uri })),
           },
-          entityUris: [this._uri('post', post.id)],
-          revisionUris: [
-            this._revisionUri(
-              'post',
-              post.id,
-              new Date(post.modified).getTime(),
-            ),
-          ],
+          headers: {
+            EntityUris: [this._uri('post', post.id)],
+            RevisionUris: [
+              this._revisionUri(
+                'post',
+                post.id,
+                new Date(post.modified).getTime(),
+              ),
+            ],
+          },
         },
       ]
     } catch (error) {
@@ -490,12 +492,12 @@ export class XrcbDataSource extends BaseDataSource implements DataSource {
         const audioFileEntity: EntityForm = {
           type: 'File',
           content: audioFileContent,
-          entityUris: [fileId],
+          headers: { EntityUris: [fileId] },
         }
         const audioEntity: EntityForm = {
           type: 'MediaAsset',
           content: audioContent,
-          entityUris: [audioId],
+          headers: { EntityUris: [audioId] },
         }
         mediaAssetEntities.push(audioFileEntity, audioEntity)
         mediaAssetUris.push(audioId)
@@ -528,12 +530,12 @@ export class XrcbDataSource extends BaseDataSource implements DataSource {
         const imageFileEntity: EntityForm = {
           type: 'File',
           content: imageFileContent,
-          entityUris: [fileId],
+          headers: { EntityUris: [fileId] },
         }
         const imageEntity: EntityForm = {
           type: 'MediaAsset',
           content: imageContent,
-          entityUris: [imageId],
+          headers: { EntityUris: [imageId] },
         }
         mediaAssetEntities.push(imageFileEntity, imageEntity)
         mediaAssetUris.push(imageId)

@@ -71,7 +71,7 @@ class TestDataSource extends BaseDataSource implements DataSource {
         content: 'helloworld',
         contentFormat: 'text/plain',
       },
-      entityUris: ['urn:test:content:1'],
+      headers: { EntityUris: ['urn:test:content:1'] },
     }
     if (this.insertMissing) {
       contentItem.content.MediaAssets!.push({ uri: 'urn:test:media:fail' })
@@ -90,7 +90,7 @@ class TestDataSource extends BaseDataSource implements DataSource {
           content: {
             contentUrl: 'http://example.org/file1.mp3',
           },
-          entityUris: ['urn:test:file:1'],
+          headers: { EntityUris: ['urn:test:file:1'] },
         }),
       ]
     }
@@ -103,7 +103,7 @@ class TestDataSource extends BaseDataSource implements DataSource {
             mediaType: 'audio/mp3',
             File: { uri: 'urn:test:file:1' },
           },
-          entityUris: ['urn:test:media:1'],
+          headers: { EntityUris: ['urn:test:media:1'] },
         }),
       ]
     }
@@ -116,7 +116,7 @@ class TestDataSource extends BaseDataSource implements DataSource {
             mediaType: 'audio/mp3',
             File: { uri: 'urn:test:file:1' },
           },
-          entityUris: ['urn:test:media:fail'],
+          headers: { EntityUris: ['urn:test:media:fail'] },
         }),
       ]
     }

@@ -112,16 +112,16 @@ function prepareRevision(
     kind: 'revision',
     body: common.ipld.parse(content),
     headers: {
+      EntityUris: [],
+      RevisionUris: [],
+      Deleted: false,
+      ParentRevision: null,
+      ...headers,
       EntityUid: content.uid || createEntityId(),
       RevisionUid: createRevisionId(),
-      DateCreated: headers.dateCreated || now,
+      DateCreated: headers.DateCreated || now,
       DateModified: now,
-      Deleted: headers.isDeleted || false,
-      DerivedFrom: headers.derivedFromUid || undefined,
       EntityType: entity.type,
-      EntityUris: headers.entityUris || [],
-      RevisionUris: headers.revisionUris || [],
-      ParentRevision: headers.prevRevisionId ? headers.prevRevisionId : null,
       PrevContentCid: entity.prevContentCid
         ? CID.parse(entity.prevContentCid)
         : null,

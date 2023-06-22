@@ -53,8 +53,8 @@ export class RelationFinder {
     const uid = entity.uid
     if (this.entities.has(uid)) return
     this.entities.set(uid, entity)
-    if (entity.headers.entityUris) {
-      for (const uri of entity.headers.entityUris) {
+    if (entity.headers.EntityUris) {
+      for (const uri of entity.headers.EntityUris) {
         this.discoveredUid(uri, uid)
       }
     }
@@ -135,9 +135,9 @@ export class RelationFinder {
       const newEntityInputs = []
       for (const input of fetched) {
         let existing = false
-        if (input.entityUris) {
+        if (input.headers?.EntityUris) {
           // check if the entity was already fetched in this resolver session
-          for (const uri of input.entityUris) {
+          for (const uri of input.headers.EntityUris) {
             const entity = this.getByUri(uri)
             if (entity) {
               existingEntities.push(entity)

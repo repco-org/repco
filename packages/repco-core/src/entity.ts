@@ -5,8 +5,8 @@
  * Furthermore the EntityBatch has a cursor which is usually a timestamp of the last retrieval of the entity.
  */
 
-import * as common from 'repco-common/zod'
 import z from 'zod'
+import { revisionHeaders } from 'repco-common/schema'
 import { repco } from 'repco-prisma'
 import {
   ConceptKind,
@@ -20,18 +20,7 @@ import {
 export type { ContentItem, MediaAsset, ContentGrouping, Revision }
 export { ContentGroupingVariant, ConceptKind }
 
-// TODO: Remove and replace with revisionHeaders
-export const headersForm = z.object({
-  // TODO: uid / did
-  agentDid: z.string().nullish(),
-  dateModified: z.date().nullish(),
-  dateCreated: z.date().nullish(),
-  revisionUris: z.array(z.string()).optional(),
-  entityUris: z.array(z.string()).optional(),
-  prevRevisionId: z.string().nullish(),
-  isDeleted: z.boolean().nullish(),
-  derivedFromUid: common.uid.nullish(),
-})
+export const headersForm = revisionHeaders.partial()
 export interface HeadersForm extends z.infer<typeof headersForm> {}
 
 export const entityForm = z.object({
@@ -48,7 +37,7 @@ export type EntityBatch = {
   entities: EntityForm[]
 }
 
-export type EntityForm = repco.EntityInput & HeadersForm
+export type EntityForm = repco.EntityInput & { headers?: HeadersForm }
 
 export type EntityInputWithHeaders = repco.EntityInputWithUid & {
   headers: HeadersForm
@@ -65,11 +54,7 @@ export type EntityMaybeContent<T extends boolean = true> = T extends true
   ? Omit<EntityInputWithRevision, 'content'>
   : never
 
-// TODO: This should be the output types.
 export type EntityWithRevision = EntityInputWithRevision
-// export type EntityWithRevision = repco.EntityInputWithUid & {
-//   revision: Revision
-// }
 
 export type EntityType = repco.EntityOutput['type']
 

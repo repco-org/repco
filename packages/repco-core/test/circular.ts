@@ -55,7 +55,7 @@ class TestDataSource extends BaseDataSource implements DataSource {
           kind: ConceptKind.CATEGORY,
           SameAs: { uri: 'urn:repco:concept:2' },
         },
-        entityUris: ['urn:repco:concept:1'],
+        headers: { EntityUris: ['urn:repco:concept:1'] },
       },
       'urn:repco:concept:2': {
         type: 'Concept',
@@ -64,7 +64,7 @@ class TestDataSource extends BaseDataSource implements DataSource {
           kind: ConceptKind.CATEGORY,
           // SameAs: { uri: 'urn:repco:concept:1' },
         },
-        entityUris: ['urn:repco:concept:2'],
+        headers: { EntityUris: ['urn:repco:concept:2'] },
       },
     }
   }

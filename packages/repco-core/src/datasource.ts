@@ -155,7 +155,7 @@ export class DataSourceRegistry extends Registry<DataSource> {
       const sourceRecords = await ds.fetchByUriBatch(filteredUris)
       const entities = await mapAndPersistSourceRecord(repo, ds, sourceRecords)
       for (const e of entities) {
-        e.entityUris?.forEach((uri) => found.add(uri))
+        e.headers?.EntityUris?.forEach((uri) => found.add(uri))
       }
       fetched.push(...entities)
     }
@@ -331,7 +331,7 @@ async function mapAndPersistSourceRecord(
       sourceRecord,
     )
     const containedEntityUris = entitiesFromSourceRecord
-      .map((e) => e.entityUris || [])
+      .map((e) => e.headers?.EntityUris || [])
       .flat()
 
     let sourceRecordId = sourceRecord.uid
@@ -353,7 +353,8 @@ async function mapAndPersistSourceRecord(
     }
 
     for (const entity of entitiesFromSourceRecord) {
-      entity.derivedFromUid = sourceRecordId
+      if (!entity.headers) entity.headers = {}
+      entity.headers.DerivedFrom = sourceRecordId
     }
 
     entities.push(...entitiesFromSourceRecord)

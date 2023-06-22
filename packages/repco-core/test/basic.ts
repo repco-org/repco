@@ -28,7 +28,7 @@ test('update', async (assert) => {
   const repo = await Repo.create(prisma, 'default')
   const input: EntityForm = {
     type: 'ContentItem',
-    entityUris: ['first'],
+    headers: { EntityUris: ['first'] },
     content: {
       title: 'foo',
       contentFormat: 'boo',
