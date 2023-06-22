@@ -24,6 +24,7 @@ import {
   EntityMaybeContent,
   headersForm,
   HeadersForm,
+  UnknownEntityInput,
 } from './entity.js'
 import {
   createRepoKeypair,
@@ -440,10 +441,7 @@ export class Repo {
     return importRepoFromCar(this, stream, onProgress)
   }
 
-  async saveBatch(
-    inputs: unknown[],
-    opts: Partial<SaveBatchOpts> = {},
-  ) {
+  async saveBatch(inputs: UnknownEntityInput[], opts: Partial<SaveBatchOpts> = {}) {
     if (!this.writeable) throw new Error('Repo is not writeable')
     const fullOpts: SaveBatchOpts = { ...SAVE_BATCH_DEFAULTS, ...opts }
 
@@ -762,9 +760,9 @@ function assertFullClient(
 
 type EntityFormWithHeaders = { entity: repco.EntityInput; headers: HeadersForm }
 
-function parseEntity(input: unknown): EntityFormWithHeaders {
+function parseEntity(input: UnknownEntityInput): EntityFormWithHeaders {
   try {
-    const headers = headersForm.parse(input)
+    const headers = headersForm.parse(input.headers)
     const parsed = entityForm.parse(input)
     const entity = repco.parseEntity(parsed.type, parsed.content)
     return { entity, headers }
@@ -777,7 +775,7 @@ function parseEntity(input: unknown): EntityFormWithHeaders {
   }
 }
 
-export function parseEntities(inputs: unknown[]): EntityFormWithHeaders[] {
+export function parseEntities(inputs: UnknownEntityInput[]): EntityFormWithHeaders[] {
   return inputs.map(parseEntity)
 }
 

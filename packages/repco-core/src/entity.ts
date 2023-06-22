@@ -6,7 +6,7 @@
  */
 
 import z from 'zod'
-import { revisionHeaders } from 'repco-common/schema'
+import { RevisionHeaders, revisionHeaders } from 'repco-common/schema'
 import { repco } from 'repco-prisma'
 import {
   ConceptKind,
@@ -94,4 +94,10 @@ export function safeCheckType<T extends EntityType>(
 ): TypedEntityWithRevision<T> | null {
   if (entity.type !== type) return null
   return entity as TypedEntityWithRevision<T>
+}
+
+export type UnknownEntityInput = {
+  type: string
+  content: unknown
+  headers?: HeadersForm
 }
