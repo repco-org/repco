@@ -16,7 +16,7 @@ import {
   revisionIpld,
   RootIpld,
   rootIpld,
-} from './ipld.js'
+} from 'repco-common/schema'
 import { Repo } from '../repo.js'
 
 export type OnProgressCallback = (progress: ImportProgress) => void

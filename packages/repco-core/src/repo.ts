@@ -37,7 +37,7 @@ import {
 } from './repo/export.js'
 import { importRepoFromCar, OnProgressCallback } from './repo/import.js'
 import { IpldRepo } from './repo/ipld-repo.js'
-import { CommitBundle, CommitHeaders, RevisionBundle } from './repo/ipld.js'
+import { CommitBundle, CommitHeaders, RevisionBundle } from 'repco-common/schema'
 import { RelationFinder } from './repo/relation-finder.js'
 import {
   ContentLoaderStream,

@@ -10,7 +10,7 @@ import {
   RevisionForm,
   revisionIpld,
   rootIpld,
-} from './ipld.js'
+} from 'repco-common/schema'
 import { EntityInputWithHeaders } from '../entity.js'
 import { SaveBatchOpts } from '../repo'
 import { createEntityId, createRevisionId } from '../util/id.js'

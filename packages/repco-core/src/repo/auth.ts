@@ -1,6 +1,6 @@
 import * as ucans from '@ucans/ucans'
 import { CID } from 'multiformats/cid'
-import { CommitIpld, RootIpld } from './ipld.js'
+import { CommitIpld, RootIpld } from 'repco-common/schema'
 
 const PUBLISH_ABILITY = { namespace: 'repco', segments: ['PUBLISH'] }
 const DEFAULT_LIFETIME = 3600 * 24 * 365 * 10 // 10 years
