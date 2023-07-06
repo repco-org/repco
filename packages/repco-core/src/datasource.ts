@@ -337,7 +337,9 @@ async function mapAndPersistSourceRecord(
     let sourceRecordId = sourceRecord.uid
     if (!sourceRecordId) {
       sourceRecordId = createSourceRecordId()
-      // save source record
+      // save the source record to the database
+      // this allows to potentially remap the source record
+      // if the mapSourceRecord function of a datasource is improved over time
       await repo.prisma.sourceRecord.create({
         data: {
           uid: sourceRecordId,
@@ -362,6 +364,18 @@ async function mapAndPersistSourceRecord(
   return entities
 }
 
+// Recreate all entities originating from a particular DataSource
+//
+// This traverses all source records for a datasource and recreates entity revisions for each.
+//
+// This function can be used to apply changes in a datasources `mapSourcRecord` function to the actual data.
+//
+// If the `mapSourceRecord` function is unchanged since the source records were imported initially,
+// it should not create any new revisions because the revision's content would be unchanged to the state in the database,
+// thus produce identical revision body CIDs, which will be detected and no new revisions would be created.
+//
+// This is never called automatically. The CLI contains a command to trigger it manually.
+// For now it should be considered experimental. Please do backups before.
 export async function remapDataSource(
   repo: Repo,
   datasource: DataSource,
