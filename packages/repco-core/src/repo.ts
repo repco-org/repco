@@ -762,7 +762,7 @@ type EntityFormWithHeaders = { entity: repco.EntityInput; headers: HeadersForm }
 
 function parseEntity(input: UnknownEntityInput): EntityFormWithHeaders {
   try {
-    const headers = headersForm.parse(input.headers)
+    const headers = headersForm.parse(input.headers || {})
     const parsed = entityForm.parse(input)
     const entity = repco.parseEntity(parsed.type, parsed.content)
     return { entity, headers }
