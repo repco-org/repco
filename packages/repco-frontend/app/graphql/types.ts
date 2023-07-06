@@ -30,14 +30,14 @@ export type Scalars = {
 
 export type Agent = {
   /** Reads and enables pagination through a set of `Commit`. */
-  commitsByAgentDid: CommitsConnection
+  commits: CommitsConnection
   /** Reads and enables pagination through a set of `Commit`. */
   commitsByCommitAgentDidAndParent: AgentCommitsByCommitAgentDidAndParentManyToManyConnection
   did: Scalars['String']
   /** Reads and enables pagination through a set of `Repo`. */
   reposByCommitAgentDidAndRepoDid: AgentReposByCommitAgentDidAndRepoDidManyToManyConnection
   /** Reads and enables pagination through a set of `Revision`. */
-  revisionsByAgentDid: RevisionsConnection
+  revisions: RevisionsConnection
   type?: Maybe<AgentType>
   /** Reads a single `User` that is related to this `Agent`. */
   userByDid?: Maybe<User>
@@ -45,10 +45,10 @@ export type Agent = {
    * Reads and enables pagination through a set of `User`.
    * @deprecated Please use userByDid instead
    */
-  usersByDid: UsersConnection
+  usersBy: UsersConnection
 }
 
-export type AgentCommitsByAgentDidArgs = {
+export type AgentCommitsArgs = {
   after: InputMaybe<Scalars['Cursor']>
   before: InputMaybe<Scalars['Cursor']>
   condition: InputMaybe<CommitCondition>
@@ -81,7 +81,7 @@ export type AgentReposByCommitAgentDidAndRepoDidArgs = {
   orderBy?: InputMaybe<Array<ReposOrderBy>>
 }
 
-export type AgentRevisionsByAgentDidArgs = {
+export type AgentRevisionsArgs = {
   after: InputMaybe<Scalars['Cursor']>
   before: InputMaybe<Scalars['Cursor']>
   condition: InputMaybe<RevisionCondition>
@@ -92,7 +92,7 @@ export type AgentRevisionsByAgentDidArgs = {
   orderBy?: InputMaybe<Array<RevisionsOrderBy>>
 }
 
-export type AgentUsersByDidArgs = {
+export type AgentUsersByArgs = {
   after: InputMaybe<Scalars['Cursor']>
   before: InputMaybe<Scalars['Cursor']>
   condition: InputMaybe<UserCondition>
@@ -150,20 +150,20 @@ export type AgentCondition = {
 export type AgentFilter = {
   /** Checks for all expressions in this list. */
   and?: InputMaybe<Array<AgentFilter>>
-  /** Filter by the object’s `commitsByAgentDid` relation. */
-  commitsByAgentDid?: InputMaybe<AgentToManyCommitFilter>
-  /** Some related `commitsByAgentDid` exist. */
-  commitsByAgentDidExist?: InputMaybe<Scalars['Boolean']>
+  /** Filter by the object’s `commits` relation. */
+  commits?: InputMaybe<AgentToManyCommitFilter>
+  /** Some related `commits` exist. */
+  commitsExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `did` field. */
   did?: InputMaybe<StringFilter>
   /** Negates the expression. */
   not?: InputMaybe<AgentFilter>
   /** Checks for any expressions in this list. */
   or?: InputMaybe<Array<AgentFilter>>
-  /** Filter by the object’s `revisionsByAgentDid` relation. */
-  revisionsByAgentDid?: InputMaybe<AgentToManyRevisionFilter>
-  /** Some related `revisionsByAgentDid` exist. */
-  revisionsByAgentDidExist?: InputMaybe<Scalars['Boolean']>
+  /** Filter by the object’s `revisions` relation. */
+  revisions?: InputMaybe<AgentToManyRevisionFilter>
+  /** Some related `revisions` exist. */
+  revisionsExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `type` field. */
   type?: InputMaybe<AgentTypeFilter>
   /** Filter by the object’s `userByDid` relation. */
@@ -187,7 +187,7 @@ export type AgentReposByCommitAgentDidAndRepoDidManyToManyConnection = {
 /** A `Repo` edge in the connection, with data from `Commit`. */
 export type AgentReposByCommitAgentDidAndRepoDidManyToManyEdge = {
   /** Reads and enables pagination through a set of `Commit`. */
-  commitsByRepoDid: CommitsConnection
+  commits: CommitsConnection
   /** A cursor for use in pagination. */
   cursor?: Maybe<Scalars['Cursor']>
   /** The `Repo` at the end of the edge. */
@@ -195,17 +195,16 @@ export type AgentReposByCommitAgentDidAndRepoDidManyToManyEdge = {
 }
 
 /** A `Repo` edge in the connection, with data from `Commit`. */
-export type AgentReposByCommitAgentDidAndRepoDidManyToManyEdgeCommitsByRepoDidArgs =
-  {
-    after: InputMaybe<Scalars['Cursor']>
-    before: InputMaybe<Scalars['Cursor']>
-    condition: InputMaybe<CommitCondition>
-    filter: InputMaybe<CommitFilter>
-    first: InputMaybe<Scalars['Int']>
-    last: InputMaybe<Scalars['Int']>
-    offset: InputMaybe<Scalars['Int']>
-    orderBy?: InputMaybe<Array<CommitsOrderBy>>
-  }
+export type AgentReposByCommitAgentDidAndRepoDidManyToManyEdgeCommitsArgs = {
+  after: InputMaybe<Scalars['Cursor']>
+  before: InputMaybe<Scalars['Cursor']>
+  condition: InputMaybe<CommitCondition>
+  filter: InputMaybe<CommitFilter>
+  first: InputMaybe<Scalars['Int']>
+  last: InputMaybe<Scalars['Int']>
+  offset: InputMaybe<Scalars['Int']>
+  orderBy?: InputMaybe<Array<CommitsOrderBy>>
+}
 
 /** A filter to be used against many `Commit` object types. All fields are combined with a logical ‘and.’ */
 export type AgentToManyCommitFilter = {
@@ -575,7 +574,7 @@ export enum ChaptersOrderBy {
 
 export type Commit = {
   /** Reads a single `Agent` that is related to this `Commit`. */
-  agentByAgentDid?: Maybe<Agent>
+  agent?: Maybe<Agent>
   agentDid: Scalars['String']
   /** Reads and enables pagination through a set of `Agent`. */
   agentsByCommitParentAndAgentDid: CommitAgentsByCommitParentAndAgentDidManyToManyConnection
@@ -586,7 +585,7 @@ export type Commit = {
   commitsByParent: CommitsConnection
   parent?: Maybe<Scalars['String']>
   /** Reads a single `Repo` that is related to this `Commit`. */
-  repoByRepoDid?: Maybe<Repo>
+  repo?: Maybe<Repo>
   repoDid: Scalars['String']
   /** Reads and enables pagination through a set of `Repo`. */
   reposByCommitParentAndRepoDid: CommitReposByCommitParentAndRepoDidManyToManyConnection
@@ -655,7 +654,7 @@ export type CommitAgentsByCommitParentAndAgentDidManyToManyConnection = {
 /** A `Agent` edge in the connection, with data from `Commit`. */
 export type CommitAgentsByCommitParentAndAgentDidManyToManyEdge = {
   /** Reads and enables pagination through a set of `Commit`. */
-  commitsByAgentDid: CommitsConnection
+  commits: CommitsConnection
   /** A cursor for use in pagination. */
   cursor?: Maybe<Scalars['Cursor']>
   /** The `Agent` at the end of the edge. */
@@ -663,17 +662,16 @@ export type CommitAgentsByCommitParentAndAgentDidManyToManyEdge = {
 }
 
 /** A `Agent` edge in the connection, with data from `Commit`. */
-export type CommitAgentsByCommitParentAndAgentDidManyToManyEdgeCommitsByAgentDidArgs =
-  {
-    after: InputMaybe<Scalars['Cursor']>
-    before: InputMaybe<Scalars['Cursor']>
-    condition: InputMaybe<CommitCondition>
-    filter: InputMaybe<CommitFilter>
-    first: InputMaybe<Scalars['Int']>
-    last: InputMaybe<Scalars['Int']>
-    offset: InputMaybe<Scalars['Int']>
-    orderBy?: InputMaybe<Array<CommitsOrderBy>>
-  }
+export type CommitAgentsByCommitParentAndAgentDidManyToManyEdgeCommitsArgs = {
+  after: InputMaybe<Scalars['Cursor']>
+  before: InputMaybe<Scalars['Cursor']>
+  condition: InputMaybe<CommitCondition>
+  filter: InputMaybe<CommitFilter>
+  first: InputMaybe<Scalars['Int']>
+  last: InputMaybe<Scalars['Int']>
+  offset: InputMaybe<Scalars['Int']>
+  orderBy?: InputMaybe<Array<CommitsOrderBy>>
+}
 
 /** A condition to be used against `Commit` object types. All fields are tested for equality and combined with a logical ‘and.’ */
 export type CommitCondition = {
@@ -693,8 +691,8 @@ export type CommitCondition = {
 
 /** A filter to be used against `Commit` object types. All fields are combined with a logical ‘and.’ */
 export type CommitFilter = {
-  /** Filter by the object’s `agentByAgentDid` relation. */
-  agentByAgentDid?: InputMaybe<AgentFilter>
+  /** Filter by the object’s `agent` relation. */
+  agent?: InputMaybe<AgentFilter>
   /** Filter by the object’s `agentDid` field. */
   agentDid?: InputMaybe<StringFilter>
   /** Checks for all expressions in this list. */
@@ -715,8 +713,8 @@ export type CommitFilter = {
   or?: InputMaybe<Array<CommitFilter>>
   /** Filter by the object’s `parent` field. */
   parent?: InputMaybe<StringFilter>
-  /** Filter by the object’s `repoByRepoDid` relation. */
-  repoByRepoDid?: InputMaybe<RepoFilter>
+  /** Filter by the object’s `repo` relation. */
+  repo?: InputMaybe<RepoFilter>
   /** Filter by the object’s `repoDid` field. */
   repoDid?: InputMaybe<StringFilter>
   /** Filter by the object’s `reposByHead` relation. */
@@ -744,7 +742,7 @@ export type CommitReposByCommitParentAndRepoDidManyToManyConnection = {
 /** A `Repo` edge in the connection, with data from `Commit`. */
 export type CommitReposByCommitParentAndRepoDidManyToManyEdge = {
   /** Reads and enables pagination through a set of `Commit`. */
-  commitsByRepoDid: CommitsConnection
+  commits: CommitsConnection
   /** A cursor for use in pagination. */
   cursor?: Maybe<Scalars['Cursor']>
   /** The `Repo` at the end of the edge. */
@@ -752,17 +750,16 @@ export type CommitReposByCommitParentAndRepoDidManyToManyEdge = {
 }
 
 /** A `Repo` edge in the connection, with data from `Commit`. */
-export type CommitReposByCommitParentAndRepoDidManyToManyEdgeCommitsByRepoDidArgs =
-  {
-    after: InputMaybe<Scalars['Cursor']>
-    before: InputMaybe<Scalars['Cursor']>
-    condition: InputMaybe<CommitCondition>
-    filter: InputMaybe<CommitFilter>
-    first: InputMaybe<Scalars['Int']>
-    last: InputMaybe<Scalars['Int']>
-    offset: InputMaybe<Scalars['Int']>
-    orderBy?: InputMaybe<Array<CommitsOrderBy>>
-  }
+export type CommitReposByCommitParentAndRepoDidManyToManyEdgeCommitsArgs = {
+  after: InputMaybe<Scalars['Cursor']>
+  before: InputMaybe<Scalars['Cursor']>
+  condition: InputMaybe<CommitCondition>
+  filter: InputMaybe<CommitFilter>
+  first: InputMaybe<Scalars['Int']>
+  last: InputMaybe<Scalars['Int']>
+  offset: InputMaybe<Scalars['Int']>
+  orderBy?: InputMaybe<Array<CommitsOrderBy>>
+}
 
 /** A filter to be used against many `Commit` object types. All fields are combined with a logical ‘and.’ */
 export type CommitToManyCommitFilter = {
@@ -4934,15 +4931,15 @@ export type Repo = {
   /** Reads a single `Commit` that is related to this `Repo`. */
   commitByHead?: Maybe<Commit>
   /** Reads and enables pagination through a set of `Commit`. */
-  commitsByCommitRepoDidAndParent: RepoCommitsByCommitRepoDidAndParentManyToManyConnection
+  commits: CommitsConnection
   /** Reads and enables pagination through a set of `Commit`. */
-  commitsByRepoDid: CommitsConnection
+  commitsByCommitRepoDidAndParent: RepoCommitsByCommitRepoDidAndParentManyToManyConnection
   did: Scalars['String']
   gateways?: Maybe<Array<Maybe<Scalars['String']>>>
   head?: Maybe<Scalars['String']>
   name?: Maybe<Scalars['String']>
   /** Reads and enables pagination through a set of `Revision`. */
-  revisionsByRepoDid: RevisionsConnection
+  revisions: RevisionsConnection
   tail?: Maybe<Scalars['String']>
 }
 
@@ -4957,6 +4954,17 @@ export type RepoAgentsByCommitRepoDidAndAgentDidArgs = {
   orderBy?: InputMaybe<Array<AgentsOrderBy>>
 }
 
+export type RepoCommitsArgs = {
+  after: InputMaybe<Scalars['Cursor']>
+  before: InputMaybe<Scalars['Cursor']>
+  condition: InputMaybe<CommitCondition>
+  filter: InputMaybe<CommitFilter>
+  first: InputMaybe<Scalars['Int']>
+  last: InputMaybe<Scalars['Int']>
+  offset: InputMaybe<Scalars['Int']>
+  orderBy?: InputMaybe<Array<CommitsOrderBy>>
+}
+
 export type RepoCommitsByCommitRepoDidAndParentArgs = {
   after: InputMaybe<Scalars['Cursor']>
   before: InputMaybe<Scalars['Cursor']>
@@ -4968,18 +4976,7 @@ export type RepoCommitsByCommitRepoDidAndParentArgs = {
   orderBy?: InputMaybe<Array<CommitsOrderBy>>
 }
 
-export type RepoCommitsByRepoDidArgs = {
-  after: InputMaybe<Scalars['Cursor']>
-  before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<CommitCondition>
-  filter: InputMaybe<CommitFilter>
-  first: InputMaybe<Scalars['Int']>
-  last: InputMaybe<Scalars['Int']>
-  offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<CommitsOrderBy>>
-}
-
-export type RepoRevisionsByRepoDidArgs = {
+export type RepoRevisionsArgs = {
   after: InputMaybe<Scalars['Cursor']>
   before: InputMaybe<Scalars['Cursor']>
   condition: InputMaybe<RevisionCondition>
@@ -5005,7 +5002,7 @@ export type RepoAgentsByCommitRepoDidAndAgentDidManyToManyConnection = {
 /** A `Agent` edge in the connection, with data from `Commit`. */
 export type RepoAgentsByCommitRepoDidAndAgentDidManyToManyEdge = {
   /** Reads and enables pagination through a set of `Commit`. */
-  commitsByAgentDid: CommitsConnection
+  commits: CommitsConnection
   /** A cursor for use in pagination. */
   cursor?: Maybe<Scalars['Cursor']>
   /** The `Agent` at the end of the edge. */
@@ -5013,17 +5010,16 @@ export type RepoAgentsByCommitRepoDidAndAgentDidManyToManyEdge = {
 }
 
 /** A `Agent` edge in the connection, with data from `Commit`. */
-export type RepoAgentsByCommitRepoDidAndAgentDidManyToManyEdgeCommitsByAgentDidArgs =
-  {
-    after: InputMaybe<Scalars['Cursor']>
-    before: InputMaybe<Scalars['Cursor']>
-    condition: InputMaybe<CommitCondition>
-    filter: InputMaybe<CommitFilter>
-    first: InputMaybe<Scalars['Int']>
-    last: InputMaybe<Scalars['Int']>
-    offset: InputMaybe<Scalars['Int']>
-    orderBy?: InputMaybe<Array<CommitsOrderBy>>
-  }
+export type RepoAgentsByCommitRepoDidAndAgentDidManyToManyEdgeCommitsArgs = {
+  after: InputMaybe<Scalars['Cursor']>
+  before: InputMaybe<Scalars['Cursor']>
+  condition: InputMaybe<CommitCondition>
+  filter: InputMaybe<CommitFilter>
+  first: InputMaybe<Scalars['Int']>
+  last: InputMaybe<Scalars['Int']>
+  offset: InputMaybe<Scalars['Int']>
+  orderBy?: InputMaybe<Array<CommitsOrderBy>>
+}
 
 /** A connection to a list of `Commit` values, with data from `Commit`. */
 export type RepoCommitsByCommitRepoDidAndParentManyToManyConnection = {
@@ -5082,10 +5078,10 @@ export type RepoFilter = {
   commitByHead?: InputMaybe<CommitFilter>
   /** A related `commitByHead` exists. */
   commitByHeadExists?: InputMaybe<Scalars['Boolean']>
-  /** Filter by the object’s `commitsByRepoDid` relation. */
-  commitsByRepoDid?: InputMaybe<RepoToManyCommitFilter>
-  /** Some related `commitsByRepoDid` exist. */
-  commitsByRepoDidExist?: InputMaybe<Scalars['Boolean']>
+  /** Filter by the object’s `commits` relation. */
+  commits?: InputMaybe<RepoToManyCommitFilter>
+  /** Some related `commits` exist. */
+  commitsExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `did` field. */
   did?: InputMaybe<StringFilter>
   /** Filter by the object’s `gateways` field. */
@@ -5098,10 +5094,10 @@ export type RepoFilter = {
   not?: InputMaybe<RepoFilter>
   /** Checks for any expressions in this list. */
   or?: InputMaybe<Array<RepoFilter>>
-  /** Filter by the object’s `revisionsByRepoDid` relation. */
-  revisionsByRepoDid?: InputMaybe<RepoToManyRevisionFilter>
-  /** Some related `revisionsByRepoDid` exist. */
-  revisionsByRepoDidExist?: InputMaybe<Scalars['Boolean']>
+  /** Filter by the object’s `revisions` relation. */
+  revisions?: InputMaybe<RepoToManyRevisionFilter>
+  /** Some related `revisions` exist. */
+  revisionsExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `tail` field. */
   tail?: InputMaybe<StringFilter>
 }
@@ -5165,7 +5161,7 @@ export enum ReposOrderBy {
 
 export type Revision = {
   /** Reads a single `Agent` that is related to this `Revision`. */
-  agentByAgentDid?: Maybe<Agent>
+  agent?: Maybe<Agent>
   agentDid: Scalars['String']
   /** Reads and enables pagination through a set of `BroadcastEvent`. */
   broadcastEvents: BroadcastEventsConnection
@@ -5237,7 +5233,7 @@ export type Revision = {
   /** Reads and enables pagination through a set of `PublicationService`. */
   publicationServicesByContentItemRevisionIdAndPublicationServiceUid: RevisionPublicationServicesByContentItemRevisionIdAndPublicationServiceUidManyToManyConnection
   /** Reads a single `Repo` that is related to this `Revision`. */
-  repoByRepoDid?: Maybe<Repo>
+  repo?: Maybe<Repo>
   repoDid: Scalars['String']
   revisionCid: Scalars['String']
   revisionUris?: Maybe<Array<Maybe<Scalars['String']>>>
@@ -5982,8 +5978,8 @@ export type RevisionFilesByMediaAssetRevisionIdAndTeaserImageUidManyToManyEdgeMe
 
 /** A filter to be used against `Revision` object types. All fields are combined with a logical ‘and.’ */
 export type RevisionFilter = {
-  /** Filter by the object’s `agentByAgentDid` relation. */
-  agentByAgentDid?: InputMaybe<AgentFilter>
+  /** Filter by the object’s `agent` relation. */
+  agent?: InputMaybe<AgentFilter>
   /** Filter by the object’s `agentDid` field. */
   agentDid?: InputMaybe<StringFilter>
   /** Checks for all expressions in this list. */
@@ -6066,8 +6062,8 @@ export type RevisionFilter = {
   publicationServices?: InputMaybe<RevisionToManyPublicationServiceFilter>
   /** Some related `publicationServices` exist. */
   publicationServicesExist?: InputMaybe<Scalars['Boolean']>
-  /** Filter by the object’s `repoByRepoDid` relation. */
-  repoByRepoDid?: InputMaybe<RepoFilter>
+  /** Filter by the object’s `repo` relation. */
+  repo?: InputMaybe<RepoFilter>
   /** Filter by the object’s `repoDid` field. */
   repoDid?: InputMaybe<StringFilter>
   /** Filter by the object’s `revisionCid` field. */
