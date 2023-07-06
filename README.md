@@ -2,12 +2,7 @@
 
 _repco_ deals with repositories of Community Media. Community Media is defined as media (audio, video, pictures) that are produced by community-based, mostly non-commercial media creators. This includes Community Radio stations, recordings of events and lectures, Podcasters and other media collections.
 
-This repo contains both an [in-progress specification document](SPEC.md) and a first implementation of repco.
-
-The implementation is written in TypeScript. Currently, it consists of two packages:
-
-- [repco-prisma](./packages/repco-prisma) contains the Repco datamodel written as a [Prisma](https://www.prisma.io/) schema definition for PostgreSQL. The Prisma schema definition also emits TypeScript types for all parts of the datamodel.
-- [repco-core](./packages/repco-core) is the first implementation of a Repco node that can ingest content from different data sources into a local database, replicate the content between Repco nodes and provide a public-facing API. It is a work-in-progress and not yet fully functional.
+This repo contains both an [in-progress specification document](SPEC.md) and a first implementation of repco. The implementation is written in TypeScript.
 
 ## Installation and usage
 
@@ -28,7 +23,7 @@ yarn migrate
 yarn server
 # start the frontend [optional]
 yarn frontend
-# add new repo
+# add new repo with name default
 yarn cli repo create default
 # add datasource
 yarn cli ds add -r <repo> <plugin-name> <endpoint>
@@ -39,7 +34,7 @@ yarn cli ds ingest
 # print all revisions in a repo
 yarn cli repo log-revisions <repo>
 # get revisions over HTTP
-curl http://localhost:8765/changes
+curl http://localhost:8765/api/changes/<repo>
 # browse through contentItems via GUI
 http://localhost:3000
 ```
@@ -71,10 +66,8 @@ Run this command whenever you make changes to the database schema in `schema.pri
 
 # Documentation
 
-While this is an in progress project may this is not the last standing.
-
 Repco is organized as a monorepro. In the individual packages a TypeDoc documentation can be generated with `yarn docs`.
-Most and most important functions, types, interfaces etc. are provided with appropriate comments. Each package usually contains a README.md with a short description. Additionally in each package a diagram folder can be created which contains a visualization of classes or processes.
+Each package usually contains a README.md with a short description. Additionally in each package a diagram folder can be created which contains a visualization of classes or processes.
 
 The documentation is available at `yarn docs`
 
