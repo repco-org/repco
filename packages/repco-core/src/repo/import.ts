@@ -10,23 +10,34 @@ import {
 } from './blockstore.js'
 import {
   CommitBundle,
-  commitIpld,
   CommitIpld,
-  Repo,
+  commitIpld,
   RevisionIpld,
   revisionIpld,
   RootIpld,
   rootIpld,
-} from '../repo.js'
+} from 'repco-common/schema'
+import { Repo } from '../repo.js'
 
 export type OnProgressCallback = (progress: ImportProgress) => void
 
 export class UnexpectedCidError extends Error {
-  constructor(public received: CID, public expected: CID, public kind: string) {
+  constructor(
+    public received: CID,
+    public expected: CID | null,
+    public kind: string,
+  ) {
     super(`Wrong CID: Expected ${kind} ${expected}, but received ${received}`)
   }
 }
 
+// Import into a repo from a CAR stream.
+//
+// The incoming binary stream has to be a valid [CARv1 stream][carv1]. It must only contain
+// valid RLDM blocks and their content blocks. The order MUST be as follows:
+// root, commit, revision, content, [revision, content, ].., root, commit, ...
+//
+// [carv1]: https://ipld.io/specs/transport/car/carv1
 export async function importRepoFromCar(
   repo: Repo,
   stream: AsyncIterable<Uint8Array>,
@@ -36,9 +47,9 @@ export async function importRepoFromCar(
   const skipped = { commits: 0, blocks: 0, revisions: 0, bytes: 0 }
   for await (const { bundle, progress, blocks } of readCommitBundles(
     reader,
-    repo,
+    repo.did,
   )) {
-    if (await repo.hasRoot(bundle.root.cid)) {
+    if (await repo.hasRoot(bundle.headers.Cid)) {
       updateCounter(skipped, bundle, blocks)
     } else {
       await repo.blockstore.putBytesBatch(blocks)
@@ -49,12 +60,13 @@ export async function importRepoFromCar(
 }
 
 type CommitBundlePartial = {
-  root?: { cid: CID; body: RootIpld }
-  commit?: { cid: CID; body: CommitIpld }
+  root?: { cid: CID; data: RootIpld }
+  commit?: { cid: CID; data: CommitIpld }
   revisions: {
     revision: RevisionIpld
     revisionCid: CID
     content: any
+    contentCid: CID
   }[]
 }
 
@@ -85,20 +97,28 @@ function updateCounter(
   bundle: CommitBundle,
   blocks: BlockT[],
 ) {
-  counter.revisions += bundle.revisions.length
+  counter.revisions += bundle.body.length
   counter.commits += 1
-  counter.blocks += bundle.revisions.length * 2 + 2
+  counter.blocks += bundle.body.length * 2 + 2
   counter.bytes += blocks.reduce((sum, b) => sum + blocklen(b), 0)
 }
 
+// This function is a state machine over a CARv1 stream of RLDM blocks.
+//
+// It expects the CAR stream to start with a root block. It decodes the root and expects
+// the next block to be the commit references in root.body. It then expects the revision
+// and content blocks referenced in commit.body. After parsing and validating a full bundle
+// (root, commit, revisions and content), it yields the bundle and expects either another
+// root or the end of the stream.
 async function* readCommitBundles(
   reader: CarBlockIterator,
-  repo: Repo,
+  repoDid: string,
 ): AsyncGenerator<{
   bundle: CommitBundle
   progress: BlockCounter
   blocks: Block[]
 }> {
+  // initialize progress object for progress reporting
   const progress = {
     bytes: 0,
     blocks: 0,
@@ -106,20 +126,27 @@ async function* readCommitBundles(
     revisions: 0,
     skippedCommits: 0,
   }
+  // expect a root block initially
   let state: State = State.Root
+  // prepare our partial bundle that will be filled block-by-block
   let bundle: CommitBundlePartial = { revisions: [] }
+  // prepare an object to parse revisions into
   let revision: { cid: CID; body: RevisionIpld } | undefined
+  // this collects the blocks of the current bundle
   const blocks = []
+
+  // iterate over the blocks in the reader
   for await (const block of reader) {
     await validateCID(block)
     progress.blocks += 1
     progress.bytes += blocklen(block)
+    // what we expect and do depends on our state
     switch (state) {
       case State.Root:
         bundle = {
           revisions: [],
           root: {
-            body: parseBytesWith(block.bytes, rootIpld),
+            data: parseBytesWith(block.bytes, rootIpld),
             cid: block.cid,
           },
         }
@@ -127,27 +154,31 @@ async function* readCommitBundles(
         break
       case State.Commit:
         if (!bundle.root) throw new Error('invalid state')
-        await verifyRoot(bundle.root.body, repo.did)
-        if (!bundle.root.body.commit.equals(block.cid)) {
-          throw new UnexpectedCidError(
-            block.cid,
-            bundle.root.body.commit,
-            state,
-          )
-        }
         progress.commits += 1
         bundle.commit = {
-          body: parseBytesWith(block.bytes, commitIpld),
+          data: parseBytesWith(block.bytes, commitIpld),
           cid: block.cid,
         }
-        if (bundle.commit.body.repoDid !== repo.did) {
+        if (!bundle.root.data.body.equals(block.cid)) {
+          throw new UnexpectedCidError(block.cid, bundle.root.data.body, state)
+        }
+
+        // Verify the authorization! This will throw if one of the following fails to validate:
+        // * the root contains a signature header
+        // * the signature is a valid signature by the commit's author (commit.header.Author)
+        //   over the commit cid (root.body).
+        // * the commit contains a Proof header that contains a UCAN capability which gives
+        //   Author the capability to publish to repo.did
+        await verifyRoot(bundle.root.data, bundle.commit.data, repoDid)
+
+        if (bundle.commit.data.headers.Repo !== repoDid) {
           throw new Error('commit does not belong to repo')
         }
         state = State.Revision
         break
       case State.Revision:
         if (!bundle.commit) throw new Error('invalid state')
-        if (!bundle.commit.body.revisions.find((x) => block.cid.equals(x))) {
+        if (!bundle.commit.data.body.find((x) => block.cid.equals(x[0]))) {
           throw new Error('revision is not in commit')
         }
         progress.revisions += 1
@@ -159,10 +190,10 @@ async function* readCommitBundles(
         break
       case State.Content:
         if (!revision) throw new Error('invalid state')
-        if (!revision.body.contentCid.equals(block.cid)) {
+        if (!revision.body.body?.equals(block.cid)) {
           throw new UnexpectedCidError(
             block.cid,
-            revision.body.contentCid,
+            revision.body.body || null,
             state,
           )
         }
@@ -170,6 +201,7 @@ async function* readCommitBundles(
           revision: revision.body,
           revisionCid: revision.cid,
           content: parseToIpld(block.bytes),
+          contentCid: block.cid,
         })
         revision = undefined
         state = State.Revision
@@ -177,19 +209,34 @@ async function* readCommitBundles(
       default:
         throw new Error('invalid state')
     }
+
     blocks.push(block)
+
+    // We arrived at the end of the bundle (we parsed all revisions of the current commit)
     if (
       state === State.Revision &&
-      bundle.revisions.length === bundle.commit?.body.revisions.length
+      bundle.revisions.length === bundle.commit?.data.body.length
     ) {
       if (!bundle.root) throw new Error('missing root block')
       if (!bundle.commit) throw new Error('missing commit block')
-      yield {
-        bundle: {
-          root: bundle.root,
-          commit: bundle.commit,
-          revisions: bundle.revisions,
+      const realBundle: CommitBundle = {
+        headers: {
+          ...bundle.commit.data.headers,
+          ...bundle.root.data.headers,
+          RootCid: bundle.root.cid,
+          Cid: bundle.commit.cid,
         },
+        body: bundle.revisions.map((revision) => ({
+          headers: {
+            ...revision.revision.headers,
+            Cid: revision.revisionCid,
+            BodyCid: revision.contentCid,
+          },
+          body: revision.content,
+        })),
+      }
+      yield {
+        bundle: realBundle,
         progress,
         blocks,
       }

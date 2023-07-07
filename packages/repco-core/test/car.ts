@@ -42,7 +42,6 @@ test('car write read', { timeout: 100 * 1000 }, async (assert) => {
   let total = 0
   for (let i = 0; i < commits; i++) {
     const res = await repo.saveBatch(
-      'me',
       inputs.map((input, j) => {
         input.content.title = ' commit' + i + ' part' + j
         return input

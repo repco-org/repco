@@ -17,12 +17,13 @@
     "test": "brittle dist/test/*.js"
   },
   "dependencies": {
+    "@ipld/dag-json": "^10.0.1",
     "compression": "^1.7.4",
     "cors": "^2.8.5",
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
     "http-terminator": "^3.2.0",
-    "multiformats": "^9.9.0",
+    "multiformats": "^11.0.2",
     "pino-http": "^8.3.3",
     "repco-common": "0.1.0",
     "repco-core": "0.1.0",

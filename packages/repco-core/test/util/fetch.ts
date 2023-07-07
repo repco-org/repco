@@ -1,5 +1,7 @@
 import fs from 'fs/promises'
 import { Test } from 'brittle'
+import p from 'path'
+import { readdirSync, unlinkSync } from 'fs'
 import { getGlobalDispatcher, setGlobalDispatcher } from 'undici'
 import { CachingDispatcher, FsCacheStorage } from '../../src/util/fetch.js'
 
@@ -11,8 +13,15 @@ export const CREATE_FETCH_FIXTURES =
 export const CREATE_ASSERT_FIXTURES =
   !!process.env.CREATE_ASSERT_FIXTURES || CREATE_FIXTURES
 
-export function mockFetch(test: Test, scope: string) {
-  enableMockFetch(scope)
+export function mockFetch(test: Test, path: string) {
+  if (CREATE_FIXTURES) {
+    try {
+      for (const file of readdirSync(path)) {
+          unlinkSync(p.join(path, file))
+      }
+    } catch (err) {}
+  }
+  enableMockFetch(path)
   test.teardown(disableMockFetch, {})
 }
 

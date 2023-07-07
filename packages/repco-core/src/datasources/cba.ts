@@ -54,7 +54,7 @@ export type FormsWithUid = {
 
 const configSchema = zod.object({
   endpoint: zod.string().url().optional(),
-  apiKey: zod.string().optional(),
+  apiKey: zod.string().or(zod.null()).optional(),
   pageLimit: zod.number().int().optional(),
 })
 
@@ -99,8 +99,6 @@ export class CbaDataSource implements DataSource {
   uriPrefix: string
   constructor(config: Partial<ConfigSchema>) {
     this.config = { ...DEFAULT_CONFIG, ...config }
-    console.log(this.config)
-    console.log(config)
     const endpointUrl = new URL(this.endpoint)
     this.endpointOrigin = endpointUrl.hostname
     this.uriPrefix = `repco:cba:${this.endpointOrigin}`
@@ -132,6 +130,8 @@ export class CbaDataSource implements DataSource {
       image: 'media',
       categories: 'categories',
       tags: 'tags',
+      // @deprecated
+      tag: 'tags',
       station: 'station',
       series: 'series',
     }
@@ -419,7 +419,8 @@ export class CbaDataSource implements DataSource {
     const audioId = this._uri('audio', media.id)
 
     if (!media.source_url) {
-      throw new Error('Media source URL is missing.')
+      return []
+      // throw new Error('Media source URL is missing.')
     }
 
     //const contentSource_url = this._getAudioSrc(media.description.rendered)
@@ -453,7 +454,7 @@ export class CbaDataSource implements DataSource {
       mediaType: 'audio',
       duration,
       Concepts: media.media_tag.map((cbaId) => ({
-        uri: this._uri('tag', cbaId),
+        uri: this._uri('tags', cbaId),
       })),
       File: { uri: fileId },
     }
@@ -461,13 +462,13 @@ export class CbaDataSource implements DataSource {
     const fileEntity: EntityForm = {
       type: 'File',
       content: file,
-      entityUris: [fileId],
+      headers: { EntityUris: [fileId] },
     }
 
     const mediaEntity: EntityForm = {
       type: 'MediaAsset',
       content: asset,
-      entityUris: [audioId],
+      headers: { EntityUris: [audioId] },
     }
 
     return [fileEntity, mediaEntity]
@@ -512,13 +513,13 @@ export class CbaDataSource implements DataSource {
     const fileEntity: EntityForm = {
       type: 'File',
       content: file,
-      entityUris: [fileId],
+      headers: { EntityUris: [fileId] },
     }
 
     const mediaEntity: EntityForm = {
       type: 'MediaAsset',
       content: asset,
-      entityUris: [imageId],
+      headers: { EntityUris: [imageId] },
     }
 
     return [fileEntity, mediaEntity]
@@ -543,10 +544,10 @@ export class CbaDataSource implements DataSource {
     )
     const uri = this._uri('categories', categories.id)
     const headers = {
-      revisionUris: [revisionId],
-      entityUris: [uri],
+      RevisionUris: [revisionId],
+      EntityUris: [uri],
     }
-    return [{ type: 'Concept', content, ...headers }]
+    return [{ type: 'Concept', content, headers }]
   }
 
   private _mapTags(tags: CbaTag): EntityForm[] {
@@ -563,10 +564,10 @@ export class CbaDataSource implements DataSource {
     const revisionId = this._revisionUri('tags', tags.id, new Date().getTime())
     const uri = this._uri('tags', tags.id)
     const headers = {
-      revisionUris: [revisionId],
-      entityUris: [uri],
+      RevisionUris: [revisionId],
+      EntityUris: [uri],
     }
-    return [{ type: 'Concept', content, ...headers }]
+    return [{ type: 'Concept', content, headers }]
   }
 
   private _mapStation(station: CbaStation): EntityForm[] {
@@ -591,11 +592,11 @@ export class CbaDataSource implements DataSource {
     const uri = this._uri('station', station.id)
 
     const headers = {
-      revisionUris: [revisionId],
-      entityUris: [uri],
+      RevisionUris: [revisionId],
+      EntityUris: [uri],
     }
 
-    return [{ type: 'PublicationService', content, ...headers }]
+    return [{ type: 'PublicationService', content, headers }]
   }
 
   private _mapSeries(series: CbaSeries): EntityForm[] {
@@ -621,10 +622,10 @@ export class CbaDataSource implements DataSource {
     )
     const uri = this._uri('series', series.id)
     const headers = {
-      revisionUris: [revisionId],
-      entityUris: [uri],
+      RevisionUris: [revisionId],
+      EntityUris: [uri],
     }
-    return [{ type: 'ContentGrouping', content, ...headers }]
+    return [{ type: 'ContentGrouping', content, headers }]
   }
 
   private _mapPost(post: CbaPost): EntityForm[] {
@@ -639,7 +640,7 @@ export class CbaDataSource implements DataSource {
 
         const mediaAssetUris = mediaAssetsAndFiles
           .filter((entity) => entity.type === 'MediaAsset')
-          .map((x) => x.entityUris || [])
+          .map((x) => x.headers?.EntityUris || [])
           .flat()
           .map((uri) => ({ uri }))
 
@@ -687,13 +688,13 @@ export class CbaDataSource implements DataSource {
       const entityUri = this._uri('post', post.id)
 
       const headers = {
-        revisionUris: [revisionId],
-        entityUris: [entityUri],
+        RevisionUris: [revisionId],
+        EntityUris: [entityUri],
       }
       entities.push({
         type: 'ContentItem',
         content,
-        ...headers,
+        headers,
       })
       return entities
     } catch (error) {

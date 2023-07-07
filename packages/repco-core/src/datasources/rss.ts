@@ -328,7 +328,7 @@ export class RssDataSource extends BaseDataSource implements DataSource {
         {
           type: 'ContentGrouping',
           content: entity,
-          entityUris: [this.endpoint.toString()],
+          headers: { EntityUris: [this.endpoint.toString()] },
         },
       ]
     }
@@ -350,7 +350,7 @@ export class RssDataSource extends BaseDataSource implements DataSource {
       content: {
         contentUrl: item.enclosure.url,
       },
-      entityUris: [fileUri, item.enclosure.url],
+      headers: { EntityUris: [fileUri, item.enclosure.url] },
     })
 
     const mediaUri = itemUri + '#media'
@@ -363,7 +363,7 @@ export class RssDataSource extends BaseDataSource implements DataSource {
         mediaType: 'audio',
         File: { uri: fileUri },
       },
-      entityUris: [mediaUri],
+      headers: { EntityUris: [mediaUri] },
     })
 
     return { entities, mediaAssets: [{ uri: mediaUri }] }
@@ -392,9 +392,9 @@ export class RssDataSource extends BaseDataSource implements DataSource {
       MediaAssets: mediaAssets,
     }
     const headers = {
-      entityUris: [itemUri],
+      EntityUris: [itemUri],
     }
-    entities.push({ type: 'ContentItem', content, ...headers })
+    entities.push({ type: 'ContentItem', content, headers })
     return entities
   }
 }

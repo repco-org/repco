@@ -20,7 +20,7 @@ async function main() {
     platform: 'node',
     external: ['@prisma/client', 'classic-level', 'repco-server'],
     banner: {
-      js: 'import {createRequire as __createRequire} from "module";const require=__createRequire(import.meta.url);',
+      js: 'import {createRequire as __createRequire } from "module";const require=__createRequire(import.meta.url);',
     },
     metafile: !watch,
     outfile,

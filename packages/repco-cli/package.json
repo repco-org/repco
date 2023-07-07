@@ -27,6 +27,7 @@
     "casual-browserify": "^1.5.19-2",
     "cli-progress": "^3.11.2",
     "cli-table3": "^0.6.3",
+    "multiformats": "^11.0.2",
     "picocolors": "^1.0.0",
     "pretty-bytes": "^6.0.0",
     "pretty-ms": "^8.0.0",

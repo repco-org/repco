@@ -38,14 +38,19 @@ export class HttpError extends Error {
     url?: URL | string,
   ): Promise<HttpError> {
     try {
-      const errorJson = await response.json()
-      if (typeof errorJson === 'object' && errorJson) {
-        return HttpError.fromResponse(
-          response,
-          url,
-          (errorJson as ErrorJson).message,
-          errorJson,
-        )
+      const text = await response.text()
+      try {
+        const errorJson = JSON.parse(text)
+        if (typeof errorJson === 'object' && errorJson) {
+          return HttpError.fromResponse(
+            response,
+            url,
+            (errorJson as ErrorJson).message,
+            errorJson,
+          )
+        }
+      } catch (err) {
+        return HttpError.fromResponse(response, url, text)
       }
     } catch (_err) {}
     return HttpError.fromResponse(response, url)

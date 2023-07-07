@@ -10,11 +10,13 @@
   },
   "exports": {
     ".": "./dist/lib.js",
-    "./zod": "./dist/zod.js"
+    "./zod": "./dist/zod.js",
+    "./schema": "./dist/schema.js",
+    "./headers": "./dist/headers.js"
   },
   "dependencies": {
     "@mgcrea/pino-pretty-compact": "^1.1.2",
-    "multiformats": "^9.9.0",
+    "multiformats": "^11.0.2",
     "pino": "^8.9.0",
     "zod": "^3.19"
   }

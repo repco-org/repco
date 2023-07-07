@@ -18,9 +18,9 @@ test('simple sync', async (assert) => {
       contentFormat: 'text/plain',
     },
   }
-  await repo1.saveEntity('me', input)
+  await repo1.saveEntity(input)
   input.content.title = 'bar'
-  await repo1.saveEntity('me', input)
+  await repo1.saveEntity(input)
 
   const revisions1 = await repo1.fetchRevisionsWithContent()
   assert.is(revisions1.length, 2)
@@ -33,7 +33,7 @@ test('simple sync', async (assert) => {
   const revisions2 = await repo2.fetchRevisionsWithContent()
   assert.alike(revisions1, revisions2)
   input.content.title = 'baz'
-  await repo1.saveEntity('me', input)
+  await repo1.saveEntity(input)
   const oldHead = await repo2.getHead()
   const stream2 = await repo1.exportToCarReversed({ tail: oldHead })
   await repo2.importFromCar(stream2)

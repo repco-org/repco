@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
-import { RepoError } from 'repco-core'
+import { RepoError, HttpError } from 'repco-core'
 import { Prisma } from 'repco-prisma'
 
 export const notFoundHandler = (
@@ -47,6 +47,8 @@ export class ServerError extends Error {
     } else if (err instanceof Prisma.PrismaClientKnownRequestError) {
       status = 400
       err.message = err.message.replaceAll('\n', '')
+    } else if (err instanceof HttpError) {
+      status = err.code || 500
     }
     ;(err as any).status = status
   }

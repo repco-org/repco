@@ -3,7 +3,8 @@ import { Block, BlockWriter } from '@ipld/car/api.js'
 import { CID } from 'multiformats/cid'
 import { Prisma } from 'repco-prisma'
 import { IpldBlockStore } from './blockstore.js'
-import { CommitIpld, Repo, RevisionIpld, RootIpld } from '../repo.js'
+import { CommitIpld, RootIpld } from 'repco-common/schema'
+import { Repo } from '../repo.js'
 
 export async function exportRepoToCar(
   blockstore: IpldBlockStore,
@@ -111,10 +112,13 @@ async function writeRepoToCar(
     let cid: CID | null = head
     while (cid) {
       const commit: CommitIpld = await writeCommitToCar(blockstore, writer, cid)
-      if (!commit.parent || (tail && tail.equals(commit.parent))) {
+      const parent = commit.headers.Parents[0]
+        ? commit.headers.Parents[0]
+        : null
+      if (!parent || (tail && tail.equals(parent))) {
         cid = null
       } else {
-        cid = commit.parent
+        cid = parent
       }
     }
   } catch (err) {
@@ -135,15 +139,11 @@ async function writeCommitToCar(
   const commit: CommitIpld = await fetchAndPutParsed(
     blockstore,
     writer,
-    root.commit,
+    root.body,
   )
-  for (const cid of commit.revisions) {
-    const revision: RevisionIpld = await fetchAndPutParsed(
-      blockstore,
-      writer,
-      cid,
-    )
-    await fetchAndPut(blockstore, writer, revision.contentCid)
+  for (const [cid, bodyCid] of commit.body) {
+    await fetchAndPut(blockstore, writer, cid)
+    if (bodyCid) await fetchAndPut(blockstore, writer, bodyCid)
   }
   return commit
 }
@@ -164,7 +164,7 @@ async function fetchAndPutParsed<T>(
 ): Promise<T> {
   const bytes = await fetchAndPut(blockstore, writer, cid)
   const data = blockstore.parse(bytes)
-  return data as T
+  return data as unknown as T
 }
 
 class TrackingBlockWriter implements BlockWriter {

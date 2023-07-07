@@ -73,20 +73,20 @@ export interface DataSource {
    */
   fetchUpdates(cursor: string | null): Promise<FetchUpdatesResult>
   /**
-   * Fetches a record from the data source by its unique identifier (UID).
+   * Fetches a record from the data source by its entity URI (URI).
    *
-   * @param uid - The UID of the record to fetch.
+   * @param uri - The URI of the record to fetch.
    * @returns A `Promise` that resolves to the fetched record, or `null` if no record was found.
    */
-  fetchByUri(uid: string): Promise<SourceRecordForm[] | null>
-  fetchByUriBatch(uids: string[]): Promise<SourceRecordForm[]>
+  fetchByUri(uri: string): Promise<SourceRecordForm[] | null>
+  fetchByUriBatch(uris: string[]): Promise<SourceRecordForm[]>
   /**
    * Determines whether the data source is capable of fetching records by UID.
    *
    * @param uid - The UID of the record to fetch.
    * @returns `true` if the data source can fetch the record, `false` otherwise.
    */
-  canFetchUri(uid: string): boolean
+  canFetchUri(uri: string): boolean
   /**
    * Maps a record from the data source to the corresponding entity form.
    *
@@ -155,7 +155,7 @@ export class DataSourceRegistry extends Registry<DataSource> {
       const sourceRecords = await ds.fetchByUriBatch(filteredUris)
       const entities = await mapAndPersistSourceRecord(repo, ds, sourceRecords)
       for (const e of entities) {
-        e.entityUris?.forEach((uri) => found.add(uri))
+        e.headers?.EntityUris?.forEach((uri) => found.add(uri))
       }
       fetched.push(...entities)
     }
@@ -300,7 +300,7 @@ export async function ingestUpdatesFromDataSource(
   let count = 0
   if (records.length) {
     const entities = await mapAndPersistSourceRecord(repo, datasource, records)
-    await repo.saveBatch('me', entities) // TODO: Agent
+    await repo.saveBatch(entities) // TODO: Agent
     count = entities.length
   }
   const finished = cursor === nextCursor
@@ -331,13 +331,15 @@ async function mapAndPersistSourceRecord(
       sourceRecord,
     )
     const containedEntityUris = entitiesFromSourceRecord
-      .map((e) => e.entityUris || [])
+      .map((e) => e.headers?.EntityUris || [])
       .flat()
 
     let sourceRecordId = sourceRecord.uid
     if (!sourceRecordId) {
       sourceRecordId = createSourceRecordId()
-      // save source record
+      // save the source record to the database
+      // this allows to potentially remap the source record
+      // if the mapSourceRecord function of a datasource is improved over time
       await repo.prisma.sourceRecord.create({
         data: {
           uid: sourceRecordId,
@@ -353,7 +355,8 @@ async function mapAndPersistSourceRecord(
     }
 
     for (const entity of entitiesFromSourceRecord) {
-      entity.derivedFromUid = sourceRecordId
+      if (!entity.headers) entity.headers = {}
+      entity.headers.DerivedFrom = sourceRecordId
     }
 
     entities.push(...entitiesFromSourceRecord)
@@ -361,9 +364,24 @@ async function mapAndPersistSourceRecord(
   return entities
 }
 
-export async function remapDataSource(repo: Repo, datasource: DataSource) {
+// Recreate all entities originating from a particular DataSource
+//
+// This traverses all source records for a datasource and recreates entity revisions for each.
+//
+// This function can be used to apply changes in a datasources `mapSourcRecord` function to the actual data.
+//
+// If the `mapSourceRecord` function is unchanged since the source records were imported initially,
+// it should not create any new revisions because the revision's content would be unchanged to the state in the database,
+// thus produce identical revision body CIDs, which will be detected and no new revisions would be created.
+//
+// This is never called automatically. The CLI contains a command to trigger it manually.
+// For now it should be considered experimental. Please do backups before.
+export async function remapDataSource(
+  repo: Repo,
+  datasource: DataSource,
+  batchSize = 10,
+) {
   const dataSourceUid = datasource.definition.uid
-  const batchSize = 10
 
   let cursor: string | undefined = undefined
   const state = {
@@ -386,7 +404,7 @@ export async function remapDataSource(repo: Repo, datasource: DataSource) {
 
     const entities = await mapAndPersistSourceRecord(repo, datasource, records)
     state.processedEntities += entities.length
-    const ret = await repo.saveBatch('me', entities)
+    const ret = await repo.saveBatch(entities)
     if (ret) state.savedRevisions += ret.length
 
     cursor = nextCursor

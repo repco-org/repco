@@ -3,6 +3,11 @@ import * as common from 'repco-common/zod'
 import { CID } from 'multiformats/cid.js'
 import { createLogger, Logger } from 'repco-common'
 import {
+  CommitBundle,
+  CommitHeaders,
+  RevisionBundle,
+} from 'repco-common/schema'
+import {
   Prisma,
   PrismaClient,
   repco,
@@ -13,15 +18,19 @@ import { fetch } from 'undici'
 import { ZodError } from 'zod'
 import { DataSource, DataSourceRegistry } from './datasource.js'
 import {
+  entityForm,
   EntityInputWithHeaders,
   EntityInputWithRevision,
   EntityMaybeContent,
+  headersForm,
+  HeadersForm,
+  UnknownEntityInput,
 } from './entity.js'
 import {
   createRepoKeypair,
   getInstanceKeypair,
   getPublishingUcanForInstance,
-} from './instance.js'
+} from './repo/auth-instance.js'
 import {
   IpldBlockStore,
   LevelIpldBlockStore,
@@ -32,31 +41,21 @@ import {
   exportRepoToCar,
   exportRepoToCarReversed,
 } from './repo/export.js'
-import { GGraph } from './repo/graph.js'
 import { importRepoFromCar, OnProgressCallback } from './repo/import.js'
+import { IpldRepo } from './repo/ipld-repo.js'
+import { RelationFinder } from './repo/relation-finder.js'
 import {
   ContentLoaderStream,
   RevisionFilter,
   RevisionStream,
 } from './repo/stream.js'
-import {
-  CommitBundle,
-  CommitIpld,
-  entityForm,
-  HeadersForm,
-  headersForm,
-  RevisionIpld,
-  revisionIpldToDb,
-  RootIpld,
-} from './repo/types.js'
-import { MapList } from './util/collections.js'
 import { ParseError } from './util/error.js'
-import { createEntityId, createRevisionId } from './util/id.js'
+import { createEntityId } from './util/id.js'
 import { notEmpty } from './util/misc.js'
 import { Mutex } from './util/mutex.js'
 import { EventEmitter } from 'node:events'
 
-export * from './repo/types.js'
+// export * from './repo/types.js'
 
 export type SaveBatchOpts = {
   commitEmpty: boolean
@@ -67,11 +66,6 @@ export const SAVE_BATCH_DEFAULTS = {
 }
 
 export type RevisionWithoutCid = Omit<Revision, 'revisionCid'>
-export type RevisionWithUnknownContent = {
-  content: unknown
-  revision: RevisionIpld
-  revisionCid: CID
-}
 
 export enum ErrorCode {
   NOT_FOUND = 'NOT_FOUND',
@@ -90,15 +84,6 @@ export class RepoError extends Error {
 export type OpenParams = {
   did?: string
   name?: string
-}
-
-const REVISION_SELECT = {
-  id: true,
-  entityType: true,
-  dateCreated: true,
-  uid: true,
-  contentCid: true,
-  entityUris: true,
 }
 
 const log = createLogger('repo')
@@ -174,7 +159,7 @@ export class Repo extends EventEmitter {
     })
     const repo = await Repo.open(prisma, did)
     if (repo.writeable) {
-      await repo.saveBatch('_me', [], { commitEmpty: true })
+      await repo.saveBatch([], { commitEmpty: true })
     }
     return repo
   }
@@ -256,7 +241,7 @@ export class Repo extends EventEmitter {
     this.dsr = dsr || new DataSourceRegistry()
     this.blockstore = bs || defaultBlockStore(prisma)
     this.publishingCapability = cap
-    this.ipld = new IpldRepo(record, this.blockstore)
+    this.ipld = new IpldRepo(record.did, this.blockstore)
     this.log = log.child({ repo: this.did })
   }
 
@@ -426,12 +411,11 @@ export class Repo extends EventEmitter {
   }
 
   async saveEntity(
-    agentDid: string,
     input: any,
     headers: any = {},
   ): Promise<EntityInputWithRevision | null> {
     const data = { ...input, ...headers }
-    const res = await this.saveBatch(agentDid, [data])
+    const res = await this.saveBatch([data])
     if (!res) return null
     return res[0]
   }
@@ -461,11 +445,7 @@ export class Repo extends EventEmitter {
     return importRepoFromCar(this, stream, onProgress)
   }
 
-  async saveBatch(
-    _agentDid: string,
-    inputs: unknown[],
-    opts: Partial<SaveBatchOpts> = {},
-  ) {
+  async saveBatch(inputs: UnknownEntityInput[], opts: Partial<SaveBatchOpts> = {}) {
     if (!this.writeable) throw new Error('Repo is not writeable')
     const fullOpts: SaveBatchOpts = { ...SAVE_BATCH_DEFAULTS, ...opts }
 
@@ -511,16 +491,16 @@ export class Repo extends EventEmitter {
       parent,
     )
     if (!bundle) return null
-    const counts = bundle.revisions.reduce<Record<string, number>>((agg, r) => {
-      const key = r.revision.entityType
+    const counts = bundle.body.reduce<Record<string, number>>((agg, r) => {
+      const key = r.headers.EntityType
       if (!agg[key]) agg[key] = 0
       agg[key] += 1
       return agg
     }, {})
     const details = {
       entities: counts,
-      revisions: bundle.revisions.length,
-      root: bundle.root.cid.toString(),
+      revisions: bundle.body.length,
+      root: bundle.headers.Cid,
     }
     this.log.debug({ msg: 'Created commit', details })
     const ret = await this.saveFromIpld(bundle)
@@ -528,45 +508,57 @@ export class Repo extends EventEmitter {
   }
 
   async saveFromIpld(bundle: CommitBundle) {
-    const commit = bundle.commit.body
-    await this.ensureAgent(commit.agentDid)
-    const revisions = bundle.revisions.map((r) => ({
-      ...r,
-      revisionDb: revisionIpldToDb(r.revision, r.revisionCid),
-    }))
-    await this.saveRevisionBatch(revisions.map((r) => r.revisionDb))
+    const { headers, body } = bundle
+    await this.ensureAgent(headers.Author)
+    const revisionsDb = body.map((revision) =>
+      revisionIpldToDb(revision, headers),
+    )
+    await this.saveRevisionBatch(revisionsDb)
+    let parent = null
+    if (headers.Parents?.length && headers.Parents[0])
+      parent = headers.Parents[0].toString()
     await this.prisma.commit.create({
       data: {
-        rootCid: bundle.root.cid.toString(),
-        commitCid: bundle.commit.cid.toString(),
-        repoDid: commit.repoDid,
-        agentDid: commit.agentDid,
-        parent: commit.parent ? commit.parent.toString() : null,
-        timestamp: commit.timestamp,
+        rootCid: headers.RootCid.toString(),
+        commitCid: headers.Cid.toString(),
+        repoDid: headers.Repo,
+        agentDid: headers.Author,
+        parent,
+        timestamp: headers.DateCreated,
         Revisions: {
-          connect: commit.revisions.map((r) => ({
-            revisionCid: r.toString(),
+          connect: body.map((revisionBundle) => ({
+            revisionCid: revisionBundle.headers.Cid.toString(),
           })),
         },
       },
     })
-    const head = bundle.root.cid.toString()
-    const tail = commit.parent ? undefined : head
+    const head = headers.RootCid.toString()
+    const tail = parent ? undefined : head
     await this.prisma.repo.update({
       where: { did: this.did },
       data: { head, tail },
     })
 
-    const ret = []
+    const data = body.map(
+      (revisionBundle, i) => [revisionBundle, revisionsDb[i]] as const,
+    )
     // update domain views
-    for (const row of revisions) {
-      const input =
-        row.parsedContent ||
-        repco.parseEntity(row.revision.entityType, row.content)
+    return await this.updateDomainViews(data)
+  }
+
+  private async updateDomainViews(
+    data: (readonly [RevisionBundle, Revision])[],
+  ) {
+    const ret = []
+    for (const [revisionBundle, revisionDb] of data) {
+      const input = repco.parseEntity(
+        revisionBundle.headers.EntityType,
+        revisionBundle.body,
+      )
       const data = {
         ...input,
-        revision: row.revisionDb,
-        uid: row.revision.uid,
+        revision: revisionDb,
+        uid: revisionBundle.headers.EntityUid,
       }
       await this.updateDomainView(data)
       ret.push(data)
@@ -574,11 +566,21 @@ export class Repo extends EventEmitter {
     return ret
   }
 
+  private async updateDomainView(entity: EntityInputWithRevision) {
+    const domainUpsertPromise = repco.upsertEntity(
+      this.prisma,
+      entity.revision.uid,
+      entity.revision.id,
+      entity,
+    )
+    await domainUpsertPromise
+  }
+
   async assignUids(
     input: EntityFormWithHeaders[],
   ): Promise<EntityInputWithHeaders[]> {
     const entityUris = new Set(
-      input.map((input) => input.headers.entityUris || []).flat(),
+      input.map((input) => input.headers.EntityUris || []).flat(),
     )
     const entityUids = new Set(
       input.map((input) => input.entity.content.uid).filter(notEmpty),
@@ -615,7 +617,7 @@ export class Repo extends EventEmitter {
     const res = []
     for (const { entity, headers } of input) {
       let uid = entity.content.uid
-      const keys = [uid, ...(headers.entityUris || [])].filter(notEmpty)
+      const keys = [uid, ...(headers.EntityUris || [])].filter(notEmpty)
       const prevRevision = keys
         .map((key) => prevRevisionsByKey[key])
         .filter(notEmpty)[0]
@@ -632,12 +634,12 @@ export class Repo extends EventEmitter {
           )
         }
 
-        headers.dateCreated = prevRevision.dateCreated
-        headers.prevRevisionId = prevRevision.id
+        headers.DateCreated = prevRevision.dateCreated
+        headers.ParentRevision = prevRevision.id
         uid = prevRevision.uid
         prevContentCid = prevRevision.contentCid
       } else {
-        headers.prevRevisionId = null
+        headers.ParentRevision = null
         uid = createEntityId()
       }
 
@@ -675,16 +677,6 @@ export class Repo extends EventEmitter {
     await this.prisma.entity.createMany({
       data: entityUpsert,
     })
-  }
-
-  private async updateDomainView(entity: EntityInputWithRevision) {
-    const domainUpsertPromise = repco.upsertEntity(
-      this.prisma,
-      entity.revision.uid,
-      entity.revision.id,
-      entity,
-    )
-    await domainUpsertPromise
   }
 
   async getUnique<T extends boolean>(
@@ -745,99 +737,6 @@ export class Repo extends EventEmitter {
   }
 }
 
-export class IpldRepo {
-  constructor(public record: RepoRecord, public blockstore: IpldBlockStore) {}
-  get did() {
-    return this.record.did
-  }
-  async createCommit(
-    entities: EntityInputWithHeaders[],
-    agentKeypair: ucans.EdKeypair,
-    publishingCapability: string,
-    opts: SaveBatchOpts,
-    parentCommit?: CID | null,
-  ) {
-    const agentDid = agentKeypair.did()
-    const timestamp = new Date()
-    // TODO: Reactive transaction support once timing issues with Prisma are fixed.
-    // this.blockstore = this.blockstore.transaction()
-
-    // save all revisions in blockstore
-    const revisions = []
-    for (const entity of entities) {
-      const revision = await this.createRevision(agentDid, entity)
-      if (revision) {
-        revisions.push({ ...revision, parsedContent: entity })
-      }
-    }
-
-    if (!opts.commitEmpty && !revisions.length) return null
-
-    // save commit ipld
-    const commit: CommitIpld = {
-      kind: 'commit',
-      repoDid: this.did,
-      agentDid,
-      parent: parentCommit,
-      revisions: revisions.map((r) => r.revisionCid),
-      timestamp,
-    }
-    const commitCid = await this.blockstore.put(commit)
-    const root: RootIpld = {
-      kind: 'root',
-      commit: commitCid,
-      sig: await agentKeypair.sign(commitCid.bytes),
-      cap: publishingCapability,
-      agent: agentDid,
-    }
-    const rootCid = await this.blockstore.put(root)
-
-    // batch commit ipld changes
-    this.blockstore = await this.blockstore.commit()
-
-    const bundle = {
-      root: { cid: rootCid, body: root },
-      commit: { cid: commitCid, body: commit },
-      revisions,
-    }
-    return bundle
-  }
-
-  private async createRevision(
-    agentDid: string,
-    entity: EntityInputWithHeaders,
-  ): Promise<RevisionWithUnknownContent | null> {
-    const headers = entity.headers
-    const contentCid = await this.blockstore.put(entity.content)
-    if (contentCid.toString() === entity.prevContentCid) return null
-    const id = createRevisionId()
-    if (!headers.dateModified) headers.dateModified = new Date()
-    if (!headers.dateCreated) headers.dateCreated = new Date()
-    const revisionWithoutCid: RevisionIpld = {
-      kind: 'revision',
-      id,
-      prevRevisionId: headers.prevRevisionId || null,
-      contentCid,
-      entityType: entity.type,
-      uid: entity.uid,
-      repoDid: this.did,
-      agentDid,
-      revisionUris: headers.revisionUris || [],
-      entityUris: headers.entityUris || [],
-      isDeleted: false,
-      dateModified: headers.dateModified || new Date(),
-      dateCreated: headers.dateCreated || new Date(),
-      derivedFromUid: headers.derivedFromUid,
-    }
-    const revisionCid = await this.blockstore.put(revisionWithoutCid)
-    return {
-      revision: revisionWithoutCid,
-      revisionCid,
-      content: entity.content,
-    }
-  }
-}
-
 export class RelationNotFoundError extends Error {
   constructor(public value: string, public relation: common.Relation) {
     super(
@@ -854,173 +753,6 @@ function setUid(
   input.content.uid = uid
 }
 
-export class RelationFinder {
-  prisma: Prisma.TransactionClient
-  counter = 0
-  // map of uid -> entity
-  entities: Map<string, EntityInputWithHeaders> = new Map()
-  // set not yet checked entity uris
-  pendingUris: Set<string> = new Set()
-  // map of uri -> Relation[]
-  relsByUri: MapList<common.Relation> = new MapList()
-  // set of uris checked and found missing
-  missingUris: Set<string> = new Set()
-  // map of uri -> uid
-  uriMap: Map<string, string> = new Map()
-
-  static resolve(repo: Repo, entities: EntityInputWithHeaders[]) {
-    const resolver = new RelationFinder(repo)
-    resolver.pushBatch(entities)
-    return resolver.resolve()
-  }
-
-  static resolveLinks(repo: Repo, links: common.Link[]) {
-    const resolver = new RelationFinder(repo)
-    for (const link of links) {
-      resolver.pushLink(link)
-    }
-    return resolver.resolve()
-  }
-
-  constructor(public repo: Repo) {
-    this.prisma = repo.prisma
-  }
-
-  pushLink(value: common.Link, relation?: common.Relation) {
-    // TODO: Throw if uri missing?
-    if (value.uid || !value.uri || this.missingUris.has(value.uri)) return
-    // check if already in map: resolve now
-    if (this.uriMap.has(value.uri)) {
-      value.uid = this.uriMap.get(value.uri)
-    } else {
-      this.pendingUris.add(value.uri)
-      if (relation) this.relsByUri.push(value.uri, relation)
-    }
-  }
-
-  pushEntity(entity: EntityInputWithHeaders) {
-    const uid = entity.uid
-    if (this.entities.has(uid)) return
-    this.entities.set(uid, entity)
-    if (entity.headers.entityUris) {
-      for (const uri of entity.headers.entityUris) {
-        this.discoveredUid(uri, uid)
-      }
-    }
-    const relations = repco.extractRelations({ ...entity, uid })
-    for (const relation of relations) {
-      for (const value of relation.values) {
-        this.pushLink(value, relation)
-      }
-    }
-  }
-
-  pushBatch(entities: EntityInputWithHeaders[]) {
-    entities.forEach((entity) => this.pushEntity(entity))
-  }
-
-  setLinkUid(
-    entity: EntityInputWithHeaders,
-    relation: common.Relation,
-    uri: string,
-    uid: string,
-  ) {
-    const { field, multiple } = relation
-    const entityAny = entity as any
-    if (multiple) {
-      for (const link of entityAny.content[field] as common.Link[]) {
-        if (link.uri === uri) link.uid = uid
-      }
-    } else {
-      entityAny.content[field] = { uid, uri }
-    }
-  }
-
-  discoveredUid(uri: string, uid: string) {
-    this.uriMap.set(uri, uid)
-    const relations = this.relsByUri.get(uri)
-    if (!relations || !relations.length) return
-    for (const relation of relations) {
-      const entity = this.entities.get(relation.uid)
-      if (entity) this.setLinkUid(entity, relation, uri, uid)
-    }
-    this.pendingUris.delete(uri)
-  }
-
-  getByUri(uri: string) {
-    const uid = this.uriMap.get(uri)
-    if (!uid) return
-    return this.entities.get(uid)
-  }
-
-  async resolve() {
-    // TODO: Max iterations
-    while (this.pendingUris.size) {
-      // create set of all uri relations
-      // try to fetch them locally from the revision table
-      const res = await this.prisma.revision.findMany({
-        where: {
-          entityUris: { hasSome: [...this.pendingUris] },
-        },
-        select: { uid: true, entityUris: true },
-      })
-      for (const row of res) {
-        for (const uri of row.entityUris) {
-          this.discoveredUid(uri, row.uid)
-        }
-      }
-
-      // try to fetch them from the datasources
-      const { fetched, notFound } = await this.repo.dsr.fetchEntities(
-        this.repo,
-        [...this.pendingUris],
-      )
-
-      notFound.forEach((uri) => {
-        this.missingUris.add(uri)
-        this.pendingUris.delete(uri)
-      })
-      const existingEntities = []
-      const newEntityInputs = []
-      for (const input of fetched) {
-        let existing = false
-        if (input.entityUris) {
-          // check if the entity was already fetched in this resolver session
-          for (const uri of input.entityUris) {
-            const entity = this.getByUri(uri)
-            if (entity) {
-              existingEntities.push(entity)
-              existing = true
-              break
-            }
-          }
-        }
-        if (!existing) newEntityInputs.push(input)
-      }
-      const newEntities = await this.repo.assignUids(
-        parseEntities(newEntityInputs),
-      )
-      this.pushBatch([...existingEntities, ...newEntities])
-    }
-
-    // Sort the results. This also throws for ciruclar references.
-    const graph = new GGraph()
-    for (const entity of this.entities.values()) {
-      const edges = repco
-        .extractRelations(entity)
-        .map((r) => r.values)
-        .flat()
-        .filter((x) => x.uid && this.entities.has(x.uid))
-        .map((x) => x.uid) as string[]
-      graph.push(entity.uid, edges)
-    }
-    const stack = graph.resolve()
-
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    return stack.map((uid) => this.entities.get(uid)!)
-  }
-}
-
 function assertFullClient(
   prisma: PrismaClient | Prisma.TransactionClient,
 ): asserts prisma is PrismaClient {
@@ -1032,9 +764,9 @@ function assertFullClient(
 
 type EntityFormWithHeaders = { entity: repco.EntityInput; headers: HeadersForm }
 
-function parseEntity(input: unknown): EntityFormWithHeaders {
+function parseEntity(input: UnknownEntityInput): EntityFormWithHeaders {
   try {
-    const headers = headersForm.parse(input)
+    const headers = headersForm.parse(input.headers || {})
     const parsed = entityForm.parse(input)
     const entity = repco.parseEntity(parsed.type, parsed.content)
     return { entity, headers }
@@ -1047,11 +779,33 @@ function parseEntity(input: unknown): EntityFormWithHeaders {
   }
 }
 
-function parseEntities(inputs: unknown[]): EntityFormWithHeaders[] {
-  // eslint-disable-next-line no-useless-catch
-  try {
-    return inputs.map(parseEntity)
-  } catch (err) {
-    throw err
+export function parseEntities(inputs: UnknownEntityInput[]): EntityFormWithHeaders[] {
+  return inputs.map(parseEntity)
+}
+
+export function revisionIpldToDb(
+  input: RevisionBundle,
+  commitHeaders: CommitHeaders,
+): Revision {
+  const { headers } = input
+  let prevRevisionId = null
+  if (headers.ParentRevision) {
+    prevRevisionId = headers.ParentRevision
+  }
+  return {
+    id: input.headers.RevisionUid,
+    prevRevisionId,
+    uid: headers.EntityUid,
+    repoDid: commitHeaders.Repo,
+    agentDid: commitHeaders.Author,
+    entityType: headers.EntityType,
+    dateModified: headers.DateModified,
+    dateCreated: headers.DateCreated || headers.DateModified,
+    isDeleted: headers.Deleted || false,
+    entityUris: headers.EntityUris,
+    revisionUris: headers.RevisionUris,
+    contentCid: headers.BodyCid.toString(),
+    revisionCid: headers.Cid.toString(),
+    derivedFromUid: headers.DerivedFrom || null,
   }
 }

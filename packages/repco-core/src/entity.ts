@@ -5,8 +5,9 @@
  * Furthermore the EntityBatch has a cursor which is usually a timestamp of the last retrieval of the entity.
  */
 
+import z from 'zod'
+import { RevisionHeaders, revisionHeaders } from 'repco-common/schema'
 import { repco } from 'repco-prisma'
-import { HeadersForm } from './mod.js'
 import {
   ConceptKind,
   ContentGrouping,
@@ -19,6 +20,15 @@ import {
 export type { ContentItem, MediaAsset, ContentGrouping, Revision }
 export { ContentGroupingVariant, ConceptKind }
 
+export const headersForm = revisionHeaders.partial()
+export interface HeadersForm extends z.infer<typeof headersForm> {}
+
+export const entityForm = z.object({
+  type: z.string(),
+  content: z.object({}).passthrough(),
+  headers: headersForm.nullish(),
+})
+
 export type AnyEntityContent = { uid: string }
 export type AllEntityTypes = repco.EntityOutput['type']
 
@@ -27,7 +37,7 @@ export type EntityBatch = {
   entities: EntityForm[]
 }
 
-export type EntityForm = repco.EntityInput & HeadersForm
+export type EntityForm = repco.EntityInput & { headers?: HeadersForm }
 
 export type EntityInputWithHeaders = repco.EntityInputWithUid & {
   headers: HeadersForm
@@ -44,11 +54,7 @@ export type EntityMaybeContent<T extends boolean = true> = T extends true
   ? Omit<EntityInputWithRevision, 'content'>
   : never
 
-// TODO: This should be the output types.
 export type EntityWithRevision = EntityInputWithRevision
-// export type EntityWithRevision = repco.EntityInputWithUid & {
-//   revision: Revision
-// }
 
 export type EntityType = repco.EntityOutput['type']
 
@@ -88,4 +94,10 @@ export function safeCheckType<T extends EntityType>(
 ): TypedEntityWithRevision<T> | null {
   if (entity.type !== type) return null
   return entity as TypedEntityWithRevision<T>
+}
+
+export type UnknownEntityInput = {
+  type: string
+  content: unknown
+  headers?: HeadersForm
 }

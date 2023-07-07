@@ -2,9 +2,9 @@ import * as ucans from '@ucans/ucans'
 import * as uint8arrays from 'uint8arrays'
 import type { Prisma } from 'repco-prisma'
 import { KeypairScope } from 'repco-prisma'
-import { ErrorCode, RepoError } from './repo.js'
-import { delegatePublishingCapability } from './repo/auth.js'
-import { createCID } from './repo/blockstore.js'
+import { delegatePublishingCapability } from './auth.js'
+import { createCID } from './blockstore.js'
+import { ErrorCode, RepoError } from '../repo.js'
 
 const REPO_SCOPE = 'repco/repo'
 
