@@ -5,12 +5,8 @@ import ActivitypubExpress from 'activitypub-express'
 import history from 'connect-history-api-fallback'
 import express from 'express'
 import fs from 'fs'
-import http from 'http'
-import https from 'https'
 import morgan from 'morgan'
-import path from 'path'
 import { MongoClient } from 'mongodb'
-import { onShutdown } from 'node-graceful-shutdown'
 import p from 'path'
 import { fileURLToPath } from 'url'
 
@@ -96,14 +92,6 @@ router.use(
     next()
   },
 )
-
-async function createGuppeActor(...args) {
-  const actor = await apex.createActor(...args)
-  if (USE_ATTACHMENTS) {
-    actor.attachment = ATTACHEMENTS
-  }
-  return actor
-}
 
 const acceptablePublicActivities = ['delete', 'update']
 apex.net.inbox.post.splice(
@@ -356,13 +344,16 @@ async function createActor(actor) {
   if (!(await apex.store.getObject(actorIRI)) && actor.length <= 255) {
     console.log(`Creating actor: ${actor}`)
     const summary = `I'm a community media indexer, called ${actor}. Let me follow you to be indexed.`
-    const actorObj = await createGuppeActor(
+    const actorObj = await apex.createActor(
       actor,
       `${actor} repco node`,
       summary,
       icon,
       'Group',
     )
+    if (USE_ATTACHMENTS) {
+      actorObj.attachment = ATTACHEMENTS
+    }
     await apex.store.saveObject(actorObj)
   }
 }
