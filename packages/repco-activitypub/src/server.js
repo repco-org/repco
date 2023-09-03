@@ -184,13 +184,6 @@ router.get(routes.object, apex.net.object.get)
 router.get(routes.activity, apex.net.activityStream.get)
 router.get(routes.shares, apex.net.shares.get)
 router.get(routes.likes, apex.net.likes.get)
-router.get(
-  '/.well-known/webfinger',
-  apex.net.wellKnown.parseWebfinger,
-  apex.net.validators.targetActor,
-  apex.net.wellKnown.respondWebfinger,
-)
-router.get('/.well-known/nodeinfo', apex.net.nodeInfoLocation.get)
 router.get('/nodeinfo/:version', apex.net.nodeInfo.get)
 
 /// Guppe web setup
@@ -273,9 +266,43 @@ router.use(function (err, req, res, next) {
   }
 })
 
+export async function init() {
+  await client.connect()
+  console.log('connected to MongoDB')
+
+  apex.store.db = client.db(DB_NAME)
+  await apex.store.setup()
+  await apex.store.db.collection('servers').createIndex(
+    {
+      hostname: 1,
+    },
+    {
+      name: 'servers-primary',
+      unique: true,
+    },
+  )
+  apex.systemUser = await apex.store.getObject(
+    apex.utils.usernameToIRI('system_service'),
+    true,
+  )
+  if (!apex.systemUser) {
+    const systemUser = await createGuppeActor(
+      'system_service',
+      `${DOMAIN} system service`,
+      `${DOMAIN} system service`,
+      icon,
+      'Service',
+    )
+    await apex.store.saveObject(systemUser)
+    apex.systemUser = systemUser
+  }
+
+  await createActor('repco')
+}
+
 // Initialize the AP server
 // Needs to pass in the express server app to catch the apex events
-export async function initializeActivitypubExpress(app) {
+export function initializeActivitypubExpress(app, prefix = '/ap') {
   app.on('apex-inbox', async ({ actor, activity, recipient, object }) => {
     switch (activity.type.toLowerCase()) {
       // automatically reshare incoming posts
@@ -309,52 +336,18 @@ export async function initializeActivitypubExpress(app) {
     }
   })
 
-  await client.connect()
-  console.log('connected to MongoDB')
-
-  apex.store.db = client.db(DB_NAME)
-  await apex.store.setup()
-  await apex.store.db.collection('servers').createIndex(
-    {
-      hostname: 1,
-    },
-    {
-      name: 'servers-primary',
-      unique: true,
-    },
+  app.get('/.well-known/nodeinfo', apex.net.nodeInfoLocation.get)
+  app.get(
+    '/.well-known/webfinger',
+    apex.net.wellKnown.parseWebfinger,
+    apex.net.validators.targetActor,
+    apex.net.wellKnown.respondWebfinger,
   )
-  apex.systemUser = await apex.store.getObject(
-    apex.utils.usernameToIRI('system_service'),
-    true,
-  )
-  if (!apex.systemUser) {
-    const systemUser = await createGuppeActor(
-      'system_service',
-      `${DOMAIN} system service`,
-      `${DOMAIN} system service`,
-      icon,
-      'Service',
-    )
-    await apex.store.saveObject(systemUser)
-    apex.systemUser = systemUser
-  }
+  app.use(prefix, router)
 
-  await createActor('repco')
-  //
-  // const app = express()
-  // app.use('/ap', router)
-  // const server = http.createServer(app)
-  // const port = PORT_HTTP || 8765
-  // server.listen(port, function () {
-  //   console.log('repco activitypub server listening on port ' + port)
-  // })
-  // onShutdown(async () => {
-  //   await new Promise((resolve, reject) => {
-  //     server.close((err) => (err ? reject(err) : resolve()))
-  //   })
-  //   await client.close()
-  //   console.log('repco activitypub server closed')
-  // })
+  init(app).catch((err) =>
+    console.error('failed to initialize ActivityPub server', err),
+  )
 }
 
 // Create new groups on demand whenever someone tries to access one
