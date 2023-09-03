@@ -5,6 +5,9 @@ import cors from 'cors'
 import express, { Response } from 'express'
 import pinoHttp from 'pino-http'
 import { createHttpTerminator } from 'http-terminator'
+
+// @ts-ignore
+import { initializeActivitypubExpress, router as activitypubRoutes } from 'repco-activitypub'
 import { createLogger, Logger } from 'repco-common'
 import { PrismaClient } from 'repco-core'
 import { createGraphqlHandler, createPoolFromUrl } from 'repco-graphql'
@@ -38,6 +41,11 @@ export function runServer(prisma: PrismaClient, port: number) {
   const graphqlHandler = createGraphqlHandler(pgPool)
 
   const app = express()
+
+  initializeActivitypubExpress(app).catch((err: any) =>
+    console.error('failed to initialize ActivityPub server', err),
+  )
+
   app.use(logger)
   app.use(express.json({ limit: '100mb' }))
   app.use(cors())
@@ -56,6 +64,7 @@ export function runServer(prisma: PrismaClient, port: number) {
     next()
   })
 
+  app.use('/ap', activitypubRoutes)
   app.use('/', Routes)
 
   app.use(error.notFoundHandler)
