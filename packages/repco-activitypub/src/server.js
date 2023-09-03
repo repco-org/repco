@@ -32,11 +32,13 @@ if (!MONGODB_URL) {
 
 const __dirname = p.dirname(fileURLToPath(import.meta.url))
 const CONTEXT = JSON.parse(
-  fs.readFileSync(p.join(__dirname, '../data/context.json')).toString('utf8'),
+  fs
+    .readFileSync(p.join(__dirname, '../context/context.json'))
+    .toString('utf8'),
 )
 const ATTACHEMENTS = JSON.parse(
   fs
-    .readFileSync(p.join(__dirname, '../data/attachements.json'))
+    .readFileSync(p.join(__dirname, '../contexts/attachements.json'))
     .toString('utf8'),
 )
 
