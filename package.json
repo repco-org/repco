@@ -36,6 +36,7 @@
     "migrate:dev": "yarn --cwd packages/repco-prisma prisma migrate dev && yarn --cwd packages/repco-graphql export-schema",
     "codegen": "yarn migrate:dev",
     "server": "yarn --cwd packages/repco-server start",
+    "graphql": "yarn --cwd packages/repco-graphql export-schema && yarn --cwd packages/repco-graphql start",
     "cli": "node packages/repco-cli/bin.js",
     "lint": "eslint packages",
     "lint:fix": "eslint packages --fix",
@@ -58,4 +59,3 @@
     "typescript": "^4.8"
   }
 }
-

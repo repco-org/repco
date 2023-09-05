@@ -274,6 +274,7 @@ export class XrcbDataSource extends BaseDataSource implements DataSource {
       description: category.description || '',
       kind: ConceptKind.CATEGORY,
       originNamespace: 'https://xrcb.cat/wp-json/wp/v2/podcast_category',
+      summary: '{}',
     }
 
     const revisionId = this._revisionUri(
@@ -299,6 +300,7 @@ export class XrcbDataSource extends BaseDataSource implements DataSource {
       description: tag.description || '',
       kind: ConceptKind.TAG,
       originNamespace: 'https://xrcb.cat/wp-json/wp/v2/podcast_tag',
+      summary: '{}',
     }
     const revisionId = this._revisionUri('tag', tag.id, new Date().getTime())
     const uri = this._uri('tag', tag.id)
@@ -353,6 +355,7 @@ export class XrcbDataSource extends BaseDataSource implements DataSource {
       description: series.description || '',
       variant: ContentGroupingVariant.SERIAL,
       groupingType: 'series',
+      summary: '{}',
     }
     const revisionId = this._revisionUri(
       'series',
@@ -525,6 +528,7 @@ export class XrcbDataSource extends BaseDataSource implements DataSource {
           title: post.acf?.img_podcast?.title ?? '',
           mediaType: 'image',
           File: { uri: fileId },
+          description: '{}',
         }
 
         const imageFileEntity: EntityForm = {

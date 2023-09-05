@@ -39,7 +39,7 @@ export const createContent = createCommand({
     try {
       for (let i = 0; i < batches; i++) {
         const items = Array(batch).fill(null).map(createItem)
-        await repo.saveBatch('me', items)
+        // await repo.saveBatch('me', items)
         bar.update(i * batch, { commits: i })
       }
       bar.update(count, { commits: batches - 1 })
@@ -62,6 +62,7 @@ function createItem() {
       contentFormat: 'text/plain',
       title: casual.catch_phrase,
       content: casual.sentences(3),
+      summary: '{}',
     },
   }
   return item

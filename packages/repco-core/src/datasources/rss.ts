@@ -322,7 +322,8 @@ export class RssDataSource extends BaseDataSource implements DataSource {
         groupingType: 'feed',
         title: feed.title || feed.feedUrl || 'unknown',
         variant: ContentGroupingVariant.EPISODIC,
-        description: feed.description,
+        description: feed.description || '{}',
+        summary: '{}',
       }
       return [
         {
@@ -362,6 +363,7 @@ export class RssDataSource extends BaseDataSource implements DataSource {
         duration: 0,
         mediaType: 'audio',
         File: { uri: fileUri },
+        description: '{}',
       },
       headers: { EntityUris: [mediaUri] },
     })
@@ -384,7 +386,7 @@ export class RssDataSource extends BaseDataSource implements DataSource {
     )
     const content: ContentItemInput = {
       title: item.title || item.guid || 'missing',
-      summary: item.contentSnippet,
+      summary: item.contentSnippet || '{}',
       content: item.content || '',
       contentFormat: 'text/plain',
       pubDate: item.pubDate ? new Date(item.pubDate) : null,

@@ -720,7 +720,7 @@ type Chapter {
   revision: Revision
   revisionId: String!
   start: Float!
-  title: String!
+  title: JSON!
   type: String!
   uid: String!
 }
@@ -742,7 +742,7 @@ input ChapterCondition {
   start: Float
 
   """Checks for equality with the object’s `title` field."""
-  title: String
+  title: JSON
 
   """Checks for equality with the object’s `type` field."""
   type: String
@@ -783,7 +783,7 @@ input ChapterFilter {
   start: FloatFilter
 
   """Filter by the object’s `title` field."""
-  title: StringFilter
+  title: JSONFilter
 
   """Filter by the object’s `type` field."""
   type: StringFilter
@@ -1446,7 +1446,7 @@ type Concept {
     """The method to use when ordering `ContentItem`."""
     orderBy: [ContentItemsOrderBy!] = [PRIMARY_KEY_ASC]
   ): ConceptContentItemsByConceptToContentItemAAndBManyToManyConnection!
-  description: String
+  description: JSON
   kind: ConceptKind!
 
   """Reads and enables pagination through a set of `MediaAsset`."""
@@ -1482,7 +1482,7 @@ type Concept {
     """The method to use when ordering `MediaAsset`."""
     orderBy: [MediaAssetsOrderBy!] = [PRIMARY_KEY_ASC]
   ): ConceptMediaAssetsByConceptToMediaAssetAAndBManyToManyConnection!
-  name: String!
+  name: JSON!
   originNamespace: String
 
   """Reads a single `Concept` that is related to this `Concept`."""
@@ -1496,7 +1496,7 @@ type Concept {
   """Reads a single `Concept` that is related to this `Concept`."""
   sameAs: Concept
   sameAsUid: String
-  summary: String
+  summary: JSON
   uid: String!
   wikidataIdentifier: String
 }
@@ -1626,13 +1626,13 @@ A condition to be used against `Concept` object types. All fields are tested for
 """
 input ConceptCondition {
   """Checks for equality with the object’s `description` field."""
-  description: String
+  description: JSON
 
   """Checks for equality with the object’s `kind` field."""
   kind: ConceptKind
 
   """Checks for equality with the object’s `name` field."""
-  name: String
+  name: JSON
 
   """Checks for equality with the object’s `originNamespace` field."""
   originNamespace: String
@@ -1647,7 +1647,7 @@ input ConceptCondition {
   sameAsUid: String
 
   """Checks for equality with the object’s `summary` field."""
-  summary: String
+  summary: JSON
 
   """Checks for equality with the object’s `uid` field."""
   uid: String
@@ -1740,13 +1740,13 @@ input ConceptFilter {
   conceptsBySameAsExist: Boolean
 
   """Filter by the object’s `description` field."""
-  description: StringFilter
+  description: JSONFilter
 
   """Filter by the object’s `kind` field."""
   kind: ConceptKindFilter
 
   """Filter by the object’s `name` field."""
-  name: StringFilter
+  name: JSONFilter
 
   """Negates the expression."""
   not: ConceptFilter
@@ -1782,7 +1782,7 @@ input ConceptFilter {
   sameAsUid: StringFilter
 
   """Filter by the object’s `summary` field."""
-  summary: StringFilter
+  summary: JSONFilter
 
   """Filter by the object’s `uid` field."""
   uid: StringFilter
@@ -2045,7 +2045,7 @@ type ContentGrouping {
     """The method to use when ordering `ContentItem`."""
     orderBy: [ContentItemsOrderBy!] = [PRIMARY_KEY_ASC]
   ): ContentItemsConnection!
-  description: String
+  description: JSON
   groupingType: String!
 
   """Reads a single `License` that is related to this `ContentGrouping`."""
@@ -2125,9 +2125,9 @@ type ContentGrouping {
   revisionId: String!
   startingDate: Datetime
   subtitle: String
-  summary: String
+  summary: JSON
   terminationDate: Datetime
-  title: String!
+  title: JSON!
   uid: String!
   variant: ContentGroupingVariant!
 }
@@ -2141,7 +2141,7 @@ input ContentGroupingCondition {
   broadcastSchedule: String
 
   """Checks for equality with the object’s `description` field."""
-  description: String
+  description: JSON
 
   """Checks for equality with the object’s `groupingType` field."""
   groupingType: String
@@ -2159,13 +2159,13 @@ input ContentGroupingCondition {
   subtitle: String
 
   """Checks for equality with the object’s `summary` field."""
-  summary: String
+  summary: JSON
 
   """Checks for equality with the object’s `terminationDate` field."""
   terminationDate: Datetime
 
   """Checks for equality with the object’s `title` field."""
-  title: String
+  title: JSON
 
   """Checks for equality with the object’s `uid` field."""
   uid: String
@@ -2257,7 +2257,7 @@ input ContentGroupingFilter {
   contentItemsByPrimaryGroupingExist: Boolean
 
   """Filter by the object’s `description` field."""
-  description: StringFilter
+  description: JSONFilter
 
   """Filter by the object’s `groupingType` field."""
   groupingType: StringFilter
@@ -2290,13 +2290,13 @@ input ContentGroupingFilter {
   subtitle: StringFilter
 
   """Filter by the object’s `summary` field."""
-  summary: StringFilter
+  summary: JSONFilter
 
   """Filter by the object’s `terminationDate` field."""
   terminationDate: DatetimeFilter
 
   """Filter by the object’s `title` field."""
-  title: StringFilter
+  title: JSONFilter
 
   """Filter by the object’s `uid` field."""
   uid: StringFilter
@@ -2627,7 +2627,7 @@ type ContentItem {
     """The method to use when ordering `Concept`."""
     orderBy: [ConceptsOrderBy!] = [PRIMARY_KEY_ASC]
   ): ContentItemConceptsByConceptToContentItemBAndAManyToManyConnection!
-  content: String!
+  content: JSON!
   contentFormat: String!
 
   """Reads and enables pagination through a set of `ContentGrouping`."""
@@ -2787,8 +2787,8 @@ type ContentItem {
   revision: Revision
   revisionId: String!
   subtitle: String
-  summary: String
-  title: String!
+  summary: JSON
+  title: JSON!
   uid: String!
 }
 
@@ -2862,7 +2862,7 @@ for equality and combined with a logical ‘and.’
 """
 input ContentItemCondition {
   """Checks for equality with the object’s `content` field."""
-  content: String
+  content: JSON
 
   """Checks for equality with the object’s `contentFormat` field."""
   contentFormat: String
@@ -2886,10 +2886,10 @@ input ContentItemCondition {
   subtitle: String
 
   """Checks for equality with the object’s `summary` field."""
-  summary: String
+  summary: JSON
 
   """Checks for equality with the object’s `title` field."""
-  title: String
+  title: JSON
 
   """Checks for equality with the object’s `uid` field."""
   uid: String
@@ -3043,7 +3043,7 @@ input ContentItemFilter {
   broadcastEventsExist: Boolean
 
   """Filter by the object’s `content` field."""
-  content: StringFilter
+  content: JSONFilter
 
   """Filter by the object’s `contentFormat` field."""
   contentFormat: StringFilter
@@ -3094,10 +3094,10 @@ input ContentItemFilter {
   subtitle: StringFilter
 
   """Filter by the object’s `summary` field."""
-  summary: StringFilter
+  summary: JSONFilter
 
   """Filter by the object’s `title` field."""
-  title: StringFilter
+  title: JSONFilter
 
   """Filter by the object’s `uid` field."""
   uid: StringFilter
@@ -5184,6 +5184,234 @@ input FloatFilter {
   notIn: [Float!]
 }
 
+"""All input for the `getChapterByLanguage` mutation."""
+input GetChapterByLanguageInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  languageCode: String
+}
+
+"""The output of our `getChapterByLanguage` mutation."""
+type GetChapterByLanguagePayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+  results: [GetChapterByLanguageRecord]
+}
+
+"""The return type of our `getChapterByLanguage` mutation."""
+type GetChapterByLanguageRecord {
+  duration: Float
+  revisionid: String
+  start: Float
+  title: String
+  type: String
+  uid: String
+}
+
+"""All input for the `getConceptByLanguage` mutation."""
+input GetConceptByLanguageInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  languageCode: String
+}
+
+"""The output of our `getConceptByLanguage` mutation."""
+type GetConceptByLanguagePayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+  results: [GetConceptByLanguageRecord]
+}
+
+"""The return type of our `getConceptByLanguage` mutation."""
+type GetConceptByLanguageRecord {
+  description: String
+  kind: ConceptKind
+  name: String
+  originnamespace: String
+  parentuid: String
+  revisionid: String
+  sameasuid: String
+  summary: String
+  uid: String
+  wikidataidentifier: String
+}
+
+"""All input for the `getContentGroupingsByLanguage` mutation."""
+input GetContentGroupingsByLanguageInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  languageCode: String
+}
+
+"""The output of our `getContentGroupingsByLanguage` mutation."""
+type GetContentGroupingsByLanguagePayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+  results: [GetContentGroupingsByLanguageRecord]
+}
+
+"""The return type of our `getContentGroupingsByLanguage` mutation."""
+type GetContentGroupingsByLanguageRecord {
+  broadcastschedule: String
+  description: String
+  groupingtype: String
+  licenseuid: String
+  revisionid: String
+  startingdate: Datetime
+  subtitle: String
+  summary: String
+  terminationdate: Datetime
+  title: String
+  uid: String
+  variant: ContentGroupingVariant
+}
+
+"""All input for the `getContentItemsByLanguage` mutation."""
+input GetContentItemsByLanguageInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  languageCode: String
+}
+
+"""The output of our `getContentItemsByLanguage` mutation."""
+type GetContentItemsByLanguagePayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+  results: [GetContentItemsByLanguageRecord]
+}
+
+"""The return type of our `getContentItemsByLanguage` mutation."""
+type GetContentItemsByLanguageRecord {
+  content: String
+  contentformat: String
+  licenseuid: String
+  primarygroupinguid: String
+  pubdate: Datetime
+  publicationserviceuid: String
+  revisionid: String
+  subtitle: String
+  summary: String
+  title: String
+  uid: String
+}
+
+"""All input for the `getMediaAssetByLanguage` mutation."""
+input GetMediaAssetByLanguageInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  languageCode: String
+}
+
+"""The output of our `getMediaAssetByLanguage` mutation."""
+type GetMediaAssetByLanguagePayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+  results: [GetMediaAssetByLanguageRecord]
+}
+
+"""The return type of our `getMediaAssetByLanguage` mutation."""
+type GetMediaAssetByLanguageRecord {
+  description: String
+  duration: Float
+  fileuid: String
+  licenseuid: String
+  mediatype: String
+  revisionid: String
+  teaserimageuid: String
+  title: String
+  uid: String
+}
+
+"""All input for the `getPublicationServiceByLanguage` mutation."""
+input GetPublicationServiceByLanguageInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  languageCode: String
+}
+
+"""The output of our `getPublicationServiceByLanguage` mutation."""
+type GetPublicationServiceByLanguagePayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+  results: [GetPublicationServiceByLanguageRecord]
+}
+
+"""The return type of our `getPublicationServiceByLanguage` mutation."""
+type GetPublicationServiceByLanguageRecord {
+  address: String
+  medium: String
+  publisheruid: String
+  revisionid: String
+  title: String
+  uid: String
+}
+
 """
 A filter to be used against Int fields. All fields are combined with a logical ‘and.’
 """
@@ -6217,7 +6445,7 @@ type MediaAsset {
     """The method to use when ordering `Contribution`."""
     orderBy: [ContributionsOrderBy!] = [PRIMARY_KEY_ASC]
   ): MediaAssetContributionsByContributionToMediaAssetBAndAManyToManyConnection!
-  description: String
+  description: JSON
   duration: Float
 
   """Reads a single `File` that is related to this `MediaAsset`."""
@@ -6236,7 +6464,7 @@ type MediaAsset {
   """Reads a single `File` that is related to this `MediaAsset`."""
   teaserImage: File
   teaserImageUid: String
-  title: String!
+  title: JSON!
 
   """Reads and enables pagination through a set of `Transcript`."""
   transcripts(
@@ -6271,40 +6499,6 @@ type MediaAsset {
     """The method to use when ordering `Transcript`."""
     orderBy: [TranscriptsOrderBy!] = [PRIMARY_KEY_ASC]
   ): TranscriptsConnection!
-
-  """Reads and enables pagination through a set of `Translation`."""
-  translations(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: TranslationCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: TranslationFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `Translation`."""
-    orderBy: [TranslationsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): TranslationsConnection!
   uid: String!
 }
 
@@ -6378,7 +6572,7 @@ for equality and combined with a logical ‘and.’
 """
 input MediaAssetCondition {
   """Checks for equality with the object’s `description` field."""
-  description: String
+  description: JSON
 
   """Checks for equality with the object’s `duration` field."""
   duration: Float
@@ -6399,7 +6593,7 @@ input MediaAssetCondition {
   teaserImageUid: String
 
   """Checks for equality with the object’s `title` field."""
-  title: String
+  title: JSON
 
   """Checks for equality with the object’s `uid` field."""
   uid: String
@@ -6551,7 +6745,7 @@ input MediaAssetFilter {
   chaptersExist: Boolean
 
   """Filter by the object’s `description` field."""
-  description: StringFilter
+  description: JSONFilter
 
   """Filter by the object’s `duration` field."""
   duration: FloatFilter
@@ -6596,19 +6790,13 @@ input MediaAssetFilter {
   teaserImageUid: StringFilter
 
   """Filter by the object’s `title` field."""
-  title: StringFilter
+  title: JSONFilter
 
   """Filter by the object’s `transcripts` relation."""
   transcripts: MediaAssetToManyTranscriptFilter
 
   """Some related `transcripts` exist."""
   transcriptsExist: Boolean
-
-  """Filter by the object’s `translations` relation."""
-  translations: MediaAssetToManyTranslationFilter
-
-  """Some related `translations` exist."""
-  translationsExist: Boolean
 
   """Filter by the object’s `uid` field."""
   uid: StringFilter
@@ -6652,26 +6840,6 @@ input MediaAssetToManyTranscriptFilter {
   Some related `Transcript` matches the filter criteria. All fields are combined with a logical ‘and.’
   """
   some: TranscriptFilter
-}
-
-"""
-A filter to be used against many `Translation` object types. All fields are combined with a logical ‘and.’
-"""
-input MediaAssetToManyTranslationFilter {
-  """
-  Every related `Translation` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  every: TranslationFilter
-
-  """
-  No related `Translation` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  none: TranslationFilter
-
-  """
-  Some related `Translation` matches the filter criteria. All fields are combined with a logical ‘and.’
-  """
-  some: TranslationFilter
 }
 
 """A connection to a list of `MediaAsset` values."""
@@ -6834,6 +7002,48 @@ input MetadatumFilter {
 
   """Filter by the object’s `uid` field."""
   uid: StringFilter
+}
+
+"""
+The root mutation type which contains root level fields which mutate data.
+"""
+type Mutation {
+  getChapterByLanguage(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: GetChapterByLanguageInput!
+  ): GetChapterByLanguagePayload
+  getConceptByLanguage(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: GetConceptByLanguageInput!
+  ): GetConceptByLanguagePayload
+  getContentGroupingsByLanguage(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: GetContentGroupingsByLanguageInput!
+  ): GetContentGroupingsByLanguagePayload
+  getContentItemsByLanguage(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: GetContentItemsByLanguageInput!
+  ): GetContentItemsByLanguagePayload
+  getMediaAssetByLanguage(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: GetMediaAssetByLanguageInput!
+  ): GetMediaAssetByLanguagePayload
+  getPublicationServiceByLanguage(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: GetPublicationServiceByLanguageInput!
+  ): GetPublicationServiceByLanguagePayload
 }
 
 """Information about pagination in a connection."""
@@ -7024,7 +7234,7 @@ type PublicationService {
     orderBy: [LicensesOrderBy!] = [PRIMARY_KEY_ASC]
   ): PublicationServiceLicensesByContentItemPublicationServiceUidAndLicenseUidManyToManyConnection!
   medium: String
-  name: String!
+  name: JSON!
 
   """
   Reads a single `Contributor` that is related to this `PublicationService`.
@@ -7052,7 +7262,7 @@ input PublicationServiceCondition {
   medium: String
 
   """Checks for equality with the object’s `name` field."""
-  name: String
+  name: JSON
 
   """Checks for equality with the object’s `publisherUid` field."""
   publisherUid: String
@@ -7220,7 +7430,7 @@ input PublicationServiceFilter {
   medium: StringFilter
 
   """Filter by the object’s `name` field."""
-  name: StringFilter
+  name: JSONFilter
 
   """Negates the expression."""
   not: PublicationServiceFilter
@@ -8208,41 +8418,6 @@ type Query {
     """The method to use when ordering `Transcript`."""
     orderBy: [TranscriptsOrderBy!] = [PRIMARY_KEY_ASC]
   ): TranscriptsConnection
-  translation(uid: String!): Translation
-
-  """Reads and enables pagination through a set of `Translation`."""
-  translations(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: TranslationCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: TranslationFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `Translation`."""
-    orderBy: [TranslationsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): TranslationsConnection
   ucan(cid: String!): Ucan
 
   """Reads and enables pagination through a set of `Ucan`."""
@@ -9389,6 +9564,7 @@ type Revision {
   ): RevisionFilesByMediaAssetRevisionIdAndTeaserImageUidManyToManyConnection!
   id: String!
   isDeleted: Boolean!
+  languages: String!
 
   """Reads and enables pagination through a set of `License`."""
   licenses(
@@ -9990,6 +10166,9 @@ input RevisionCondition {
   """Checks for equality with the object’s `isDeleted` field."""
   isDeleted: Boolean
 
+  """Checks for equality with the object’s `languages` field."""
+  languages: String
+
   """Checks for equality with the object’s `prevRevisionId` field."""
   prevRevisionId: String
 
@@ -10530,6 +10709,9 @@ input RevisionFilter {
 
   """Filter by the object’s `isDeleted` field."""
   isDeleted: BooleanFilter
+
+  """Filter by the object’s `languages` field."""
+  languages: StringFilter
 
   """Filter by the object’s `licenses` relation."""
   licenses: RevisionToManyLicenseFilter
@@ -11298,6 +11480,8 @@ enum RevisionsOrderBy {
   ID_DESC
   IS_DELETED_ASC
   IS_DELETED_DESC
+  LANGUAGES_ASC
+  LANGUAGES_DESC
   NATURAL
   PREV_REVISION_ID_ASC
   PREV_REVISION_ID_DESC
@@ -11746,113 +11930,6 @@ type TranscriptsEdge {
 
 """Methods to use when ordering `Transcript`."""
 enum TranscriptsOrderBy {
-  ENGINE_ASC
-  ENGINE_DESC
-  LANGUAGE_ASC
-  LANGUAGE_DESC
-  MEDIA_ASSET_UID_ASC
-  MEDIA_ASSET_UID_DESC
-  NATURAL
-  PRIMARY_KEY_ASC
-  PRIMARY_KEY_DESC
-  TEXT_ASC
-  TEXT_DESC
-  UID_ASC
-  UID_DESC
-}
-
-type Translation {
-  engine: String!
-  language: String!
-
-  """Reads a single `MediaAsset` that is related to this `Translation`."""
-  mediaAsset: MediaAsset
-  mediaAssetUid: String!
-  text: String!
-  uid: String!
-}
-
-"""
-A condition to be used against `Translation` object types. All fields are tested
-for equality and combined with a logical ‘and.’
-"""
-input TranslationCondition {
-  """Checks for equality with the object’s `engine` field."""
-  engine: String
-
-  """Checks for equality with the object’s `language` field."""
-  language: String
-
-  """Checks for equality with the object’s `mediaAssetUid` field."""
-  mediaAssetUid: String
-
-  """Checks for equality with the object’s `text` field."""
-  text: String
-
-  """Checks for equality with the object’s `uid` field."""
-  uid: String
-}
-
-"""
-A filter to be used against `Translation` object types. All fields are combined with a logical ‘and.’
-"""
-input TranslationFilter {
-  """Checks for all expressions in this list."""
-  and: [TranslationFilter!]
-
-  """Filter by the object’s `engine` field."""
-  engine: StringFilter
-
-  """Filter by the object’s `language` field."""
-  language: StringFilter
-
-  """Filter by the object’s `mediaAsset` relation."""
-  mediaAsset: MediaAssetFilter
-
-  """Filter by the object’s `mediaAssetUid` field."""
-  mediaAssetUid: StringFilter
-
-  """Negates the expression."""
-  not: TranslationFilter
-
-  """Checks for any expressions in this list."""
-  or: [TranslationFilter!]
-
-  """Filter by the object’s `text` field."""
-  text: StringFilter
-
-  """Filter by the object’s `uid` field."""
-  uid: StringFilter
-}
-
-"""A connection to a list of `Translation` values."""
-type TranslationsConnection {
-  """
-  A list of edges which contains the `Translation` and cursor to aid in pagination.
-  """
-  edges: [TranslationsEdge!]!
-
-  """A list of `Translation` objects."""
-  nodes: [Translation!]!
-
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """The count of *all* `Translation` you could get from the connection."""
-  totalCount: Int!
-}
-
-"""A `Translation` edge in the connection."""
-type TranslationsEdge {
-  """A cursor for use in pagination."""
-  cursor: Cursor
-
-  """The `Translation` at the end of the edge."""
-  node: Translation!
-}
-
-"""Methods to use when ordering `Translation`."""
-enum TranslationsOrderBy {
   ENGINE_ASC
   ENGINE_DESC
   LANGUAGE_ASC

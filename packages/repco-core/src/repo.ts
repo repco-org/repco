@@ -441,7 +441,10 @@ export class Repo {
     return importRepoFromCar(this, stream, onProgress)
   }
 
-  async saveBatch(inputs: UnknownEntityInput[], opts: Partial<SaveBatchOpts> = {}) {
+  async saveBatch(
+    inputs: UnknownEntityInput[],
+    opts: Partial<SaveBatchOpts> = {},
+  ) {
     if (!this.writeable) throw new Error('Repo is not writeable')
     const fullOpts: SaveBatchOpts = { ...SAVE_BATCH_DEFAULTS, ...opts }
 
@@ -775,7 +778,9 @@ function parseEntity(input: UnknownEntityInput): EntityFormWithHeaders {
   }
 }
 
-export function parseEntities(inputs: UnknownEntityInput[]): EntityFormWithHeaders[] {
+export function parseEntities(
+  inputs: UnknownEntityInput[],
+): EntityFormWithHeaders[] {
   return inputs.map(parseEntity)
 }
 
@@ -803,5 +808,6 @@ export function revisionIpldToDb(
     contentCid: headers.BodyCid.toString(),
     revisionCid: headers.Cid.toString(),
     derivedFromUid: headers.DerivedFrom || null,
+    languages: '',
   }
 }

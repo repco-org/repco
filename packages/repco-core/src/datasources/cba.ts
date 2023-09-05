@@ -450,9 +450,15 @@ export class CbaDataSource implements DataSource {
       resolution: null,
     }
 
+    //TODO: find language code
+    var titleJson: { [k: string]: any } = {}
+    titleJson['de'] = { value: media.title.rendered }
+    var descriptionJson: { [k: string]: any } = {}
+    descriptionJson['de'] = { value: media.description?.rendered }
+
     const asset: form.MediaAssetInput = {
-      title: media.title.rendered,
-      description: media.description?.rendered,
+      title: titleJson,
+      description: descriptionJson,
       mediaType: 'audio',
       duration,
       Concepts: media.media_tag.map((cbaId) => ({
@@ -502,9 +508,15 @@ export class CbaDataSource implements DataSource {
         media.media_details.width.toString()
     }
 
+    //TODO: find language code
+    var titleJson: { [k: string]: any } = {}
+    titleJson['de'] = { value: media.title.rendered }
+    var descriptionJson: { [k: string]: any } = {}
+    descriptionJson['de'] = { value: media.description?.rendered }
+
     const asset: form.MediaAssetInput = {
-      title: media.title.rendered || '',
-      description: media.description?.rendered || null,
+      title: titleJson,
+      description: descriptionJson,
       mediaType: 'image',
       Concepts: media.media_tag.map((cbaId) => ({
         uri: this._uri('tags', cbaId),
@@ -528,11 +540,20 @@ export class CbaDataSource implements DataSource {
   }
 
   private _mapCategories(categories: CbaCategory): EntityForm[] {
+    //TODO: find language code
+    var nameJson: { [k: string]: any } = {}
+    nameJson['de'] = { value: categories.name }
+    var descriptionJson: { [k: string]: any } = {}
+    descriptionJson['de'] = { value: categories.description }
+    var summaryJson: { [k: string]: any } = {}
+    summaryJson['de'] = { value: categories.description }
+
     const content: form.ConceptInput = {
-      name: categories.name,
-      description: categories.description,
+      name: nameJson,
+      description: descriptionJson,
       kind: ConceptKind.CATEGORY,
       originNamespace: 'https://cba.fro.at/wp-json/wp/v2/categories',
+      summary: summaryJson,
     }
     if (categories.parent !== undefined) {
       content.ParentConcept = {
@@ -557,11 +578,21 @@ export class CbaDataSource implements DataSource {
       console.error('Invalid tags input.')
       throw new Error('Invalid tags input.')
     }
+
+    //TODO: find language code
+    var nameJson: { [k: string]: any } = {}
+    nameJson['de'] = { value: tags.name }
+    var descriptionJson: { [k: string]: any } = {}
+    descriptionJson['de'] = { value: tags.description }
+    var summaryJson: { [k: string]: any } = {}
+    summaryJson['de'] = { value: tags.description }
+
     const content: form.ConceptInput = {
-      name: tags.name,
-      description: tags.description,
+      name: nameJson,
+      description: descriptionJson,
       kind: ConceptKind.TAG,
       originNamespace: 'https://cba.fro.at/wp-json/wp/v2/tags',
+      summary: summaryJson,
     }
     const revisionId = this._revisionUri('tags', tags.id, new Date().getTime())
     const uri = this._uri('tags', tags.id)
@@ -578,11 +609,14 @@ export class CbaDataSource implements DataSource {
         `Missing or invalid title for station with ID ${station.id}`,
       )
     }
+    //TODO: find language code
+    var nameJson: { [k: string]: any } = {}
+    nameJson['de'] = { value: station.title.rendered }
 
     const content: form.PublicationServiceInput = {
       medium: station.type || '',
       address: station.link || '',
-      name: station.title.rendered,
+      name: nameJson,
     }
 
     const revisionId = this._revisionUri(
@@ -606,12 +640,20 @@ export class CbaDataSource implements DataSource {
       throw new Error('Series title is missing.')
     }
 
+    //TODO: find language code
+    var descriptionJson: { [k: string]: any } = {}
+    descriptionJson['de'] = { value: series.content.rendered }
+    var summaryJson: { [k: string]: any } = {}
+    summaryJson['de'] = { value: series.content.rendered }
+    var titleJson: { [k: string]: any } = {}
+    titleJson['de'] = { value: series.title.rendered }
+
     const content: form.ContentGroupingInput = {
-      title: series.title.rendered,
-      description: series.content.rendered || null,
+      title: titleJson,
+      description: descriptionJson,
       groupingType: 'show',
       subtitle: null,
-      summary: null,
+      summary: summaryJson,
       broadcastSchedule: null,
       startingDate: null,
       terminationDate: null,
@@ -664,13 +706,22 @@ export class CbaDataSource implements DataSource {
           .filter(notEmpty) ?? []
       const conceptLinks = [...categories, ...tags]
 
+      var title: { [k: string]: any } = {}
+      title[post.language_codes[0]] = { value: post.title.rendered }
+
+      var summary: { [k: string]: any } = {}
+      summary[post.language_codes[0]] = { value: post.excerpt.rendered }
+
+      var contentJson: { [k: string]: any } = {}
+      contentJson[post.language_codes[0]] = { value: post.content.rendered }
+
       const content: form.ContentItemInput = {
         pubDate: new Date(post.date),
-        content: post.content.rendered,
+        content: contentJson,
         contentFormat: 'text/html',
-        title: post.title.rendered,
+        title: title,
         subtitle: 'missing',
-        summary: post.excerpt.rendered,
+        summary: summary,
         PublicationService: this._uriLink('station', post.meta.station_id),
         Concepts: conceptLinks,
         MediaAssets: mediaAssetLinks,
