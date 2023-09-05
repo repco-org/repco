@@ -31,12 +31,14 @@ export type Scalars = {
 export type Agent = {
   /** Reads and enables pagination through a set of `Commit`. */
   commits: CommitsConnection
+  commits: CommitsConnection
   /** Reads and enables pagination through a set of `Commit`. */
   commitsByCommitAgentDidAndParent: AgentCommitsByCommitAgentDidAndParentManyToManyConnection
   did: Scalars['String']
   /** Reads and enables pagination through a set of `Repo`. */
   reposByCommitAgentDidAndRepoDid: AgentReposByCommitAgentDidAndRepoDidManyToManyConnection
   /** Reads and enables pagination through a set of `Revision`. */
+  revisions: RevisionsConnection
   revisions: RevisionsConnection
   type?: Maybe<AgentType>
   /** Reads a single `User` that is related to this `Agent`. */
@@ -480,7 +482,7 @@ export type Chapter = {
   revision?: Maybe<Revision>
   revisionId: Scalars['String']
   start: Scalars['Float']
-  title: Scalars['String']
+  title: Scalars['JSON']
   type: Scalars['String']
   uid: Scalars['String']
 }
@@ -496,7 +498,7 @@ export type ChapterCondition = {
   /** Checks for equality with the object’s `start` field. */
   start?: InputMaybe<Scalars['Float']>
   /** Checks for equality with the object’s `title` field. */
-  title?: InputMaybe<Scalars['String']>
+  title?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `type` field. */
   type?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `uid` field. */
@@ -524,7 +526,7 @@ export type ChapterFilter = {
   /** Filter by the object’s `start` field. */
   start?: InputMaybe<FloatFilter>
   /** Filter by the object’s `title` field. */
-  title?: InputMaybe<StringFilter>
+  title?: InputMaybe<JsonFilter>
   /** Filter by the object’s `type` field. */
   type?: InputMaybe<StringFilter>
   /** Filter by the object’s `uid` field. */
@@ -831,11 +833,11 @@ export type Concept = {
   conceptsBySameAs: ConceptsConnection
   /** Reads and enables pagination through a set of `ContentItem`. */
   contentItems: ConceptContentItemsByConceptToContentItemAAndBManyToManyConnection
-  description?: Maybe<Scalars['String']>
+  description?: Maybe<Scalars['JSON']>
   kind: ConceptKind
   /** Reads and enables pagination through a set of `MediaAsset`. */
   mediaAssets: ConceptMediaAssetsByConceptToMediaAssetAAndBManyToManyConnection
-  name: Scalars['String']
+  name: Scalars['JSON']
   originNamespace?: Maybe<Scalars['String']>
   /** Reads a single `Concept` that is related to this `Concept`. */
   parent?: Maybe<Concept>
@@ -846,7 +848,7 @@ export type Concept = {
   /** Reads a single `Concept` that is related to this `Concept`. */
   sameAs?: Maybe<Concept>
   sameAsUid?: Maybe<Scalars['String']>
-  summary?: Maybe<Scalars['String']>
+  summary?: Maybe<Scalars['JSON']>
   uid: Scalars['String']
   wikidataIdentifier?: Maybe<Scalars['String']>
 }
@@ -992,11 +994,11 @@ export type ConceptConceptsByConceptSameAsUidAndParentUidManyToManyEdgeChildConc
 /** A condition to be used against `Concept` object types. All fields are tested for equality and combined with a logical ‘and.’ */
 export type ConceptCondition = {
   /** Checks for equality with the object’s `description` field. */
-  description?: InputMaybe<Scalars['String']>
+  description?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `kind` field. */
   kind?: InputMaybe<ConceptKind>
   /** Checks for equality with the object’s `name` field. */
-  name?: InputMaybe<Scalars['String']>
+  name?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `originNamespace` field. */
   originNamespace?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `parentUid` field. */
@@ -1006,7 +1008,7 @@ export type ConceptCondition = {
   /** Checks for equality with the object’s `sameAsUid` field. */
   sameAsUid?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `summary` field. */
-  summary?: InputMaybe<Scalars['String']>
+  summary?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `uid` field. */
   uid?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `wikidataIdentifier` field. */
@@ -1062,11 +1064,11 @@ export type ConceptFilter = {
   /** Some related `conceptsBySameAs` exist. */
   conceptsBySameAsExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `description` field. */
-  description?: InputMaybe<StringFilter>
+  description?: InputMaybe<JsonFilter>
   /** Filter by the object’s `kind` field. */
   kind?: InputMaybe<ConceptKindFilter>
   /** Filter by the object’s `name` field. */
-  name?: InputMaybe<StringFilter>
+  name?: InputMaybe<JsonFilter>
   /** Negates the expression. */
   not?: InputMaybe<ConceptFilter>
   /** Checks for any expressions in this list. */
@@ -1090,7 +1092,7 @@ export type ConceptFilter = {
   /** Filter by the object’s `sameAsUid` field. */
   sameAsUid?: InputMaybe<StringFilter>
   /** Filter by the object’s `summary` field. */
-  summary?: InputMaybe<StringFilter>
+  summary?: InputMaybe<JsonFilter>
   /** Filter by the object’s `uid` field. */
   uid?: InputMaybe<StringFilter>
   /** Filter by the object’s `wikidataIdentifier` field. */
@@ -1226,7 +1228,7 @@ export type ContentGrouping = {
   contentItems: ContentGroupingContentItemsByContentGroupingToContentItemAAndBManyToManyConnection
   /** Reads and enables pagination through a set of `ContentItem`. */
   contentItemsByPrimaryGrouping: ContentItemsConnection
-  description?: Maybe<Scalars['String']>
+  description?: Maybe<Scalars['JSON']>
   groupingType: Scalars['String']
   /** Reads a single `License` that is related to this `ContentGrouping`. */
   license?: Maybe<License>
@@ -1240,9 +1242,9 @@ export type ContentGrouping = {
   revisionId: Scalars['String']
   startingDate?: Maybe<Scalars['Datetime']>
   subtitle?: Maybe<Scalars['String']>
-  summary?: Maybe<Scalars['String']>
+  summary?: Maybe<Scalars['JSON']>
   terminationDate?: Maybe<Scalars['Datetime']>
-  title: Scalars['String']
+  title: Scalars['JSON']
   uid: Scalars['String']
   variant: ContentGroupingVariant
 }
@@ -1301,7 +1303,7 @@ export type ContentGroupingCondition = {
   /** Checks for equality with the object’s `broadcastSchedule` field. */
   broadcastSchedule?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `description` field. */
-  description?: InputMaybe<Scalars['String']>
+  description?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `groupingType` field. */
   groupingType?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `licenseUid` field. */
@@ -1313,11 +1315,11 @@ export type ContentGroupingCondition = {
   /** Checks for equality with the object’s `subtitle` field. */
   subtitle?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `summary` field. */
-  summary?: InputMaybe<Scalars['String']>
+  summary?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `terminationDate` field. */
   terminationDate?: InputMaybe<Scalars['Datetime']>
   /** Checks for equality with the object’s `title` field. */
-  title?: InputMaybe<Scalars['String']>
+  title?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `uid` field. */
   uid?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `variant` field. */
@@ -1372,7 +1374,7 @@ export type ContentGroupingFilter = {
   /** Some related `contentItemsByPrimaryGrouping` exist. */
   contentItemsByPrimaryGroupingExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `description` field. */
-  description?: InputMaybe<StringFilter>
+  description?: InputMaybe<JsonFilter>
   /** Filter by the object’s `groupingType` field. */
   groupingType?: InputMaybe<StringFilter>
   /** Filter by the object’s `license` relation. */
@@ -1394,11 +1396,11 @@ export type ContentGroupingFilter = {
   /** Filter by the object’s `subtitle` field. */
   subtitle?: InputMaybe<StringFilter>
   /** Filter by the object’s `summary` field. */
-  summary?: InputMaybe<StringFilter>
+  summary?: InputMaybe<JsonFilter>
   /** Filter by the object’s `terminationDate` field. */
   terminationDate?: InputMaybe<DatetimeFilter>
   /** Filter by the object’s `title` field. */
-  title?: InputMaybe<StringFilter>
+  title?: InputMaybe<JsonFilter>
   /** Filter by the object’s `uid` field. */
   uid?: InputMaybe<StringFilter>
   /** Filter by the object’s `variant` field. */
@@ -1576,7 +1578,7 @@ export type ContentItem = {
   broadcastEvents: BroadcastEventsConnection
   /** Reads and enables pagination through a set of `Concept`. */
   concepts: ContentItemConceptsByConceptToContentItemBAndAManyToManyConnection
-  content: Scalars['String']
+  content: Scalars['JSON']
   contentFormat: Scalars['String']
   /** Reads and enables pagination through a set of `ContentGrouping`. */
   contentGroupings: ContentItemContentGroupingsByContentGroupingToContentItemBAndAManyToManyConnection
@@ -1600,8 +1602,8 @@ export type ContentItem = {
   revision?: Maybe<Revision>
   revisionId: Scalars['String']
   subtitle?: Maybe<Scalars['String']>
-  summary?: Maybe<Scalars['String']>
-  title: Scalars['String']
+  summary?: Maybe<Scalars['JSON']>
+  title: Scalars['JSON']
   uid: Scalars['String']
 }
 
@@ -1714,7 +1716,7 @@ export type ContentItemConceptsByConceptToContentItemBAndAManyToManyEdge_Concept
  */
 export type ContentItemCondition = {
   /** Checks for equality with the object’s `content` field. */
-  content?: InputMaybe<Scalars['String']>
+  content?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `contentFormat` field. */
   contentFormat?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `licenseUid` field. */
@@ -1730,9 +1732,9 @@ export type ContentItemCondition = {
   /** Checks for equality with the object’s `subtitle` field. */
   subtitle?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `summary` field. */
-  summary?: InputMaybe<Scalars['String']>
+  summary?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `title` field. */
-  title?: InputMaybe<Scalars['String']>
+  title?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `uid` field. */
   uid?: InputMaybe<Scalars['String']>
 }
@@ -1820,7 +1822,7 @@ export type ContentItemFilter = {
   /** Some related `broadcastEvents` exist. */
   broadcastEventsExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `content` field. */
-  content?: InputMaybe<StringFilter>
+  content?: InputMaybe<JsonFilter>
   /** Filter by the object’s `contentFormat` field. */
   contentFormat?: InputMaybe<StringFilter>
   /** Filter by the object’s `license` relation. */
@@ -1854,9 +1856,9 @@ export type ContentItemFilter = {
   /** Filter by the object’s `subtitle` field. */
   subtitle?: InputMaybe<StringFilter>
   /** Filter by the object’s `summary` field. */
-  summary?: InputMaybe<StringFilter>
+  summary?: InputMaybe<JsonFilter>
   /** Filter by the object’s `title` field. */
-  title?: InputMaybe<StringFilter>
+  title?: InputMaybe<JsonFilter>
   /** Filter by the object’s `uid` field. */
   uid?: InputMaybe<StringFilter>
 }
@@ -3065,6 +3067,43 @@ export type FloatFilter = {
   notIn?: InputMaybe<Array<Scalars['Float']>>
 }
 
+/** All input for the `getContentItemsByLanguage` mutation. */
+export type GetContentItemsByLanguageInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']>
+  languageCode?: InputMaybe<Scalars['String']>
+}
+
+/** The output of our `getContentItemsByLanguage` mutation. */
+export type GetContentItemsByLanguagePayload = {
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId?: Maybe<Scalars['String']>
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query?: Maybe<Query>
+  results?: Maybe<Array<Maybe<GetContentItemsByLanguageRecord>>>
+}
+
+/** The return type of our `getContentItemsByLanguage` mutation. */
+export type GetContentItemsByLanguageRecord = {
+  content?: Maybe<Scalars['String']>
+  contentformat?: Maybe<Scalars['String']>
+  licenseuid?: Maybe<Scalars['String']>
+  primarygroupinguid?: Maybe<Scalars['String']>
+  pubdate?: Maybe<Scalars['Datetime']>
+  publicationserviceuid?: Maybe<Scalars['String']>
+  revisionid?: Maybe<Scalars['String']>
+  subtitle?: Maybe<Scalars['String']>
+  summary?: Maybe<Scalars['String']>
+  title?: Maybe<Scalars['String']>
+  uid?: Maybe<Scalars['String']>
+}
+
 /** A filter to be used against Int fields. All fields are combined with a logical ‘and.’ */
 export type IntFilter = {
   /** Not equal to the specified value, treating null like an ordinary value. */
@@ -3438,7 +3477,7 @@ export type MediaAsset = {
   contentItems: MediaAssetContentItemsByContentItemToMediaAssetBAndAManyToManyConnection
   /** Reads and enables pagination through a set of `Contribution`. */
   contributions: MediaAssetContributionsByContributionToMediaAssetBAndAManyToManyConnection
-  description?: Maybe<Scalars['String']>
+  description?: Maybe<Scalars['JSON']>
   duration?: Maybe<Scalars['Float']>
   /** Reads and enables pagination through a set of `File`. */
   files: MediaAssetFilesByFileToMediaAssetBAndAManyToManyConnection
@@ -3454,11 +3493,9 @@ export type MediaAsset = {
   /** Reads a single `File` that is related to this `MediaAsset`. */
   teaserImage?: Maybe<File>
   teaserImageUid?: Maybe<Scalars['String']>
-  title: Scalars['String']
+  title: Scalars['JSON']
   /** Reads and enables pagination through a set of `Transcript`. */
   transcripts: TranscriptsConnection
-  /** Reads and enables pagination through a set of `Translation`. */
-  translations: TranslationsConnection
   uid: Scalars['String']
 }
 
@@ -3528,15 +3565,15 @@ export type MediaAssetSubtitlesArgs = {
   orderBy?: InputMaybe<Array<SubtitlesOrderBy>>
 }
 
-export type MediaAssetTranscriptsArgs = {
+export type MediaAssetFilesArgs = {
   after: InputMaybe<Scalars['Cursor']>
   before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<TranscriptCondition>
-  filter: InputMaybe<TranscriptFilter>
+  condition: InputMaybe<FileCondition>
+  filter: InputMaybe<FileFilter>
   first: InputMaybe<Scalars['Int']>
   last: InputMaybe<Scalars['Int']>
   offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<TranscriptsOrderBy>>
+  orderBy?: InputMaybe<Array<FilesOrderBy>>
 }
 
 export type MediaAssetTranslationsArgs = {
@@ -3591,7 +3628,7 @@ export type MediaAssetConceptsByConceptToMediaAssetBAndAManyToManyEdge_ConceptTo
  */
 export type MediaAssetCondition = {
   /** Checks for equality with the object’s `description` field. */
-  description?: InputMaybe<Scalars['String']>
+  description?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `duration` field. */
   duration?: InputMaybe<Scalars['Float']>
   /** Checks for equality with the object’s `licenseUid` field. */
@@ -3603,7 +3640,7 @@ export type MediaAssetCondition = {
   /** Checks for equality with the object’s `teaserImageUid` field. */
   teaserImageUid?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `title` field. */
-  title?: InputMaybe<Scalars['String']>
+  title?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `uid` field. */
   uid?: InputMaybe<Scalars['String']>
 }
@@ -3726,7 +3763,7 @@ export type MediaAssetFilter = {
   /** Some related `chapters` exist. */
   chaptersExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `description` field. */
-  description?: InputMaybe<StringFilter>
+  description?: InputMaybe<JsonFilter>
   /** Filter by the object’s `duration` field. */
   duration?: InputMaybe<FloatFilter>
   /** Filter by the object’s `license` relation. */
@@ -3756,15 +3793,11 @@ export type MediaAssetFilter = {
   /** Filter by the object’s `teaserImageUid` field. */
   teaserImageUid?: InputMaybe<StringFilter>
   /** Filter by the object’s `title` field. */
-  title?: InputMaybe<StringFilter>
+  title?: InputMaybe<JsonFilter>
   /** Filter by the object’s `transcripts` relation. */
   transcripts?: InputMaybe<MediaAssetToManyTranscriptFilter>
   /** Some related `transcripts` exist. */
   transcriptsExist?: InputMaybe<Scalars['Boolean']>
-  /** Filter by the object’s `translations` relation. */
-  translations?: InputMaybe<MediaAssetToManyTranslationFilter>
-  /** Some related `translations` exist. */
-  translationsExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `uid` field. */
   uid?: InputMaybe<StringFilter>
 }
@@ -3797,16 +3830,6 @@ export type MediaAssetToManyTranscriptFilter = {
   none?: InputMaybe<TranscriptFilter>
   /** Some related `Transcript` matches the filter criteria. All fields are combined with a logical ‘and.’ */
   some?: InputMaybe<TranscriptFilter>
-}
-
-/** A filter to be used against many `Translation` object types. All fields are combined with a logical ‘and.’ */
-export type MediaAssetToManyTranslationFilter = {
-  /** Every related `Translation` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  every?: InputMaybe<TranslationFilter>
-  /** No related `Translation` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  none?: InputMaybe<TranslationFilter>
-  /** Some related `Translation` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  some?: InputMaybe<TranslationFilter>
 }
 
 /** A connection to a list of `MediaAsset` values. */
@@ -3940,6 +3963,16 @@ export type MetadatumFilter = {
   uid?: InputMaybe<StringFilter>
 }
 
+/** The root mutation type which contains root level fields which mutate data. */
+export type Mutation = {
+  getContentItemsByLanguage?: Maybe<GetContentItemsByLanguagePayload>
+}
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationGetContentItemsByLanguageArgs = {
+  input: GetContentItemsByLanguageInput
+}
+
 /** Information about pagination in a connection. */
 export type PageInfo = {
   /** When paginating forwards, the cursor to continue. */
@@ -3965,7 +3998,7 @@ export type PublicationService = {
   /** Reads and enables pagination through a set of `License`. */
   licensesByContentItemPublicationServiceUidAndLicenseUid: PublicationServiceLicensesByContentItemPublicationServiceUidAndLicenseUidManyToManyConnection
   medium?: Maybe<Scalars['String']>
-  name: Scalars['String']
+  name: Scalars['JSON']
   /** Reads a single `Contributor` that is related to this `PublicationService`. */
   publisher?: Maybe<Contributor>
   publisherUid?: Maybe<Scalars['String']>
@@ -4043,7 +4076,7 @@ export type PublicationServiceCondition = {
   /** Checks for equality with the object’s `medium` field. */
   medium?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `name` field. */
-  name?: InputMaybe<Scalars['String']>
+  name?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `publisherUid` field. */
   publisherUid?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `revisionId` field. */
@@ -4143,7 +4176,7 @@ export type PublicationServiceFilter = {
   /** Filter by the object’s `medium` field. */
   medium?: InputMaybe<StringFilter>
   /** Filter by the object’s `name` field. */
-  name?: InputMaybe<StringFilter>
+  name?: InputMaybe<JsonFilter>
   /** Negates the expression. */
   not?: InputMaybe<PublicationServiceFilter>
   /** Checks for any expressions in this list. */
@@ -4333,9 +4366,6 @@ export type Query = {
   transcript?: Maybe<Transcript>
   /** Reads and enables pagination through a set of `Transcript`. */
   transcripts?: Maybe<TranscriptsConnection>
-  translation?: Maybe<Translation>
-  /** Reads and enables pagination through a set of `Translation`. */
-  translations?: Maybe<TranslationsConnection>
   ucan?: Maybe<Ucan>
   /** Reads and enables pagination through a set of `Ucan`. */
   ucans?: Maybe<UcansConnection>
@@ -4715,20 +4745,20 @@ export type QuerySubtitlesArgs = {
 }
 
 /** The root query type which gives access points into the data universe. */
-export type QueryTranscriptArgs = {
+export type QuerySubtitleArgs = {
   uid: Scalars['String']
 }
 
 /** The root query type which gives access points into the data universe. */
-export type QueryTranscriptsArgs = {
+export type QuerySubtitlesArgs = {
   after: InputMaybe<Scalars['Cursor']>
   before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<TranscriptCondition>
-  filter: InputMaybe<TranscriptFilter>
+  condition: InputMaybe<SubtitleCondition>
+  filter: InputMaybe<SubtitleFilter>
   first: InputMaybe<Scalars['Int']>
   last: InputMaybe<Scalars['Int']>
   offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<TranscriptsOrderBy>>
+  orderBy?: InputMaybe<Array<SubtitlesOrderBy>>
 }
 
 /** The root query type which gives access points into the data universe. */
@@ -5091,6 +5121,7 @@ export type Revision = {
   filesByMediaAssetRevisionIdAndTeaserImageUid: RevisionFilesByMediaAssetRevisionIdAndTeaserImageUidManyToManyConnection
   id: Scalars['String']
   isDeleted: Scalars['Boolean']
+  languages: Scalars['String']
   /** Reads and enables pagination through a set of `License`. */
   licenses: LicensesConnection
   /** Reads and enables pagination through a set of `License`. */
@@ -5604,6 +5635,8 @@ export type RevisionCondition = {
   id?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `isDeleted` field. */
   isDeleted?: InputMaybe<Scalars['Boolean']>
+  /** Checks for equality with the object’s `languages` field. */
+  languages?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `prevRevisionId` field. */
   prevRevisionId?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `repoDid` field. */
@@ -5897,6 +5930,8 @@ export type RevisionFilter = {
   id?: InputMaybe<StringFilter>
   /** Filter by the object’s `isDeleted` field. */
   isDeleted?: InputMaybe<BooleanFilter>
+  /** Filter by the object’s `languages` field. */
+  languages?: InputMaybe<StringFilter>
   /** Filter by the object’s `licenses` relation. */
   licenses?: InputMaybe<RevisionToManyLicenseFilter>
   /** Some related `licenses` exist. */
@@ -6392,6 +6427,8 @@ export enum RevisionsOrderBy {
   IdDesc = 'ID_DESC',
   IsDeletedAsc = 'IS_DELETED_ASC',
   IsDeletedDesc = 'IS_DELETED_DESC',
+  LanguagesAsc = 'LANGUAGES_ASC',
+  LanguagesDesc = 'LANGUAGES_DESC',
   Natural = 'NATURAL',
   PrevRevisionIdAsc = 'PREV_REVISION_ID_ASC',
   PrevRevisionIdDesc = 'PREV_REVISION_ID_DESC',
@@ -6772,88 +6809,133 @@ export enum SubtitlesOrderBy {
   UidDesc = 'UID_DESC',
 }
 
-export type Transcript = {
-  engine: Scalars['String']
-  language: Scalars['String']
-  /** Reads a single `MediaAsset` that is related to this `Transcript`. */
+export type Subtitle = {
+  /** Reads and enables pagination through a set of `File`. */
+  files: SubtitleFilesByFileToSubtitleBAndAManyToManyConnection
+  languageCode: Scalars['String']
+  /** Reads a single `MediaAsset` that is related to this `Subtitle`. */
   mediaAsset?: Maybe<MediaAsset>
   mediaAssetUid: Scalars['String']
-  text: Scalars['String']
+  /** Reads a single `Revision` that is related to this `Subtitle`. */
+  revision?: Maybe<Revision>
+  revisionId: Scalars['String']
   uid: Scalars['String']
 }
 
+export type SubtitleFilesArgs = {
+  after: InputMaybe<Scalars['Cursor']>
+  before: InputMaybe<Scalars['Cursor']>
+  condition: InputMaybe<FileCondition>
+  filter: InputMaybe<FileFilter>
+  first: InputMaybe<Scalars['Int']>
+  last: InputMaybe<Scalars['Int']>
+  offset: InputMaybe<Scalars['Int']>
+  orderBy?: InputMaybe<Array<FilesOrderBy>>
+}
+
 /**
- * A condition to be used against `Transcript` object types. All fields are tested
+ * A condition to be used against `Subtitle` object types. All fields are tested
  * for equality and combined with a logical ‘and.’
  */
-export type TranscriptCondition = {
-  /** Checks for equality with the object’s `engine` field. */
-  engine?: InputMaybe<Scalars['String']>
-  /** Checks for equality with the object’s `language` field. */
-  language?: InputMaybe<Scalars['String']>
+export type SubtitleCondition = {
+  /** Checks for equality with the object’s `languageCode` field. */
+  languageCode?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `mediaAssetUid` field. */
   mediaAssetUid?: InputMaybe<Scalars['String']>
-  /** Checks for equality with the object’s `text` field. */
-  text?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `revisionId` field. */
+  revisionId?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `uid` field. */
   uid?: InputMaybe<Scalars['String']>
 }
 
-/** A filter to be used against `Transcript` object types. All fields are combined with a logical ‘and.’ */
-export type TranscriptFilter = {
+/** A connection to a list of `File` values, with data from `_FileToSubtitle`. */
+export type SubtitleFilesByFileToSubtitleBAndAManyToManyConnection = {
+  /** A list of edges which contains the `File`, info from the `_FileToSubtitle`, and the cursor to aid in pagination. */
+  edges: Array<SubtitleFilesByFileToSubtitleBAndAManyToManyEdge>
+  /** A list of `File` objects. */
+  nodes: Array<File>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** The count of *all* `File` you could get from the connection. */
+  totalCount: Scalars['Int']
+}
+
+/** A `File` edge in the connection, with data from `_FileToSubtitle`. */
+export type SubtitleFilesByFileToSubtitleBAndAManyToManyEdge = {
+  /** Reads and enables pagination through a set of `_FileToSubtitle`. */
+  _fileToSubtitlesByA: _FileToSubtitlesConnection
+  /** A cursor for use in pagination. */
+  cursor?: Maybe<Scalars['Cursor']>
+  /** The `File` at the end of the edge. */
+  node: File
+}
+
+/** A `File` edge in the connection, with data from `_FileToSubtitle`. */
+export type SubtitleFilesByFileToSubtitleBAndAManyToManyEdge_FileToSubtitlesByAArgs =
+  {
+    after: InputMaybe<Scalars['Cursor']>
+    before: InputMaybe<Scalars['Cursor']>
+    condition: InputMaybe<_FileToSubtitleCondition>
+    filter: InputMaybe<_FileToSubtitleFilter>
+    first: InputMaybe<Scalars['Int']>
+    last: InputMaybe<Scalars['Int']>
+    offset: InputMaybe<Scalars['Int']>
+    orderBy?: InputMaybe<Array<_FileToSubtitlesOrderBy>>
+  }
+
+/** A filter to be used against `Subtitle` object types. All fields are combined with a logical ‘and.’ */
+export type SubtitleFilter = {
   /** Checks for all expressions in this list. */
-  and?: InputMaybe<Array<TranscriptFilter>>
-  /** Filter by the object’s `engine` field. */
-  engine?: InputMaybe<StringFilter>
-  /** Filter by the object’s `language` field. */
-  language?: InputMaybe<StringFilter>
+  and?: InputMaybe<Array<SubtitleFilter>>
+  /** Filter by the object’s `languageCode` field. */
+  languageCode?: InputMaybe<StringFilter>
   /** Filter by the object’s `mediaAsset` relation. */
   mediaAsset?: InputMaybe<MediaAssetFilter>
   /** Filter by the object’s `mediaAssetUid` field. */
   mediaAssetUid?: InputMaybe<StringFilter>
   /** Negates the expression. */
-  not?: InputMaybe<TranscriptFilter>
+  not?: InputMaybe<SubtitleFilter>
   /** Checks for any expressions in this list. */
-  or?: InputMaybe<Array<TranscriptFilter>>
-  /** Filter by the object’s `text` field. */
-  text?: InputMaybe<StringFilter>
+  or?: InputMaybe<Array<SubtitleFilter>>
+  /** Filter by the object’s `revision` relation. */
+  revision?: InputMaybe<RevisionFilter>
+  /** Filter by the object’s `revisionId` field. */
+  revisionId?: InputMaybe<StringFilter>
   /** Filter by the object’s `uid` field. */
   uid?: InputMaybe<StringFilter>
 }
 
-/** A connection to a list of `Transcript` values. */
-export type TranscriptsConnection = {
-  /** A list of edges which contains the `Transcript` and cursor to aid in pagination. */
-  edges: Array<TranscriptsEdge>
-  /** A list of `Transcript` objects. */
-  nodes: Array<Transcript>
+/** A connection to a list of `Subtitle` values. */
+export type SubtitlesConnection = {
+  /** A list of edges which contains the `Subtitle` and cursor to aid in pagination. */
+  edges: Array<SubtitlesEdge>
+  /** A list of `Subtitle` objects. */
+  nodes: Array<Subtitle>
   /** Information to aid in pagination. */
   pageInfo: PageInfo
-  /** The count of *all* `Transcript` you could get from the connection. */
+  /** The count of *all* `Subtitle` you could get from the connection. */
   totalCount: Scalars['Int']
 }
 
-/** A `Transcript` edge in the connection. */
-export type TranscriptsEdge = {
+/** A `Subtitle` edge in the connection. */
+export type SubtitlesEdge = {
   /** A cursor for use in pagination. */
   cursor?: Maybe<Scalars['Cursor']>
-  /** The `Transcript` at the end of the edge. */
-  node: Transcript
+  /** The `Subtitle` at the end of the edge. */
+  node: Subtitle
 }
 
-/** Methods to use when ordering `Transcript`. */
-export enum TranscriptsOrderBy {
-  EngineAsc = 'ENGINE_ASC',
-  EngineDesc = 'ENGINE_DESC',
-  LanguageAsc = 'LANGUAGE_ASC',
-  LanguageDesc = 'LANGUAGE_DESC',
+/** Methods to use when ordering `Subtitle`. */
+export enum SubtitlesOrderBy {
+  LanguageCodeAsc = 'LANGUAGE_CODE_ASC',
+  LanguageCodeDesc = 'LANGUAGE_CODE_DESC',
   MediaAssetUidAsc = 'MEDIA_ASSET_UID_ASC',
   MediaAssetUidDesc = 'MEDIA_ASSET_UID_DESC',
   Natural = 'NATURAL',
   PrimaryKeyAsc = 'PRIMARY_KEY_ASC',
   PrimaryKeyDesc = 'PRIMARY_KEY_DESC',
-  TextAsc = 'TEXT_ASC',
-  TextDesc = 'TEXT_DESC',
+  RevisionIdAsc = 'REVISION_ID_ASC',
+  RevisionIdDesc = 'REVISION_ID_DESC',
   UidAsc = 'UID_ASC',
   UidDesc = 'UID_DESC',
 }
@@ -7761,15 +7843,15 @@ export type LoadContentItemQueryVariables = Exact<{
 
 export type LoadContentItemQuery = {
   contentItem?: {
-    title: string
+    title: any
     uid: string
-    content: string
+    content: any
     revisionId: string
     mediaAssets: {
       nodes: Array<{
         uid: string
         mediaType: string
-        title: string
+        title: any
         duration?: number | null
         files: {
           nodes: Array<{ contentUrl: string; mimeType?: string | null }>
@@ -7799,23 +7881,23 @@ export type LoadContentItemsQuery = {
     }
     nodes: Array<{
       pubDate?: any | null
-      title: string
+      title: any
       uid: string
       subtitle?: string | null
-      summary?: string | null
+      summary?: any | null
       mediaAssets: {
         nodes: Array<{
           duration?: number | null
           licenseUid?: string | null
           mediaType: string
-          title: string
+          title: any
           uid: string
           files: {
             nodes: Array<{ contentUrl: string; mimeType?: string | null }>
           }
         }>
       }
-      publicationService?: { name: string } | null
+      publicationService?: { name: any } | null
     }>
   } | null
 }
@@ -7840,9 +7922,9 @@ export type LoadDashboardDataQuery = {
   concepts?: { totalCount: number } | null
   publicationServices?: {
     totalCount: number
-    nodes: Array<{ name: string; contentItems: { totalCount: number } }>
+    nodes: Array<{ name: any; contentItems: { totalCount: number } }>
   } | null
-  latestConetentItems?: { nodes: Array<{ title: string; uid: string }> } | null
+  latestConetentItems?: { nodes: Array<{ title: any; uid: string }> } | null
   totalPublicationServices?: { totalCount: number } | null
   totalContentItems?: { totalCount: number } | null
   contentGroupings?: { totalCount: number } | null

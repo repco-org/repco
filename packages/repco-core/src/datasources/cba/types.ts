@@ -25,6 +25,7 @@ export interface CbaPost {
   categories: number[]
   tags: number[]
   language: number[]
+  language_codes: string[]
   editor: number[]
   acf: any[]
   post_parent: number

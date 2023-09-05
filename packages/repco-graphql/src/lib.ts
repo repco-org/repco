@@ -52,11 +52,12 @@ export function getPostGraphileOptions() {
       CustomInflector,
       WrapResolversPlugin,
       ExportSchemaPlugin,
+      // CustomFilterPlugin,
     ],
     dynamicJson: true,
     graphileBuildOptions: {
       // https://github.com/graphile-contrib/postgraphile-plugin-connection-filter#performance-and-security
-      connectionFilterComputedColumns: false,
+      connectionFilterComputedColumns: true,
       connectionFilterSetofFunctions: false,
       connectionFilterLists: false,
       connectionFilterRelations: true,
