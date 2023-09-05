@@ -1,3 +1,4 @@
+import DOMPurify from 'dompurify'
 import { css, html, LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
@@ -5,15 +6,27 @@ import { customElement, property } from 'lit/decorators.js'
 export class RepcoPostCardHeaderElement extends LitElement {
   static override styles = css`
     :host {
-      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
       color: var(--repco-post-card-header-color);
+      flex-grow: 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
     h2,
-    h3 {
+    i {
       margin: 0;
-      /* color: var(--post-header-color, #5657f6); */
+      padding: 0.25rem 0;
     }
+
+    h2 {
+      font-size: 1.2rem;
+      margin: 0;
+    }
+
     i {
       font-size: 0.875rem;
     }
@@ -26,10 +39,18 @@ export class RepcoPostCardHeaderElement extends LitElement {
   subheader = ''
 
   override render() {
-    return html`
-      <h2>${this.header}</h2>
-      <i>${this.subheader}</i>
-    `
+    return html`<h2>
+        ${DOMPurify.sanitize(this.header)
+          .trim()
+          .replace(/<\/?p>/g, '')
+          .replace(/&#\d+;/g, '')}
+      </h2>
+      <i
+        >${DOMPurify.sanitize(this.subheader)
+          .trim()
+          .replace(/<\/?p>/g, '')
+          .replace(/&#\d+;/g, '')}</i
+      >`
   }
 }
 

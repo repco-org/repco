@@ -1,0 +1,46 @@
+<script type="module" src="/src/index.ts"></script>
+
+<style>
+  .repco-container {
+    width: 100%;
+    height: 250px;
+    overflow-x: scroll;
+  }
+</style>
+
+<div class="repco-container">
+  <repco-post-element
+    layout="horizontal"
+    query='query {
+        	  contentItems(
+        	    orderBy: PUB_DATE_DESC
+        	    filter: {
+        	    	revision: {
+        	    		repoDid: {
+        	    			notEqualTo: "did:key:z6MkuyqDwqKNedWknc9bJGfJms4uFE31F9bjhKNeEgjqWUBL"
+        	    		}
+        	    	}
+        	    	        	    	,
+        	    	title: {
+        	    		includes: "arbeit"
+        	    	}
+        	    	        	    	
+        	    }
+        	  ) {
+        	    nodes {
+        	      content
+        	      title
+        	      uid
+        	      mediaAssets {
+        	        nodes {
+        	          mediaType
+        	          file {
+        	            contentUrl
+        	          }
+        	        }
+        	      }
+        	    }
+        	  }
+        	}'
+  ></repco-post-element>
+</div>

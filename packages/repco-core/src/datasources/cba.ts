@@ -99,8 +99,6 @@ export class CbaDataSource implements DataSource {
   uriPrefix: string
   constructor(config: Partial<ConfigSchema>) {
     this.config = { ...DEFAULT_CONFIG, ...config }
-    console.log(this.config)
-    console.log(config)
     const endpointUrl = new URL(this.endpoint)
     this.endpointOrigin = endpointUrl.hostname
     this.uriPrefix = `repco:cba:${this.endpointOrigin}`
