@@ -5,7 +5,6 @@ import ActivitypubExpress from 'activitypub-express'
 import history from 'connect-history-api-fallback'
 import express from 'express'
 import fs from 'fs'
-import morgan from 'morgan'
 import { MongoClient } from 'mongodb'
 import p from 'path'
 import { fileURLToPath } from 'url'
@@ -33,7 +32,7 @@ if (!MONGODB_URL) {
 const __dirname = p.dirname(fileURLToPath(import.meta.url))
 const CONTEXT = JSON.parse(
   fs
-    .readFileSync(p.join(__dirname, '../context/context.json'))
+    .readFileSync(p.join(__dirname, '../contexts/context.json'))
     .toString('utf8'),
 )
 const ATTACHEMENTS = JSON.parse(
@@ -81,20 +80,6 @@ const apex = ActivitypubExpress({
   routes,
 })
 
-router.use(
-  morgan(
-    ':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status ":referrer" ":user-agent"',
-  ),
-  express.json({ type: apex.consts.jsonldTypes }),
-  apex,
-  function checkAdminKey(req, res, next) {
-    if (ADMIN_SECRET && req.get('authorization') === `Bearer ${ADMIN_SECRET}`) {
-      res.locals.apex.authorized = true
-    }
-    next()
-  },
-)
-
 const acceptablePublicActivities = ['delete', 'update']
 apex.net.inbox.post.splice(
   // just after standardizing the jsonld
@@ -113,53 +98,53 @@ apex.net.inbox.post.splice(
     }
   },
   // Lots of servers are delivering inappropriate activities to Guppe, move the filtering up earlier in the process to save work
-  function inboxFilter(req, res, next) {
-    try {
-      const groupIRI = apex.utils.usernameToIRI(req.params[apex.actorParam])
-      const activityAudience = apex.audienceFromActivity(req.body)
-      const activityType = req.body.type?.toLowerCase()
-      const activityObject = req.body.object?.[0]
-      if (
-        !activityAudience.includes(groupIRI) &&
-        activityObject !== groupIRI &&
-        !acceptablePublicActivities.includes(activityType)
-      ) {
-        console.log(
-          'Ignoring irrelevant activity sent to %s: %j',
-          groupIRI,
-          req.body,
-        )
-        return res.status(202).send('Irrelevant activity ignored')
-      }
-    } catch (err) {
-      console.warn('Error performing prefilter:', err)
-    }
-    next()
-  },
+  //   function inboxFilter(req, res, next) {
+  //     try {
+  //       const groupIRI = apex.utils.usernameToIRI(req.params[apex.actorParam])
+  //       const activityAudience = apex.audienceFromActivity(req.body)
+  //       const activityType = req.body.type?.toLowerCase()
+  //       const activityObject = req.body.object?.[0]
+  //       if (
+  //         !activityAudience.includes(groupIRI) &&
+  //         activityObject !== groupIRI &&
+  //         !acceptablePublicActivities.includes(activityType)
+  //       ) {
+  //         console.log(
+  //           'Ignoring irrelevant activity sent to %s: %j',
+  //           groupIRI,
+  //           req.body,
+  //         )
+  //         return res.status(202).send('Irrelevant activity ignored')
+  //       }
+  //     } catch (err) {
+  //       console.warn('Error performing prefilter:', err)
+  //     }
+  //     next()
+  //   },
 )
 // Do not boost posts from servers who abuse the service.
-apex.net.inbox.post.splice(
-  // Blocked domain check is inserted into apex inbox route right after the sender is verified
-  apex.net.inbox.post.indexOf(apex.net.security.verifySignature) + 1,
-  0,
-  async function rejectBlockedDomains(req, res, next) {
-    try {
-      const url = new URL(res.locals.apex.sender.id)
-      const domain = await req.app.locals.apex.store.db
-        .collection('servers')
-        .findOne({
-          hostname: url.hostname,
-        })
-      if (domain?.blocked) {
-        console.log(`Ignoring post from ${url}:`, req.body)
-        return res.sendStatus(200)
-      }
-    } catch (err) {
-      console.error('Error checking domain blocks:', err)
-    }
-    next()
-  },
-)
+// apex.net.inbox.post.splice(
+//   // Blocked domain check is inserted into apex inbox route right after the sender is verified
+//   apex.net.inbox.post.indexOf(apex.net.security.verifySignature) + 1,
+//   0,
+//   async function rejectBlockedDomains(req, res, next) {
+//     try {
+//       const url = new URL(res.locals.apex.sender.id)
+//       const domain = await req.app.locals.apex.store.db
+//         .collection('servers')
+//         .findOne({
+//           hostname: url.hostname,
+//         })
+//       if (domain?.blocked) {
+//         console.log(`Ignoring post from ${url}:`, req.body)
+//         return res.sendStatus(200)
+//       }
+//     } catch (err) {
+//       console.error('Error checking domain blocks:', err)
+//     }
+//     next()
+//   },
+// )
 
 // define routes using prepacakged middleware collections
 router.route(routes.inbox).post(apex.net.inbox.post).get(apex.net.inbox.get)
@@ -178,76 +163,76 @@ router.get('/nodeinfo/:version', apex.net.nodeInfo.get)
 
 /// Guppe web setup
 // html/static routes
-router.use(
-  history({
-    index: '/web/index.html',
-    rewrites: [
-      // do not redirect webfinger et c.
-      {
-        from: /^\/\.well-known\//,
-        to: (context) => context.request.originalUrl,
-      },
-    ],
-  }),
-)
-router.use('/f', express.static('public/files'))
-router.use('/web', express.static('web/dist'))
+// router.use(
+//   history({
+//     index: '/web/index.html',
+//     rewrites: [
+//       // do not redirect webfinger et c.
+//       {
+//         from: /^\/\.well-known\//,
+//         to: (context) => context.request.originalUrl,
+//       },
+//     ],
+//   }),
+// )
+// router.use('/f', express.static('public/files'))
+// router.use('/web', express.static('web/dist'))
 // web json routes
-router.get('/groups', (req, res, next) => {
-  apex.store.db
-    .collection('streams')
-    .aggregate([
-      { $sort: { _id: -1 } }, // start from most recent
-      { $limit: 10000 }, // don't traverse the entire history
-      { $match: { type: 'Announce' } },
-      { $group: { _id: '$actor', postCount: { $sum: 1 } } },
-      {
-        $lookup: {
-          from: 'objects',
-          localField: '_id',
-          foreignField: 'id',
-          as: 'actor',
-        },
-      },
-      // merge joined actor up
-      {
-        $replaceRoot: {
-          newRoot: {
-            $mergeObjects: [{ $arrayElemAt: ['$actor', 0] }, '$$ROOT'],
-          },
-        },
-      },
-      { $project: { _id: 0, _meta: 0, actor: 0 } },
-    ])
-    .sort({ postCount: -1 })
-    .limit(Number.parseInt(req.query.n) || 50)
-    .toArray()
-    .then((groups) =>
-      apex.toJSONLD({
-        id: `https://${DOMAIN}/groups`,
-        type: 'OrderedCollection',
-        totalItems: groups.length,
-        orderedItems: groups,
-      }),
-    )
-    // .then(groups => { console.log(JSON.stringify(groups)); return groups })
-    .then((groups) => res.json(groups))
-    .catch((err) => {
-      console.log(err.message)
-      return res.status(500).send()
-    })
-})
-router.get('/stats', async (req, res, next) => {
-  try {
-    const queueSize = await apex.store.db
-      .collection('deliveryQueue')
-      .countDocuments({ attempt: 0 })
-    const uptime = process.uptime()
-    res.json({ queueSize, uptime })
-  } catch (err) {
-    next(err)
-  }
-})
+// router.get('/groups', (req, res, next) => {
+//   apex.store.db
+//     .collection('streams')
+//     .aggregate([
+//       { $sort: { _id: -1 } }, // start from most recent
+//       { $limit: 10000 }, // don't traverse the entire history
+//       { $match: { type: 'Announce' } },
+//       { $group: { _id: '$actor', postCount: { $sum: 1 } } },
+//       {
+//         $lookup: {
+//           from: 'objects',
+//           localField: '_id',
+//           foreignField: 'id',
+//           as: 'actor',
+//         },
+//       },
+//       // merge joined actor up
+//       {
+//         $replaceRoot: {
+//           newRoot: {
+//             $mergeObjects: [{ $arrayElemAt: ['$actor', 0] }, '$$ROOT'],
+//           },
+//         },
+//       },
+//       { $project: { _id: 0, _meta: 0, actor: 0 } },
+//     ])
+//     .sort({ postCount: -1 })
+//     .limit(Number.parseInt(req.query.n) || 50)
+//     .toArray()
+//     .then((groups) =>
+//       apex.toJSONLD({
+//         id: `https://${DOMAIN}/groups`,
+//         type: 'OrderedCollection',
+//         totalItems: groups.length,
+//         orderedItems: groups,
+//       }),
+//     )
+//     // .then(groups => { console.log(JSON.stringify(groups)); return groups })
+//     .then((groups) => res.json(groups))
+//     .catch((err) => {
+//       console.log(err.message)
+//       return res.status(500).send()
+//     })
+// })
+// router.get('/stats', async (req, res, next) => {
+//   try {
+//     const queueSize = await apex.store.db
+//       .collection('deliveryQueue')
+//       .countDocuments({ attempt: 0 })
+//     const uptime = process.uptime()
+//     res.json({ queueSize, uptime })
+//   } catch (err) {
+//     next(err)
+//   }
+// })
 
 router.use(function (err, req, res, next) {
   console.error(err.message, req.body, err.stack)
@@ -276,14 +261,12 @@ export async function init() {
     true,
   )
   if (!apex.systemUser) {
-    const systemUser = await createGuppeActor(
+    const systemUser = await createActor(
       'system_service',
       `${DOMAIN} system service`,
       `${DOMAIN} system service`,
-      icon,
       'Service',
     )
-    await apex.store.saveObject(systemUser)
     apex.systemUser = systemUser
   }
 
@@ -335,27 +318,47 @@ export function initializeActivitypubExpress(app, prefix = '/ap') {
   )
   app.use(prefix, router)
 
+  app.get('/ap-debug', async (req, res) => {
+    await createRepoActor('test')
+    await followActor('test', "http://localhost:9000/video-channels/test2")
+    res.send("ok")
+  })
+
   init(app).catch((err) =>
     console.error('failed to initialize ActivityPub server', err),
   )
 }
 
 // Create new groups on demand whenever someone tries to access one
-async function createActor(actor) {
-  const actorIRI = apex.utils.usernameToIRI(actor)
-  if (!(await apex.store.getObject(actorIRI)) && actor.length <= 255) {
-    console.log(`Creating actor: ${actor}`)
-    const summary = `I'm a community media indexer, called ${actor}. Let me follow you to be indexed.`
+async function createActor(actorName, displayName, summary, type) {
+  const actorIRI = apex.utils.usernameToIRI(actorName)
+  if (!(await apex.store.getObject(actorIRI)) && actorName.length <= 255) {
+    console.log(`Creating actor: ${actorName}`)
     const actorObj = await apex.createActor(
-      actor,
-      `${actor} repco node`,
+      actorName,
+      displayName,
       summary,
       icon,
-      'Group',
+      type,
     )
     if (USE_ATTACHMENTS) {
       actorObj.attachment = ATTACHEMENTS
     }
     await apex.store.saveObject(actorObj)
+    return actorObj
   }
+}
+
+export async function createRepoActor(actorName, displayName) {
+  const summary = `I'm a community media indexer Let me follow you to be indexed.`
+  await createActor(actorName, displayName, summary, 'Person')
+}
+
+export async function followActor(localActorName, remoteActor) {
+  const localActorIRI = apex.utils.usernameToIRI(localActorName)
+  const localActor = apex.store.getObject(localActorIRI)
+  const activity = apex.buildActivity('Follow', remoteActor, localActor.id, {
+    object: localActor.id,
+  })
+  await apex.store.saveActivity(activity)
 }
