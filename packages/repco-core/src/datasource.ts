@@ -81,9 +81,9 @@ export interface DataSource {
   fetchByUri(uri: string): Promise<SourceRecordForm[] | null>
   fetchByUriBatch(uris: string[]): Promise<SourceRecordForm[]>
   /**
-   * Determines whether the data source is capable of fetching records by UID.
+   * Determines whether the data source is capable of fetching a particular uri
    *
-   * @param uid - The UID of the record to fetch.
+   * @param uri The uri in question
    * @returns `true` if the data source can fetch the record, `false` otherwise.
    */
   canFetchUri(uri: string): boolean
