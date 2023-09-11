@@ -375,7 +375,7 @@ export class CbaDataSource implements DataSource {
         type: parts[1],
         id: parts[2],
       }
-    } else if (parts[1] === 'r') {
+    } else if (parts[0] === 'r') {
       if (parts.length !== 4) return null
       return {
         kind: 'revision',
