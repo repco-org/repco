@@ -42,11 +42,16 @@ export function runServer(prisma: PrismaClient, port: number) {
 
   const app = express()
 
-  initializeActivitypubExpress(app, '/ap')
-
   app.use(logger)
+  app.use((req, res, next) => {
+    console.log(req.url, req.method, req.headers.accept)
+    next()
+  })
   app.use(express.json({ limit: '100mb' }))
   app.use(cors())
+
+  initializeActivitypubExpress(app, '/ap')
+
   app.use(graphqlHandler)
   app.use((_req, res, next) => {
     res.locals.prisma = prisma

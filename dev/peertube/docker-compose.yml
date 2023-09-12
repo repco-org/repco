@@ -23,6 +23,8 @@ services:
       - redis
       # - postfix
     restart: "always"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   postgres:
     image: postgres:13-alpine
