@@ -1,33 +1,36 @@
 import zod from 'zod'
+import { parse, toSeconds } from 'iso8601-duration'
 import { log } from 'repco-common'
-import { Json, Link } from 'repco-common/zod'
-import { Concept, ConceptKind, ContentGroupingVariant, form } from 'repco-prisma'
+import { Link } from 'repco-common/zod'
+import { ConceptKind, form } from 'repco-prisma'
 import {
   ConceptInput,
-  ContentGroupingInput,
   ContentItemInput,
 } from 'repco-prisma/generated/repco/zod.js'
-import { Headers, fetch } from 'undici'
-import { OutBox } from './activitypub/types.js'
+import { fetch, Headers } from 'undici'
+import {
+  ActivityHashTagObject,
+  ActivityIconObject,
+  ActivityIdentifierObject,
+  ActivityVideoUrlObject,
+  OutBox,
+  Page,
+  VideoObject,
+} from './activitypub/types.js'
 import {
   BaseDataSource,
   DataSource,
   DataSourceDefinition,
   DataSourcePlugin,
   FetchUpdatesResult,
-  parseBodyCached,
-  setParsedBody,
   SourceRecordForm,
 } from '../datasource.js'
 import { EntityForm } from '../entity.js'
+import { FetchOpts } from '../util/datamapping.js'
+import { HttpError } from '../util/error.js'
 import { createHash } from '../util/hash.js'
 import { createRandomId } from '../util/id.js'
-import { HttpError } from '../util/error.js'
-import { url } from 'inspector'
-import { FetchOpts } from '../util/datamapping.js'
-import { parse, toSeconds} from "iso8601-duration";
 import { notEmpty } from '../util/misc.js'
-
 
 const CONTENT_TYPE_JSON = 'application/json'
 
@@ -64,18 +67,15 @@ const hostInfo = zod.object({
 })
 type HostInfo = zod.infer<typeof hostInfo>
 
-
+type Cursor = {
+  lastPublishedDate: Date
+}
 
 function parseCursor(input?: string | null): Cursor {
-  const cursor = input
-    ? JSON.parse(input)
-    : {}
-  const dateFields = [
-    'lastPublishedDate',
-  ]
+  const cursor = input ? JSON.parse(input) : {}
+  const dateFields = ['lastPublishedDate']
   for (const field of dateFields) {
-    if (cursor[field])
-      cursor[field] = new Date(cursor[field])
+    if (cursor[field]) cursor[field] = new Date(cursor[field])
   }
   return cursor as Cursor
 }
@@ -93,7 +93,10 @@ function parseCursor(input?: string | null): Cursor {
 //   return [newest, oldest]
 // }
 
-export class ActivityPubDataSource extends BaseDataSource implements DataSource {
+export class ActivityPubDataSource
+  extends BaseDataSource
+  implements DataSource
+{
   // endpoint: URL
   user: string
   domain: string
@@ -113,10 +116,11 @@ export class ActivityPubDataSource extends BaseDataSource implements DataSource 
   }
 
   get config() {
-    return { 
+    return {
       user: this.user,
       domain: this.domain,
-      host: this.host }
+      host: this.host,
+    }
   }
 
   get definition(): DataSourceDefinition {
@@ -161,7 +165,8 @@ export class ActivityPubDataSource extends BaseDataSource implements DataSource 
     if (uri === this.host.toString()) {
       const info = await this.fetchWebfinger<HostInfo>()
       const profile = info.links.find((link) => link.rel === 'self')?.href
-      const outbox = profile && await this.fetchAs<OutBox>(`${profile}/outbox`)
+      const outbox =
+        profile && (await this.fetchAs<OutBox>(`${profile}/outbox`))
       // const page = outbox && await this.fetchAs<Page>(outbox.first)
       // const items = page && await Promise.all(
       //   page.orderedItems.map((item) =>
@@ -183,7 +188,7 @@ export class ActivityPubDataSource extends BaseDataSource implements DataSource 
   }
 
   getLastPageNumber(numItems: number): number {
-    const lastPageNumber: number = Math.floor(numItems/10) + 1
+    const lastPageNumber: number = Math.floor(numItems / 10) + 1
     return lastPageNumber
   }
 
@@ -192,34 +197,43 @@ export class ActivityPubDataSource extends BaseDataSource implements DataSource 
       const cursor = parseCursor(cursorString)
       const info = await this.fetchWebfinger<HostInfo>()
       const profile = info.links.find((link) => link.rel === 'self')?.href
-      const outbox = profile && await this.fetchAs<OutBox>(`${profile}/outbox`)
+      const outbox =
+        profile && (await this.fetchAs<OutBox>(`${profile}/outbox`))
       const firstPageUrl = outbox && outbox.first
       // collect new video entities
       const newVideoObjects: VideoObject[] = []
       // start with last page
       let pageNumber = outbox && this.getLastPageNumber(outbox.totalItems)
       if (!pageNumber) {
-        throw new Error(`Could not get number of last page of outbox ${profile}/outbox`)
+        throw new Error(
+          `Could not get number of last page of outbox ${profile}/outbox`,
+        )
       }
       // loop backwards over pages
       while (pageNumber >= 0) {
-        let currentPageUrl = firstPageUrl && firstPageUrl.replace('page=1', `page=${pageNumber}`)
-        const currentPage = currentPageUrl && await this.fetchAs<Page>(currentPageUrl)
-        const items = currentPage && await Promise.all(
-          currentPage.orderedItems.map((item) => this.fetchAs<VideoObject>(item.object)),
-          )
-        if (items === undefined || items === "") {
+        let currentPageUrl =
+          firstPageUrl && firstPageUrl.replace('page=1', `page=${pageNumber}`)
+        const currentPage =
+          currentPageUrl && (await this.fetchAs<Page>(currentPageUrl))
+        const items =
+          currentPage &&
+          (await Promise.all(
+            currentPage.orderedItems.map((item) =>
+              this.fetchAs<VideoObject>(item.object),
+            ),
+          ))
+        if (items === undefined || items === '') {
           throw new Error(`Could not catch items under url ${currentPageUrl}.`)
         }
         // iterate over items on page backwards to find items that are newer than the cursor
-        for (var i = items.length - 1; i>=0; i--){
+        for (var i = items.length - 1; i >= 0; i--) {
           if (new Date(items[i].published) <= cursor.lastPublishedDate) {
             continue
           }
           newVideoObjects.push(items[i])
           cursor.lastPublishedDate = new Date(items[i].published)
         }
-        pageNumber--;
+        pageNumber--
       }
       return {
         cursor: JSON.stringify(cursor),
@@ -228,7 +242,7 @@ export class ActivityPubDataSource extends BaseDataSource implements DataSource 
             body: JSON.stringify(newVideoObjects),
             contentType: CONTENT_TYPE_JSON,
             sourceType: 'videoObjects',
-            sourceUri: `${profile}/outbox`
+            sourceUri: `${profile}/outbox`,
           },
         ],
       }
@@ -261,27 +275,34 @@ export class ActivityPubDataSource extends BaseDataSource implements DataSource 
       contentUrl: videoUrl.href,
       mimeType: videoUrl.mediaType,
       resolution: videoUrl.height.toString(), // width is missing, but probably not important. add 'p'?
-      contentSize: videoUrl.size
+      contentSize: videoUrl.size,
     }
     const fileEntity: EntityForm = {
       type: 'File',
       content: videoFile,
-      headers: { EntityUris: [fileId] }
+      headers: { EntityUris: [fileId] },
     }
     return fileEntity
   }
 
-  private _findLargestTeaserImage(icons: activityIconObject[]): activityIconObject {
-    if (icons.length === 1) {return icons[0]}
-    return icons.reduce(
-      (prev, current) => {
-        return prev.height && current.height && prev.height > current.height ? prev : current
-      }
-    )
+  private _findLargestTeaserImage(
+    icons: ActivityIconObject[],
+  ): ActivityIconObject {
+    if (icons.length === 1) {
+      return icons[0]
+    }
+    return icons.reduce((prev, current) => {
+      return prev.height && current.height && prev.height > current.height
+        ? prev
+        : current
+    })
   }
 
-  private _mapImagesToFileEntity(teaserImage: activityIconObject): EntityForm{
-    const resolution = (teaserImage.width && teaserImage.height)? teaserImage.height.toString() + 'x' + teaserImage.width.toString() : null
+  private _mapImagesToFileEntity(teaserImage: ActivityIconObject): EntityForm {
+    const resolution =
+      teaserImage.width && teaserImage.height
+        ? teaserImage.height.toString() + 'x' + teaserImage.width.toString()
+        : null
     const fileId = this._uri('file', teaserImage.url)
     const imageFile: form.FileInput = {
       contentUrl: teaserImage.url,
@@ -291,27 +312,29 @@ export class ActivityPubDataSource extends BaseDataSource implements DataSource 
     const fileEntity: EntityForm = {
       type: 'File',
       content: imageFile,
-      headers: { EntityUris: [fileId] }
+      headers: { EntityUris: [fileId] },
     }
     return fileEntity
   }
 
-  private _mapTagToConceptEntity(tag: ActivityHashTagObject): EntityForm{
+  private _mapTagToConceptEntity(tag: ActivityHashTagObject): EntityForm {
     const concept: ConceptInput = {
       kind: ConceptKind.TAG,
-      name: tag.name
+      name: tag.name,
     }
     // TODO @Frando: is it ok to use name if no href or other identifier exists?
     const uri = this._uri('tags', tag.href ? tag.href : tag.name)
-    const ConceptEntity: EntityForm = { 
-      type: 'Concept', 
-      content: concept, 
-      headers: { EntityUris: [uri] }
+    const ConceptEntity: EntityForm = {
+      type: 'Concept',
+      content: concept,
+      headers: { EntityUris: [uri] },
     }
     return ConceptEntity
   }
 
-  private _mapCategoryToConceptEntity(category: ActivityIdentifierObject): EntityForm[] {
+  private _mapCategoryToConceptEntity(
+    category: ActivityIdentifierObject,
+  ): EntityForm[] {
     const concept: form.ConceptInput = {
       kind: ConceptKind.CATEGORY,
       name: category.name,
@@ -321,16 +344,16 @@ export class ActivityPubDataSource extends BaseDataSource implements DataSource 
     // there is a limited amount of categories and they are mapped to numbers
     // but it is possible to add categories or hackily exchange them
     const revisionId = this._revisionUri(
-      'category', 
-      category.identifier, 
-      new Date().getTime()
+      'category',
+      category.identifier,
+      new Date().getTime(),
     )
     const uri = this._uri('category', category.identifier)
     const headers = {
       RevisionUris: [revisionId],
       EntityUris: [uri],
     }
-    return [{ type: 'Concept', content: concept, headers}]
+    return [{ type: 'Concept', content: concept, headers }]
   }
 
   private _mapVideoObjectToMediaAsset(video: VideoObject): EntityForm[] {
@@ -339,16 +362,22 @@ export class ActivityPubDataSource extends BaseDataSource implements DataSource 
     let entities = []
 
     // create Files for videos in "url"
-    const videoUrls= video.url.filter((url) => url.mediaType.startsWith("video")) as ActivityVideoUrlObject[]
-    const videoFileEntities = videoUrls && videoUrls.map((url) => this._mapVideoToFileEntity(url))
+    const videoUrls = video.url.filter((url) =>
+      url.mediaType.startsWith('video'),
+    ) as ActivityVideoUrlObject[]
+    const videoFileEntities =
+      videoUrls && videoUrls.map((url) => this._mapVideoToFileEntity(url))
     entities.push(...videoFileEntities)
     const fileUris = videoUrls.map((url) => this._uri('file', url.href))
     files.push(...fileUris)
 
-
     // create File for Images in "icon"
-    let teaserImageUri = undefined;
-    if (video.hasOwnProperty('icon') && video.icon.length >= 1) {
+    let teaserImageUri = undefined
+    if (
+      video.hasOwnProperty('icon') &&
+      video.icon !== undefined &&
+      video.icon.length >= 1
+    ) {
       const teaserImage = this._findLargestTeaserImage(video.icon)
       const imageFileEntity = this._mapImagesToFileEntity(teaserImage)
       entities.push(imageFileEntity)
@@ -357,20 +386,24 @@ export class ActivityPubDataSource extends BaseDataSource implements DataSource 
     }
 
     // transform video.category and video.tags into Concepts
-    let conceptUris = [];
-    if (video.hasOwnProperty('category') && video.category !== undefined){
+    let conceptUris = []
+    if (video.hasOwnProperty('category') && video.category !== undefined) {
       const categoryConcept = this._mapCategoryToConceptEntity(video.category)
       entities.push(...categoryConcept)
       const categoryUri = this._uri('category', video.category.identifier)
       conceptUris.push({ uri: categoryUri })
     }
     if (video.hasOwnProperty('tag') && video.tag !== undefined) {
-      const tagConcepts = video.tag.map((tag) => this._mapTagToConceptEntity(tag))
+      const tagConcepts = video.tag.map((tag) =>
+        this._mapTagToConceptEntity(tag),
+      )
       entities.push(...tagConcepts)
-      const tagUris = video.tag.map((tag) => ({ uri: this._uri('tags', tag.href ? tag.href : tag.name) }))
+      const tagUris = video.tag.map((tag) => ({
+        uri: this._uri('tags', tag.href ? tag.href : tag.name),
+      }))
       conceptUris.push(...tagUris)
     }
-    
+
     // format duration from iso8601 to seconds
     const duration = toSeconds(parse(video.duration))
 
@@ -379,22 +412,21 @@ export class ActivityPubDataSource extends BaseDataSource implements DataSource 
       description: video.content,
       duration,
       mediaType: video.type, //"Video"
-      Files: files,
+      File: files,
       ContentItems: [], // TODO @Frando: Add later in ContentItem-function?
       //License: video.licence, // TODO: transform (https://framacolibri.org/t/problems-with-the-current-license-system/5695)
       // Contributions: null,
-      TeaserImage: { uri: teaserImageUri},
+      TeaserImage: { uri: teaserImageUri },
       Concepts: conceptUris.length > 0 ? conceptUris : undefined,
-    };
+    }
 
     const mediaEntity: EntityForm = {
       type: 'MediaAsset',
       content: asset,
-      headers: { EntityUris: [mediaAssetUri] }
+      headers: { EntityUris: [mediaAssetUri] },
     }
 
     return [mediaEntity, ...entities]
-    
   }
 
   private _mapVideoObjectToContentItem(video: VideoObject): EntityForm[] {
@@ -413,9 +445,12 @@ export class ActivityPubDataSource extends BaseDataSource implements DataSource 
 
       // get the uris of Concept entities created in _mapVideoObjectToMediaAsset
       const conceptLinks = []
-      const category = this._uriLink('category', video.category?.identifier)
+      const category =
+        video.category &&
+        video.category !== undefined &&
+        this._uriLink('category', video.category.identifier)
       category && conceptLinks.push(category)
-      
+
       const tags =
         video.tag
           ?.map((tag) => this._uriLink('tags', tag.href ? tag.href : tag.name))
@@ -479,7 +514,9 @@ export class ActivityPubDataSource extends BaseDataSource implements DataSource 
         case 'tags':
           return this._mapTags(body)
         case 'videoObjects':
-          return (body as VideoObject[]).map((video) => this._mapVideoObject(video)).flat()
+          return (body as VideoObject[])
+            .map((video) => this._mapVideoObject(video))
+            .flat()
         case 'station':
           return this._mapStation(body)
 
