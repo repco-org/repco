@@ -17,7 +17,7 @@
     "test": "brittle dist/test/*.js"
   },
   "dependencies": {
-    "activitypub-express": "^4.4.1",
+    "activitypub-express": "repco-org/activitypub-express#fix_federation",
     "connect-history-api-fallback": "^2.0.0",
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
