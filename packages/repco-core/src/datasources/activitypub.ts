@@ -32,21 +32,6 @@ import { createHash } from '../util/hash.js'
 import { createRandomId } from '../util/id.js'
 import { notEmpty } from '../util/misc.js'
 
-const CONTENT_TYPE_JSON = 'application/json'
-
-export class ActivityPubDataSourcePlugin implements DataSourcePlugin {
-  createInstance(config: any) {
-    const parsedConfig = configSchema.parse(config)
-    return new ActivityPubDataSourcePlugin(parsedConfig)
-  }
-  get definition() {
-    return {
-      uid: 'repco:datasource:activitypub',
-      name: 'ActivityPub',
-    }
-  }
-}
-
 const configSchema = zod.object({
   user: zod.string(),
   domain: zod.string(),
@@ -80,6 +65,20 @@ function parseCursor(input?: string | null): Cursor {
   return cursor as Cursor
 }
 
+export class ActivityPubDataSourcePlugin implements DataSourcePlugin {
+  createInstance(config: any) {
+    const parsedConfig = configSchema.parse(config)
+    return new ActivityPubDataSource(parsedConfig)
+  }
+  // @Frando
+  get definition() {
+    return {
+      uid: 'urn:repco:datasource:activitypub',
+      name: 'ActivityPub',
+    }
+  }
+}
+
 // function getDateRangeFromPage(feed: any): [Date, Date] {
 //   let newest = new Date()
 //   let oldest = new Date()
@@ -97,12 +96,10 @@ export class ActivityPubDataSource
   extends BaseDataSource
   implements DataSource
 {
-  // endpoint: URL
   user: string
   domain: string
   host: string
   uriPrefix: string
-  // parser: RssParser = new RssParser()
   constructor(config: ConfigSchema) {
     super()
     this.user = config.user
@@ -110,8 +107,8 @@ export class ActivityPubDataSource
     const host = 'https://' + config.domain
     // host.hash = ''
     this.host = host
-    // TODO @Frando: chose to not include domain in uriPrefix. E.g. when used for Concepts, these
-    // are not domain-specific.
+    // TODO @Frando: chose to not include domain in uriPrefix.
+    // E.g. when used for Concepts, these are not domain-specific.
     this.uriPrefix = `repco:activityPub`
   }
 
@@ -123,15 +120,18 @@ export class ActivityPubDataSource
     }
   }
 
+  // @Frando
   get definition(): DataSourceDefinition {
-    const uid = this.domain
     return {
       name: 'ActivityPub data source',
-      uid,
-      pluginUid: 'repco:datasource:activitypub',
+      uid: 'urn:datasource:activitypub:' + this.domain,
+      pluginUid: 'urn:repco:datasource:activitypub', 
     }
   }
-  async fetchAs<T>(urlString: string, opts: FetchOpts = {}): Promise<T> {
+  private async _fetchAs<T>(
+    urlString: string,
+    opts: FetchOpts = {},
+  ): Promise<T> {
     const url = new URL(urlString)
     // TODO @Frando: do we need to accept other headers?
     opts.headers = new Headers()
@@ -151,40 +151,40 @@ export class ActivityPubDataSource
   }
 
   async fetchWebfinger<Type>(): Promise<Type> {
-    return this.fetchAs(
+    return this._fetchAs(
       `${this.host}/.well-known/webfinger?resource=acct:${this.user}@${this.domain}`,
     )
   }
 
   canFetchUri(uri: string): boolean {
-    if (uri.startsWith(this.host + '/videos')) return true
-    return false
+    const parsed = this.parseUri(uri)
+    return !!(
+      parsed &&
+      parsed.kind === 'entity' &&
+      ['videoFile', 'imageFile', 'videoMedia', 'videoContent'].includes(
+        parsed.type,
+      )
+    )
   }
 
+  // At the moment fetches only entities with type file (videoUrls, teaserImageUrls), video (Video MediaAssets), videoContent (Video ContentItems)
+  // category and tags cannot be fetched by uri as they don't have urls
   async fetchByUri(uri: string): Promise<SourceRecordForm[]> {
-    if (uri === this.host.toString()) {
-      const info = await this.fetchWebfinger<HostInfo>()
-      const profile = info.links.find((link) => link.rel === 'self')?.href
-      const outbox =
-        profile && (await this.fetchAs<OutBox>(`${profile}/outbox`))
-      // const page = outbox && await this.fetchAs<Page>(outbox.first)
-      // const items = page && await Promise.all(
-      //   page.orderedItems.map((item) =>
-      //     typeof item.object === 'string' ? this.fetchAs(item.object) : item,
-      //   ),
-      // )
-
-      const body = JSON.stringify(outbox)
-      return [
-        {
-          sourceType: 'outbox',
-          contentType: 'application/json',
-          sourceUri: uri,
-          body,
-        },
-      ]
+    const parsed = this.parseUri(uri)
+    if (!parsed) {
+      throw new Error('Invalid URI')
     }
-    return []
+    const { id, type } = parsed
+
+    const [body] = await Promise.all([this._fetchAs(id)])
+    return [
+      {
+        body: JSON.stringify(body),
+        contentType: 'application/json',
+        sourceType: type,
+        sourceUri: uri, // TODO @Frando in cba.ts wird hier id genommen. warum?
+      },
+    ]
   }
 
   getLastPageNumber(numItems: number): number {
@@ -198,8 +198,11 @@ export class ActivityPubDataSource
       const info = await this.fetchWebfinger<HostInfo>()
       const profile = info.links.find((link) => link.rel === 'self')?.href
       const outbox =
-        profile && (await this.fetchAs<OutBox>(`${profile}/outbox`))
+        profile && (await this._fetchAs<OutBox>(`${profile}/outbox`))
       const firstPageUrl = outbox && outbox.first
+      if (!firstPageUrl) {
+        throw new Error(`Could not find first page of outbox ${profile}/outbox`)
+      }
       // collect new video entities
       const newVideoObjects: VideoObject[] = []
       // start with last page
@@ -214,12 +217,12 @@ export class ActivityPubDataSource
         let currentPageUrl =
           firstPageUrl && firstPageUrl.replace('page=1', `page=${pageNumber}`)
         const currentPage =
-          currentPageUrl && (await this.fetchAs<Page>(currentPageUrl))
+          currentPageUrl && (await this._fetchAs<Page>(currentPageUrl))
         const items =
           currentPage &&
           (await Promise.all(
             currentPage.orderedItems.map((item) =>
-              this.fetchAs<VideoObject>(item.object),
+              this._fetchAs<VideoObject>(item.object),
             ),
           ))
         if (items === undefined || items === '') {
@@ -240,15 +243,39 @@ export class ActivityPubDataSource
         records: [
           {
             body: JSON.stringify(newVideoObjects),
-            contentType: CONTENT_TYPE_JSON,
+            contentType: 'application/json',
             sourceType: 'videoObjects',
-            sourceUri: `${profile}/outbox`,
+            sourceUri: firstPageUrl, // TODO: This url always stays the same, independent of the amount of videos pushed
           },
         ],
       }
     } catch (error) {
       console.error(`Error fetching updates: ${error}`)
       throw error
+    }
+  }
+
+  private parseUri(uri: string) {
+    if (!uri.startsWith(this.uriPrefix + ':')) return null
+    uri = uri.substring(this.uriPrefix.length + 1)
+    const parts = uri.split(':')
+    if (parts[0] === 'e') {
+      if (parts.length !== 3) return null
+      return {
+        kind: 'entity',
+        type: parts[1],
+        id: parts[2],
+      }
+    } else if (parts[0] === 'r') {
+      if (parts.length !== 4) return null
+      return {
+        kind: 'revision',
+        type: parts[1],
+        id: parts[2],
+        revisionId: parts[3],
+      }
+    } else {
+      return null
     }
   }
 
@@ -270,7 +297,7 @@ export class ActivityPubDataSource
   }
 
   private _mapVideoToFileEntity(videoUrl: ActivityVideoUrlObject): EntityForm {
-    const fileId = this._uri('file', videoUrl.href)
+    const fileId = this._uri('videoFile', videoUrl.href)
     const videoFile: form.FileInput = {
       contentUrl: videoUrl.href,
       mimeType: videoUrl.mediaType,
@@ -303,7 +330,7 @@ export class ActivityPubDataSource
       teaserImage.width && teaserImage.height
         ? teaserImage.height.toString() + 'x' + teaserImage.width.toString()
         : null
-    const fileId = this._uri('file', teaserImage.url)
+    const fileId = this._uri('imageFile', teaserImage.url)
     const imageFile: form.FileInput = {
       contentUrl: teaserImage.url,
       mimeType: teaserImage.mediaType,
@@ -357,7 +384,7 @@ export class ActivityPubDataSource
   }
 
   private _mapVideoObjectToMediaAsset(video: VideoObject): EntityForm[] {
-    const mediaAssetUri = this._uri('video', video.id)
+    const mediaAssetUri = this._uri('videoMedia', video.id)
     let files = []
     let entities = []
 
@@ -368,7 +395,7 @@ export class ActivityPubDataSource
     const videoFileEntities =
       videoUrls && videoUrls.map((url) => this._mapVideoToFileEntity(url))
     entities.push(...videoFileEntities)
-    const fileUris = videoUrls.map((url) => this._uri('file', url.href))
+    const fileUris = videoUrls.map((url) => this._uri('videoFile', url.href))
     files.push(...fileUris)
 
     // create File for Images in "icon"
@@ -381,7 +408,7 @@ export class ActivityPubDataSource
       const teaserImage = this._findLargestTeaserImage(video.icon)
       const imageFileEntity = this._mapImagesToFileEntity(teaserImage)
       entities.push(imageFileEntity)
-      teaserImageUri = this._uri('file', teaserImage.url)
+      teaserImageUri = this._uri('imageFile', teaserImage.url)
       files.push(teaserImageUri)
     }
 
@@ -490,113 +517,22 @@ export class ActivityPubDataSource
 
       return entities
     } catch (error) {
-      console.error(`Error mapping post with ID ${post.id}:`, error)
+      console.error(`Error mapping VideoObject with ID ${video.id}:`, error)
       throw error
     }
   }
-  // HIER BIN ICH
 
   async mapSourceRecord(record: SourceRecordForm): Promise<EntityForm[]> {
     try {
       const body = JSON.parse(record.body)
-
-      switch (record.sourceType) {
-        case 'videoObject':
-          return this._mapVideoObject(body as VideoObject)
-        case 'audio':
-          return this._mapAudio(body)
-        case 'image':
-          return this._mapImage(body)
-        case 'series':
-          return this._mapSeries(body)
-        case 'categories':
-          return this._mapCategories(body)
-        case 'tags':
-          return this._mapTags(body)
-        case 'videoObjects':
-          return (body as VideoObject[])
-            .map((video) => this._mapVideoObject(video))
-            .flat()
-        case 'station':
-          return this._mapStation(body)
-
-        default:
-          throw new Error('Unknown source type: ' + record.sourceType)
+      if (record.sourceType === 'videoObjects') {
+        return (body as VideoObject[])
+          .map((video) => this._mapVideoObjectToContentItem(video))
+          .flat()
       }
+      throw new Error(`Mapping source type ${record.sourceType} not possible.`)
     } catch (error) {
       throw new Error(`Error body undefined: ${error}`)
     }
-  }
-
-  async _extractMediaAssets(
-    itemUri: string,
-    item: RssParser.Item,
-  ): Promise<{ mediaAssets: Link[]; entities: EntityForm[] }> {
-    const entities: EntityForm[] = []
-    if (!item.enclosure) {
-      return { mediaAssets: [], entities: [] }
-    }
-    const fileUri = itemUri + '#file'
-
-    entities.push({
-      type: 'File',
-      content: {
-        contentUrl: item.enclosure.url,
-      },
-      headers: { EntityUris: [fileUri, item.enclosure.url] },
-    })
-
-    const mediaUri = itemUri + '#media'
-
-    entities.push({
-      type: 'MediaAsset',
-      content: {
-        title: item.title || item.guid || 'missing',
-        duration: 0,
-        mediaType: 'audio',
-        File: { uri: fileUri },
-      },
-      headers: { EntityUris: [mediaUri] },
-    })
-
-    return { entities, mediaAssets: [{ uri: mediaUri }] }
-  }
-
-  async _deriveItemUri(item: RssParser.Item): Promise<string> {
-    if (item.guid) return 'rss:guid:' + removeProtocol(item.guid)
-    if (item.enclosure?.url)
-      return 'rss:hurl:' + (await createHash(item.enclosure.url))
-    return 'rss:uuid:' + createRandomId()
-  }
-
-  async _mapItem(item: RssParser.Item): Promise<EntityForm[]> {
-    const itemUri = await this._deriveItemUri(item)
-    const { entities, mediaAssets } = await this._extractMediaAssets(
-      itemUri,
-      item,
-    )
-    const content: ContentItemInput = {
-      title: item.title || item.guid || 'missing',
-      summary: item.contentSnippet,
-      content: item.content || '',
-      contentFormat: 'text/plain',
-      pubDate: item.pubDate ? new Date(item.pubDate) : null,
-      PrimaryGrouping: { uri: this.endpoint.toString() },
-      MediaAssets: mediaAssets,
-    }
-    const headers = {
-      EntityUris: [itemUri],
-    }
-    entities.push({ type: 'ContentItem', content, headers })
-    return entities
-  }
-}
-
-function removeProtocol(inputUrl: string | URL) {
-  try {
-    const url = new URL(inputUrl)
-    return url.toString().replace(url.protocol + '//', '')
-  } catch (err) {
-    return inputUrl.toString()
   }
 }
