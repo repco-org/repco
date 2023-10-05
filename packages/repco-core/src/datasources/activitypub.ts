@@ -1,13 +1,9 @@
 import zod from 'zod'
 import { parse, toSeconds } from 'iso8601-duration'
 import { log } from 'repco-common'
-import { Link } from 'repco-common/zod'
 import { ConceptKind, form } from 'repco-prisma'
-import {
-  ConceptInput,
-  ContentItemInput,
-} from 'repco-prisma/generated/repco/zod.js'
-import { fetch, Headers } from 'undici'
+import { ConceptInput } from 'repco-prisma/generated/repco/zod.js'
+import { fetch } from 'undici'
 import {
   ActivityHashTagObject,
   ActivityIconObject,
@@ -26,16 +22,12 @@ import {
   SourceRecordForm,
 } from '../datasource.js'
 import { EntityForm } from '../entity.js'
-import { FetchOpts } from '../util/datamapping.js'
 import { HttpError } from '../util/error.js'
-import { createHash } from '../util/hash.js'
-import { createRandomId } from '../util/id.js'
 import { notEmpty } from '../util/misc.js'
 
 const configSchema = zod.object({
   user: zod.string(),
   domain: zod.string(),
-  host: zod.string(),
 })
 type ConfigSchema = zod.infer<typeof configSchema>
 
@@ -70,7 +62,6 @@ export class ActivityPubDataSourcePlugin implements DataSourcePlugin {
     const parsedConfig = configSchema.parse(config)
     return new ActivityPubDataSource(parsedConfig)
   }
-  // @Frando
   get definition() {
     return {
       uid: 'urn:repco:datasource:activitypub',
@@ -98,17 +89,15 @@ export class ActivityPubDataSource
 {
   user: string
   domain: string
+  account: string
   host: string
   uriPrefix: string
   constructor(config: ConfigSchema) {
     super()
     this.user = config.user
     this.domain = config.domain
-    const host = 'https://' + config.domain
-    // host.hash = ''
-    this.host = host
-    // TODO @Frando: chose to not include domain in uriPrefix.
-    // E.g. when used for Concepts, these are not domain-specific.
+    this.account = config.user + '@' + config.domain
+    this.host = 'https://' + config.domain
     this.uriPrefix = `repco:activityPub`
   }
 
@@ -120,24 +109,20 @@ export class ActivityPubDataSource
     }
   }
 
-  // @Frando
   get definition(): DataSourceDefinition {
     return {
       name: 'ActivityPub data source',
-      uid: 'urn:datasource:activitypub:' + this.domain,
-      pluginUid: 'urn:repco:datasource:activitypub', 
+      uid: 'urn:datasource:activitypub:' + this.account,
+      pluginUid: 'urn:repco:datasource:activitypub',
     }
   }
-  private async _fetchAs<T>(
-    urlString: string,
-    opts: FetchOpts = {},
-  ): Promise<T> {
-    const url = new URL(urlString)
-    // TODO @Frando: do we need to accept other headers?
-    opts.headers = new Headers()
-    opts.headers.append('accept', 'application/activity+json')
+  private async _fetchAs<T>(url: string): Promise<T> {
     try {
-      const res = await fetch(url.toString(), opts)
+      const res = await fetch(url, {
+        headers: {
+          accept: 'application/activity+json',
+        },
+      })
       log.debug(`fetch (${res.status}, url: ${url})`)
       if (!res.ok) {
         throw await HttpError.fromResponseJson(res, url)
@@ -152,7 +137,7 @@ export class ActivityPubDataSource
 
   async fetchWebfinger<Type>(): Promise<Type> {
     return this._fetchAs(
-      `${this.host}/.well-known/webfinger?resource=acct:${this.user}@${this.domain}`,
+      `${this.host}/.well-known/webfinger?resource=acct:${this.account}`,
     )
   }
 
@@ -182,7 +167,7 @@ export class ActivityPubDataSource
         body: JSON.stringify(body),
         contentType: 'application/json',
         sourceType: type,
-        sourceUri: uri, // TODO @Frando in cba.ts wird hier id genommen. warum?
+        sourceUri: uri,
       },
     ]
   }
@@ -190,6 +175,7 @@ export class ActivityPubDataSource
   getLastPageNumber(numItems: number): number {
     const lastPageNumber: number = Math.floor(numItems / 10) + 1
     return lastPageNumber
+    // return 11
   }
 
   async fetchUpdates(cursorString: string | null): Promise<FetchUpdatesResult> {
@@ -212,31 +198,45 @@ export class ActivityPubDataSource
           `Could not get number of last page of outbox ${profile}/outbox`,
         )
       }
+      pageNumber++
       // loop backwards over pages
-      while (pageNumber >= 0) {
+      while (pageNumber >= 2) {
+        pageNumber--
         let currentPageUrl =
           firstPageUrl && firstPageUrl.replace('page=1', `page=${pageNumber}`)
         const currentPage =
           currentPageUrl && (await this._fetchAs<Page>(currentPageUrl))
+        // if no items are on the page
+        if (currentPage && currentPage.orderedItems.length === 0) {
+          continue
+        }
         const items =
           currentPage &&
           (await Promise.all(
-            currentPage.orderedItems.map((item) =>
-              this._fetchAs<VideoObject>(item.object),
-            ),
+            currentPage.orderedItems.map((item) => {
+              if (item.type === 'Announce' && typeof item.object === 'string') {
+                return this._fetchAs<VideoObject>(item.object)
+              } else if (item.type === 'Create' && item.object !== undefined) {
+                return this._fetchAs<VideoObject>(
+                  (item.object as VideoObject).id,
+                )
+              }
+            }),
           ))
         if (items === undefined || items === '') {
           throw new Error(`Could not catch items under url ${currentPageUrl}.`)
         }
         // iterate over items on page backwards to find items that are newer than the cursor
         for (var i = items.length - 1; i >= 0; i--) {
-          if (new Date(items[i].published) <= cursor.lastPublishedDate) {
+          if (items[i] === undefined) {
             continue
           }
-          newVideoObjects.push(items[i])
-          cursor.lastPublishedDate = new Date(items[i].published)
+          if (new Date(items[i]!.published) <= cursor.lastPublishedDate) {
+            continue
+          }
+          newVideoObjects.push(items[i]!)
+          cursor.lastPublishedDate = new Date(items[i]!.published)
         }
-        pageNumber--
       }
       return {
         cursor: JSON.stringify(cursor),
@@ -302,7 +302,7 @@ export class ActivityPubDataSource
       contentUrl: videoUrl.href,
       mimeType: videoUrl.mediaType,
       resolution: videoUrl.height.toString(), // width is missing, but probably not important. add 'p'?
-      contentSize: videoUrl.size,
+      contentSize: videoUrl.size < 2147483647 ? videoUrl.size : 2147483646, // TODO: implement correct size
     }
     const fileEntity: EntityForm = {
       type: 'File',
@@ -349,8 +349,7 @@ export class ActivityPubDataSource
       kind: ConceptKind.TAG,
       name: tag.name,
     }
-    // TODO @Frando: is it ok to use name if no href or other identifier exists?
-    const uri = this._uri('tags', tag.href ? tag.href : tag.name)
+    const uri = this._uri('tags', tag.name)
     const ConceptEntity: EntityForm = {
       type: 'Concept',
       content: concept,
@@ -367,17 +366,8 @@ export class ActivityPubDataSource
       name: category.name,
       // TODO: find originNamespace of AP categories
     }
-    // TODO @Frando: does it make sense to use revisions for the categories?
-    // there is a limited amount of categories and they are mapped to numbers
-    // but it is possible to add categories or hackily exchange them
-    const revisionId = this._revisionUri(
-      'category',
-      category.identifier,
-      new Date().getTime(),
-    )
-    const uri = this._uri('category', category.identifier)
+    const uri = this._uri('category', 'peertube:' + category.name)
     const headers = {
-      RevisionUris: [revisionId],
       EntityUris: [uri],
     }
     return [{ type: 'Concept', content: concept, headers }]
@@ -389,8 +379,8 @@ export class ActivityPubDataSource
     let entities = []
 
     // create Files for videos in "url"
-    const videoUrls = video.url.filter((url) =>
-      url.mediaType.startsWith('video'),
+    const videoUrls = video.url.filter(
+      (url) => url.mediaType && url.mediaType.startsWith('video'),
     ) as ActivityVideoUrlObject[]
     const videoFileEntities =
       videoUrls && videoUrls.map((url) => this._mapVideoToFileEntity(url))
@@ -439,8 +429,8 @@ export class ActivityPubDataSource
       description: video.content,
       duration,
       mediaType: video.type, //"Video"
-      File: files,
-      ContentItems: [], // TODO @Frando: Add later in ContentItem-function?
+      File: { uri: files[0] }, // TODO: change as soon as File is an array
+      ContentItems: [],
       //License: video.licence, // TODO: transform (https://framacolibri.org/t/problems-with-the-current-license-system/5695)
       // Contributions: null,
       TeaserImage: { uri: teaserImageUri },
@@ -488,18 +478,17 @@ export class ActivityPubDataSource
         title: video.name,
         subtitle: 'missing',
         pubDate: new Date(video.published),
-        summary: video.content, // TODO @Frando: or leave it empty or trim content?
-        content: video.content,
+        content: video.content || '',
         contentFormat: video.mediaType, // "text/markdown"
         // licenseUid TODO: plan to abolish License table and add license as string plus license_details
-        //AdditionalGroupings TODO @Frando: what is this?
         Concepts: conceptLinks,
         //Contributions
         //License
         MediaAssets: mediaAssetUris,
+        //TODO: PrimaryGrouping = channel. Channel has to be added as ContentGrouping entity
       }
       const revisionUri = this._revisionUri(
-        'videoContent', // TODO @Frando: what to chose to have different names for contentItems and mediaAssets?
+        'videoContent',
         video.id,
         new Date().getTime(), // TODO: change when we have the date of the activity
       )

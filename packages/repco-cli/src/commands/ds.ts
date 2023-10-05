@@ -64,7 +64,7 @@ export const add = createCommand({
   help: 'Add a datasource',
   arguments: [
     { name: 'plugin', required: true, help: 'Datasource plugin URN' },
-    { name: 'endpoint', required: true, help: 'Endpoint URL' },
+    { name: 'config', required: true, help: 'Config (as json)' },
   ],
   options: {
     repo: { type: 'string', short: 'r', help: 'Repo name or DID' },
@@ -72,7 +72,7 @@ export const add = createCommand({
   async run(opts, args) {
     const repo = await Repo.openWithDefaults(opts.repo)
     const prisma = repo.prisma
-    const config = { endpoint: args.endpoint }
+    const config = JSON.parse(args.config)
     const instance = await repo.dsr.create(
       repo.prisma,
       plugins,

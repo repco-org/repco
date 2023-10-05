@@ -33,16 +33,18 @@ A datasource has a definition consisting of uid, name, and pluginId. Further it 
 
 For the special case of RSS feeds, we implement a RssDatasourcePlugin.
 
-## Using a DataSource
+## Adding a DataSource and fetching updates
 
-Once a DataSource has been created, it can be added to a REPO and its content can be included in the REPO. To fetch updates from a DataSource, you can use the ds ingest command, which will fetch and store new content from all DataSources within a REPO.
+Once a DataSource has been created, it can be added to a REPO and its content can be included in the REPO. 
+In order to add a DataSource, use the DataSource's uid and a DataSource-specific config given in json and run
+```
+yarn repco ds add DATASOURCE_UID CONFIG
+```
+For example, in order to add the peertube channel m.akyel_eurozine.com_channel on displayeurope.video as a DataSource run
+```
+yarn repco ds add urn:repco:datasource:activitypub '{"user":"m.akyel_eurozine.com_channel", "domain":"displayeurope.video"}'
+```
+Please note the correct use of single and double quotation marks in the config in order to provide valid json.
+This command will also perform an initial ingest.
 
-The algorithm used to fetch updates from a DataSource works as follows:
-
-1. Fetch the newest page.
-2. Check if the oldest date of the page is older than the most recent date of the last fetch.
-    * If the oldest date is older, reset to page 0. If already on page 0, the fetch is complete.
-    * If the oldest date is newer, increase the page number to continue the fetch until the most recent publication date is reached.
-
-In this way, Repco ensures that all updates from the external source are fetched and stored in the local database.
-
+In order to fetch updates from a DataSource at a later point in time, you can use the ds ingest command, which will fetch and store new content from all DataSources within a REPO.

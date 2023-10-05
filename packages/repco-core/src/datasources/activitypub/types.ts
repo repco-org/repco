@@ -11,7 +11,7 @@ interface Activity {
   type: string
   id: string
   actor: string
-  object: string
+  object: string | VideoObject
   to: string[]
   cc: string[]
 }
