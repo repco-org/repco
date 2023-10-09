@@ -43,6 +43,7 @@ export class RelationFinder {
     // check if already in map: resolve now
     if (this.uriMap.has(value.uri)) {
       value.uid = this.uriMap.get(value.uri)
+      // BUG? NOTHING HAPPENS WITH value.uid
     } else {
       this.pendingUris.add(value.uri)
       if (relation) this.relsByUri.push(value.uri, relation)

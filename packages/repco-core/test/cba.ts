@@ -50,7 +50,7 @@ test('cba datasource - basic1', async (assert) => {
           // uid: true,
           mediaType: true,
           title: true,
-          File: {
+          Files: {
             select: {
               // uid: true,
               contentUrl: true,

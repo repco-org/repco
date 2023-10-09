@@ -19,7 +19,6 @@ const fixturePath = (name: string) =>
 test('peertube datasource - basic1', async (assert) => {
   mockFetch(assert, fixturePath('basic1'))
   const prisma = await setup(assert)
-  console.log('hihi')
   const repo = await Repo.create(prisma, 'test')
   const plugins = new DataSourcePluginRegistry()
   const activityPubPlugin = new ActivityPubDataSourcePlugin()
@@ -27,8 +26,8 @@ test('peertube datasource - basic1', async (assert) => {
   await repo.dsr.create(repo.prisma, plugins, activityPubPlugin.definition.uid, {
     // user: 'blender_channel',
     // domain: 'video.blender.org'
-    // user: 'cryptix_channel',
-    user: 'mirsal',
+    user: 'cryptix_channel',
+    // user: 'mirsal',
     domain: 'peertube.1312.media'
   })
   await ingestUpdatesFromDataSources(repo)
@@ -57,7 +56,7 @@ test('peertube datasource - basic1', async (assert) => {
           // uid: true,
           mediaType: true,
           title: true,
-          File: {
+          Files: {
             select: {
               // uid: true,
               contentUrl: true,

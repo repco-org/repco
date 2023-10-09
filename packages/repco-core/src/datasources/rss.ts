@@ -361,7 +361,7 @@ export class RssDataSource extends BaseDataSource implements DataSource {
         title: item.title || item.guid || 'missing',
         duration: 0,
         mediaType: 'audio',
-        File: { uri: fileUri },
+        Files: [{ uri: fileUri }],
       },
       headers: { EntityUris: [mediaUri] },
     })

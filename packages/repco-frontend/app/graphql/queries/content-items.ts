@@ -33,15 +33,15 @@ export const ContentItemsQuery = gql`
         mediaAssets {
           nodes {
             duration
-            fileUid
             licenseUid
             mediaType
             title
             uid
-            file {
-              contentUrl
-              contentSize
-              mimeType
+            files {
+              nodes {
+                contentUrl
+                mimeType
+              }
             }
           }
         }

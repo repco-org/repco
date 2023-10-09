@@ -288,12 +288,11 @@ model MediaAsset {
   duration    Float?
   mediaType   String // TODO: Enum?
 
-  fileUid        String
   teaserImageUid String?
   licenseUid     String?
 
   Revision      Revision       @relation(fields: [revisionId], references: [id])
-  File          File           @relation("file", fields: [fileUid], references: [uid])
+  Files         File[]
   ContentItems  ContentItem[]
   Transcripts   Transcript[]
   Chapters      Chapter[]
@@ -421,7 +420,7 @@ model File {
   additionalMetadata String?
 
   Revision      Revision      @relation(fields: [revisionId], references: [id])
-  AsMediaAssets MediaAsset[]  @relation("file")
+  AsMediaAssets MediaAsset[]
   AsThumbnail   MediaAsset[]  @relation("thumbnail")
   contributors  Contributor[]
 }

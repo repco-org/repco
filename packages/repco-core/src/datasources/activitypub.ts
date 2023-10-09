@@ -152,7 +152,8 @@ export class ActivityPubDataSource
     )
   }
 
-  // At the moment fetches only entities with type file (videoUrls, teaserImageUrls), video (Video MediaAssets), videoContent (Video ContentItems)
+  // At the moment fetches only entities with type file (videoUrls, teaserImageUrls), 
+  // video (Video MediaAssets) and videoContent (Video ContentItems)
   // category and tags cannot be fetched by uri as they don't have urls
   async fetchByUri(uri: string): Promise<SourceRecordForm[]> {
     const parsed = this.parseUri(uri)
@@ -385,9 +386,10 @@ export class ActivityPubDataSource
     const videoFileEntities =
       videoUrls && videoUrls.map((url) => this._mapVideoToFileEntity(url))
     entities.push(...videoFileEntities)
-    const fileUris = videoUrls.map((url) => this._uri('videoFile', url.href))
-    files.push(...fileUris)
-
+    const fileUris = videoUrls.map((url) => ({ uri: this._uri('videoFile', url.href) }))
+    if (fileUris !== undefined && fileUris !== null) {
+      files.push(...fileUris)
+    }
     // create File for Images in "icon"
     let teaserImageUri = undefined
     if (
@@ -399,7 +401,7 @@ export class ActivityPubDataSource
       const imageFileEntity = this._mapImagesToFileEntity(teaserImage)
       entities.push(imageFileEntity)
       teaserImageUri = this._uri('imageFile', teaserImage.url)
-      files.push(teaserImageUri)
+      teaserImageUri && files.push({ uri: teaserImageUri })
     }
 
     // transform video.category and video.tags into Concepts
@@ -429,7 +431,7 @@ export class ActivityPubDataSource
       description: video.content,
       duration,
       mediaType: video.type, //"Video"
-      File: { uri: files[0] }, // TODO: change as soon as File is an array
+      Files: files,
       ContentItems: [],
       //License: video.licence, // TODO: transform (https://framacolibri.org/t/problems-with-the-current-license-system/5695)
       // Contributions: null,

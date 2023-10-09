@@ -456,7 +456,7 @@ export class CbaDataSource implements DataSource {
       Concepts: media.media_tag.map((cbaId) => ({
         uri: this._uri('tags', cbaId),
       })),
-      File: { uri: fileId },
+      Files: [{ uri: fileId }],
     }
 
     const fileEntity: EntityForm = {
@@ -507,7 +507,7 @@ export class CbaDataSource implements DataSource {
       Concepts: media.media_tag.map((cbaId) => ({
         uri: this._uri('tags', cbaId),
       })),
-      File: { uri: fileId },
+      Files: [{ uri: fileId }],
     }
 
     const fileEntity: EntityForm = {

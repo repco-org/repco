@@ -2713,16 +2713,10 @@ export type File = {
   /** Reads and enables pagination through a set of `Contributor`. */
   contributorsByProfilePicture: ContributorsConnection
   duration?: Maybe<Scalars['Float']>
-  /** Reads and enables pagination through a set of `File`. */
-  filesByMediaAssetFileUidAndTeaserImageUid: FileFilesByMediaAssetFileUidAndTeaserImageUidManyToManyConnection
-  /** Reads and enables pagination through a set of `File`. */
-  filesByMediaAssetTeaserImageUidAndFileUid: FileFilesByMediaAssetTeaserImageUidAndFileUidManyToManyConnection
-  /** Reads and enables pagination through a set of `License`. */
-  licensesByMediaAssetFileUidAndLicenseUid: FileLicensesByMediaAssetFileUidAndLicenseUidManyToManyConnection
   /** Reads and enables pagination through a set of `License`. */
   licensesByMediaAssetTeaserImageUidAndLicenseUid: FileLicensesByMediaAssetTeaserImageUidAndLicenseUidManyToManyConnection
   /** Reads and enables pagination through a set of `MediaAsset`. */
-  mediaAssets: MediaAssetsConnection
+  mediaAssets: FileMediaAssetsByFileToMediaAssetAAndBManyToManyConnection
   /** Reads and enables pagination through a set of `MediaAsset`. */
   mediaAssetsByTeaserImage: MediaAssetsConnection
   mimeType?: Maybe<Scalars['String']>
@@ -2742,39 +2736,6 @@ export type FileContributorsByProfilePictureArgs = {
   last: InputMaybe<Scalars['Int']>
   offset: InputMaybe<Scalars['Int']>
   orderBy?: InputMaybe<Array<ContributorsOrderBy>>
-}
-
-export type FileFilesByMediaAssetFileUidAndTeaserImageUidArgs = {
-  after: InputMaybe<Scalars['Cursor']>
-  before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<FileCondition>
-  filter: InputMaybe<FileFilter>
-  first: InputMaybe<Scalars['Int']>
-  last: InputMaybe<Scalars['Int']>
-  offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<FilesOrderBy>>
-}
-
-export type FileFilesByMediaAssetTeaserImageUidAndFileUidArgs = {
-  after: InputMaybe<Scalars['Cursor']>
-  before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<FileCondition>
-  filter: InputMaybe<FileFilter>
-  first: InputMaybe<Scalars['Int']>
-  last: InputMaybe<Scalars['Int']>
-  offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<FilesOrderBy>>
-}
-
-export type FileLicensesByMediaAssetFileUidAndLicenseUidArgs = {
-  after: InputMaybe<Scalars['Cursor']>
-  before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<LicenseCondition>
-  filter: InputMaybe<LicenseFilter>
-  first: InputMaybe<Scalars['Int']>
-  last: InputMaybe<Scalars['Int']>
-  offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<LicensesOrderBy>>
 }
 
 export type FileLicensesByMediaAssetTeaserImageUidAndLicenseUidArgs = {
@@ -2836,78 +2797,6 @@ export type FileCondition = {
   uid?: InputMaybe<Scalars['String']>
 }
 
-/** A connection to a list of `File` values, with data from `MediaAsset`. */
-export type FileFilesByMediaAssetFileUidAndTeaserImageUidManyToManyConnection =
-  {
-    /** A list of edges which contains the `File`, info from the `MediaAsset`, and the cursor to aid in pagination. */
-    edges: Array<FileFilesByMediaAssetFileUidAndTeaserImageUidManyToManyEdge>
-    /** A list of `File` objects. */
-    nodes: Array<File>
-    /** Information to aid in pagination. */
-    pageInfo: PageInfo
-    /** The count of *all* `File` you could get from the connection. */
-    totalCount: Scalars['Int']
-  }
-
-/** A `File` edge in the connection, with data from `MediaAsset`. */
-export type FileFilesByMediaAssetFileUidAndTeaserImageUidManyToManyEdge = {
-  /** A cursor for use in pagination. */
-  cursor?: Maybe<Scalars['Cursor']>
-  /** Reads and enables pagination through a set of `MediaAsset`. */
-  mediaAssetsByTeaserImage: MediaAssetsConnection
-  /** The `File` at the end of the edge. */
-  node: File
-}
-
-/** A `File` edge in the connection, with data from `MediaAsset`. */
-export type FileFilesByMediaAssetFileUidAndTeaserImageUidManyToManyEdgeMediaAssetsByTeaserImageArgs =
-  {
-    after: InputMaybe<Scalars['Cursor']>
-    before: InputMaybe<Scalars['Cursor']>
-    condition: InputMaybe<MediaAssetCondition>
-    filter: InputMaybe<MediaAssetFilter>
-    first: InputMaybe<Scalars['Int']>
-    last: InputMaybe<Scalars['Int']>
-    offset: InputMaybe<Scalars['Int']>
-    orderBy?: InputMaybe<Array<MediaAssetsOrderBy>>
-  }
-
-/** A connection to a list of `File` values, with data from `MediaAsset`. */
-export type FileFilesByMediaAssetTeaserImageUidAndFileUidManyToManyConnection =
-  {
-    /** A list of edges which contains the `File`, info from the `MediaAsset`, and the cursor to aid in pagination. */
-    edges: Array<FileFilesByMediaAssetTeaserImageUidAndFileUidManyToManyEdge>
-    /** A list of `File` objects. */
-    nodes: Array<File>
-    /** Information to aid in pagination. */
-    pageInfo: PageInfo
-    /** The count of *all* `File` you could get from the connection. */
-    totalCount: Scalars['Int']
-  }
-
-/** A `File` edge in the connection, with data from `MediaAsset`. */
-export type FileFilesByMediaAssetTeaserImageUidAndFileUidManyToManyEdge = {
-  /** A cursor for use in pagination. */
-  cursor?: Maybe<Scalars['Cursor']>
-  /** Reads and enables pagination through a set of `MediaAsset`. */
-  mediaAssets: MediaAssetsConnection
-  /** The `File` at the end of the edge. */
-  node: File
-}
-
-/** A `File` edge in the connection, with data from `MediaAsset`. */
-export type FileFilesByMediaAssetTeaserImageUidAndFileUidManyToManyEdgeMediaAssetsArgs =
-  {
-    after: InputMaybe<Scalars['Cursor']>
-    before: InputMaybe<Scalars['Cursor']>
-    condition: InputMaybe<MediaAssetCondition>
-    filter: InputMaybe<MediaAssetFilter>
-    first: InputMaybe<Scalars['Int']>
-    last: InputMaybe<Scalars['Int']>
-    offset: InputMaybe<Scalars['Int']>
-    orderBy?: InputMaybe<Array<MediaAssetsOrderBy>>
-  }
-
 /** A filter to be used against `File` object types. All fields are combined with a logical ‘and.’ */
 export type FileFilter = {
   /** Filter by the object’s `additionalMetadata` field. */
@@ -2930,14 +2819,10 @@ export type FileFilter = {
   contributorsByProfilePictureExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `duration` field. */
   duration?: InputMaybe<FloatFilter>
-  /** Filter by the object’s `mediaAssets` relation. */
-  mediaAssets?: InputMaybe<FileToManyMediaAssetFilter>
   /** Filter by the object’s `mediaAssetsByTeaserImage` relation. */
   mediaAssetsByTeaserImage?: InputMaybe<FileToManyMediaAssetFilter>
   /** Some related `mediaAssetsByTeaserImage` exist. */
   mediaAssetsByTeaserImageExist?: InputMaybe<Scalars['Boolean']>
-  /** Some related `mediaAssets` exist. */
-  mediaAssetsExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `mimeType` field. */
   mimeType?: InputMaybe<StringFilter>
   /** Negates the expression. */
@@ -2953,41 +2838,6 @@ export type FileFilter = {
   /** Filter by the object’s `uid` field. */
   uid?: InputMaybe<StringFilter>
 }
-
-/** A connection to a list of `License` values, with data from `MediaAsset`. */
-export type FileLicensesByMediaAssetFileUidAndLicenseUidManyToManyConnection = {
-  /** A list of edges which contains the `License`, info from the `MediaAsset`, and the cursor to aid in pagination. */
-  edges: Array<FileLicensesByMediaAssetFileUidAndLicenseUidManyToManyEdge>
-  /** A list of `License` objects. */
-  nodes: Array<License>
-  /** Information to aid in pagination. */
-  pageInfo: PageInfo
-  /** The count of *all* `License` you could get from the connection. */
-  totalCount: Scalars['Int']
-}
-
-/** A `License` edge in the connection, with data from `MediaAsset`. */
-export type FileLicensesByMediaAssetFileUidAndLicenseUidManyToManyEdge = {
-  /** A cursor for use in pagination. */
-  cursor?: Maybe<Scalars['Cursor']>
-  /** Reads and enables pagination through a set of `MediaAsset`. */
-  mediaAssets: MediaAssetsConnection
-  /** The `License` at the end of the edge. */
-  node: License
-}
-
-/** A `License` edge in the connection, with data from `MediaAsset`. */
-export type FileLicensesByMediaAssetFileUidAndLicenseUidManyToManyEdgeMediaAssetsArgs =
-  {
-    after: InputMaybe<Scalars['Cursor']>
-    before: InputMaybe<Scalars['Cursor']>
-    condition: InputMaybe<MediaAssetCondition>
-    filter: InputMaybe<MediaAssetFilter>
-    first: InputMaybe<Scalars['Int']>
-    last: InputMaybe<Scalars['Int']>
-    offset: InputMaybe<Scalars['Int']>
-    orderBy?: InputMaybe<Array<MediaAssetsOrderBy>>
-  }
 
 /** A connection to a list of `License` values, with data from `MediaAsset`. */
 export type FileLicensesByMediaAssetTeaserImageUidAndLicenseUidManyToManyConnection =
@@ -3024,6 +2874,41 @@ export type FileLicensesByMediaAssetTeaserImageUidAndLicenseUidManyToManyEdgeMed
     last: InputMaybe<Scalars['Int']>
     offset: InputMaybe<Scalars['Int']>
     orderBy?: InputMaybe<Array<MediaAssetsOrderBy>>
+  }
+
+/** A connection to a list of `MediaAsset` values, with data from `_FileToMediaAsset`. */
+export type FileMediaAssetsByFileToMediaAssetAAndBManyToManyConnection = {
+  /** A list of edges which contains the `MediaAsset`, info from the `_FileToMediaAsset`, and the cursor to aid in pagination. */
+  edges: Array<FileMediaAssetsByFileToMediaAssetAAndBManyToManyEdge>
+  /** A list of `MediaAsset` objects. */
+  nodes: Array<MediaAsset>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** The count of *all* `MediaAsset` you could get from the connection. */
+  totalCount: Scalars['Int']
+}
+
+/** A `MediaAsset` edge in the connection, with data from `_FileToMediaAsset`. */
+export type FileMediaAssetsByFileToMediaAssetAAndBManyToManyEdge = {
+  /** Reads and enables pagination through a set of `_FileToMediaAsset`. */
+  _fileToMediaAssetsByB: _FileToMediaAssetsConnection
+  /** A cursor for use in pagination. */
+  cursor?: Maybe<Scalars['Cursor']>
+  /** The `MediaAsset` at the end of the edge. */
+  node: MediaAsset
+}
+
+/** A `MediaAsset` edge in the connection, with data from `_FileToMediaAsset`. */
+export type FileMediaAssetsByFileToMediaAssetAAndBManyToManyEdge_FileToMediaAssetsByBArgs =
+  {
+    after: InputMaybe<Scalars['Cursor']>
+    before: InputMaybe<Scalars['Cursor']>
+    condition: InputMaybe<_FileToMediaAssetCondition>
+    filter: InputMaybe<_FileToMediaAssetFilter>
+    first: InputMaybe<Scalars['Int']>
+    last: InputMaybe<Scalars['Int']>
+    offset: InputMaybe<Scalars['Int']>
+    orderBy?: InputMaybe<Array<_FileToMediaAssetsOrderBy>>
   }
 
 /** A filter to be used against many `Contributor` object types. All fields are combined with a logical ‘and.’ */
@@ -3183,109 +3068,6 @@ export type JsonFilter = {
   notIn?: InputMaybe<Array<Scalars['JSON']>>
 }
 
-export type Keypair = {
-  did: Scalars['String']
-  name?: Maybe<Scalars['String']>
-  scope: KeypairScope
-  secret: Scalars['String']
-}
-
-/** A condition to be used against `Keypair` object types. All fields are tested for equality and combined with a logical ‘and.’ */
-export type KeypairCondition = {
-  /** Checks for equality with the object’s `did` field. */
-  did?: InputMaybe<Scalars['String']>
-  /** Checks for equality with the object’s `name` field. */
-  name?: InputMaybe<Scalars['String']>
-  /** Checks for equality with the object’s `scope` field. */
-  scope?: InputMaybe<KeypairScope>
-  /** Checks for equality with the object’s `secret` field. */
-  secret?: InputMaybe<Scalars['String']>
-}
-
-/** A filter to be used against `Keypair` object types. All fields are combined with a logical ‘and.’ */
-export type KeypairFilter = {
-  /** Checks for all expressions in this list. */
-  and?: InputMaybe<Array<KeypairFilter>>
-  /** Filter by the object’s `did` field. */
-  did?: InputMaybe<StringFilter>
-  /** Filter by the object’s `name` field. */
-  name?: InputMaybe<StringFilter>
-  /** Negates the expression. */
-  not?: InputMaybe<KeypairFilter>
-  /** Checks for any expressions in this list. */
-  or?: InputMaybe<Array<KeypairFilter>>
-  /** Filter by the object’s `scope` field. */
-  scope?: InputMaybe<KeypairScopeFilter>
-  /** Filter by the object’s `secret` field. */
-  secret?: InputMaybe<StringFilter>
-}
-
-export enum KeypairScope {
-  Instance = 'INSTANCE',
-  Repo = 'REPO',
-}
-
-/** A filter to be used against KeypairScope fields. All fields are combined with a logical ‘and.’ */
-export type KeypairScopeFilter = {
-  /** Not equal to the specified value, treating null like an ordinary value. */
-  distinctFrom?: InputMaybe<KeypairScope>
-  /** Equal to the specified value. */
-  equalTo?: InputMaybe<KeypairScope>
-  /** Greater than the specified value. */
-  greaterThan?: InputMaybe<KeypairScope>
-  /** Greater than or equal to the specified value. */
-  greaterThanOrEqualTo?: InputMaybe<KeypairScope>
-  /** Included in the specified list. */
-  in?: InputMaybe<Array<KeypairScope>>
-  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
-  isNull?: InputMaybe<Scalars['Boolean']>
-  /** Less than the specified value. */
-  lessThan?: InputMaybe<KeypairScope>
-  /** Less than or equal to the specified value. */
-  lessThanOrEqualTo?: InputMaybe<KeypairScope>
-  /** Equal to the specified value, treating null like an ordinary value. */
-  notDistinctFrom?: InputMaybe<KeypairScope>
-  /** Not equal to the specified value. */
-  notEqualTo?: InputMaybe<KeypairScope>
-  /** Not included in the specified list. */
-  notIn?: InputMaybe<Array<KeypairScope>>
-}
-
-/** A connection to a list of `Keypair` values. */
-export type KeypairsConnection = {
-  /** A list of edges which contains the `Keypair` and cursor to aid in pagination. */
-  edges: Array<KeypairsEdge>
-  /** A list of `Keypair` objects. */
-  nodes: Array<Keypair>
-  /** Information to aid in pagination. */
-  pageInfo: PageInfo
-  /** The count of *all* `Keypair` you could get from the connection. */
-  totalCount: Scalars['Int']
-}
-
-/** A `Keypair` edge in the connection. */
-export type KeypairsEdge = {
-  /** A cursor for use in pagination. */
-  cursor?: Maybe<Scalars['Cursor']>
-  /** The `Keypair` at the end of the edge. */
-  node: Keypair
-}
-
-/** Methods to use when ordering `Keypair`. */
-export enum KeypairsOrderBy {
-  DidAsc = 'DID_ASC',
-  DidDesc = 'DID_DESC',
-  NameAsc = 'NAME_ASC',
-  NameDesc = 'NAME_DESC',
-  Natural = 'NATURAL',
-  PrimaryKeyAsc = 'PRIMARY_KEY_ASC',
-  PrimaryKeyDesc = 'PRIMARY_KEY_DESC',
-  ScopeAsc = 'SCOPE_ASC',
-  ScopeDesc = 'SCOPE_DESC',
-  SecretAsc = 'SECRET_ASC',
-  SecretDesc = 'SECRET_DESC',
-}
-
 export type License = {
   /** Reads and enables pagination through a set of `ContentGrouping`. */
   contentGroupings: ContentGroupingsConnection
@@ -3293,8 +3075,6 @@ export type License = {
   contentGroupingsByContentItemLicenseUidAndPrimaryGroupingUid: LicenseContentGroupingsByContentItemLicenseUidAndPrimaryGroupingUidManyToManyConnection
   /** Reads and enables pagination through a set of `ContentItem`. */
   contentItems: ContentItemsConnection
-  /** Reads and enables pagination through a set of `File`. */
-  filesByMediaAssetLicenseUidAndFileUid: LicenseFilesByMediaAssetLicenseUidAndFileUidManyToManyConnection
   /** Reads and enables pagination through a set of `File`. */
   filesByMediaAssetLicenseUidAndTeaserImageUid: LicenseFilesByMediaAssetLicenseUidAndTeaserImageUidManyToManyConnection
   /** Reads and enables pagination through a set of `MediaAsset`. */
@@ -3340,17 +3120,6 @@ export type LicenseContentItemsArgs = {
   last: InputMaybe<Scalars['Int']>
   offset: InputMaybe<Scalars['Int']>
   orderBy?: InputMaybe<Array<ContentItemsOrderBy>>
-}
-
-export type LicenseFilesByMediaAssetLicenseUidAndFileUidArgs = {
-  after: InputMaybe<Scalars['Cursor']>
-  before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<FileCondition>
-  filter: InputMaybe<FileFilter>
-  first: InputMaybe<Scalars['Int']>
-  last: InputMaybe<Scalars['Int']>
-  offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<FilesOrderBy>>
 }
 
 export type LicenseFilesByMediaAssetLicenseUidAndTeaserImageUidArgs = {
@@ -3432,41 +3201,6 @@ export type LicenseContentGroupingsByContentItemLicenseUidAndPrimaryGroupingUidM
     last: InputMaybe<Scalars['Int']>
     offset: InputMaybe<Scalars['Int']>
     orderBy?: InputMaybe<Array<ContentItemsOrderBy>>
-  }
-
-/** A connection to a list of `File` values, with data from `MediaAsset`. */
-export type LicenseFilesByMediaAssetLicenseUidAndFileUidManyToManyConnection = {
-  /** A list of edges which contains the `File`, info from the `MediaAsset`, and the cursor to aid in pagination. */
-  edges: Array<LicenseFilesByMediaAssetLicenseUidAndFileUidManyToManyEdge>
-  /** A list of `File` objects. */
-  nodes: Array<File>
-  /** Information to aid in pagination. */
-  pageInfo: PageInfo
-  /** The count of *all* `File` you could get from the connection. */
-  totalCount: Scalars['Int']
-}
-
-/** A `File` edge in the connection, with data from `MediaAsset`. */
-export type LicenseFilesByMediaAssetLicenseUidAndFileUidManyToManyEdge = {
-  /** A cursor for use in pagination. */
-  cursor?: Maybe<Scalars['Cursor']>
-  /** Reads and enables pagination through a set of `MediaAsset`. */
-  mediaAssets: MediaAssetsConnection
-  /** The `File` at the end of the edge. */
-  node: File
-}
-
-/** A `File` edge in the connection, with data from `MediaAsset`. */
-export type LicenseFilesByMediaAssetLicenseUidAndFileUidManyToManyEdgeMediaAssetsArgs =
-  {
-    after: InputMaybe<Scalars['Cursor']>
-    before: InputMaybe<Scalars['Cursor']>
-    condition: InputMaybe<MediaAssetCondition>
-    filter: InputMaybe<MediaAssetFilter>
-    first: InputMaybe<Scalars['Int']>
-    last: InputMaybe<Scalars['Int']>
-    offset: InputMaybe<Scalars['Int']>
-    orderBy?: InputMaybe<Array<MediaAssetsOrderBy>>
   }
 
 /** A connection to a list of `File` values, with data from `MediaAsset`. */
@@ -3647,9 +3381,8 @@ export type MediaAsset = {
   contributions: MediaAssetContributionsByContributionToMediaAssetBAndAManyToManyConnection
   description?: Maybe<Scalars['String']>
   duration?: Maybe<Scalars['Float']>
-  /** Reads a single `File` that is related to this `MediaAsset`. */
-  file?: Maybe<File>
-  fileUid: Scalars['String']
+  /** Reads and enables pagination through a set of `File`. */
+  files: MediaAssetFilesByFileToMediaAssetBAndAManyToManyConnection
   /** Reads a single `License` that is related to this `MediaAsset`. */
   license?: Maybe<License>
   licenseUid?: Maybe<Scalars['String']>
@@ -3710,6 +3443,17 @@ export type MediaAssetContributionsArgs = {
   last: InputMaybe<Scalars['Int']>
   offset: InputMaybe<Scalars['Int']>
   orderBy?: InputMaybe<Array<ContributionsOrderBy>>
+}
+
+export type MediaAssetFilesArgs = {
+  after: InputMaybe<Scalars['Cursor']>
+  before: InputMaybe<Scalars['Cursor']>
+  condition: InputMaybe<FileCondition>
+  filter: InputMaybe<FileFilter>
+  first: InputMaybe<Scalars['Int']>
+  last: InputMaybe<Scalars['Int']>
+  offset: InputMaybe<Scalars['Int']>
+  orderBy?: InputMaybe<Array<FilesOrderBy>>
 }
 
 export type MediaAssetTranscriptsArgs = {
@@ -3778,8 +3522,6 @@ export type MediaAssetCondition = {
   description?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `duration` field. */
   duration?: InputMaybe<Scalars['Float']>
-  /** Checks for equality with the object’s `fileUid` field. */
-  fileUid?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `licenseUid` field. */
   licenseUid?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `mediaType` field. */
@@ -3868,6 +3610,41 @@ export type MediaAssetContributionsByContributionToMediaAssetBAndAManyToManyEdge
     orderBy?: InputMaybe<Array<_ContributionToMediaAssetsOrderBy>>
   }
 
+/** A connection to a list of `File` values, with data from `_FileToMediaAsset`. */
+export type MediaAssetFilesByFileToMediaAssetBAndAManyToManyConnection = {
+  /** A list of edges which contains the `File`, info from the `_FileToMediaAsset`, and the cursor to aid in pagination. */
+  edges: Array<MediaAssetFilesByFileToMediaAssetBAndAManyToManyEdge>
+  /** A list of `File` objects. */
+  nodes: Array<File>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** The count of *all* `File` you could get from the connection. */
+  totalCount: Scalars['Int']
+}
+
+/** A `File` edge in the connection, with data from `_FileToMediaAsset`. */
+export type MediaAssetFilesByFileToMediaAssetBAndAManyToManyEdge = {
+  /** Reads and enables pagination through a set of `_FileToMediaAsset`. */
+  _fileToMediaAssetsByA: _FileToMediaAssetsConnection
+  /** A cursor for use in pagination. */
+  cursor?: Maybe<Scalars['Cursor']>
+  /** The `File` at the end of the edge. */
+  node: File
+}
+
+/** A `File` edge in the connection, with data from `_FileToMediaAsset`. */
+export type MediaAssetFilesByFileToMediaAssetBAndAManyToManyEdge_FileToMediaAssetsByAArgs =
+  {
+    after: InputMaybe<Scalars['Cursor']>
+    before: InputMaybe<Scalars['Cursor']>
+    condition: InputMaybe<_FileToMediaAssetCondition>
+    filter: InputMaybe<_FileToMediaAssetFilter>
+    first: InputMaybe<Scalars['Int']>
+    last: InputMaybe<Scalars['Int']>
+    offset: InputMaybe<Scalars['Int']>
+    orderBy?: InputMaybe<Array<_FileToMediaAssetsOrderBy>>
+  }
+
 /** A filter to be used against `MediaAsset` object types. All fields are combined with a logical ‘and.’ */
 export type MediaAssetFilter = {
   /** Checks for all expressions in this list. */
@@ -3880,10 +3657,6 @@ export type MediaAssetFilter = {
   description?: InputMaybe<StringFilter>
   /** Filter by the object’s `duration` field. */
   duration?: InputMaybe<FloatFilter>
-  /** Filter by the object’s `file` relation. */
-  file?: InputMaybe<FileFilter>
-  /** Filter by the object’s `fileUid` field. */
-  fileUid?: InputMaybe<StringFilter>
   /** Filter by the object’s `license` relation. */
   license?: InputMaybe<LicenseFilter>
   /** A related `license` exists. */
@@ -3976,8 +3749,6 @@ export enum MediaAssetsOrderBy {
   DescriptionDesc = 'DESCRIPTION_DESC',
   DurationAsc = 'DURATION_ASC',
   DurationDesc = 'DURATION_DESC',
-  FileUidAsc = 'FILE_UID_ASC',
-  FileUidDesc = 'FILE_UID_DESC',
   LicenseUidAsc = 'LICENSE_UID_ASC',
   LicenseUidDesc = 'LICENSE_UID_DESC',
   MediaTypeAsc = 'MEDIA_TYPE_ASC',
@@ -4445,9 +4216,6 @@ export type Query = {
   file?: Maybe<File>
   /** Reads and enables pagination through a set of `File`. */
   files?: Maybe<FilesConnection>
-  keypair?: Maybe<Keypair>
-  /** Reads and enables pagination through a set of `Keypair`. */
-  keypairs?: Maybe<KeypairsConnection>
   license?: Maybe<License>
   /** Reads and enables pagination through a set of `License`. */
   licenses?: Maybe<LicensesConnection>
@@ -4724,23 +4492,6 @@ export type QueryFilesArgs = {
   last: InputMaybe<Scalars['Int']>
   offset: InputMaybe<Scalars['Int']>
   orderBy?: InputMaybe<Array<FilesOrderBy>>
-}
-
-/** The root query type which gives access points into the data universe. */
-export type QueryKeypairArgs = {
-  did: Scalars['String']
-}
-
-/** The root query type which gives access points into the data universe. */
-export type QueryKeypairsArgs = {
-  after: InputMaybe<Scalars['Cursor']>
-  before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<KeypairCondition>
-  filter: InputMaybe<KeypairFilter>
-  first: InputMaybe<Scalars['Int']>
-  last: InputMaybe<Scalars['Int']>
-  offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<KeypairsOrderBy>>
 }
 
 /** The root query type which gives access points into the data universe. */
@@ -5204,8 +4955,6 @@ export type Revision = {
   /** Reads and enables pagination through a set of `File`. */
   filesByContributorRevisionIdAndProfilePictureUid: RevisionFilesByContributorRevisionIdAndProfilePictureUidManyToManyConnection
   /** Reads and enables pagination through a set of `File`. */
-  filesByMediaAssetRevisionIdAndFileUid: RevisionFilesByMediaAssetRevisionIdAndFileUidManyToManyConnection
-  /** Reads and enables pagination through a set of `File`. */
   filesByMediaAssetRevisionIdAndTeaserImageUid: RevisionFilesByMediaAssetRevisionIdAndTeaserImageUidManyToManyConnection
   id: Scalars['String']
   isDeleted: Scalars['Boolean']
@@ -5422,17 +5171,6 @@ export type RevisionFilesArgs = {
 }
 
 export type RevisionFilesByContributorRevisionIdAndProfilePictureUidArgs = {
-  after: InputMaybe<Scalars['Cursor']>
-  before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<FileCondition>
-  filter: InputMaybe<FileFilter>
-  first: InputMaybe<Scalars['Int']>
-  last: InputMaybe<Scalars['Int']>
-  offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<FilesOrderBy>>
-}
-
-export type RevisionFilesByMediaAssetRevisionIdAndFileUidArgs = {
   after: InputMaybe<Scalars['Cursor']>
   before: InputMaybe<Scalars['Cursor']>
   condition: InputMaybe<FileCondition>
@@ -5901,42 +5639,6 @@ export type RevisionFilesByContributorRevisionIdAndProfilePictureUidManyToManyEd
     last: InputMaybe<Scalars['Int']>
     offset: InputMaybe<Scalars['Int']>
     orderBy?: InputMaybe<Array<ContributorsOrderBy>>
-  }
-
-/** A connection to a list of `File` values, with data from `MediaAsset`. */
-export type RevisionFilesByMediaAssetRevisionIdAndFileUidManyToManyConnection =
-  {
-    /** A list of edges which contains the `File`, info from the `MediaAsset`, and the cursor to aid in pagination. */
-    edges: Array<RevisionFilesByMediaAssetRevisionIdAndFileUidManyToManyEdge>
-    /** A list of `File` objects. */
-    nodes: Array<File>
-    /** Information to aid in pagination. */
-    pageInfo: PageInfo
-    /** The count of *all* `File` you could get from the connection. */
-    totalCount: Scalars['Int']
-  }
-
-/** A `File` edge in the connection, with data from `MediaAsset`. */
-export type RevisionFilesByMediaAssetRevisionIdAndFileUidManyToManyEdge = {
-  /** A cursor for use in pagination. */
-  cursor?: Maybe<Scalars['Cursor']>
-  /** Reads and enables pagination through a set of `MediaAsset`. */
-  mediaAssets: MediaAssetsConnection
-  /** The `File` at the end of the edge. */
-  node: File
-}
-
-/** A `File` edge in the connection, with data from `MediaAsset`. */
-export type RevisionFilesByMediaAssetRevisionIdAndFileUidManyToManyEdgeMediaAssetsArgs =
-  {
-    after: InputMaybe<Scalars['Cursor']>
-    before: InputMaybe<Scalars['Cursor']>
-    condition: InputMaybe<MediaAssetCondition>
-    filter: InputMaybe<MediaAssetFilter>
-    first: InputMaybe<Scalars['Int']>
-    last: InputMaybe<Scalars['Int']>
-    offset: InputMaybe<Scalars['Int']>
-    orderBy?: InputMaybe<Array<MediaAssetsOrderBy>>
   }
 
 /** A connection to a list of `File` values, with data from `MediaAsset`. */
@@ -7511,6 +7213,73 @@ export enum _ContributionToMediaAssetsOrderBy {
   Natural = 'NATURAL',
 }
 
+export type _FileToMediaAsset = {
+  a: Scalars['String']
+  b: Scalars['String']
+  /** Reads a single `File` that is related to this `_FileToMediaAsset`. */
+  fileByA?: Maybe<File>
+  /** Reads a single `MediaAsset` that is related to this `_FileToMediaAsset`. */
+  mediaAssetByB?: Maybe<MediaAsset>
+}
+
+/**
+ * A condition to be used against `_FileToMediaAsset` object types. All fields are
+ * tested for equality and combined with a logical ‘and.’
+ */
+export type _FileToMediaAssetCondition = {
+  /** Checks for equality with the object’s `a` field. */
+  a?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `b` field. */
+  b?: InputMaybe<Scalars['String']>
+}
+
+/** A filter to be used against `_FileToMediaAsset` object types. All fields are combined with a logical ‘and.’ */
+export type _FileToMediaAssetFilter = {
+  /** Filter by the object’s `a` field. */
+  a?: InputMaybe<StringFilter>
+  /** Checks for all expressions in this list. */
+  and?: InputMaybe<Array<_FileToMediaAssetFilter>>
+  /** Filter by the object’s `b` field. */
+  b?: InputMaybe<StringFilter>
+  /** Filter by the object’s `fileByA` relation. */
+  fileByA?: InputMaybe<FileFilter>
+  /** Filter by the object’s `mediaAssetByB` relation. */
+  mediaAssetByB?: InputMaybe<MediaAssetFilter>
+  /** Negates the expression. */
+  not?: InputMaybe<_FileToMediaAssetFilter>
+  /** Checks for any expressions in this list. */
+  or?: InputMaybe<Array<_FileToMediaAssetFilter>>
+}
+
+/** A connection to a list of `_FileToMediaAsset` values. */
+export type _FileToMediaAssetsConnection = {
+  /** A list of edges which contains the `_FileToMediaAsset` and cursor to aid in pagination. */
+  edges: Array<_FileToMediaAssetsEdge>
+  /** A list of `_FileToMediaAsset` objects. */
+  nodes: Array<_FileToMediaAsset>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** The count of *all* `_FileToMediaAsset` you could get from the connection. */
+  totalCount: Scalars['Int']
+}
+
+/** A `_FileToMediaAsset` edge in the connection. */
+export type _FileToMediaAssetsEdge = {
+  /** A cursor for use in pagination. */
+  cursor?: Maybe<Scalars['Cursor']>
+  /** The `_FileToMediaAsset` at the end of the edge. */
+  node: _FileToMediaAsset
+}
+
+/** Methods to use when ordering `_FileToMediaAsset`. */
+export enum _FileToMediaAssetsOrderBy {
+  AAsc = 'A_ASC',
+  ADesc = 'A_DESC',
+  BAsc = 'B_ASC',
+  BDesc = 'B_DESC',
+  Natural = 'NATURAL',
+}
+
 export type _RevisionToCommit = {
   a: Scalars['String']
   b: Scalars['String']
@@ -7594,7 +7363,9 @@ export type LoadContentItemQuery = {
         mediaType: string
         title: string
         duration?: number | null
-        file?: { uid: string; contentUrl: string } | null
+        files: {
+          nodes: Array<{ contentUrl: string; mimeType?: string | null }>
+        }
       }>
     }
   } | null
@@ -7627,16 +7398,13 @@ export type LoadContentItemsQuery = {
       mediaAssets: {
         nodes: Array<{
           duration?: number | null
-          fileUid: string
           licenseUid?: string | null
           mediaType: string
           title: string
           uid: string
-          file?: {
-            contentUrl: string
-            contentSize?: number | null
-            mimeType?: string | null
-          } | null
+          files: {
+            nodes: Array<{ contentUrl: string; mimeType?: string | null }>
+          }
         }>
       }
       publicationService?: { name: string } | null

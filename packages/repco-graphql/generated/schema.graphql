@@ -4485,108 +4485,6 @@ type File {
   ): ContributorsConnection!
   duration: Float
 
-  """Reads and enables pagination through a set of `File`."""
-  filesByMediaAssetFileUidAndTeaserImageUid(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: FileCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: FileFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `File`."""
-    orderBy: [FilesOrderBy!] = [PRIMARY_KEY_ASC]
-  ): FileFilesByMediaAssetFileUidAndTeaserImageUidManyToManyConnection!
-
-  """Reads and enables pagination through a set of `File`."""
-  filesByMediaAssetTeaserImageUidAndFileUid(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: FileCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: FileFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `File`."""
-    orderBy: [FilesOrderBy!] = [PRIMARY_KEY_ASC]
-  ): FileFilesByMediaAssetTeaserImageUidAndFileUidManyToManyConnection!
-
-  """Reads and enables pagination through a set of `License`."""
-  licensesByMediaAssetFileUidAndLicenseUid(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: LicenseCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: LicenseFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `License`."""
-    orderBy: [LicensesOrderBy!] = [PRIMARY_KEY_ASC]
-  ): FileLicensesByMediaAssetFileUidAndLicenseUidManyToManyConnection!
-
   """Reads and enables pagination through a set of `License`."""
   licensesByMediaAssetTeaserImageUidAndLicenseUid(
     """Read all values in the set after (below) this cursor."""
@@ -4653,7 +4551,7 @@ type File {
 
     """The method to use when ordering `MediaAsset`."""
     orderBy: [MediaAssetsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): MediaAssetsConnection!
+  ): FileMediaAssetsByFileToMediaAssetAAndBManyToManyConnection!
 
   """Reads and enables pagination through a set of `MediaAsset`."""
   mediaAssetsByTeaserImage(
@@ -4735,126 +4633,6 @@ input FileCondition {
   uid: String
 }
 
-"""A connection to a list of `File` values, with data from `MediaAsset`."""
-type FileFilesByMediaAssetFileUidAndTeaserImageUidManyToManyConnection {
-  """
-  A list of edges which contains the `File`, info from the `MediaAsset`, and the cursor to aid in pagination.
-  """
-  edges: [FileFilesByMediaAssetFileUidAndTeaserImageUidManyToManyEdge!]!
-
-  """A list of `File` objects."""
-  nodes: [File!]!
-
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """The count of *all* `File` you could get from the connection."""
-  totalCount: Int!
-}
-
-"""A `File` edge in the connection, with data from `MediaAsset`."""
-type FileFilesByMediaAssetFileUidAndTeaserImageUidManyToManyEdge {
-  """A cursor for use in pagination."""
-  cursor: Cursor
-
-  """Reads and enables pagination through a set of `MediaAsset`."""
-  mediaAssetsByTeaserImage(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: MediaAssetCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: MediaAssetFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `MediaAsset`."""
-    orderBy: [MediaAssetsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): MediaAssetsConnection!
-
-  """The `File` at the end of the edge."""
-  node: File!
-}
-
-"""A connection to a list of `File` values, with data from `MediaAsset`."""
-type FileFilesByMediaAssetTeaserImageUidAndFileUidManyToManyConnection {
-  """
-  A list of edges which contains the `File`, info from the `MediaAsset`, and the cursor to aid in pagination.
-  """
-  edges: [FileFilesByMediaAssetTeaserImageUidAndFileUidManyToManyEdge!]!
-
-  """A list of `File` objects."""
-  nodes: [File!]!
-
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """The count of *all* `File` you could get from the connection."""
-  totalCount: Int!
-}
-
-"""A `File` edge in the connection, with data from `MediaAsset`."""
-type FileFilesByMediaAssetTeaserImageUidAndFileUidManyToManyEdge {
-  """A cursor for use in pagination."""
-  cursor: Cursor
-
-  """Reads and enables pagination through a set of `MediaAsset`."""
-  mediaAssets(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: MediaAssetCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: MediaAssetFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `MediaAsset`."""
-    orderBy: [MediaAssetsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): MediaAssetsConnection!
-
-  """The `File` at the end of the edge."""
-  node: File!
-}
-
 """
 A filter to be used against `File` object types. All fields are combined with a logical ‘and.’
 """
@@ -4889,17 +4667,11 @@ input FileFilter {
   """Filter by the object’s `duration` field."""
   duration: FloatFilter
 
-  """Filter by the object’s `mediaAssets` relation."""
-  mediaAssets: FileToManyMediaAssetFilter
-
   """Filter by the object’s `mediaAssetsByTeaserImage` relation."""
   mediaAssetsByTeaserImage: FileToManyMediaAssetFilter
 
   """Some related `mediaAssetsByTeaserImage` exist."""
   mediaAssetsByTeaserImageExist: Boolean
-
-  """Some related `mediaAssets` exist."""
-  mediaAssetsExist: Boolean
 
   """Filter by the object’s `mimeType` field."""
   mimeType: StringFilter
@@ -4921,68 +4693,6 @@ input FileFilter {
 
   """Filter by the object’s `uid` field."""
   uid: StringFilter
-}
-
-"""
-A connection to a list of `License` values, with data from `MediaAsset`.
-"""
-type FileLicensesByMediaAssetFileUidAndLicenseUidManyToManyConnection {
-  """
-  A list of edges which contains the `License`, info from the `MediaAsset`, and the cursor to aid in pagination.
-  """
-  edges: [FileLicensesByMediaAssetFileUidAndLicenseUidManyToManyEdge!]!
-
-  """A list of `License` objects."""
-  nodes: [License!]!
-
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """The count of *all* `License` you could get from the connection."""
-  totalCount: Int!
-}
-
-"""A `License` edge in the connection, with data from `MediaAsset`."""
-type FileLicensesByMediaAssetFileUidAndLicenseUidManyToManyEdge {
-  """A cursor for use in pagination."""
-  cursor: Cursor
-
-  """Reads and enables pagination through a set of `MediaAsset`."""
-  mediaAssets(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: MediaAssetCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: MediaAssetFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `MediaAsset`."""
-    orderBy: [MediaAssetsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): MediaAssetsConnection!
-
-  """The `License` at the end of the edge."""
-  node: License!
 }
 
 """
@@ -5045,6 +4755,70 @@ type FileLicensesByMediaAssetTeaserImageUidAndLicenseUidManyToManyEdge {
 
   """The `License` at the end of the edge."""
   node: License!
+}
+
+"""
+A connection to a list of `MediaAsset` values, with data from `_FileToMediaAsset`.
+"""
+type FileMediaAssetsByFileToMediaAssetAAndBManyToManyConnection {
+  """
+  A list of edges which contains the `MediaAsset`, info from the `_FileToMediaAsset`, and the cursor to aid in pagination.
+  """
+  edges: [FileMediaAssetsByFileToMediaAssetAAndBManyToManyEdge!]!
+
+  """A list of `MediaAsset` objects."""
+  nodes: [MediaAsset!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `MediaAsset` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""
+A `MediaAsset` edge in the connection, with data from `_FileToMediaAsset`.
+"""
+type FileMediaAssetsByFileToMediaAssetAAndBManyToManyEdge {
+  """Reads and enables pagination through a set of `_FileToMediaAsset`."""
+  _fileToMediaAssetsByB(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: _FileToMediaAssetCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: _FileToMediaAssetFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `_FileToMediaAsset`."""
+    orderBy: [_FileToMediaAssetsOrderBy!] = [NATURAL]
+  ): _FileToMediaAssetsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `MediaAsset` at the end of the edge."""
+  node: MediaAsset!
 }
 
 """
@@ -5288,144 +5062,6 @@ input JSONFilter {
   notIn: [JSON!]
 }
 
-type Keypair {
-  did: String!
-  name: String
-  scope: KeypairScope!
-  secret: String!
-}
-
-"""
-A condition to be used against `Keypair` object types. All fields are tested for equality and combined with a logical ‘and.’
-"""
-input KeypairCondition {
-  """Checks for equality with the object’s `did` field."""
-  did: String
-
-  """Checks for equality with the object’s `name` field."""
-  name: String
-
-  """Checks for equality with the object’s `scope` field."""
-  scope: KeypairScope
-
-  """Checks for equality with the object’s `secret` field."""
-  secret: String
-}
-
-"""
-A filter to be used against `Keypair` object types. All fields are combined with a logical ‘and.’
-"""
-input KeypairFilter {
-  """Checks for all expressions in this list."""
-  and: [KeypairFilter!]
-
-  """Filter by the object’s `did` field."""
-  did: StringFilter
-
-  """Filter by the object’s `name` field."""
-  name: StringFilter
-
-  """Negates the expression."""
-  not: KeypairFilter
-
-  """Checks for any expressions in this list."""
-  or: [KeypairFilter!]
-
-  """Filter by the object’s `scope` field."""
-  scope: KeypairScopeFilter
-
-  """Filter by the object’s `secret` field."""
-  secret: StringFilter
-}
-
-enum KeypairScope {
-  INSTANCE
-  REPO
-}
-
-"""
-A filter to be used against KeypairScope fields. All fields are combined with a logical ‘and.’
-"""
-input KeypairScopeFilter {
-  """
-  Not equal to the specified value, treating null like an ordinary value.
-  """
-  distinctFrom: KeypairScope
-
-  """Equal to the specified value."""
-  equalTo: KeypairScope
-
-  """Greater than the specified value."""
-  greaterThan: KeypairScope
-
-  """Greater than or equal to the specified value."""
-  greaterThanOrEqualTo: KeypairScope
-
-  """Included in the specified list."""
-  in: [KeypairScope!]
-
-  """
-  Is null (if `true` is specified) or is not null (if `false` is specified).
-  """
-  isNull: Boolean
-
-  """Less than the specified value."""
-  lessThan: KeypairScope
-
-  """Less than or equal to the specified value."""
-  lessThanOrEqualTo: KeypairScope
-
-  """Equal to the specified value, treating null like an ordinary value."""
-  notDistinctFrom: KeypairScope
-
-  """Not equal to the specified value."""
-  notEqualTo: KeypairScope
-
-  """Not included in the specified list."""
-  notIn: [KeypairScope!]
-}
-
-"""A connection to a list of `Keypair` values."""
-type KeypairsConnection {
-  """
-  A list of edges which contains the `Keypair` and cursor to aid in pagination.
-  """
-  edges: [KeypairsEdge!]!
-
-  """A list of `Keypair` objects."""
-  nodes: [Keypair!]!
-
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """The count of *all* `Keypair` you could get from the connection."""
-  totalCount: Int!
-}
-
-"""A `Keypair` edge in the connection."""
-type KeypairsEdge {
-  """A cursor for use in pagination."""
-  cursor: Cursor
-
-  """The `Keypair` at the end of the edge."""
-  node: Keypair!
-}
-
-"""Methods to use when ordering `Keypair`."""
-enum KeypairsOrderBy {
-  DID_ASC
-  DID_DESC
-  NAME_ASC
-  NAME_DESC
-  NATURAL
-  PRIMARY_KEY_ASC
-  PRIMARY_KEY_DESC
-  SCOPE_ASC
-  SCOPE_DESC
-  SECRET_ASC
-  SECRET_DESC
-}
-
 type License {
   """Reads and enables pagination through a set of `ContentGrouping`."""
   contentGroupings(
@@ -5528,40 +5164,6 @@ type License {
     """The method to use when ordering `ContentItem`."""
     orderBy: [ContentItemsOrderBy!] = [PRIMARY_KEY_ASC]
   ): ContentItemsConnection!
-
-  """Reads and enables pagination through a set of `File`."""
-  filesByMediaAssetLicenseUidAndFileUid(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: FileCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: FileFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `File`."""
-    orderBy: [FilesOrderBy!] = [PRIMARY_KEY_ASC]
-  ): LicenseFilesByMediaAssetLicenseUidAndFileUidManyToManyConnection!
 
   """Reads and enables pagination through a set of `File`."""
   filesByMediaAssetLicenseUidAndTeaserImageUid(
@@ -5750,66 +5352,6 @@ type LicenseContentGroupingsByContentItemLicenseUidAndPrimaryGroupingUidManyToMa
 
   """The `ContentGrouping` at the end of the edge."""
   node: ContentGrouping!
-}
-
-"""A connection to a list of `File` values, with data from `MediaAsset`."""
-type LicenseFilesByMediaAssetLicenseUidAndFileUidManyToManyConnection {
-  """
-  A list of edges which contains the `File`, info from the `MediaAsset`, and the cursor to aid in pagination.
-  """
-  edges: [LicenseFilesByMediaAssetLicenseUidAndFileUidManyToManyEdge!]!
-
-  """A list of `File` objects."""
-  nodes: [File!]!
-
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """The count of *all* `File` you could get from the connection."""
-  totalCount: Int!
-}
-
-"""A `File` edge in the connection, with data from `MediaAsset`."""
-type LicenseFilesByMediaAssetLicenseUidAndFileUidManyToManyEdge {
-  """A cursor for use in pagination."""
-  cursor: Cursor
-
-  """Reads and enables pagination through a set of `MediaAsset`."""
-  mediaAssets(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: MediaAssetCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: MediaAssetFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `MediaAsset`."""
-    orderBy: [MediaAssetsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): MediaAssetsConnection!
-
-  """The `File` at the end of the edge."""
-  node: File!
 }
 
 """A connection to a list of `File` values, with data from `MediaAsset`."""
@@ -6220,9 +5762,39 @@ type MediaAsset {
   description: String
   duration: Float
 
-  """Reads a single `File` that is related to this `MediaAsset`."""
-  file: File
-  fileUid: String!
+  """Reads and enables pagination through a set of `File`."""
+  files(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: FileCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: FileFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `File`."""
+    orderBy: [FilesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): MediaAssetFilesByFileToMediaAssetBAndAManyToManyConnection!
 
   """Reads a single `License` that is related to this `MediaAsset`."""
   license: License
@@ -6383,9 +5955,6 @@ input MediaAssetCondition {
   """Checks for equality with the object’s `duration` field."""
   duration: Float
 
-  """Checks for equality with the object’s `fileUid` field."""
-  fileUid: String
-
   """Checks for equality with the object’s `licenseUid` field."""
   licenseUid: String
 
@@ -6538,6 +6107,68 @@ type MediaAssetContributionsByContributionToMediaAssetBAndAManyToManyEdge {
 }
 
 """
+A connection to a list of `File` values, with data from `_FileToMediaAsset`.
+"""
+type MediaAssetFilesByFileToMediaAssetBAndAManyToManyConnection {
+  """
+  A list of edges which contains the `File`, info from the `_FileToMediaAsset`, and the cursor to aid in pagination.
+  """
+  edges: [MediaAssetFilesByFileToMediaAssetBAndAManyToManyEdge!]!
+
+  """A list of `File` objects."""
+  nodes: [File!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `File` you could get from the connection."""
+  totalCount: Int!
+}
+
+"""A `File` edge in the connection, with data from `_FileToMediaAsset`."""
+type MediaAssetFilesByFileToMediaAssetBAndAManyToManyEdge {
+  """Reads and enables pagination through a set of `_FileToMediaAsset`."""
+  _fileToMediaAssetsByA(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: _FileToMediaAssetCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: _FileToMediaAssetFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `_FileToMediaAsset`."""
+    orderBy: [_FileToMediaAssetsOrderBy!] = [NATURAL]
+  ): _FileToMediaAssetsConnection!
+
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `File` at the end of the edge."""
+  node: File!
+}
+
+"""
 A filter to be used against `MediaAsset` object types. All fields are combined with a logical ‘and.’
 """
 input MediaAssetFilter {
@@ -6555,12 +6186,6 @@ input MediaAssetFilter {
 
   """Filter by the object’s `duration` field."""
   duration: FloatFilter
-
-  """Filter by the object’s `file` relation."""
-  file: FileFilter
-
-  """Filter by the object’s `fileUid` field."""
-  fileUid: StringFilter
 
   """Filter by the object’s `license` relation."""
   license: LicenseFilter
@@ -6706,8 +6331,6 @@ enum MediaAssetsOrderBy {
   DESCRIPTION_DESC
   DURATION_ASC
   DURATION_DESC
-  FILE_UID_ASC
-  FILE_UID_DESC
   LICENSE_UID_ASC
   LICENSE_UID_DESC
   MEDIA_TYPE_ASC
@@ -7888,41 +7511,6 @@ type Query {
     """The method to use when ordering `File`."""
     orderBy: [FilesOrderBy!] = [PRIMARY_KEY_ASC]
   ): FilesConnection
-  keypair(did: String!): Keypair
-
-  """Reads and enables pagination through a set of `Keypair`."""
-  keypairs(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: KeypairCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: KeypairFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `Keypair`."""
-    orderBy: [KeypairsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): KeypairsConnection
   license(uid: String!): License
 
   """Reads and enables pagination through a set of `License`."""
@@ -9321,40 +8909,6 @@ type Revision {
   ): RevisionFilesByContributorRevisionIdAndProfilePictureUidManyToManyConnection!
 
   """Reads and enables pagination through a set of `File`."""
-  filesByMediaAssetRevisionIdAndFileUid(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: FileCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: FileFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `File`."""
-    orderBy: [FilesOrderBy!] = [PRIMARY_KEY_ASC]
-  ): RevisionFilesByMediaAssetRevisionIdAndFileUidManyToManyConnection!
-
-  """Reads and enables pagination through a set of `File`."""
   filesByMediaAssetRevisionIdAndTeaserImageUid(
     """Read all values in the set after (below) this cursor."""
     after: Cursor
@@ -10315,66 +9869,6 @@ type RevisionFilesByContributorRevisionIdAndProfilePictureUidManyToManyEdge {
 
   """A cursor for use in pagination."""
   cursor: Cursor
-
-  """The `File` at the end of the edge."""
-  node: File!
-}
-
-"""A connection to a list of `File` values, with data from `MediaAsset`."""
-type RevisionFilesByMediaAssetRevisionIdAndFileUidManyToManyConnection {
-  """
-  A list of edges which contains the `File`, info from the `MediaAsset`, and the cursor to aid in pagination.
-  """
-  edges: [RevisionFilesByMediaAssetRevisionIdAndFileUidManyToManyEdge!]!
-
-  """A list of `File` objects."""
-  nodes: [File!]!
-
-  """Information to aid in pagination."""
-  pageInfo: PageInfo!
-
-  """The count of *all* `File` you could get from the connection."""
-  totalCount: Int!
-}
-
-"""A `File` edge in the connection, with data from `MediaAsset`."""
-type RevisionFilesByMediaAssetRevisionIdAndFileUidManyToManyEdge {
-  """A cursor for use in pagination."""
-  cursor: Cursor
-
-  """Reads and enables pagination through a set of `MediaAsset`."""
-  mediaAssets(
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: MediaAssetCondition
-
-    """
-    A filter to be used in determining which values should be returned by the collection.
-    """
-    filter: MediaAssetFilter
-
-    """Only read the first `n` values of the set."""
-    first: Int
-
-    """Only read the last `n` values of the set."""
-    last: Int
-
-    """
-    Skip the first `n` values from our `after` cursor, an alternative to cursor
-    based pagination. May not be used with `last`.
-    """
-    offset: Int
-
-    """The method to use when ordering `MediaAsset`."""
-    orderBy: [MediaAssetsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): MediaAssetsConnection!
 
   """The `File` at the end of the edge."""
   node: File!
@@ -12669,6 +12163,94 @@ type _ContributionToMediaAssetsEdge {
 
 """Methods to use when ordering `_ContributionToMediaAsset`."""
 enum _ContributionToMediaAssetsOrderBy {
+  A_ASC
+  A_DESC
+  B_ASC
+  B_DESC
+  NATURAL
+}
+
+type _FileToMediaAsset {
+  a: String!
+  b: String!
+
+  """Reads a single `File` that is related to this `_FileToMediaAsset`."""
+  fileByA: File
+
+  """
+  Reads a single `MediaAsset` that is related to this `_FileToMediaAsset`.
+  """
+  mediaAssetByB: MediaAsset
+}
+
+"""
+A condition to be used against `_FileToMediaAsset` object types. All fields are
+tested for equality and combined with a logical ‘and.’
+"""
+input _FileToMediaAssetCondition {
+  """Checks for equality with the object’s `a` field."""
+  a: String
+
+  """Checks for equality with the object’s `b` field."""
+  b: String
+}
+
+"""
+A filter to be used against `_FileToMediaAsset` object types. All fields are combined with a logical ‘and.’
+"""
+input _FileToMediaAssetFilter {
+  """Filter by the object’s `a` field."""
+  a: StringFilter
+
+  """Checks for all expressions in this list."""
+  and: [_FileToMediaAssetFilter!]
+
+  """Filter by the object’s `b` field."""
+  b: StringFilter
+
+  """Filter by the object’s `fileByA` relation."""
+  fileByA: FileFilter
+
+  """Filter by the object’s `mediaAssetByB` relation."""
+  mediaAssetByB: MediaAssetFilter
+
+  """Negates the expression."""
+  not: _FileToMediaAssetFilter
+
+  """Checks for any expressions in this list."""
+  or: [_FileToMediaAssetFilter!]
+}
+
+"""A connection to a list of `_FileToMediaAsset` values."""
+type _FileToMediaAssetsConnection {
+  """
+  A list of edges which contains the `_FileToMediaAsset` and cursor to aid in pagination.
+  """
+  edges: [_FileToMediaAssetsEdge!]!
+
+  """A list of `_FileToMediaAsset` objects."""
+  nodes: [_FileToMediaAsset!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `_FileToMediaAsset` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""A `_FileToMediaAsset` edge in the connection."""
+type _FileToMediaAssetsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `_FileToMediaAsset` at the end of the edge."""
+  node: _FileToMediaAsset!
+}
+
+"""Methods to use when ordering `_FileToMediaAsset`."""
+enum _FileToMediaAssetsOrderBy {
   A_ASC
   A_DESC
   B_ASC
