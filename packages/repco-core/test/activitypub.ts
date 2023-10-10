@@ -66,6 +66,5 @@ test('peertube datasource - basic1', async (assert) => {
       },
     },
   })
-  console.log(entities)
   await assertFixture(assert, fixturePath('entities.json'), entities)
 })
