@@ -1,7 +1,7 @@
 import zod from 'zod'
 import { parse, toSeconds } from 'iso8601-duration'
 import { log } from 'repco-common'
-import { ConceptKind, form } from 'repco-prisma'
+import { ConceptKind, ContentGroupingVariant, form } from 'repco-prisma'
 import { ConceptInput } from 'repco-prisma/generated/repco/zod.js'
 import { fetch } from 'undici'
 import {
@@ -43,6 +43,10 @@ const hostInfo = zod.object({
   links: hostLink.array(),
 })
 type HostInfo = zod.infer<typeof hostInfo>
+
+type ChannelInfo = {
+  account: string
+}
 
 type Cursor = {
   lastPublishedDate: Date
@@ -152,7 +156,7 @@ export class ActivityPubDataSource
     )
   }
 
-  // At the moment fetches only entities with type file (videoUrls, teaserImageUrls), 
+  // At the moment fetches only entities with type file (videoUrls, teaserImageUrls),
   // video (Video MediaAssets) and videoContent (Video ContentItems)
   // category and tags cannot be fetched by uri as they don't have urls
   async fetchByUri(uri: string): Promise<SourceRecordForm[]> {
@@ -173,14 +177,24 @@ export class ActivityPubDataSource
     ]
   }
 
-  getLastPageNumber(numItems: number): number {
+  private _getLastPageNumber(numItems: number): number {
     const lastPageNumber: number = Math.floor(numItems / 10) + 1
     return lastPageNumber
-    // return 11
   }
 
   async fetchUpdates(cursorString: string | null): Promise<FetchUpdatesResult> {
     try {
+      let channelSourceRecord
+      // First ingest: save channel as ContentGrouping
+      if (cursorString === null) {
+        const channelInfo: ChannelInfo = { account: this.account }
+        channelSourceRecord = {
+          body: JSON.stringify(channelInfo),
+          contentType: 'application/json',
+          sourceType: 'activityPubChannel',
+          sourceUri: this._uri('account', this.account),
+        }
+      }
       const cursor = parseCursor(cursorString)
       const info = await this.fetchWebfinger<HostInfo>()
       const profile = info.links.find((link) => link.rel === 'self')?.href
@@ -193,7 +207,7 @@ export class ActivityPubDataSource
       // collect new video entities
       const newVideoObjects: VideoObject[] = []
       // start with last page
-      let pageNumber = outbox && this.getLastPageNumber(outbox.totalItems)
+      let pageNumber = outbox && this._getLastPageNumber(outbox.totalItems)
       if (!pageNumber) {
         throw new Error(
           `Could not get number of last page of outbox ${profile}/outbox`,
@@ -239,16 +253,20 @@ export class ActivityPubDataSource
           cursor.lastPublishedDate = new Date(items[i]!.published)
         }
       }
+      const records = [
+        {
+          body: JSON.stringify(newVideoObjects),
+          contentType: 'application/json',
+          sourceType: 'videoObjects',
+          sourceUri: firstPageUrl, // TODO @Frando: This url always stays the same, independent of the amount of videos pushed
+        },
+      ]
+      if (channelSourceRecord !== undefined) {
+        records.push(channelSourceRecord as SourceRecordForm)
+      }
       return {
         cursor: JSON.stringify(cursor),
-        records: [
-          {
-            body: JSON.stringify(newVideoObjects),
-            contentType: 'application/json',
-            sourceType: 'videoObjects',
-            sourceUri: firstPageUrl, // TODO: This url always stays the same, independent of the amount of videos pushed
-          },
-        ],
+        records,
       }
     } catch (error) {
       console.error(`Error fetching updates: ${error}`)
@@ -386,7 +404,9 @@ export class ActivityPubDataSource
     const videoFileEntities =
       videoUrls && videoUrls.map((url) => this._mapVideoToFileEntity(url))
     entities.push(...videoFileEntities)
-    const fileUris = videoUrls.map((url) => ({ uri: this._uri('videoFile', url.href) }))
+    const fileUris = videoUrls.map((url) => ({
+      uri: this._uri('videoFile', url.href),
+    }))
     if (fileUris !== undefined && fileUris !== null) {
       files.push(...fileUris)
     }
@@ -487,7 +507,7 @@ export class ActivityPubDataSource
         //Contributions
         //License
         MediaAssets: mediaAssetUris,
-        //TODO: PrimaryGrouping = channel. Channel has to be added as ContentGrouping entity
+        PrimaryGrouping: this._uriLink('account', this.account),
       }
       const revisionUri = this._revisionUri(
         'videoContent',
@@ -513,6 +533,36 @@ export class ActivityPubDataSource
     }
   }
 
+  private _mapChannelInfoToContentGrouping(
+    channelInfo: ChannelInfo,
+  ): EntityForm[] {
+    try {
+      const contentGrouping: form.ContentGroupingInput = {
+        title: channelInfo.account,
+        variant: ContentGroupingVariant.EPISODIC, // @Frando is this used as intended?
+        groupingType: 'activityPubChannel',
+      }
+      const contentGroupingUri = this._uri('account', channelInfo.account)
+      const headers = {
+        EntityUris: [contentGroupingUri],
+      }
+
+      return [
+        {
+          type: 'ContentGrouping',
+          content: contentGrouping,
+          headers,
+        },
+      ]
+    } catch (error) {
+      console.error(
+        `Error mapping ChannelInfo for account ${channelInfo.account}:`,
+        error,
+      )
+      throw error
+    }
+  }
+
   async mapSourceRecord(record: SourceRecordForm): Promise<EntityForm[]> {
     try {
       const body = JSON.parse(record.body)
@@ -520,6 +570,9 @@ export class ActivityPubDataSource
         return (body as VideoObject[])
           .map((video) => this._mapVideoObjectToContentItem(video))
           .flat()
+      }
+      if (record.sourceType === 'activityPubChannel') {
+        return this._mapChannelInfoToContentGrouping(body as ChannelInfo)
       }
       throw new Error(`Mapping source type ${record.sourceType} not possible.`)
     } catch (error) {
