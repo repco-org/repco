@@ -31,10 +31,10 @@ enum AgentType {
 // Core data model
 
 model Repo {
-  did  String  @id @unique
-  name String? @unique
-  head String? @unique
-  tail String? @unique
+  did      String   @id @unique
+  name     String?  @unique
+  head     String?  @unique
+  tail     String?  @unique
   gateways String[]
 
   Head     Commit?    @relation("RepoToHead", fields: [head], references: [rootCid])
@@ -112,11 +112,11 @@ model Keypair {
 }
 
 model FailedDatasourceFetches {
-  uri String
+  uri           String
   datasourceUid String
-  timestamp DateTime
-  errorMessage String
-  errorDetails Json?
+  timestamp     DateTime
+  errorMessage  String
+  errorDetails  Json?
 
   @@id([uri, datasourceUid])
 }
@@ -193,6 +193,7 @@ model Revision {
   Chapter            Chapter?
   Contribution       Contribution?
   Metadata           Metadata?
+  Subtitles          Subtitles?
 }
 
 model SourceRecord {
@@ -301,6 +302,7 @@ model MediaAsset {
   Contributions Contribution[]
   Concepts      Concept[]
   Translation   Translation[]
+  Subtitles     Subtitles[]
 }
 
 /// @repco(Entity)
@@ -423,6 +425,7 @@ model File {
   AsMediaAssets MediaAsset[]
   AsThumbnail   MediaAsset[]  @relation("thumbnail")
   contributors  Contributor[]
+  AsSubtitles    Subtitles[]  
 }
 
 enum ConceptKind {
@@ -466,4 +469,16 @@ model Metadata {
 
   Revision     Revision @relation(fields: [revisionId], references: [id])
   TargetEntity Entity   @relation(fields: [targetUid], references: [uid])
+}
+
+/// @repco(Entity)
+model Subtitles {
+  uid          String @id @unique
+  revisionId   String @unique
+  languageCode String
+
+  Files         File[]
+  MediaAsset    MediaAsset @relation(fields: [mediaAssetUid], references: [uid])
+  mediaAssetUid String
+  Revision      Revision   @relation(fields: [revisionId], references: [id])
 }

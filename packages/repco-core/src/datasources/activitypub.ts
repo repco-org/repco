@@ -35,7 +35,6 @@ const hostLink = zod.object({
   rel: zod.string(),
   href: zod.string().optional(),
 })
-type HostLink = zod.infer<typeof hostLink>
 
 const hostInfo = zod.object({
   subject: zod.string().optional(),
@@ -217,7 +216,7 @@ export class ActivityPubDataSource
       // loop backwards over pages
       while (pageNumber >= 2) {
         pageNumber--
-        let currentPageUrl =
+        const currentPageUrl =
           firstPageUrl && firstPageUrl.replace('page=1', `page=${pageNumber}`)
         const currentPage =
           currentPageUrl && (await this._fetchAs<Page>(currentPageUrl))
@@ -242,7 +241,7 @@ export class ActivityPubDataSource
           throw new Error(`Could not catch items under url ${currentPageUrl}.`)
         }
         // iterate over items on page backwards to find items that are newer than the cursor
-        for (var i = items.length - 1; i >= 0; i--) {
+        for (let i = items.length - 1; i >= 0; i--) {
           if (items[i] === undefined) {
             continue
           }
@@ -258,7 +257,8 @@ export class ActivityPubDataSource
           body: JSON.stringify(newVideoObjects),
           contentType: 'application/json',
           sourceType: 'videoObjects',
-          sourceUri: firstPageUrl, // TODO @Frando: This url always stays the same, independent of the amount of videos pushed
+          sourceUri:
+            firstPageUrl + '#' + cursor.lastPublishedDate.toISOString(),
         },
       ]
       if (channelSourceRecord !== undefined) {
@@ -344,12 +344,55 @@ export class ActivityPubDataSource
     })
   }
 
+  private _mapSubtitleLanguageToSubtitlesEntity(
+    subtitleLanguage: ActivityIdentifierObject,
+    mediaAssetUri: string,
+  ): EntityForm[] | null {
+    const entities = []
+    // parse subtitleLanguage input
+    if (subtitleLanguage.url === undefined || subtitleLanguage.url === '') {
+      return null
+    }
+    const url = subtitleLanguage.url
+    const languageCode = subtitleLanguage.identifier
+    const mimeType = url.endsWith('vtt')
+      ? 'text/vtt'
+      : 'application/octet-stream'
+    // create uris for Subtitles Entity and File
+    const subtitlesEntityUri = this._uri('subtitles', url)
+    const fileUri = this._uri('file', url)
+    // create File entity
+    const subtitleFile: form.FileInput = {
+      contentUrl: url,
+      mimeType,
+    }
+    const fileEntity: EntityForm = {
+      type: 'File',
+      content: subtitleFile,
+      headers: { EntityUris: [fileUri] },
+    }
+    entities.push(fileEntity)
+    // create Subtitles entity
+    const subtitles: form.SubtitlesInput = {
+      languageCode,
+      Files: [{ uri: fileUri }],
+      MediaAsset: { uri: mediaAssetUri },
+    }
+    const subtitlesEntity: EntityForm = {
+      type: 'Subtitles',
+      content: subtitles,
+      headers: { EntityUris: [subtitlesEntityUri] },
+    }
+    entities.push(subtitlesEntity)
+    return entities
+  }
+
   private _mapImagesToFileEntity(teaserImage: ActivityIconObject): EntityForm {
     const resolution =
       teaserImage.width && teaserImage.height
         ? teaserImage.height.toString() + 'x' + teaserImage.width.toString()
         : null
-    const fileId = this._uri('imageFile', teaserImage.url)
+    const fileUri = this._uri('imageFile', teaserImage.url)
     const imageFile: form.FileInput = {
       contentUrl: teaserImage.url,
       mimeType: teaserImage.mediaType,
@@ -358,7 +401,7 @@ export class ActivityPubDataSource
     const fileEntity: EntityForm = {
       type: 'File',
       content: imageFile,
-      headers: { EntityUris: [fileId] },
+      headers: { EntityUris: [fileUri] },
     }
     return fileEntity
   }
@@ -394,8 +437,8 @@ export class ActivityPubDataSource
 
   private _mapVideoObjectToMediaAsset(video: VideoObject): EntityForm[] {
     const mediaAssetUri = this._uri('videoMedia', video.id)
-    let files = []
-    let entities = []
+    const files = []
+    const entities = []
 
     // create Files for videos in "url"
     const videoUrls = video.url.filter(
@@ -412,11 +455,7 @@ export class ActivityPubDataSource
     }
     // create File for Images in "icon"
     let teaserImageUri = undefined
-    if (
-      video.hasOwnProperty('icon') &&
-      video.icon !== undefined &&
-      video.icon.length >= 1
-    ) {
+    if (video.icon !== undefined && video.icon.length >= 1) {
       const teaserImage = this._findLargestTeaserImage(video.icon)
       const imageFileEntity = this._mapImagesToFileEntity(teaserImage)
       entities.push(imageFileEntity)
@@ -425,14 +464,17 @@ export class ActivityPubDataSource
     }
 
     // transform video.category and video.tags into Concepts
-    let conceptUris = []
-    if (video.hasOwnProperty('category') && video.category !== undefined) {
+    const conceptUris = []
+    if (video.category !== undefined) {
       const categoryConcept = this._mapCategoryToConceptEntity(video.category)
       entities.push(...categoryConcept)
-      const categoryUri = this._uri('category', video.category.identifier)
+      const categoryUri = this._uri(
+        'category',
+        'peertube:' + video.category.name,
+      )
       conceptUris.push({ uri: categoryUri })
     }
-    if (video.hasOwnProperty('tag') && video.tag !== undefined) {
+    if (video.tag !== undefined) {
       const tagConcepts = video.tag.map((tag) =>
         this._mapTagToConceptEntity(tag),
       )
@@ -446,6 +488,18 @@ export class ActivityPubDataSource
     // format duration from iso8601 to seconds
     const duration = toSeconds(parse(video.duration))
 
+    // transform video.subtitleLanguage into Subtitles Entities and Files
+    if (video.subtitleLanguage !== undefined) {
+      const subtitleEntities =
+        video.subtitleLanguage
+          .map((subtitle) =>
+            this._mapSubtitleLanguageToSubtitlesEntity(subtitle, mediaAssetUri),
+          )
+          .flat()
+          .filter(notEmpty) ?? []
+      subtitleEntities && entities.push(...subtitleEntities)
+    }
+
     const asset: form.MediaAssetInput = {
       title: video.name,
       description: video.content,
@@ -457,6 +511,7 @@ export class ActivityPubDataSource
       // Contributions: null,
       TeaserImage: { uri: teaserImageUri },
       Concepts: conceptUris.length > 0 ? conceptUris : undefined,
+      Subtitles: [],
     }
 
     const mediaEntity: EntityForm = {

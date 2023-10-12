@@ -1,5 +1,10 @@
 import { DequeSet } from '../util/collections.js'
 
+export class GGraphError extends Error {
+  constructor(public id: string, public edge: string, public path: string[] | undefined, msg: string) {
+    super(msg)
+  }
+}
 export class GGraph {
   nodes: Record<string, string[]> = {}
   constructor() {}
@@ -16,10 +21,14 @@ export class GGraph {
         if (!this.nodes[edge]) throw new Error('Missing: ' + edge)
         if (!stack.has(edge)) {
           if (recurse.has(edge)) {
-            const path = recurse.from(edge)?.join('->')
-            throw new Error(
-              `Recursion: ${id}->${edge} is invalid because of ${path}`,
+            const path = recurse.from(edge)
+            const error = new GGraphError(
+              id,
+              edge,
+              path,
+              `Recursion: ${id}->${edge} is invalid because of ${path?.join('->')}`,
             )
+            throw error
           }
           insert(edge, this.nodes[edge], depth + 1)
         }
