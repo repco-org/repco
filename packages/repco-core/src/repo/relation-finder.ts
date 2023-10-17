@@ -170,7 +170,6 @@ export class RelationFinder {
       const stack = graph.resolve()
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const res = stack.map((uid) => this.entities.get(uid)!)
-      console.log('relationfinder res len', res.length)
       return res
     } catch (err) {
       if (err instanceof GGraphError) {
