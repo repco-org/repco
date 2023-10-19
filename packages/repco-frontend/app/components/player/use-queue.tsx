@@ -15,6 +15,8 @@ export function useQueue() {
 
   useEffect(() => {
     setQueue(store as Entity<Track>[])
+    // check if one can remove dependence array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state])
 
   function addTrack(data?: Track) {

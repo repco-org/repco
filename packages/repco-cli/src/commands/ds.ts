@@ -71,7 +71,7 @@ export const add = createCommand({
   },
   async run(opts, args) {
     const repo = await Repo.openWithDefaults(opts.repo)
-    const prisma = repo.prisma
+    // const prisma = repo.prisma
     const config = JSON.parse(args.config)
     const instance = await repo.dsr.create(
       repo.prisma,

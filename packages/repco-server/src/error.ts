@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
-import { RepoError, HttpError } from 'repco-core'
+import { HttpError, RepoError } from 'repco-core'
 import { Prisma } from 'repco-prisma'
 
 export const notFoundHandler = (

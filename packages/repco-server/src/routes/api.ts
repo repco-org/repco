@@ -1,5 +1,4 @@
 import express from 'express'
-import type { Request } from 'express'
 import { CID } from 'multiformats/cid'
 import {
   ContentLoaderStream,
@@ -15,7 +14,12 @@ import {
 import { Readable } from 'stream'
 import { ServerError } from '../error.js'
 import { getLocals } from '../lib.js'
-import { acceptNdJson, collectStream, flattenStream, sendNdJsonStream } from '../util.js'
+import {
+  acceptNdJson,
+  collectStream,
+  flattenStream,
+  sendNdJsonStream,
+} from '../util.js'
 
 const router = express.Router()
 
@@ -125,7 +129,7 @@ function setEntryHeaders(res: express.Response, headers: HeadersIpld) {
   }
 }
 
-router.put('/changes', async (req, res) => {
+router.put('/changes', async (_req, _res) => {
   throw new ServerError(404, 'Not found')
   // const { prisma } = getLocals(res)
   // if (req.header('content-type') === HEADER_JSON) {
@@ -147,4 +151,3 @@ router.put('/changes', async (req, res) => {
 })
 
 export default router
-

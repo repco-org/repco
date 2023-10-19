@@ -24,8 +24,8 @@ const intoSourceRecord = (body: EntityForm): SourceRecordForm => ({
 
 const DS_UID = 'urn:repco:datasource:test'
 
-const fromSourceRecord = (record: SourceRecordForm) =>
-  JSON.parse(record.body) as EntityForm
+// const fromSourceRecord = (record: SourceRecordForm) =>
+//   JSON.parse(record.body) as EntityForm
 
 class TestDataSourcePlugin implements DataSourcePlugin {
   createInstance(_config: any) {

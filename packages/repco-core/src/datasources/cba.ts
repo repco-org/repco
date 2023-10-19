@@ -739,9 +739,9 @@ export class CbaDataSource implements DataSource {
 
 /**
  * Parse a datetime string without timezone information as a UTC date
- * 
+ *
  * @param dateString Datetime string in format 1998-10-17T00:00:00
  */
-function parseAsUTC(dateString: string): Date  {
+function parseAsUTC(dateString: string): Date {
   return new Date(dateString + '.000Z')
 }

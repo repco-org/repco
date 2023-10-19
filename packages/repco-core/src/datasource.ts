@@ -124,9 +124,9 @@ export abstract class BaseDataSource implements DataSource {
 
 type FailedHydrates = { err: Error; row: any }
 
-function errToSerializable(err: Error): Prisma.InputJsonValue {
-  return Object.fromEntries(Object.entries(err))
-}
+// function errToSerializable(err: Error): Prisma.InputJsonValue {
+//   return Object.fromEntries(Object.entries(err))
+// }
 
 export class DataSourceRegistry extends Registry<DataSource> {
   _hydrating?: Promise<{ failed: FailedHydrates[] }>
@@ -151,6 +151,8 @@ export class DataSourceRegistry extends Registry<DataSource> {
 
     for (const [uid, uris] of Object.entries(buckets)) {
       const filteredUris = uris.filter((uri) => !found.has(uri))
+      // checked above
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const ds = this.get(uid)!
       const sourceRecords = await ds.fetchByUriBatch(filteredUris)
       const entities = await mapAndPersistSourceRecord(repo, ds, sourceRecords)

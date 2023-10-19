@@ -1,7 +1,12 @@
 import { DequeSet } from '../util/collections.js'
 
 export class GGraphError extends Error {
-  constructor(public id: string, public edge: string, public path: string[] | undefined, msg: string) {
+  constructor(
+    public id: string,
+    public edge: string,
+    public path: string[] | undefined,
+    msg: string,
+  ) {
     super(msg)
   }
 }
@@ -26,7 +31,9 @@ export class GGraph {
               id,
               edge,
               path,
-              `Recursion: ${id}->${edge} is invalid because of ${path?.join('->')}`,
+              `Recursion: ${id}->${edge} is invalid because of ${path?.join(
+                '->',
+              )}`,
             )
             throw error
           }

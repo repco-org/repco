@@ -242,14 +242,15 @@ export class ActivityPubDataSource
         }
         // iterate over items on page backwards to find items that are newer than the cursor
         for (let i = items.length - 1; i >= 0; i--) {
-          if (items[i] === undefined) {
+          const item = items[i]
+          if (item === undefined) {
             continue
           }
-          if (new Date(items[i]!.published) <= cursor.lastPublishedDate) {
+          if (new Date(item.published) <= cursor.lastPublishedDate) {
             continue
           }
-          newVideoObjects.push(items[i]!)
-          cursor.lastPublishedDate = new Date(items[i]!.published)
+          newVideoObjects.push(item)
+          cursor.lastPublishedDate = new Date(item.published)
         }
       }
       const records = [
