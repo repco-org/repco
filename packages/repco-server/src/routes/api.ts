@@ -20,17 +20,20 @@ import {
   flattenStream,
   sendNdJsonStream,
 } from '../util.js'
+import  { router as adminRouter } from './admin.js'
 
 const router = express.Router()
 
 // const HEADER_JSON = 'application/json'
 const HEADER_CAR = 'application/vnd.ipld.car'
 
+router.use('/admin', adminRouter)
+
 router.get('/repos', async (_req, res) => {
   res.json(await Repo.list(getLocals(res).prisma))
 })
 
-router.get('/health', (_req, res) => {
+router.get('/health', (_req, res, next) => {
   res.send({ ok: true })
 })
 

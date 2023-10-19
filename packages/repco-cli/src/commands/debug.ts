@@ -3,8 +3,26 @@ import prettyMs from 'pretty-ms'
 import { SingleBar } from 'cli-progress'
 import { EntityForm, Repo } from 'repco-core'
 import { createCommand, createCommandGroup } from '../parse.js'
+import { request } from '../client.js'
 
 const round = (x: number) => Math.round(x * 100) / 100
+
+export const authTest = createCommand({
+  name: 'auth-test',
+  help: 'Test authentication to repco server',
+  options: {
+  },
+  async run(opts, args) {
+    try {
+    const res = await request('/test');
+    console.log('GET /test', res)
+    const res2 = await request('/test', { method: 'POST' , body: { foo: 'bar'}});
+    console.log('GET /test', res2)
+    } catch (err) {
+      console.error('got error', err)
+    }
+  }
+})
 
 export const createContent = createCommand({
   name: 'create-content',
@@ -70,5 +88,5 @@ function createItem() {
 export const commands = createCommandGroup({
   name: 'debug',
   help: 'Development helpers',
-  commands: [createContent],
+  commands: [createContent, authTest],
 })
