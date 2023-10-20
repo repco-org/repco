@@ -389,10 +389,13 @@ model PublicationService {
 
 /// @repco(Entity)
 model Transcript {
-  uid      String @id @unique
-  language String
-  text     String
-  engine   String
+  uid         String @id @unique
+  language    String
+  text        String
+  engine      String
+  subtitleUrl String // url to webvtt file (string)
+  author      String // field for author (string)
+  license     String // license field (string)
 
   mediaAssetUid String
 

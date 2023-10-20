@@ -481,7 +481,9 @@ export class CbaDataSource implements DataSource {
       headers: { EntityUris: [audioId] },
     }
 
-    return [fileEntity, mediaEntity]
+    var transcripts = this._mapTranscripts(media, media.transcripts)
+
+    return [fileEntity, mediaEntity, ...transcripts]
   }
 
   private _mapImage(media: CbaImage): EntityForm[] {
@@ -538,7 +540,9 @@ export class CbaDataSource implements DataSource {
       headers: { EntityUris: [imageId] },
     }
 
-    return [fileEntity, mediaEntity]
+    var transcripts = this._mapTranscripts(media, media.transcripts)
+
+    return [fileEntity, mediaEntity, ...transcripts]
   }
 
   private _mapCategories(categories: CbaCategory): EntityForm[] {
@@ -717,6 +721,12 @@ export class CbaDataSource implements DataSource {
       var contentJson: { [k: string]: any } = {}
       contentJson[post.language_codes[0]] = { value: post.content.rendered }
 
+      Object.entries(post.translations).forEach((entry) => {
+        title[entry[1]['language']] = { value: entry[1]['post_title'] }
+        summary[entry[1]['language']] = { value: entry[1]['post_excerpt'] }
+        contentJson[entry[1]['language']] = { value: entry[1]['post_content'] }
+      })
+
       const content: form.ContentItemInput = {
         pubDate: parseAsUTC(post.date),
         content: contentJson,
@@ -756,6 +766,32 @@ export class CbaDataSource implements DataSource {
       console.error(`Error mapping post with ID ${post.id}:`, error)
       throw error
     }
+  }
+
+  private _mapTranscripts(
+    media: any,
+    transcripts: any[],
+    mediaAssetLinks: any,
+  ): EntityForm[] {
+    const entities: EntityForm[] = []
+
+    transcripts.forEach((transcript) => {
+      const transcriptId = this._uri('transcript', transcript.id)
+      const content: form.TranscriptInput = {
+        language: transcript['language'],
+        text: transcript['transcript'],
+        engine: '',
+        MediaAsset: mediaAssetLinks,
+        //TODO: refresh zod client and add new fields
+      }
+      entities.push({
+        type: 'Transcript',
+        content,
+        headers: { EntityUris: [transcriptId] },
+      })
+    })
+
+    return entities
   }
 
   private _url(urlString: string, opts: FetchOpts = {}) {
