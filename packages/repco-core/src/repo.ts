@@ -53,6 +53,7 @@ import { ParseError } from './util/error.js'
 import { createEntityId } from './util/id.js'
 import { notEmpty } from './util/misc.js'
 import { Mutex } from './util/mutex.js'
+import { EventEmitter } from 'node:events'
 
 // export * from './repo/types.js'
 
@@ -96,7 +97,7 @@ function defaultBlockStore(
   return new PrismaIpldBlockStore(prisma)
 }
 
-export class Repo {
+export class Repo extends EventEmitter {
   public dsr: DataSourceRegistry
   public blockstore: IpldBlockStore
   public prisma: PrismaClient | Prisma.TransactionClient
@@ -234,6 +235,7 @@ export class Repo {
     dsr?: DataSourceRegistry,
     bs?: IpldBlockStore,
   ) {
+    super()
     this.record = record
     this.prisma = prisma
     this.dsr = dsr || new DataSourceRegistry()
@@ -253,7 +255,9 @@ export class Repo {
         this.dsr,
         this.blockstore,
       )
-      return await fn(self)
+      const res = await fn(self)
+      this.emit('update')
+      return res
     })
   }
 
@@ -765,7 +769,7 @@ type EntityFormWithHeaders = { entity: repco.EntityInput; headers: HeadersForm }
 
 function parseEntity(input: UnknownEntityInput): EntityFormWithHeaders {
   try {
-    const headers = headersForm.parse(input.headers)
+    const headers = headersForm.parse(input.headers || {})
     const parsed = entityForm.parse(input)
     const entity = repco.parseEntity(parsed.type, parsed.content)
     return { entity, headers }

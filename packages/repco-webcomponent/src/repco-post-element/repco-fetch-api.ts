@@ -47,7 +47,6 @@ class RepcoFetchApi extends LitElement {
         )
       }
       const json = await response.json()
-      console.log('json', json)
       const posts = json.data.contentItems.nodes
       this._state = { posts }
     } catch (error) {

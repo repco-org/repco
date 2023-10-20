@@ -30,33 +30,49 @@ export type EntryIpld = z.infer<typeof entryIpld>
 // The list of known headers.
 // Most headers are valid and/or required on some entry kinds.
 export const headers = {
-  // Root
+  // -- Root --
+  // The ed25591 signature by the commit's author over commit cid
   Signature: common.bytes,
+  // The protocol version (always 0 currently)
   ProtocolVersion: z.number().default(0),
 
-  // Commit, Revision (optional)
-  Message: z.string().nullish(),
+  // -- Commit, Revision (optional) --
   DateModified: z.date(),
   DateCreated: z.date(),
+  // Optional commit message string (currently unused)
+  Message: z.string().nullish(),
 
-  // Commit
+  // -- Commit --
+  // Parent commits (usually the single previous commit on the repo)
   Parents: z.array(common.cid).default([]),
+  // Commit uid (auto-assigned)
   CommitUid: common.uid,
-  Author: common.did, // iss
-  Repo: common.did, // aud
+  // Commit author (DID to keypair that signs this commit)
+  Author: common.did,
+  // Repo this commit belongs to (DID of repo keypair)
+  Repo: common.did,
+  // UCANs that provide the capability for Author to publish to Repo
   Proofs: z.array(common.cid.or(z.string())),
 
-  // Revision
-  RevisionUid: common.uid,
-  ParentRevision: common.uid.nullish(),
+  // -- Revision --
   EntityUid: common.uid,
   EntityType: z.string(),
+  // Revision uid (auto-assigned)
+  RevisionUid: common.uid,
+  // uid of previous revision of the same entity
+  ParentRevision: common.uid.nullish(),
+  // entity uris (external ids) that identify this entity
   EntityUris: z.array(common.uri).default([]),
+  // revision uris (external ids) that identify this particular entitiy revision
   RevisionUris: z.array(common.uri).default([]),
+  // optional: uid of the source record from which this revision originates
   DerivedFrom: common.uid.nullish(),
+  // if true, mark the entity as deleted (tombstoned)
   Deleted: z.boolean().default(false),
 
   // Injected on load, removed on save
+  // These headers are never saved into the blockstore
+  // when loading blocks, they may be added to make the blocks CID available
   Cid: common.cid,
   RootCid: common.cid,
   BodyCid: common.cid,
@@ -111,8 +127,8 @@ export type CommitHeaders = z.infer<typeof commitHeaders>
 export const commitIpld = z.object({
   kind: z.literal('commit'),
   headers: commitHeaders,
-  // body is an array of tuples (cid, cid), where the first cid is the revision
-  // and the second (optional) cid refers to the content
+  // body is an array of tuples [cid, cid], where the first cid is the revision
+  // and the second (optional) cid is the revision body cid (actual content of the entity)
   body: z.array(z.tuple([common.cid, common.cid.nullish()])),
 })
 export type CommitIpld = z.infer<typeof commitIpld>
@@ -168,6 +184,11 @@ export type CommitForm = z.infer<typeof commitForm>
 
 // Bundles
 // Bundles are the result of fetching a commit or revision with the referenced content/revisions.
+// revision:
+//     { kind: 'revision', headers: {...}, body: bodyCid, }   --> cid: revCid
+// revisionBundle:
+//     { kind: 'revision', headers: {..., bodyCid, Cid: revCid }, body: <ipld> }
+// where <ipld> is the loaded and decoded block for bodyCid
 
 export const revisionBundle = z.object({
   headers: revisionHeaders.extend({
@@ -178,6 +199,8 @@ export const revisionBundle = z.object({
 })
 export type RevisionBundle = z.infer<typeof revisionBundle>
 
+// A commit bundle is returned from `repo.saveBatch`, so the result of saving a new batch of entity
+// revision in a single commit plus a new signed root.
 export const commitBundle = z.object({
   headers: commitHeaders.extend({
     Signature: headers.Signature,

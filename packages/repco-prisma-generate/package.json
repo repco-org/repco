@@ -2,6 +2,7 @@
   "name": "repco-prisma-generate",
   "version": "0.1.0",
   "type": "module",
+  "license": "MIT OR Apache-2.0",
   "bin": {
     "repco-prisma-generate": "bin.js"
   },

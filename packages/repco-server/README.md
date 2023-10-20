@@ -21,7 +21,7 @@ This will start the server on `http://localhost:8765`.
 
 ## Routes
 
-#### `GET /changes`
+#### `GET /api/changes/:repo`
 
 Fetch revisions, ordered by the revision ID (which includes a timestamp). Returns a JSON encoded array of revisions.
 
@@ -29,9 +29,9 @@ Query parameters:
 * `from=revisionid`: Start from this revision id.
 * `format=ndjson`: Render the revisions as newline-delimited JSON
 
-#### `PUT /changes`
+#### `PUT /api/changes/:repo`
 
-Store revisions. The output from `GET /changes` on one node can be piped into `PUT /changes` on another node.
+Store revisions. The output from `GET /api/changes/:repo` on one node can be piped into `PUT /api/changes/:repo` on another node.
 
 Headers:
 * `Content-Type: application/json`: Treat the body payload as a JSON array of revisions.

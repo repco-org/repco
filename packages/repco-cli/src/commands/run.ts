@@ -28,7 +28,10 @@ export const run = createCommand({
     }
     const prisma = new PrismaClient()
     const port =
-      Number(opts.httpPort) || Number(process.env.HTTP_PORT) || DEFAULT_PORT
+      Number(opts.httpPort) ||
+      Number(process.env.HTTP_PORT) ||
+      Number(process.env.PORT) ||
+      DEFAULT_PORT
 
     if (!process.env.REPCO_URL) {
       process.env.REPCO_URL = `http://localhost:${port}/graphql`
