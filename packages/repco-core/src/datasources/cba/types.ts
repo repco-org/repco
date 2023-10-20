@@ -33,6 +33,7 @@ export interface CbaPost {
   production_date: Date
   _links: Links
   _fetchedAttachements: any[]
+  translations: any[]
 }
 
 export interface About {
@@ -244,6 +245,7 @@ export interface CbaAudio {
   media_tag: any[]
   acf: any[]
   originators: any[]
+  transcripts: any[]
   source_url: string
   license: {
     license_image: string
@@ -306,6 +308,7 @@ export interface CbaImage {
   media_tag: any[]
   acf: any[]
   originators: any[]
+  transcripts: any[]
   source_url: string
   license: {
     license_image: string
