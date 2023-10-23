@@ -194,7 +194,7 @@ export function initializeActivitypubExpress(app, prefix = '/ap') {
 
   app.get('/ap-debug', async (req, res) => {
     await createRepoActor('test')
-    await followActor('test', 'http://localhost:9000/video-channels/test2')
+    await followActor('test', 'http://host.docker.internal:9000/video-channels/test')
     res.send('ok')
   })
 
