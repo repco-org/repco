@@ -1,0 +1,65 @@
+[
+    {
+      "nodes": {
+        "table": "ContentItem",
+        "schema": "public",
+        "columns": [
+          "title",
+          "subtitle",
+          "pubDate",
+          "summary",
+          "content"
+        ],
+        "children": [
+          {
+            "table": "MediaAsset",
+            "schema": "public",
+            "label": "MediaAsset",
+            "columns": [
+              "title",
+              "description",
+              "mediaType",
+              "teaserImageUid"
+            ],
+            "primary_key": [
+              "uid"
+            ],
+            "relationship": {
+              "variant": "object",
+              "type": "one_to_many",
+              "through_tables": [
+                "_ContentItemToMediaAsset"
+              ]
+            },
+            "children": [
+              {
+                "table": "Translation",
+                "schema": "public",
+                "label": "Translation",
+                "columns": [
+                  "language",
+                  "text"
+                ],
+                "primary_key": [
+                  "uid"
+                ],
+                "relationship": {
+                  "variant": "object",
+                  "type": "one_to_many",
+                  "foreign_key": {
+                    "child": [
+                      "mediaAssetUid"
+                    ],
+                    "parent": [
+                      "uid"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+  
