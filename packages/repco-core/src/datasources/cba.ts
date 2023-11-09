@@ -173,7 +173,15 @@ export class CbaDataSource implements DataSource {
             const params = new URLSearchParams()
             params.append('include', slice.map((id) => id.id).join(','))
             params.append('per_page', slice.length.toString())
-            const url = this._url(`/${endpoint}?${params}`)
+            var multilingual = ''
+            if (
+              endpoint === 'post' ||
+              endpoint === 'series' ||
+              endpoint === 'station'
+            ) {
+              multilingual = 'multilingual'
+            }
+            const url = this._url(`/${endpoint}?${params}${multilingual}`)
             const bodies = await this._fetch(url)
             res.push(
               ...bodies.map((body: any, i: number) => {
@@ -236,7 +244,15 @@ export class CbaDataSource implements DataSource {
       )
     }
 
-    const url = this._url(`/${endpoint}/${id}`)
+    var params = ''
+    if (
+      endpoint === 'post' ||
+      endpoint === 'series' ||
+      endpoint === 'station'
+    ) {
+      params = '?multilingual'
+    }
+    const url = this._url(`/${endpoint}/${id}${params}`)
     const [body] = await Promise.all([this._fetch(url)])
 
     return [
@@ -448,11 +464,17 @@ export class CbaDataSource implements DataSource {
       resolution: null,
     }
 
-    //TODO: find language code
     var titleJson: { [k: string]: any } = {}
-    titleJson['de'] = { value: media.title.rendered }
+    titleJson[media.language_codes[0]] = { value: media.title.rendered }
     var descriptionJson: { [k: string]: any } = {}
-    descriptionJson['de'] = { value: media.description?.rendered }
+    descriptionJson[media.language_codes[0]] = {
+      value: media.description?.rendered,
+    }
+
+    Object.entries(media.translations).forEach((entry) => {
+      titleJson[entry[1]['language']] = { value: entry[1]['title'] }
+      descriptionJson[entry[1]['language']] = { value: entry[1]['description'] }
+    })
 
     const asset: form.MediaAssetInput = {
       title: titleJson,
@@ -477,7 +499,7 @@ export class CbaDataSource implements DataSource {
       headers: { EntityUris: [audioId] },
     }
 
-    var transcripts = this._mapTranscripts(media, media.transcripts)
+    var transcripts = this._mapTranscripts(media, media.transcripts, {})
 
     return [fileEntity, mediaEntity, ...transcripts]
   }
@@ -508,11 +530,17 @@ export class CbaDataSource implements DataSource {
         media.media_details.width.toString()
     }
 
-    //TODO: find language code
     var titleJson: { [k: string]: any } = {}
-    titleJson['de'] = { value: media.title.rendered }
+    titleJson[media.language_codes[0]] = { value: media.title.rendered }
     var descriptionJson: { [k: string]: any } = {}
-    descriptionJson['de'] = { value: media.description?.rendered }
+    descriptionJson[media.language_codes[0]] = {
+      value: media.description?.rendered,
+    }
+
+    Object.entries(media.translations).forEach((entry) => {
+      titleJson[entry[1]['language']] = { value: entry[1]['title'] }
+      descriptionJson[entry[1]['language']] = { value: entry[1]['description'] }
+    })
 
     const asset: form.MediaAssetInput = {
       title: titleJson,
@@ -536,7 +564,7 @@ export class CbaDataSource implements DataSource {
       headers: { EntityUris: [imageId] },
     }
 
-    var transcripts = this._mapTranscripts(media, media.transcripts)
+    var transcripts = this._mapTranscripts(media, media.transcripts, {})
 
     return [fileEntity, mediaEntity, ...transcripts]
   }
@@ -611,9 +639,13 @@ export class CbaDataSource implements DataSource {
         `Missing or invalid title for station with ID ${station.id}`,
       )
     }
-    //TODO: find language code
+
     var nameJson: { [k: string]: any } = {}
-    nameJson['de'] = { value: station.title.rendered }
+    nameJson[station.language_codes[0]] = { value: station.title.rendered }
+
+    Object.entries(station.translations).forEach((entry) => {
+      nameJson[entry[1]['language']] = { value: entry[1]['title'] }
+    })
 
     const content: form.PublicationServiceInput = {
       medium: station.type || '',
@@ -642,13 +674,22 @@ export class CbaDataSource implements DataSource {
       throw new Error('Series title is missing.')
     }
 
-    //TODO: find language code
     var descriptionJson: { [k: string]: any } = {}
-    descriptionJson['de'] = { value: series.content.rendered }
+    descriptionJson[series.language_codes[0]] = {
+      value: series.content.rendered,
+    }
     var summaryJson: { [k: string]: any } = {}
-    summaryJson['de'] = { value: series.content.rendered }
+    summaryJson[series.language_codes[0]] = { value: series.content.rendered }
     var titleJson: { [k: string]: any } = {}
-    titleJson['de'] = { value: series.title.rendered }
+    titleJson[series.language_codes[0]] = { value: series.title.rendered }
+
+    Object.entries(series.translations).forEach((entry) => {
+      titleJson[entry[1]['language']] = { value: entry[1]['title'] }
+      summaryJson[entry[1]['language']] = { value: entry[1]['content'] }
+      descriptionJson[entry[1]['language']] = {
+        value: entry[1]['content'],
+      }
+    })
 
     const content: form.ContentGroupingInput = {
       title: titleJson,
@@ -778,6 +819,9 @@ export class CbaDataSource implements DataSource {
         text: transcript['transcript'],
         engine: '',
         MediaAsset: mediaAssetLinks,
+        license: '',
+        subtitleUrl: '',
+        author: '',
         //TODO: refresh zod client and add new fields
       }
       entities.push({

@@ -3121,6 +3121,112 @@ export type FloatFilter = {
   notIn?: InputMaybe<Array<Scalars['Float']>>
 }
 
+/** All input for the `getChapterByLanguage` mutation. */
+export type GetChapterByLanguageInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']>
+  languageCode?: InputMaybe<Scalars['String']>
+}
+
+/** The output of our `getChapterByLanguage` mutation. */
+export type GetChapterByLanguagePayload = {
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId?: Maybe<Scalars['String']>
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query?: Maybe<Query>
+  results?: Maybe<Array<Maybe<GetChapterByLanguageRecord>>>
+}
+
+/** The return type of our `getChapterByLanguage` mutation. */
+export type GetChapterByLanguageRecord = {
+  duration?: Maybe<Scalars['Float']>
+  revisionid?: Maybe<Scalars['String']>
+  start?: Maybe<Scalars['Float']>
+  title?: Maybe<Scalars['String']>
+  type?: Maybe<Scalars['String']>
+  uid?: Maybe<Scalars['String']>
+}
+
+/** All input for the `getConceptByLanguage` mutation. */
+export type GetConceptByLanguageInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']>
+  languageCode?: InputMaybe<Scalars['String']>
+}
+
+/** The output of our `getConceptByLanguage` mutation. */
+export type GetConceptByLanguagePayload = {
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId?: Maybe<Scalars['String']>
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query?: Maybe<Query>
+  results?: Maybe<Array<Maybe<GetConceptByLanguageRecord>>>
+}
+
+/** The return type of our `getConceptByLanguage` mutation. */
+export type GetConceptByLanguageRecord = {
+  description?: Maybe<Scalars['String']>
+  kind?: Maybe<ConceptKind>
+  name?: Maybe<Scalars['String']>
+  originnamespace?: Maybe<Scalars['String']>
+  parentuid?: Maybe<Scalars['String']>
+  revisionid?: Maybe<Scalars['String']>
+  sameasuid?: Maybe<Scalars['String']>
+  summary?: Maybe<Scalars['String']>
+  uid?: Maybe<Scalars['String']>
+  wikidataidentifier?: Maybe<Scalars['String']>
+}
+
+/** All input for the `getContentGroupingsByLanguage` mutation. */
+export type GetContentGroupingsByLanguageInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']>
+  languageCode?: InputMaybe<Scalars['String']>
+}
+
+/** The output of our `getContentGroupingsByLanguage` mutation. */
+export type GetContentGroupingsByLanguagePayload = {
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId?: Maybe<Scalars['String']>
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query?: Maybe<Query>
+  results?: Maybe<Array<Maybe<GetContentGroupingsByLanguageRecord>>>
+}
+
+/** The return type of our `getContentGroupingsByLanguage` mutation. */
+export type GetContentGroupingsByLanguageRecord = {
+  broadcastschedule?: Maybe<Scalars['String']>
+  description?: Maybe<Scalars['String']>
+  groupingtype?: Maybe<Scalars['String']>
+  licenseuid?: Maybe<Scalars['String']>
+  revisionid?: Maybe<Scalars['String']>
+  startingdate?: Maybe<Scalars['Datetime']>
+  subtitle?: Maybe<Scalars['String']>
+  summary?: Maybe<Scalars['String']>
+  terminationdate?: Maybe<Scalars['Datetime']>
+  title?: Maybe<Scalars['String']>
+  uid?: Maybe<Scalars['String']>
+  variant?: Maybe<ContentGroupingVariant>
+}
+
 /** All input for the `getContentItemsByLanguage` mutation. */
 export type GetContentItemsByLanguageInput = {
   /**
@@ -3154,6 +3260,73 @@ export type GetContentItemsByLanguageRecord = {
   revisionid?: Maybe<Scalars['String']>
   subtitle?: Maybe<Scalars['String']>
   summary?: Maybe<Scalars['String']>
+  title?: Maybe<Scalars['String']>
+  uid?: Maybe<Scalars['String']>
+}
+
+/** All input for the `getMediaAssetByLanguage` mutation. */
+export type GetMediaAssetByLanguageInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']>
+  languageCode?: InputMaybe<Scalars['String']>
+}
+
+/** The output of our `getMediaAssetByLanguage` mutation. */
+export type GetMediaAssetByLanguagePayload = {
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId?: Maybe<Scalars['String']>
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query?: Maybe<Query>
+  results?: Maybe<Array<Maybe<GetMediaAssetByLanguageRecord>>>
+}
+
+/** The return type of our `getMediaAssetByLanguage` mutation. */
+export type GetMediaAssetByLanguageRecord = {
+  description?: Maybe<Scalars['String']>
+  duration?: Maybe<Scalars['Float']>
+  fileuid?: Maybe<Scalars['String']>
+  licenseuid?: Maybe<Scalars['String']>
+  mediatype?: Maybe<Scalars['String']>
+  revisionid?: Maybe<Scalars['String']>
+  teaserimageuid?: Maybe<Scalars['String']>
+  title?: Maybe<Scalars['String']>
+  uid?: Maybe<Scalars['String']>
+}
+
+/** All input for the `getPublicationServiceByLanguage` mutation. */
+export type GetPublicationServiceByLanguageInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']>
+  languageCode?: InputMaybe<Scalars['String']>
+}
+
+/** The output of our `getPublicationServiceByLanguage` mutation. */
+export type GetPublicationServiceByLanguagePayload = {
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId?: Maybe<Scalars['String']>
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query?: Maybe<Query>
+  results?: Maybe<Array<Maybe<GetPublicationServiceByLanguageRecord>>>
+}
+
+/** The return type of our `getPublicationServiceByLanguage` mutation. */
+export type GetPublicationServiceByLanguageRecord = {
+  address?: Maybe<Scalars['String']>
+  medium?: Maybe<Scalars['String']>
+  publisheruid?: Maybe<Scalars['String']>
+  revisionid?: Maybe<Scalars['String']>
   title?: Maybe<Scalars['String']>
   uid?: Maybe<Scalars['String']>
 }
@@ -4095,12 +4268,42 @@ export type MetadatumFilter = {
 
 /** The root mutation type which contains root level fields which mutate data. */
 export type Mutation = {
+  getChapterByLanguage?: Maybe<GetChapterByLanguagePayload>
+  getConceptByLanguage?: Maybe<GetConceptByLanguagePayload>
+  getContentGroupingsByLanguage?: Maybe<GetContentGroupingsByLanguagePayload>
   getContentItemsByLanguage?: Maybe<GetContentItemsByLanguagePayload>
+  getMediaAssetByLanguage?: Maybe<GetMediaAssetByLanguagePayload>
+  getPublicationServiceByLanguage?: Maybe<GetPublicationServiceByLanguagePayload>
+}
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationGetChapterByLanguageArgs = {
+  input: GetChapterByLanguageInput
+}
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationGetConceptByLanguageArgs = {
+  input: GetConceptByLanguageInput
+}
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationGetContentGroupingsByLanguageArgs = {
+  input: GetContentGroupingsByLanguageInput
 }
 
 /** The root mutation type which contains root level fields which mutate data. */
 export type MutationGetContentItemsByLanguageArgs = {
   input: GetContentItemsByLanguageInput
+}
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationGetMediaAssetByLanguageArgs = {
+  input: GetMediaAssetByLanguageInput
+}
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationGetPublicationServiceByLanguageArgs = {
+  input: GetPublicationServiceByLanguageInput
 }
 
 /** Information about pagination in a connection. */

@@ -92,6 +92,8 @@ export interface CbaSeries {
   comment_status: string
   ping_status: string
   template: string
+  language_codes: string[]
+  translations: any[]
   acf: any[]
   post_parent: number
   url: string
@@ -218,6 +220,8 @@ export interface CbaStation {
   comment_status: string
   ping_status: string
   template: string
+  language_codes: string[]
+  translations: any[]
   acf: any[]
   livestream_urls: any[]
   _links: StationLinks
@@ -243,6 +247,8 @@ export interface CbaAudio {
     station_id: number
   }
   media_tag: any[]
+  language_codes: string[]
+  translations: any[]
   acf: any[]
   originators: any[]
   transcripts: any[]
@@ -306,6 +312,8 @@ export interface CbaImage {
     station_id: number
   }
   media_tag: any[]
+  language_codes: string[]
+  translations: any[]
   acf: any[]
   originators: any[]
   transcripts: any[]
