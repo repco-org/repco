@@ -23,3 +23,13 @@ services:
       - MEILI_MASTER_KEY=${MEILISEARCH_API_KEY}
     volumes:
       - ./data/meilisearch:/meili_data
+  mongo:
+    image: mongo
+    restart: always
+    ports: 
+      - 27017:27017
+    volumes:
+      - ./data/mongodb:/data
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: repco

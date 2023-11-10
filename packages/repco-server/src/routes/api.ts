@@ -153,4 +153,6 @@ router.put('/changes', async (_req, _res) => {
   // throw new ServerError(400, 'Invalid content-type header.')
 })
 
+router.use(notFoundHandler)
+
 export default router

@@ -1,18 +1,12 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "../../tsconfig.json",
-  "include": [
-    "*.ts",
-    "src/**/*",
-    "test/**/*"
-  ],
+  "include": ["*.ts", "src/**/*", "test/**/*"],
   "compilerOptions": {
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "paths": { "~prisma": ["./generated/prisma-client"] }
   },
   "references": [
-    {
-      "path": "../repco-activitypub"
-    },
     {
       "path": "../repco-core"
     },

@@ -5,13 +5,16 @@ import cors from 'cors'
 import express, { Response } from 'express'
 import pinoHttp from 'pino-http'
 import { createHttpTerminator } from 'http-terminator'
+import { initActivityPub } from 'repco-activitypub'
 import { createLogger, Logger } from 'repco-common'
 import { PrismaClient } from 'repco-core'
 import { createGraphqlHandler, createPoolFromUrl } from 'repco-graphql'
 import Routes from './routes.js'
 
-const logger = pinoHttp({
-  logger: createLogger('server'),
+export const logger = createLogger('server')
+
+const httpLogger = pinoHttp({
+  logger,
   useLevel: 'debug',
   redact: ['req.headers.authorization'],
 })
@@ -38,15 +41,33 @@ export function runServer(prisma: PrismaClient, port: number) {
   const graphqlHandler = createGraphqlHandler(pgPool)
 
   const app = express()
-  app.use(logger)
+
+  app.use(httpLogger)
+  app.use((req, res, next) => {
+    console.log(req.url, req.method, req.headers.accept)
+    next()
+  })
   app.use(express.json({ limit: '100mb' }))
   app.use(cors())
+
   app.use(graphqlHandler)
   app.use((_req, res, next) => {
     res.locals.prisma = prisma
     res.locals.log = logger.logger
     next()
   })
+
+  initActivityPub(app, {
+    prefix: '/ap',
+    api: {
+      prefix: '/api/ap',
+      auth: async (_req) => {
+        // todo: authentication
+        return true
+      },
+    },
+  })
+
   app.use((req, _res, next) => {
     if (!req.header('content-type')) {
       req.headers['content-type'] = 'application/json'
@@ -63,7 +84,7 @@ export function runServer(prisma: PrismaClient, port: number) {
   app.use(error.handler)
 
   const server = app.listen(port, () => {
-    logger.logger.info(`Repco server listening on http://localhost:${port}`)
+    httpLogger.logger.info(`Repco server listening on http://localhost:${port}`)
   })
 
   const isReady = new Promise((resolve, reject) => {
