@@ -2,7 +2,12 @@ import * as schema from './ap/schema.js'
 import { Prisma, PrismaClient } from '@prisma/client'
 import { randomBytes } from 'crypto'
 import { EventEmitter } from 'events'
-import { generateRsaKeypairPem, Keypair } from './ap/crypto.js'
+import {
+  generateRsaKeypairPem,
+  Keypair,
+  Parser,
+  SignOpts,
+} from './ap/crypto.js'
 import { fetchAp } from './ap/fetch.js'
 import { ApiError } from './error.js'
 
@@ -29,6 +34,7 @@ export class ActivityPub extends EventEmitter {
   public db: PrismaClient
   public domain: string
   public baseUrl: URL
+  remoteActorKeys: Record<string, any> = {}
 
   constructor(db: PrismaClient, baseUrl: string | URL) {
     super()
@@ -151,6 +157,33 @@ export class ActivityPub extends EventEmitter {
       },
     })
     return res
+  }
+
+  async verifyAndPostInbox(body: any, reqParams: SignOpts) {
+    await this.verifySignature(reqParams)
+    await this.postInbox(body)
+  }
+
+  async verifySignature(signOpts: SignOpts) {
+    // TODO: verify digest signature
+    const signature = new Parser().parse(signOpts)
+    const publicKey = await this.getRemotePublicKey(signature.keyId)
+    const success = signature.verify(publicKey.publicKeyPem)
+
+    if (!success) {
+      throw new ApiError(403, 'http signature validation failed')
+    } else {
+      return publicKey.owner
+    }
+  }
+
+  async getRemotePublicKey(keyId: string): Promise<any> {
+    if (!this.remoteActorKeys[keyId]) {
+      const keyRes = await fetchAp(keyId)
+      const { publicKey } = keyRes
+      this.remoteActorKeys[keyId] = publicKey
+    }
+    return this.remoteActorKeys[keyId]
   }
 
   async postInbox(input: any) {

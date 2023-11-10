@@ -37,8 +37,8 @@ export function state(req: express.Request) {
  */
 export function initActivityPub(app: express.Express, opts: ActivityPubOpts) {
   const db = new PrismaClient()
-  // assign default opts
-  const { baseUrl, prefix, api } = { ...DEFAULT_OPTS, ...opts }
+  if (!opts.baseUrl) opts.baseUrl = process.env.AP_BASE_URL
+  const { baseUrl, prefix, api } = opts
   if (!baseUrl) {
     throw new Error('Missing AP_BASE_URL environment variable')
   }

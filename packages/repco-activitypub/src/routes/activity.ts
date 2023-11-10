@@ -10,7 +10,14 @@ routes.use(
 
 routes.post('/inbox', async (req, res) => {
   const ap = state(req)
-  await ap.postInbox(req.body)
+  const url = req.originalUrl
+  const method = req.method
+
+  await ap.verifyAndPostInbox(req.body, {
+    url,
+    method,
+    headers: req.headers as Record<string, string>,
+  })
   res.status(204)
   res.end()
 })
