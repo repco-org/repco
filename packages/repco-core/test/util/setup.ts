@@ -94,7 +94,7 @@ export async function setupDb(log: LogFn = console.log) {
   // wait until the container dies or is ready to accept connections
   await Promise.race([container, ready])
 
-  const databaseUrl = `postgresql://test:test@localhost:${port}/repco`
+  const databaseUrl = `postgresql://test:test@127.0.0.1:${port}/repco`
   const teardown = async () => {
     await spawn('docker', ['stop', '-t', '0', name])
   }
