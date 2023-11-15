@@ -11,6 +11,7 @@ import type { Prisma } from 'repco-prisma'
 import type { Readable } from 'stream'
 import { fileURLToPath } from 'url'
 import { PrismaClient } from '../../lib.js'
+import split2 from 'split2'
 
 const REPCO_ROOT = p.join(fileURLToPath(import.meta.url), '../../../../../..')
 const dockerPids: number[] = []
@@ -109,16 +110,14 @@ process.on('exit', () => {
   }
 })
 
-async function waitForLines(stream: Readable, lines: RegExp[]) {
-  if (!lines.length) return
+async function waitForLines(stream: Readable, expected_lines: RegExp[]) {
+  if (!expected_lines.length) return
   await new Promise<void>((resolve) => {
-    let cur = lines.shift()
-    stream.on('data', (buf) => {
-      for (const line of buf.toString().split('\n')) {
-        if (line.match(cur)) {
-          cur = lines.shift()
-          if (!cur) resolve()
-        }
+    let cur = expected_lines.shift()
+    stream.pipe(split2()).on('data', (line: string) => {
+      if (line.match(cur!)) {
+        cur = expected_lines.shift()
+        if (!cur) resolve()
       }
     })
   })
