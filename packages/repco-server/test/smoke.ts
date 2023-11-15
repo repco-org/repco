@@ -25,8 +25,6 @@ async function startServer(assert: Test) {
   const prisma = await setup(assert)
   const port = await getPort()
   const url = `http://localhost:${port}`
-  console.log('setup done')
-  console.log('contentitem find many', await prisma.contentItem.findMany())
   const { shutdown, isReady } = runServer(prisma, port)
   assert.teardown(shutdown, { order: Infinity })
   await isReady

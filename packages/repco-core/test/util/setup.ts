@@ -1,6 +1,7 @@
 import 'source-map-support/register.js'
 import getPort from 'get-port'
 import p from 'path'
+import split2 from 'split2'
 import { Test } from 'brittle'
 import {
   ChildProcess,
@@ -11,7 +12,6 @@ import type { Prisma } from 'repco-prisma'
 import type { Readable } from 'stream'
 import { fileURLToPath } from 'url'
 import { PrismaClient } from '../../lib.js'
-import split2 from 'split2'
 
 const REPCO_ROOT = p.join(fileURLToPath(import.meta.url), '../../../../../..')
 const dockerPids: number[] = []
@@ -115,6 +115,7 @@ async function waitForLines(stream: Readable, expected_lines: RegExp[]) {
   await new Promise<void>((resolve) => {
     let cur = expected_lines.shift()
     stream.pipe(split2()).on('data', (line: string) => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       if (line.match(cur!)) {
         cur = expected_lines.shift()
         if (!cur) resolve()
