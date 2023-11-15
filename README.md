@@ -8,6 +8,14 @@ This repo contains both an [in-progress specification document](SPEC.md) and a f
 
 Note: These are priliminary docs for how to run Repco in a developer's setup. Docs for production deployment will come later.
 
+#### Requirements
+
+* Node.js v18+
+* yarn v1 (yarn classic)
+* Docker and Docker Compose
+
+### Development setup
+
 First clone this repo. Then, from within the repo folder, you can run the following commands:
 
 ```sh
