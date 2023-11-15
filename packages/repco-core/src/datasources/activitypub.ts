@@ -28,6 +28,7 @@ import { notEmpty } from '../util/misc.js'
 const configSchema = zod.object({
   user: zod.string(),
   domain: zod.string(),
+  repo: zod.string(),
 })
 type ConfigSchema = zod.infer<typeof configSchema>
 
@@ -67,7 +68,7 @@ export class ActivityPubDataSourcePlugin implements DataSourcePlugin {
   }
   get definition() {
     return {
-      uid: 'urn:repco:datasource:activitypub',
+      uid: 'repco:datasource:activitypub',
       name: 'ActivityPub',
     }
   }
@@ -95,6 +96,7 @@ export class ActivityPubDataSource
   account: string
   host: string
   uriPrefix: string
+  repo: string
   constructor(config: ConfigSchema) {
     super()
     this.user = config.user
@@ -102,21 +104,22 @@ export class ActivityPubDataSource
     this.account = config.user + '@' + config.domain
     this.host = 'https://' + config.domain
     this.uriPrefix = `repco:activityPub`
+    this.repo = config.repo
   }
 
   get config() {
     return {
       user: this.user,
       domain: this.domain,
-      host: this.host,
+      repo: this.repo,
     }
   }
 
   get definition(): DataSourceDefinition {
     return {
-      name: 'ActivityPub data source',
-      uid: 'urn:datasource:activitypub:' + this.account,
-      pluginUid: 'urn:repco:datasource:activitypub',
+      name: `ActivityPub ${this.account}`,
+      uid: `repco:${this.repo}:datasource:activitypub:` + this.account,
+      pluginUid: 'repco:datasource:activitypub',
     }
   }
   private async _fetchAs<T>(url: string): Promise<T> {

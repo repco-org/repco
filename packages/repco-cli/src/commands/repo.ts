@@ -11,6 +11,7 @@ import { CID } from 'multiformats/cid'
 import { ExportProgress, ImportProgress, Repo } from 'repco-core'
 import { PrismaClient } from 'repco-prisma'
 import { pipeline } from 'stream/promises'
+import { request } from '../client.js'
 import { createCommand, createCommandGroup } from '../parse.js'
 
 // helpers
@@ -26,11 +27,17 @@ export const create = createCommand({
     { name: 'name', required: true, help: 'Local name for repo' },
   ] as const,
   async run(_opts, args) {
-    const prisma = new PrismaClient()
-    const repo = await Repo.create(prisma, args.name)
-    print(`Created new repo "${repo.name}" and DID`)
-    print(`   ${pc.yellow(repo.did)}`)
-    print('The secret key for this repo is stored in the database.')
+    try {
+      const res = (await request('/repo', {
+        method: 'POST',
+        body: { name: args.name },
+      })) as any
+      print(`Created new repo "${args.name}" and DID`)
+      print(`   ${pc.yellow(res.repo_did)}`)
+      print('The secret key for this repo is stored in the database.')
+    } catch (err) {
+      console.error('got error', err)
+    }
   },
 })
 
@@ -203,21 +210,23 @@ export const list = createCommand({
   name: 'list',
   help: 'List repos',
   async run() {
-    const prisma = new PrismaClient()
-    const repos = await Repo.list(prisma)
-    const table = new Table({
-      head: ['DID', 'Name', 'Revisions'],
-    })
-    for (const repo of repos) {
-      const count = await prisma.revision.count({
-        where: { repoDid: repo.did },
+    try {
+      const res = (await request('/repo', { method: 'GET' })) as any
+      const table = new Table({
+        head: ['DID', 'Name', 'Revisions'],
       })
-      table.push([repo.did, repo.name || '', String(count)])
+      const repo_table: Table.Table = res.repo_table
+      repo_table.forEach((row) => {
+        table.push(row)
+      })
+      console.log(table.toString())
+    } catch (err) {
+      console.error('Error listing all repos', err)
     }
-    print(table.toString())
   },
 })
 
+//TODO
 export const info = createCommand({
   name: 'info',
   help: 'Info on a repo',
@@ -265,7 +274,7 @@ export const logRevisions = createCommand({
 
 export const syncCommand = createCommand({
   name: 'sync',
-  help: 'Sync (pull) a mirrored repos',
+  help: 'Sync (pull) a mirrored repo',
   arguments: [
     { name: 'repo', required: true, help: 'DID or name of repo' },
   ] as const,

@@ -53,7 +53,7 @@ export class yourDatasourceDataSourcePlugin implements DataSourcePlugin {
   // Get the definition for the datasource
   get definition() {
     return {
-      uid: 'urn:repco:datasource:yourDatasource',
+      uid: 'repco:datasource:yourDatasource',
       name: 'yourDatasource',
     }
   }
@@ -90,8 +90,8 @@ export class yourDatasourceDataSource implements DataSource {
   get definition(): DataSourceDefinition {
     return {
       name: 'yourDatasource',
-      uid: 'urn:datasource:yourDatasource:' + this.endpoint,
-      pluginUid: 'urn:repco:datasource:yourDatasource',
+      uid: 'repco:yourRepoName:datasource:yourDatasource:' + this.endpoint,
+      pluginUid: 'repco:datasource:yourDatasource',
     }
   }
 

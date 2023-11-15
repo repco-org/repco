@@ -39,6 +39,7 @@ export class RssDataSourcePlugin implements DataSourcePlugin {
 
 const configSchema = zod.object({
   endpoint: zod.string().url(),
+  repo: zod.string(),
 })
 type ConfigSchema = zod.infer<typeof configSchema>
 
@@ -96,12 +97,14 @@ export class RssDataSource extends BaseDataSource implements DataSource {
   endpoint: URL
   baseUri: string
   parser: RssParser = new RssParser()
+  repo: string
   constructor(config: ConfigSchema) {
     super()
     const endpoint = new URL(config.endpoint)
     endpoint.hash = ''
     this.endpoint = endpoint
     this.baseUri = removeProtocol(this.endpoint)
+    this.repo = config.repo
   }
 
   get config() {
@@ -109,7 +112,7 @@ export class RssDataSource extends BaseDataSource implements DataSource {
   }
 
   get definition(): DataSourceDefinition {
-    const uid = this.baseUri
+    const uid = this.repo + ':' + this.baseUri
     return {
       name: 'RSS data source',
       uid,

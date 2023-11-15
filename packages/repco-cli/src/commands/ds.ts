@@ -6,6 +6,7 @@ import {
   remapDataSource,
   Repo,
 } from 'repco-core'
+import { request } from '../client.js'
 import { CliError, createCommand, createCommandGroup } from '../parse.js'
 
 export const listPlugins = createCommand({
@@ -32,7 +33,7 @@ export const list = createCommand({
   },
   async run(opts) {
     const repo = await Repo.openWithDefaults(opts.repo)
-    await repo.dsr.hydrate(repo.prisma, plugins)
+    await repo.dsr.hydrate(repo.prisma, plugins, repo.did)
     const data = repo.dsr
       .all()
       .map((ds) => ({ ...ds.definition, config: ds.config }))
@@ -67,20 +68,26 @@ export const add = createCommand({
     { name: 'config', required: true, help: 'Config (as json)' },
   ],
   options: {
-    repo: { type: 'string', short: 'r', help: 'Repo name or DID' },
+    repo: {
+      type: 'string',
+      short: 'r',
+      default: process.env.REPCO_REPO,
+      help: 'Repo name or DID',
+    },
   },
   async run(opts, args) {
-    const repo = await Repo.openWithDefaults(opts.repo)
-    // const prisma = repo.prisma
-    const config = JSON.parse(args.config)
-    const instance = await repo.dsr.create(
-      repo.prisma,
-      plugins,
-      args.plugin,
-      config,
+    if (!opts.repo) {
+      throw new Error(
+        'Either --repo option or REPCO_REPO environment variable is required.',
+      )
+    }
+    const res = (await request(`/repo/${opts.repo}/ds`, {
+      method: 'POST',
+      body: { pluginUid: args.plugin, config: args.config },
+    })) as any
+    console.log(
+      `Created datasource ${res.uid} in repo ${opts.repo} for plugin ${res.pluginUid}`,
     )
-    const def = instance.definition
-    console.log(`Created datasource ${def.uid} for plugin ${def.pluginUid}`)
   },
 })
 
@@ -128,7 +135,7 @@ export const remap = createCommand({
   arguments: [{ name: 'datasource', required: true, help: 'Datasource UID' }],
   async run(opts, args) {
     const repo = await Repo.openWithDefaults(opts.repo)
-    await repo.dsr.hydrate(repo.prisma, plugins)
+    await repo.dsr.hydrate(repo.prisma, plugins, repo.did)
     const ds = repo.dsr.get(args.datasource)
     if (!ds) throw new CliError('Datasource does not exist')
     const result = await remapDataSource(repo, ds)

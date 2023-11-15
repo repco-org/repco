@@ -139,7 +139,7 @@ test('datasource', async (assert) => {
   const repo = await Repo.create(prisma, 'test')
   const plugins = new DataSourcePluginRegistry()
   plugins.register(new TestDataSourcePlugin())
-  await repo.dsr.create(repo.prisma, plugins, 'ds:test', {})
+  await repo.dsr.create(repo.prisma, plugins, 'ds:test', {}, repo.did)
   await ingestUpdatesFromDataSources(repo)
   const uri = 'urn:test:content:1'
   const entities = await prisma.contentItem.findMany({
@@ -165,7 +165,7 @@ test('remap', async (assert) => {
 
   const plugins = new DataSourcePluginRegistry()
   plugins.register(new TestDataSourcePlugin())
-  await repo.dsr.create(repo.prisma, plugins, 'ds:test', {})
+  await repo.dsr.create(repo.prisma, plugins, 'ds:test', {}, repo.did)
 
   await ingestUpdatesFromDataSources(repo)
 
@@ -205,7 +205,7 @@ test.skip('failed fetches', async (assert) => {
 
   const plugins = new DataSourcePluginRegistry()
   plugins.register(new TestDataSourcePlugin())
-  await repo.dsr.create(repo.prisma, plugins, 'ds:test', {})
+  await repo.dsr.create(repo.prisma, plugins, 'ds:test', {}, repo.did)
   const datasource = repo.dsr.get(DS_UID)! as TestDataSource
   datasource.insertMissing = true
 

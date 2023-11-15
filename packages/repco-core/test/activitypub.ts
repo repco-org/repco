@@ -28,12 +28,11 @@ test('peertube datasource - basic1', async (assert) => {
     plugins,
     activityPubPlugin.definition.uid,
     {
-      // user: 'blender_channel',
-      // domain: 'video.blender.org'
       user: 'cryptix_channel',
-      // user: 'mirsal',
       domain: 'peertube.1312.media',
+      repo: repo.name,
     },
+    repo.did,
   )
   await ingestUpdatesFromDataSources(repo)
   // TODO: Provide mocking capability to uids

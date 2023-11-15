@@ -20,10 +20,17 @@ test('cba datasource - basic1', async (assert) => {
   const plugins = new DataSourcePluginRegistry()
   const cbaPlugin = new CbaDataSourcePlugin()
   plugins.register(cbaPlugin)
-  await repo.dsr.create(repo.prisma, plugins, cbaPlugin.definition.uid, {
-    pageLimit: 2,
-    apiKey: null,
-  })
+  await repo.dsr.create(
+    repo.prisma,
+    plugins,
+    cbaPlugin.definition.uid,
+    {
+      pageLimit: 2,
+      apiKey: null,
+      repo: repo.name,
+    },
+    repo.did,
+  )
   await ingestUpdatesFromDataSources(repo)
   // TODO: Provide mocking capability to uids
   const entities = await prisma.contentItem.findMany({

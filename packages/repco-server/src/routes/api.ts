@@ -12,6 +12,7 @@ import {
   revisionIpld,
 } from 'repco-core'
 import { Readable } from 'stream'
+import { router as adminRouter } from './admin.js'
 import { ServerError } from '../error.js'
 import { getLocals } from '../lib.js'
 import {
@@ -20,7 +21,6 @@ import {
   flattenStream,
   sendNdJsonStream,
 } from '../util.js'
-import  { router as adminRouter } from './admin.js'
 
 const router = express.Router()
 
@@ -33,7 +33,7 @@ router.get('/repos', async (_req, res) => {
   res.json(await Repo.list(getLocals(res).prisma))
 })
 
-router.get('/health', (_req, res, next) => {
+router.get('/health', (_req, res) => {
   res.send({ ok: true })
 })
 

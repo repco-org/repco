@@ -18,6 +18,7 @@ import {
 import { fetch } from 'undici'
 import { ZodError } from 'zod'
 import { DataSource, DataSourceRegistry } from './datasource.js'
+import { plugins as defaultDataSourcePlugins } from './datasources/defaults.js'
 import {
   entityForm,
   EntityInputWithHeaders,
@@ -271,6 +272,16 @@ export class Repo extends EventEmitter {
 
   get writeable() {
     return !!this.publishingCapability
+  }
+
+  async addDataSource(pluginUid: string, config: any) {
+    return await this.dsr.create(
+      this.prisma,
+      defaultDataSourcePlugins,
+      pluginUid,
+      config,
+      this.did,
+    )
   }
 
   async refreshInfo() {

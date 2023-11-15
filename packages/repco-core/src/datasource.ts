@@ -1,3 +1,4 @@
+import { EventEmitter } from 'node:events'
 import { createLogger } from 'repco-common'
 import { EntityForm } from './entity.js'
 import { DataSourcePluginRegistry } from './plugins.js'
@@ -130,6 +131,7 @@ type FailedHydrates = { err: Error; row: any }
 
 export class DataSourceRegistry extends Registry<DataSource> {
   _hydrating?: Promise<{ failed: FailedHydrates[] }>
+  public events: EventEmitter = new EventEmitter()
 
   allForUri(urn: string): DataSource[] {
     return this.filtered((ds) => ds.canFetchUri(urn))
@@ -221,10 +223,14 @@ export class DataSourceRegistry extends Registry<DataSource> {
     return this.register(instance)
   }
 
-  async hydrate(prisma: PrismaCore, plugins: DataSourcePluginRegistry) {
+  async hydrate(
+    prisma: PrismaCore,
+    plugins: DataSourcePluginRegistry,
+    repoDid: string,
+  ) {
     if (!this._hydrating) {
       this._hydrating = (async () => {
-        const rows = await prisma.dataSource.findMany()
+        const rows = await prisma.dataSource.findMany({ where: { repoDid } })
         const failed = []
         for (const row of rows) {
           try {
@@ -244,16 +250,20 @@ export class DataSourceRegistry extends Registry<DataSource> {
     plugins: DataSourcePluginRegistry,
     pluginUid: string,
     config: any,
+    repoDid: string,
   ) {
     const instance = this.registerFromPlugins(plugins, pluginUid, config)
     const data = {
       uid: instance.definition.uid,
       pluginUid,
       config,
+      repoDid,
     }
     await prisma.dataSource.create({
       data,
     })
+    log.info(`Created datasource ${data.uid} in repo ${data.repoDid}.`)
+    this.events.emit('create', instance.definition.uid)
     return instance
   }
 }

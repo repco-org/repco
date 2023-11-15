@@ -3989,6 +3989,10 @@ type DataSource {
   cursor: String
   pluginUid: String!
 
+  """Reads a single `Repo` that is related to this `DataSource`."""
+  repo: Repo
+  repoDid: String!
+
   """Reads and enables pagination through a set of `SourceRecord`."""
   sourceRecords(
     """Read all values in the set after (below) this cursor."""
@@ -4042,6 +4046,9 @@ input DataSourceCondition {
   """Checks for equality with the object’s `pluginUid` field."""
   pluginUid: String
 
+  """Checks for equality with the object’s `repoDid` field."""
+  repoDid: String
+
   """Checks for equality with the object’s `uid` field."""
   uid: String
 }
@@ -4070,6 +4077,12 @@ input DataSourceFilter {
 
   """Filter by the object’s `pluginUid` field."""
   pluginUid: StringFilter
+
+  """Filter by the object’s `repo` relation."""
+  repo: RepoFilter
+
+  """Filter by the object’s `repoDid` field."""
+  repoDid: StringFilter
 
   """Filter by the object’s `sourceRecords` relation."""
   sourceRecords: DataSourceToManySourceRecordFilter
@@ -4140,6 +4153,8 @@ enum DataSourcesOrderBy {
   PLUGIN_UID_DESC
   PRIMARY_KEY_ASC
   PRIMARY_KEY_DESC
+  REPO_DID_ASC
+  REPO_DID_DESC
   UID_ASC
   UID_DESC
 }
@@ -8199,6 +8214,40 @@ type Repo {
     """The method to use when ordering `Commit`."""
     orderBy: [CommitsOrderBy!] = [PRIMARY_KEY_ASC]
   ): RepoCommitsByCommitRepoDidAndParentManyToManyConnection!
+
+  """Reads and enables pagination through a set of `DataSource`."""
+  dataSources(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: DataSourceCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: DataSourceFilter
+
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """The method to use when ordering `DataSource`."""
+    orderBy: [DataSourcesOrderBy!] = [PRIMARY_KEY_ASC]
+  ): DataSourcesConnection!
   did: String!
   gateways: [String]
   head: String
@@ -8399,6 +8448,12 @@ input RepoFilter {
   """Some related `commits` exist."""
   commitsExist: Boolean
 
+  """Filter by the object’s `dataSources` relation."""
+  dataSources: RepoToManyDataSourceFilter
+
+  """Some related `dataSources` exist."""
+  dataSourcesExist: Boolean
+
   """Filter by the object’s `did` field."""
   did: StringFilter
 
@@ -8445,6 +8500,26 @@ input RepoToManyCommitFilter {
   Some related `Commit` matches the filter criteria. All fields are combined with a logical ‘and.’
   """
   some: CommitFilter
+}
+
+"""
+A filter to be used against many `DataSource` object types. All fields are combined with a logical ‘and.’
+"""
+input RepoToManyDataSourceFilter {
+  """
+  Every related `DataSource` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  every: DataSourceFilter
+
+  """
+  No related `DataSource` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  none: DataSourceFilter
+
+  """
+  Some related `DataSource` matches the filter criteria. All fields are combined with a logical ‘and.’
+  """
+  some: DataSourceFilter
 }
 
 """

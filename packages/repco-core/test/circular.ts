@@ -28,7 +28,7 @@ class TestDataSourcePlugin implements DataSourcePlugin {
   get definition() {
     return {
       name: 'test',
-      uid: 'ds:test',
+      uid: 'repco:datasource:test',
     }
   }
 }
@@ -37,34 +37,34 @@ class TestDataSource extends BaseDataSource implements DataSource {
   get definition(): DataSourceDefinition {
     return {
       name: 'TestDataSource',
-      uid: 'urn:repco:datasource:test',
-      pluginUid: 'urn:repco:datasource:test',
+      uid: 'repco:repo:datasource:test',
+      pluginUid: 'repco:datasource:test',
     }
   }
   canFetchUri(uid: string): boolean {
-    if (uid.startsWith('urn:repco:')) return true
+    if (uid.startsWith('repco:')) return true
     return false
   }
 
   get DATA(): Record<string, EntityForm> {
     return {
-      'urn:repco:concept:1': {
+      'repco:concept:1': {
         type: 'Concept',
         content: {
           name: 'concept1',
           kind: ConceptKind.CATEGORY,
-          SameAs: { uri: 'urn:repco:concept:2' },
+          SameAs: { uri: 'repco:concept:2' },
         },
-        headers: { EntityUris: ['urn:repco:concept:1'] },
+        headers: { EntityUris: ['repco:concept:1'] },
       },
-      'urn:repco:concept:2': {
+      'repco:concept:2': {
         type: 'Concept',
         content: {
           name: 'concept2',
           kind: ConceptKind.CATEGORY,
-          // SameAs: { uri: 'urn:repco:concept:1' },
+          // SameAs: { uri: 'repco:concept:1' },
         },
-        headers: { EntityUris: ['urn:repco:concept:2'] },
+        headers: { EntityUris: ['repco:concept:2'] },
       },
     }
   }
@@ -77,7 +77,7 @@ class TestDataSource extends BaseDataSource implements DataSource {
       const nextCursor = '1'
       res = {
         cursor: nextCursor,
-        records: [this.DATA['urn:repco:concept:1']].map(intoSourceRecord),
+        records: [this.DATA['repco:concept:1']].map(intoSourceRecord),
       }
     }
     return res
@@ -98,7 +98,13 @@ test('circular', async (assert) => {
   const repo = await Repo.create(prisma, 'test')
   const plugins = new DataSourcePluginRegistry()
   plugins.register(new TestDataSourcePlugin())
-  await repo.dsr.create(repo.prisma, plugins, 'ds:test', {})
+  await repo.dsr.create(
+    repo.prisma,
+    plugins,
+    'repco:datasource:test',
+    {},
+    repo.did,
+  )
   await ingestUpdatesFromDataSources(repo)
   const entities = await prisma.concept.findMany()
   assert.is(entities.length, 2)
