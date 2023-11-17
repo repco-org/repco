@@ -64,6 +64,7 @@ router.post('/repo', async (req, res, next) => {
     throw new ServerError(500, `Failed to create repo ${body.name}: ` + err)
   }
 })
+
 // list repos
 router.get('/repo', async (req, res) => {
   try {
@@ -81,6 +82,35 @@ router.get('/repo', async (req, res) => {
     res.send({ repo_table: table })
   } catch (err) {
     throw new ServerError(500, `Failed to list repos` + err)
+  }
+})
+
+// info on a repo
+router.get('/repo/:repo', async (req, res) => {
+  try {
+    const { prisma } = getLocals(res)
+    const repo = await Repo.open(prisma, req.params.repo)
+    const revisionCount = await repo.prisma.revision.count({
+      where: { repoDid: repo.did },
+    })
+    const commitCount = await repo.prisma.commit.count({
+      where: { repoDid: repo.did },
+    })
+    const info = {
+      did: repo.did,
+      name: repo.name || '',
+      writeable: repo.writeable,
+      headCommit: ((await repo.getHead()) || '-').toString(),
+      headRevisions: (await repo.getCursor()) || '-',
+      revisions: revisionCount,
+      commits: commitCount,
+    }
+    res.send({ info })
+  } catch (err) {
+    throw new ServerError(
+      500,
+      `Failed to get information for repo ${req.params.repo}` + err,
+    )
   }
 })
 

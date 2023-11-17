@@ -2,6 +2,7 @@ import exitHook from 'async-exit-hook'
 import { log, UntilStopped } from 'repco-common'
 import { defaultDataSourcePlugins, Ingester, Repo } from 'repco-core'
 import { PrismaClient } from 'repco-prisma'
+import { runServer } from 'repco-server'
 import { createCommand } from '../parse.js'
 import { startPostgres } from '../util/postgres.js'
 
@@ -17,6 +18,7 @@ export const run = createCommand({
   },
   async run(opts) {
     const shutdown: Array<() => Promise<void>> = []
+    log.debug('start')
     if (opts.temp) {
       log.warn(
         'Running in temp mode with inmemory PostgreSQL - all changes will be lost',
@@ -46,7 +48,6 @@ export const run = createCommand({
     shutdown.push(ingest.shutdown)
 
     // start server
-    const { runServer } = await import('repco-server')
     const server = runServer(prisma, port)
     shutdown.push(server.shutdown)
 

@@ -226,28 +226,27 @@ export const list = createCommand({
   },
 })
 
-//TODO
 export const info = createCommand({
   name: 'info',
   help: 'Info on a repo',
   arguments: [{ name: 'repo', required: true, help: 'DID or name of repo' }],
   async run(_opts, args) {
-    const repo = await Repo.openWithDefaults(args.repo)
-    const table = new Table()
-    const revisionCount = await repo.prisma.revision.count({
-      where: { repoDid: repo.did },
-    })
-    const commitCount = await repo.prisma.commit.count({
-      where: { repoDid: repo.did },
-    })
-    table.push(['DID', repo.did])
-    table.push(['Name', repo.name || ''])
-    table.push(['Writable', JSON.stringify(repo.writeable)])
-    table.push(['Head (commit)', ((await repo.getHead()) || '-').toString()])
-    table.push(['Head (revision)', (await repo.getCursor()) || '-'])
-    table.push(['Revisions', String(revisionCount)])
-    table.push(['Commits', String(commitCount)])
-    print(table.toString())
+    try {
+      const res = (await request(`/repo/${args.repo}`, {
+        method: 'GET',
+      })) as any
+      const table = new Table()
+      table.push(['Did', res.info.did])
+      table.push(['Name', res.info.name])
+      table.push(['Writeable', JSON.stringify(res.info.writeable)])
+      table.push(['Head (commit)', res.info.headCommit])
+      table.push(['Head (revisions)', res.info.headRevisions])
+      table.push(['Revisions', String(res.info.revisions)])
+      table.push(['Commits', String(res.info.commits)])
+      print(table.toString())
+    } catch (err) {
+      console.error('got error', err)
+    }
   },
 })
 

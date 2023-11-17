@@ -16,8 +16,7 @@ for (const batch of batchSizes) {
     assert.timeout(1000 * 1000)
     const count = 500
     const [prisma1, prisma2] = await setup2(assert)
-    Repo.cache = false
-    const repo = await Repo.create(prisma1, 'test')
+    const repo = await Repo.create(prisma1, 'test', undefined, false)
     const group = `${count} (batch ${batch})`
     bench(`create ${group}`, async (b: any) => {
       const batches = count / batch
@@ -35,7 +34,7 @@ for (const batch of batchSizes) {
       await fs.writeFile(carfile, stream)
       b.end()
     })
-    const repo2 = await Repo.create(prisma2, 'test-clone', repo.did)
+    const repo2 = await Repo.create(prisma2, 'test-clone', repo.did, false)
     bench(`import ${group}`, async (b: any) => {
       b.start()
       const readStream = createReadStream(carfile)

@@ -98,6 +98,47 @@ function defaultBlockStore(
   return new PrismaIpldBlockStore(prisma)
 }
 
+class RepoRegistry {
+  repos: Map<string, Repo> = new Map()
+  opening: Map<string, Promise<void>> = new Map()
+
+  public async open(prisma: PrismaClient, didOrName: string): Promise<Repo> {
+    const did = await Repo.nameToDid(prisma, didOrName)
+    if (!this.repos.has(did)) {
+      if (!this.opening.has(did)) {
+        await this._openInner(prisma, did)
+      } else {
+        await this.opening.get(did)
+      }
+    }
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return this.repos.get(did)!
+  }
+
+  async _openInner(prisma: PrismaClient, did: string) {
+    let _resolve: (v: void | PromiseLike<void>) => void
+    let _reject: (e: any) => void
+    const promise = new Promise<void>((resolve, reject) => {
+      _resolve = resolve
+      _reject = reject
+    })
+    this.opening.set(did, promise)
+    try {
+      const repo = await Repo.load(prisma, did)
+      this.repos.set(did, repo)
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      _resolve!()
+    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      _reject!(err)
+    } finally {
+      this.opening.delete(did)
+    }
+  }
+}
+
+export const repoRegistry = new RepoRegistry()
+
 export class Repo extends EventEmitter {
   public dsr: DataSourceRegistry
   public blockstore: IpldBlockStore
@@ -108,9 +149,6 @@ export class Repo extends EventEmitter {
 
   private publishingCapability: string | null
   private validatedAgents: Set<string> = new Set()
-
-  public static CACHE: Map<string, Repo> = new Map()
-  public static cache = true
 
   private txlock = new Mutex()
 
@@ -130,7 +168,12 @@ export class Repo extends EventEmitter {
     return Repo.open(prisma, nameOrDid)
   }
 
-  static async create(prisma: PrismaClient, name: string, did?: string) {
+  static async create(
+    prisma: PrismaClient,
+    name: string,
+    did?: string,
+    useCache = true,
+  ) {
     if (!name.match(/[a-zA-Z0-9-]{3,64}/)) {
       throw new Error(
         'Repo name is invalid. Repo names must be between 3 and 64 alphanumerical characters',
@@ -158,47 +201,44 @@ export class Repo extends EventEmitter {
         name,
       },
     })
-    const repo = await Repo.open(prisma, did)
+    const repo = await Repo.open(prisma, did, useCache)
     if (repo.writeable) {
       await repo.saveBatch([], { commitEmpty: true })
     }
     return repo
   }
 
-  static async open(prisma: PrismaClient, didOrName: string): Promise<Repo> {
-    if (Repo.cache && Repo.CACHE.has(didOrName)) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return Repo.CACHE.get(didOrName)!
+  static async open(
+    prisma: PrismaClient,
+    didOrName: string,
+    useCache = true,
+  ): Promise<Repo> {
+    if (useCache) return repoRegistry.open(prisma, didOrName)
+    else {
+      const did = await Repo.nameToDid(prisma, didOrName)
+      return Repo.load(prisma, did)
     }
-
-    const isDid = didOrName.startsWith('did:')
-    const params: OpenParams = {}
-    if (isDid) params.did = didOrName
-    else params.name = didOrName
-
-    const repo = await Repo.load(prisma, params)
-
-    if (Repo.cache) {
-      Repo.CACHE.set(repo.did, repo)
-      if (repo.name) Repo.CACHE.set(repo.name, repo)
-    }
-
-    return repo
   }
 
-  static async load(prisma: PrismaClient, params: OpenParams): Promise<Repo> {
-    if (!params.did && !params.name) {
-      throw new Error(
-        'Invalid open params: One of `did` or `name` is required.',
-      )
-    }
+  static async nameToDid(prisma: PrismaClient, name: string): Promise<string> {
+    if (name.startsWith('did:')) return name
     const record = await prisma.repo.findFirst({
-      where: { OR: [{ did: params.did }, { name: params.name }] },
+      where: { name },
+      select: { did: true },
     })
     if (!record) {
       throw new RepoError(ErrorCode.NOT_FOUND, `Repo not found`)
     }
-    const did = record.did
+    return record.did
+  }
+
+  static async load(prisma: PrismaClient, did: string): Promise<Repo> {
+    const record = await prisma.repo.findFirst({
+      where: { did },
+    })
+    if (!record) {
+      throw new RepoError(ErrorCode.NOT_FOUND, `Repo not found`)
+    }
     const cap = await getPublishingUcanForInstance(prisma, did).catch(
       (_) => null,
     )
