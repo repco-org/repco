@@ -1,7 +1,12 @@
 import Table from 'cli-table3'
 import express from 'express'
 import pc from 'picocolors'
-import { repoRegistry } from 'repco-core'
+import {
+  defaultDataSourcePlugins as plugins,
+  Ingester,
+  remapDataSource,
+  repoRegistry,
+} from 'repco-core'
 import { ServerError } from '../error.js'
 import { getLocals } from '../lib.js'
 
@@ -65,7 +70,7 @@ router.post('/repo', async (req, res, next) => {
   }
 })
 
-// list repos
+// List repos
 router.get('/repo', async (req, res) => {
   try {
     const { prisma } = getLocals(res)
@@ -85,7 +90,7 @@ router.get('/repo', async (req, res) => {
   }
 })
 
-// info on a repo
+// Print info on a repo
 router.get('/repo/:repo', async (req, res) => {
   try {
     const { prisma } = getLocals(res)
@@ -136,21 +141,71 @@ router.post('/repo/:repo/ds', async (req, res) => {
   }
 })
 
-// modify datasource
-router.put('/repo/:repodid/ds/:dsuid', async (req, res) => {
-  const body = req.body
-  console.log('received body', body)
-  res.send({ ok: true })
+// List datasources in a repo
+router.get('/repo/:repo/ds', async (req, res) => {
+  try {
+    const { prisma } = getLocals(res)
+    const repo = await repoRegistry.open(prisma, req.params.repo)
+    await repo.dsr.hydrate(repo.prisma, plugins, repo.did)
+    const data = repo.dsr
+      .all()
+      .map((ds) => ({ ...ds.definition, config: ds.config }))
+    res.send({ data })
+  } catch (err) {
+    throw new ServerError(
+      500,
+      `Failed to list all datasources for repo ${req.params.repo}` + err,
+    )
+  }
 })
-// get datasource
-router.get('/repo/:repodid/ds/:dsuid', async (req, res) => {
-  const body = req.body
-  console.log('received body', body)
-  res.send({ ok: true })
+
+// Ingest from a datasource
+router.post('/repo/:repo/ds/ingest', async (req, res) => {
+  try {
+    const { prisma } = getLocals(res)
+    const repo = await repoRegistry.open(prisma, req.params.repo)
+    const ingester = new Ingester(plugins, repo)
+    if (req.body.loop) {
+      const queue = ingester.workLoop()
+      const message = `Started the ingestion workloop for all datasources of repo ${req.params.repo}. \
+See server logs for results of the ingestion process.`
+      res.send({ result: message })
+      for await (const result of queue) {
+        console.log(result)
+      }
+    } else {
+      if (!req.body.ds) {
+        const result = await ingester.ingestAll()
+        res.send({ result })
+      } else {
+        console.log('Ingesting datasource ' + req.body.ds)
+        const result = await ingester.ingest(req.body.ds)
+        res.send({ result })
+      }
+    }
+  } catch (err) {
+    throw new ServerError(
+      500,
+      `Failed to ingest from datasources for repo ${req.params.repo}` + err,
+    )
+  }
 })
-// list datasources
-router.get('/repo/:repodid/ds', async (req, res) => {
-  const body = req.body
-  console.log('received body', body)
-  res.send({ ok: true })
+
+// Remap a datasource
+router.get('/repo/:repo/ds/:dsuid', async (req, res) => {
+  try {
+    const { prisma } = getLocals(res)
+    const repo = await repoRegistry.open(prisma, req.params.repo)
+    await repo.dsr.hydrate(repo.prisma, plugins, repo.did)
+    const ds = repo.dsr.get(req.params.dsuid)
+    if (!ds) throw new ServerError(500, 'Datasource does not exist')
+    const result = await remapDataSource(repo, ds)
+    res.send({ result })
+  } catch (err) {
+    throw new ServerError(
+      500,
+      `Failed to remap datasource ${req.params.dsuid} for repo ${req.params.repo}` +
+        err,
+    )
+  }
 })
