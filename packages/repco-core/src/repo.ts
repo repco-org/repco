@@ -98,21 +98,30 @@ function defaultBlockStore(
   return new PrismaIpldBlockStore(prisma)
 }
 
-class RepoRegistry {
+class RepoRegistry extends EventEmitter {
   repos: Map<string, Repo> = new Map()
   opening: Map<string, Promise<void>> = new Map()
 
-  public async open(prisma: PrismaClient, didOrName: string): Promise<Repo> {
-    const did = await Repo.nameToDid(prisma, didOrName)
-    if (!this.repos.has(did)) {
-      if (!this.opening.has(did)) {
-        await this._openInner(prisma, did)
-      } else {
-        await this.opening.get(did)
+  public async open(
+    prisma: PrismaClient,
+    didOrName: string,
+    useCache = true,
+  ): Promise<Repo> {
+    const did = await this.nameToDid(prisma, didOrName)
+    if (useCache) {
+      if (!this.repos.has(did)) {
+        if (!this.opening.has(did)) {
+          await this._openInner(prisma, did)
+        } else {
+          await this.opening.get(did)
+        }
       }
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      return this.repos.get(did)!
+    } else {
+      const did = await this.nameToDid(prisma, didOrName)
+      return this.load(prisma, did)
     }
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    return this.repos.get(did)!
   }
 
   async _openInner(prisma: PrismaClient, did: string) {
@@ -124,7 +133,7 @@ class RepoRegistry {
     })
     this.opening.set(did, promise)
     try {
-      const repo = await Repo.load(prisma, did)
+      const repo = await this.load(prisma, did)
       this.repos.set(did, repo)
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       _resolve!()
@@ -135,40 +144,22 @@ class RepoRegistry {
       this.opening.delete(did)
     }
   }
-}
 
-export const repoRegistry = new RepoRegistry()
-
-export class Repo extends EventEmitter {
-  public dsr: DataSourceRegistry
-  public blockstore: IpldBlockStore
-  public prisma: PrismaClient | Prisma.TransactionClient
-  public ipld: IpldRepo
-
-  public record: RepoRecord
-
-  private publishingCapability: string | null
-  private validatedAgents: Set<string> = new Set()
-
-  private txlock = new Mutex()
-
-  public log: Logger
-
-  static async createOrOpen(prisma: PrismaClient, name: string, did?: string) {
+  async createOrOpen(prisma: PrismaClient, name: string, did?: string) {
     try {
-      return await Repo.open(prisma, did || name)
+      return await this.open(prisma, did || name)
     } catch (_err) {
-      return await Repo.create(prisma, name)
+      return await this.create(prisma, name)
     }
   }
 
-  static async openWithDefaults(nameOrDid?: string) {
+  async openWithDefaults(nameOrDid?: string) {
     const prisma = new PrismaClient()
     if (!nameOrDid) nameOrDid = process.env.REPCO_REPO || 'default'
-    return Repo.open(prisma, nameOrDid)
+    return this.open(prisma, nameOrDid)
   }
 
-  static async create(
+  async create(
     prisma: PrismaClient,
     name: string,
     did?: string,
@@ -201,26 +192,15 @@ export class Repo extends EventEmitter {
         name,
       },
     })
-    const repo = await Repo.open(prisma, did, useCache)
+    const repo = await this.open(prisma, did, useCache)
+    this.emit('create', repo)
     if (repo.writeable) {
       await repo.saveBatch([], { commitEmpty: true })
     }
     return repo
   }
 
-  static async open(
-    prisma: PrismaClient,
-    didOrName: string,
-    useCache = true,
-  ): Promise<Repo> {
-    if (useCache) return repoRegistry.open(prisma, didOrName)
-    else {
-      const did = await Repo.nameToDid(prisma, didOrName)
-      return Repo.load(prisma, did)
-    }
-  }
-
-  static async nameToDid(prisma: PrismaClient, name: string): Promise<string> {
+  async nameToDid(prisma: PrismaClient, name: string): Promise<string> {
     if (name.startsWith('did:')) return name
     const record = await prisma.repo.findFirst({
       where: { name },
@@ -232,7 +212,7 @@ export class Repo extends EventEmitter {
     return record.did
   }
 
-  static async load(prisma: PrismaClient, did: string): Promise<Repo> {
+  async load(prisma: PrismaClient, did: string): Promise<Repo> {
     const record = await prisma.repo.findFirst({
       where: { did },
     })
@@ -246,28 +226,46 @@ export class Repo extends EventEmitter {
     return repo
   }
 
-  static async list(prisma: PrismaClient): Promise<RepoRecord[]> {
+  async list(prisma: PrismaClient): Promise<RepoRecord[]> {
     const list = await prisma.repo.findMany()
     return list
   }
 
-  static async all(prisma: PrismaClient): Promise<Repo[]> {
-    const list = await Repo.list(prisma)
+  async all(prisma: PrismaClient): Promise<Repo[]> {
+    const list = await this.list(prisma)
     const repos = await Promise.all(
-      list.map(({ did }) => Repo.open(prisma, did)),
+      list.map(({ did }) => this.open(prisma, did)),
     )
     return repos
   }
 
-  static async mapAsync<T = void>(
+  async mapAsync<T = void>(
     prisma: PrismaClient,
     mapAsync: (repo: Repo) => Promise<T>,
   ) {
-    const repos = await Repo.all(prisma)
+    const repos = await this.all(prisma)
     const tasks = repos.map(mapAsync)
     const results = await Promise.all(tasks)
     return results
   }
+}
+
+export const repoRegistry = new RepoRegistry()
+
+export class Repo extends EventEmitter {
+  public dsr: DataSourceRegistry
+  public blockstore: IpldBlockStore
+  public prisma: PrismaClient | Prisma.TransactionClient
+  public ipld: IpldRepo
+
+  public record: RepoRecord
+
+  private publishingCapability: string | null
+  private validatedAgents: Set<string> = new Set()
+
+  private txlock = new Mutex()
+
+  public log: Logger
 
   constructor(
     prisma: PrismaClient | Prisma.TransactionClient,

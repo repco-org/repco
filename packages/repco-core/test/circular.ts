@@ -1,6 +1,6 @@
 import test from 'brittle'
 import { setup } from './util/setup.js'
-import { ConceptKind, EntityForm, Repo } from '../lib.js'
+import { ConceptKind, EntityForm, repoRegistry } from '../lib.js'
 import {
   BaseDataSource,
   DataSource,
@@ -95,7 +95,7 @@ class TestDataSource extends BaseDataSource implements DataSource {
 
 test('circular', async (assert) => {
   const prisma = await setup(assert)
-  const repo = await Repo.create(prisma, 'test')
+  const repo = await repoRegistry.create(prisma, 'test')
   const plugins = new DataSourcePluginRegistry()
   plugins.register(new TestDataSourcePlugin())
   await repo.dsr.create(

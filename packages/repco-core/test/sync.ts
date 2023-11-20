@@ -1,11 +1,11 @@
 import test from 'brittle'
 import { setup2 } from './util/setup.js'
-import { Repo } from '../lib.js'
+import { repoRegistry } from '../lib.js'
 
 test('simple sync', async (assert) => {
   const [prisma1, prisma2] = await setup2(assert)
-  const repo1 = await Repo.create(prisma1, 'default', undefined, false)
-  const repo2 = await Repo.create(prisma2, 'synced', repo1.did, false)
+  const repo1 = await repoRegistry.create(prisma1, 'default', undefined, false)
+  const repo2 = await repoRegistry.create(prisma2, 'synced', repo1.did, false)
   assert.is(repo1.did, repo2.did)
   assert.is(repo1.writeable, true)
   assert.is(repo2.writeable, false)

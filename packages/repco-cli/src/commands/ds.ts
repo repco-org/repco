@@ -4,7 +4,7 @@ import {
   defaultDataSourcePlugins as plugins,
   Ingester,
   remapDataSource,
-  Repo,
+  repoRegistry,
 } from 'repco-core'
 import { request } from '../client.js'
 import { CliError, createCommand, createCommandGroup } from '../parse.js'
@@ -32,7 +32,7 @@ export const list = createCommand({
     json: { type: 'boolean', short: 'j', help: 'Output as JSON' },
   },
   async run(opts) {
-    const repo = await Repo.openWithDefaults(opts.repo)
+    const repo = await repoRegistry.openWithDefaults(opts.repo)
     await repo.dsr.hydrate(repo.prisma, plugins, repo.did)
     const data = repo.dsr
       .all()
@@ -106,7 +106,7 @@ export const ingest = createCommand({
     loop: { type: 'boolean', short: 'l', help: 'Keep running in a loop' },
   },
   async run(opts, _args) {
-    const repo = await Repo.openWithDefaults(opts.repo)
+    const repo = await repoRegistry.openWithDefaults(opts.repo)
     const ingester = new Ingester(plugins, repo)
     if (opts.loop) {
       const queue = ingester.workLoop()
@@ -134,7 +134,7 @@ export const remap = createCommand({
   },
   arguments: [{ name: 'datasource', required: true, help: 'Datasource UID' }],
   async run(opts, args) {
-    const repo = await Repo.openWithDefaults(opts.repo)
+    const repo = await repoRegistry.openWithDefaults(opts.repo)
     await repo.dsr.hydrate(repo.prisma, plugins, repo.did)
     const ds = repo.dsr.get(args.datasource)
     if (!ds) throw new CliError('Datasource does not exist')

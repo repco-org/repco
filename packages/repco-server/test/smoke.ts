@@ -1,12 +1,12 @@
 import test, { Test } from 'brittle'
 import getPort from 'get-port'
-import { PrismaClient, Repo } from 'repco-core'
+import { PrismaClient, repoRegistry } from 'repco-core'
 import { setup } from 'repco-core/dist/test/util/setup.js'
 import { fetch } from 'undici'
 import { runServer } from '../src/lib.js'
 
 async function createTestRepo(prisma: PrismaClient) {
-  const repo = await Repo.create(prisma, 'default')
+  const repo = await repoRegistry.create(prisma, 'default')
   const input = {
     type: 'ContentItem',
     content: {

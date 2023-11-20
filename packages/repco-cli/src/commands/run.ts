@@ -1,6 +1,7 @@
 import exitHook from 'async-exit-hook'
 import { log, UntilStopped } from 'repco-common'
 import { defaultDataSourcePlugins, Ingester, Repo } from 'repco-core'
+import { repoRegistry } from 'repco-core/dist/src/repo.js'
 import { PrismaClient } from 'repco-prisma'
 import { runServer } from 'repco-server'
 import { createCommand } from '../parse.js'
@@ -67,7 +68,7 @@ export const run = createCommand({
 
 function ingestAll(prisma: PrismaClient) {
   const ingesters: Ingester[] = []
-  const tasks = Repo.mapAsync(prisma, async (repo) => {
+  const onRepo = async (repo: Repo) => {
     const ingester = new Ingester(defaultDataSourcePlugins, repo)
     ingesters.push(ingester)
     const queue = ingester.workLoop()
@@ -85,9 +86,12 @@ function ingestAll(prisma: PrismaClient) {
         log.debug(`ingest ${result.uid}: ${result.ok} ${cursor}`)
       }
     }
-  })
+  }
+  const tasks = repoRegistry.mapAsync(prisma, onRepo)
+  repoRegistry.on('create', onRepo)
 
   const shutdown = async () => {
+    repoRegistry.removeListener('create', onRepo)
     ingesters.forEach((ingester) => ingester.stop())
     await tasks
   }
@@ -100,7 +104,7 @@ function ingestAll(prisma: PrismaClient) {
 function syncAllRepos(prisma: PrismaClient) {
   const shutdownSignal = new UntilStopped()
 
-  const tasks = Repo.mapAsync(prisma, async (repo) => {
+  const tasks = repoRegistry.mapAsync(prisma, async (repo) => {
     if (repo.writeable) return
     try {
       while (!shutdownSignal.stopped) {

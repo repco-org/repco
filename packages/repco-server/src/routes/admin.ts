@@ -1,7 +1,7 @@
 import Table from 'cli-table3'
 import express from 'express'
 import pc from 'picocolors'
-import { Repo } from 'repco-core'
+import { repoRegistry } from 'repco-core'
 import { ServerError } from '../error.js'
 import { getLocals } from '../lib.js'
 
@@ -55,7 +55,7 @@ router.post('/repo', async (req, res, next) => {
   }
   try {
     const { prisma } = getLocals(res)
-    const repo = await Repo.create(prisma, body.name)
+    const repo = await repoRegistry.create(prisma, body.name)
     console.log(`Created new repo "${repo.name}" and DID`)
     console.log(`   ${pc.yellow(repo.did)}`)
     res.header('content-type', 'application/json')
@@ -69,7 +69,7 @@ router.post('/repo', async (req, res, next) => {
 router.get('/repo', async (req, res) => {
   try {
     const { prisma } = getLocals(res)
-    const repos = await Repo.list(prisma)
+    const repos = await repoRegistry.list(prisma)
     const table = new Table({
       head: ['DID', 'Name', 'Revisions'],
     })
@@ -89,7 +89,7 @@ router.get('/repo', async (req, res) => {
 router.get('/repo/:repo', async (req, res) => {
   try {
     const { prisma } = getLocals(res)
-    const repo = await Repo.open(prisma, req.params.repo)
+    const repo = await repoRegistry.open(prisma, req.params.repo)
     const revisionCount = await repo.prisma.revision.count({
       where: { repoDid: repo.did },
     })
@@ -118,7 +118,7 @@ router.get('/repo/:repo', async (req, res) => {
 router.post('/repo/:repo/ds', async (req, res) => {
   try {
     const { prisma } = getLocals(res)
-    const repo = await Repo.open(prisma, req.params.repo)
+    const repo = await repoRegistry.open(prisma, req.params.repo)
     const { pluginUid, config } = req.body
     const config_obj = JSON.parse(config)
     // Add name of repo to config in order to create unique uids for datasources

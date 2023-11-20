@@ -8,7 +8,7 @@ import {
   HeadersIpld,
   HttpError,
   PrismaIpldBlockStore,
-  Repo,
+  repoRegistry,
   revisionIpld,
 } from 'repco-core'
 import { Readable } from 'stream'
@@ -30,7 +30,7 @@ const HEADER_CAR = 'application/vnd.ipld.car'
 router.use('/admin', adminRouter)
 
 router.get('/repos', async (_req, res) => {
-  res.json(await Repo.list(getLocals(res).prisma))
+  res.json(await repoRegistry.list(getLocals(res).prisma))
 })
 
 router.get('/health', (_req, res) => {
@@ -40,7 +40,7 @@ router.get('/health', (_req, res) => {
 router.head('/sync/:repoDid', async (req, res) => {
   const { prisma } = getLocals(res)
   const { repoDid } = req.params
-  const repo = await Repo.open(prisma, repoDid)
+  const repo = await repoRegistry.open(prisma, repoDid)
   const cid = await repo.getHead()
   res.header('x-repco-head', cid.toString())
   res.status(204)
@@ -51,7 +51,7 @@ router.get('/sync/:repoDid/:tail?', async (req, res) => {
   const { prisma } = getLocals(res)
   const { repoDid, tail: tailStr } = req.params
   const tail = tailStr ? CID.parse(tailStr) : undefined
-  const repo = await Repo.open(prisma, repoDid)
+  const repo = await repoRegistry.open(prisma, repoDid)
   const carStream = await repo.exportToCarReversed({ tail })
   const byteStream = Readable.from(carStream)
   res.header('content-type', HEADER_CAR)
@@ -61,7 +61,7 @@ router.get('/sync/:repoDid/:tail?', async (req, res) => {
 router.post('/sync/:repoDid', async (req, res) => {
   const { prisma } = getLocals(res)
   const { repoDid } = req.params
-  const repo = await Repo.open(prisma, repoDid)
+  const repo = await repoRegistry.open(prisma, repoDid)
   await repo.importFromCar(req)
   res.json({ ok: true })
 })
@@ -69,7 +69,7 @@ router.post('/sync/:repoDid', async (req, res) => {
 router.get('/changes/:repoDid', async (req, res) => {
   const { prisma } = getLocals(res)
   const { repoDid } = req.params
-  const repo = await Repo.open(prisma, repoDid)
+  const repo = await repoRegistry.open(prisma, repoDid)
   const from = req.query.from?.toString()
   const revisionStream = repo.createRevisionBatchStream({ from })
   const content = req.query.content?.toString()
@@ -112,7 +112,7 @@ router.get('/entity/:uid', async (req, res) => {
     include: { Revision: true },
   })
   if (!entity) throw new HttpError(404, 'Not found')
-  const repo = await Repo.open(prisma, entity.Revision.repoDid)
+  const repo = await repoRegistry.open(prisma, entity.Revision.repoDid)
   const [revisionEntry, contentEntry] = await Promise.all([
     repo.ipld.blockstore.getParsed(
       CID.parse(entity.Revision.revisionCid),

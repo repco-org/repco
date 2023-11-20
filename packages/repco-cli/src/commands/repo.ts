@@ -8,7 +8,7 @@ import speedometer from 'speedometer'
 import { Presets, SingleBar } from 'cli-progress'
 import { createReadStream } from 'fs'
 import { CID } from 'multiformats/cid'
-import { ExportProgress, ImportProgress, Repo } from 'repco-core'
+import { ExportProgress, ImportProgress, repoRegistry } from 'repco-core'
 import { PrismaClient } from 'repco-prisma'
 import { pipeline } from 'stream/promises'
 import { request } from '../client.js'
@@ -58,7 +58,7 @@ export const join = createCommand({
   ] as const,
   async run(opts, args) {
     const prisma = new PrismaClient()
-    const repo = await Repo.create(prisma, args.name, args.did)
+    const repo = await repoRegistry.create(prisma, args.name, args.did)
     if (opts.gateway) await repo.setGateways(opts.gateway)
     print(`Created mirror repo ${repo.name} and DID`)
     print(`  ${pc.yellow(repo.did)}`)
@@ -80,7 +80,7 @@ export const carExport = createCommand({
     { name: 'file', required: true, help: 'File path to export the repo to' },
   ] as const,
   async run(opts, args) {
-    const repo = await Repo.openWithDefaults(args.repo)
+    const repo = await repoRegistry.openWithDefaults(args.repo)
     let from
     if (opts.from) from = CID.parse(opts.from)
     const format =
@@ -147,7 +147,7 @@ export const carImport = createCommand({
     { name: 'file', required: true, help: 'File path to export the repo to' },
   ] as const,
   async run(_opts, args) {
-    const repo = await Repo.openWithDefaults(args.repo)
+    const repo = await repoRegistry.openWithDefaults(args.repo)
     print(`Import from: ${args.file === '-' ? 'STDIN' : args.file}`)
     print(`Import to:   Repo "${repo.name}" (${repo.did})`)
     let input: AsyncIterable<Uint8Array>
@@ -258,7 +258,7 @@ export const logRevisions = createCommand({
   },
   arguments: [{ name: 'repo', required: true, help: 'DID or name of repo' }],
   async run(opts, args) {
-    const repo = await Repo.openWithDefaults(args.repo)
+    const repo = await repoRegistry.openWithDefaults(args.repo)
     let stream
     if (opts.content) {
       stream = repo.createContentStream()
@@ -278,7 +278,7 @@ export const syncCommand = createCommand({
     { name: 'repo', required: true, help: 'DID or name of repo' },
   ] as const,
   async run(_opts, args) {
-    const repo = await Repo.openWithDefaults(args.repo)
+    const repo = await repoRegistry.openWithDefaults(args.repo)
     await repo.pullFromGateways()
   },
 })

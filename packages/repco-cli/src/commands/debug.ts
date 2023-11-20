@@ -1,7 +1,7 @@
 import casual from 'casual-browserify'
 import prettyMs from 'pretty-ms'
 import { SingleBar } from 'cli-progress'
-import { EntityForm, Repo } from 'repco-core'
+import { EntityForm, repoRegistry } from 'repco-core'
 import { request } from '../client.js'
 import { createCommand, createCommandGroup } from '../parse.js'
 
@@ -43,7 +43,7 @@ export const createContent = createCommand({
     },
   },
   async run(opts, args) {
-    const repo = await Repo.openWithDefaults(args.repo)
+    const repo = await repoRegistry.openWithDefaults(args.repo)
     let count, batch
     if (opts.count) count = parseInt(opts.count)
     if (!count || isNaN(count)) count = 1000

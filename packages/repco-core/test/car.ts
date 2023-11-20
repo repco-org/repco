@@ -4,7 +4,7 @@ import { CarBlockIterator } from '@ipld/car'
 // @ts-ignore
 import { clock } from 'nanobench-utils'
 import { setup } from './util/setup.js'
-import { Repo } from '../lib.js'
+import { repoRegistry } from '../lib.js'
 import { exportRepoToCar } from '../src/repo/export.js'
 
 const round = (x: number) => Math.round(x * 100) / 100
@@ -33,7 +33,7 @@ function mkinput(i: number) {
 
 test('car write read', { timeout: 100 * 1000 }, async (assert) => {
   const prisma = await setup(assert)
-  const repo = await Repo.create(prisma, 'default')
+  const repo = await repoRegistry.create(prisma, 'default')
   const revs = Number(process.env.REVS || 20)
   const commits = Number(process.env.COMMITS || 5)
   // const items = revs * commits
