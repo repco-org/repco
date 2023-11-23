@@ -13,7 +13,7 @@ import {
 } from 'repco-core'
 import { Readable } from 'stream'
 import { router as adminRouter } from './admin.js'
-import { ServerError } from '../error.js'
+import { ServerError, notFoundHandler } from '../error.js'
 import { getLocals } from '../lib.js'
 import {
   acceptNdJson,

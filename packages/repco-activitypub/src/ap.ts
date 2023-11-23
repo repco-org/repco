@@ -103,7 +103,7 @@ export class ActivityPub extends EventEmitter {
     }
     const keypair = generateRsaKeypairPem()
     const data = { name, keypair }
-    await this.db.apLocalActor.create({ data })
+    return await this.db.apLocalActor.create({ data })
   }
 
   async listActors() {
