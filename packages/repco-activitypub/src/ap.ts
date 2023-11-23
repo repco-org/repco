@@ -43,7 +43,7 @@ export class ActivityPub extends EventEmitter {
     this.domain = this.baseUrl.host
   }
 
-  async getOrCreateActor(name: string) {
+  async getOrCreateActor(name: string): Promise<LocalActor> {
     try {
       return await this.getActor(name)
     } catch (err) {
@@ -61,6 +61,21 @@ export class ActivityPub extends EventEmitter {
     })
     if (!data) throw new ApiError(404, 'Actor unknown: ' + name)
     const keypair = data.keypair as Keypair
+    const actor = actorRecord(this.baseUrl, data.name, keypair.publicKeyPem)
+    return {
+      name: data.name,
+      keypair,
+      actor,
+    }
+  }
+
+  async createActor(name: string): Promise<LocalActor> {
+    if (await this.db.apLocalActor.findUnique({ where: { name } })) {
+      throw new ApiError(400, 'Actor exists')
+    }
+    const keypair = generateRsaKeypairPem()
+    const data = { name, keypair }
+    await this.db.apLocalActor.create({ data })
     const actor = actorRecord(this.baseUrl, data.name, keypair.publicKeyPem)
     return {
       name: data.name,
@@ -95,15 +110,6 @@ export class ActivityPub extends EventEmitter {
       orderBy: { receivedAt: 'asc' },
     })
     return rows.map((row) => row.details as any as schema.Activity)
-  }
-
-  async createActor(name: string) {
-    if (await this.db.apLocalActor.findUnique({ where: { name } })) {
-      throw new ApiError(400, 'Actor exists')
-    }
-    const keypair = generateRsaKeypairPem()
-    const data = { name, keypair }
-    return await this.db.apLocalActor.create({ data })
   }
 
   async listActors() {
