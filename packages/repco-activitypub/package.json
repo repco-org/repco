@@ -8,13 +8,12 @@
   "main": "./dist/src/server.js",
   "type": "module",
   "scripts": {
-    "build": "yarn prisma generate && tsc --build",
+    "build": "tsc --build",
     "watch": "tsc --build -w",
     "dev": "run-p watch start:watch",
     "docs": "typedoc src/mod.ts --out ./docs",
     "start": "node dist/bin.js",
     "start:watch": "nodemon -r source-map-support/register --watch dist --watch ../repco-core/dist dist/bin.js",
-    "prisma": "dotenv -e ../../.env -- prisma",
     "test": "brittle dist/test/*.js"
   },
   "dependencies": {
@@ -23,12 +22,10 @@
     "express": "^4.18.1",
     "express-async-errors": "^3.1.1",
     "pino-http": "^8.3.3",
-    "prisma": "^4.12.0",
-    "@prisma/client": "^4.12.0",
     "repco-common": "*",
     "repco-prisma": "*",
     "source-map-support": "^0.5.21",
-    "undici": "^5.27.2",
+    "undici": "^5.10.0",
     "zod": "^3.19",
     "zod-error": "^1.5.0"
   }
