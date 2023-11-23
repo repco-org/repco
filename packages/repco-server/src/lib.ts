@@ -10,6 +10,7 @@ import { createLogger, Logger } from 'repco-common'
 import { PrismaClient } from 'repco-core'
 import { createGraphqlHandler, createPoolFromUrl } from 'repco-graphql'
 import Routes from './routes.js'
+import { authorizeRequest } from './routes/admin.js'
 
 export const logger = createLogger('server')
 
@@ -65,13 +66,12 @@ export function runServer(prisma: PrismaClient, port: number) {
     const ap = new ActivityPub(prisma, process.env.AP_BASE_URL)
     mountActivityPub(app, ap, {
       prefix: '/ap',
-      // api: {
-      //   prefix: '/api/ap',
-      //   auth: async (_req) => {
-      //     // todo: authentication
-      //     return true
-      //   },
-      // },
+      api: {
+        prefix: '/api/ap',
+        auth: async (req) => {
+          return authorizeRequest(req)
+        },
+      },
     })
     setGlobalApInstance(ap)
   }
