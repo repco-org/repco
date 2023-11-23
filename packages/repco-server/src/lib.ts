@@ -5,7 +5,7 @@ import cors from 'cors'
 import express, { Response } from 'express'
 import pinoHttp from 'pino-http'
 import { createHttpTerminator } from 'http-terminator'
-import { initActivityPub } from 'repco-activitypub'
+import { ActivityPub, mountActivityPub, setGlobalApInstance } from 'repco-activitypub'
 import { createLogger, Logger } from 'repco-common'
 import { PrismaClient } from 'repco-core'
 import { createGraphqlHandler, createPoolFromUrl } from 'repco-graphql'
@@ -57,16 +57,24 @@ export function runServer(prisma: PrismaClient, port: number) {
     next()
   })
 
-  initActivityPub(app, {
-    prefix: '/ap',
-    api: {
-      prefix: '/api/ap',
-      auth: async (_req) => {
-        // todo: authentication
-        return true
-      },
-    },
-  })
+  if (!process.env.AP_BASE_URL) {
+    logger.warn(
+      'Missing AP_BASE_URL environment variable, activitypub is disabled',
+    )
+  } else {
+    const ap = new ActivityPub(prisma, process.env.AP_BASE_URL)
+    mountActivityPub(app, ap, {
+      prefix: '/ap',
+      // api: {
+      //   prefix: '/api/ap',
+      //   auth: async (_req) => {
+      //     // todo: authentication
+      //     return true
+      //   },
+      // },
+    })
+    setGlobalApInstance(ap)
+  }
 
   app.use((req, _res, next) => {
     if (!req.header('content-type')) {

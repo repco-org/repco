@@ -5,13 +5,13 @@ CREATE TABLE "ApLocalActor" (
 );
 
 -- CreateTable
-CREATE TABLE "ApFollowedActors" (
+CREATE TABLE "ApFollows" (
     "localName" TEXT NOT NULL,
     "remoteId" TEXT NOT NULL
 );
 
 -- CreateTable
-CREATE TABLE "ApMessages" (
+CREATE TABLE "ApActivities" (
     "id" TEXT NOT NULL,
     "actorId" TEXT NOT NULL,
     "type" TEXT NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE "ApMessages" (
 CREATE UNIQUE INDEX "ApLocalActor_name_key" ON "ApLocalActor"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "ApFollowedActors_localName_remoteId_key" ON "ApFollowedActors"("localName", "remoteId");
+CREATE UNIQUE INDEX "ApFollows_localName_remoteId_key" ON "ApFollows"("localName", "remoteId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "ApMessages_id_key" ON "ApMessages"("id");
+CREATE UNIQUE INDEX "ApActivities_id_key" ON "ApActivities"("id");

@@ -485,3 +485,23 @@ model Subtitles {
   mediaAssetUid String
   Revision      Revision   @relation(fields: [revisionId], references: [id])
 }
+
+model ApLocalActor {
+  name String @unique
+  keypair Json
+}
+
+model ApFollows {
+  localName String
+  remoteId String
+  @@unique([localName, remoteId])
+}
+
+model ApActivities {
+  id String @unique
+  actorId String
+  type String
+  objectId String
+  receivedAt DateTime
+  details Json
+}

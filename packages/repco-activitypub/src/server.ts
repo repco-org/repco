@@ -2,21 +2,20 @@
 import 'express-async-errors'
 import * as routes from './routes.js'
 import express from 'express'
-import { PrismaClient } from '@prisma/client'
 import { createLogger } from 'repco-common'
 import { ActivityPub } from './ap.js'
 import { ApiError } from './error.js'
 
+export { ActivityPub } from './ap.js'
+
 export const logger = createLogger('ap')
 
 export interface ActivityPubOpts {
-  baseUrl?: string
   prefix: string
   api?: ApiOpts
 }
 
 export const DEFAULT_OPTS: ActivityPubOpts = {
-  baseUrl: process.env.AP_BASE_URL,
   prefix: '/ap',
 }
 
@@ -32,19 +31,33 @@ export function state(req: express.Request) {
   return req.app.locals.activitypub as ActivityPub
 }
 
+let ap: undefined | ActivityPub = undefined
+
+/**
+ * Set a global instance. Can be retrieved via [`getGlobalApInstance`]
+ */
+export function setGlobalApInstance(instance: ActivityPub) {
+  ap = instance
+}
+
+/**
+ * Get the global instance set via [`setGlobalApInstance`].
+ */
+export function getGlobalApInstance(): ActivityPub | undefined {
+  return ap
+}
+
 /**
  * Initialize the ActivityPub server
  */
-export function initActivityPub(app: express.Express, opts: ActivityPubOpts) {
-  const db = new PrismaClient()
-  if (!opts.baseUrl) opts.baseUrl = process.env.AP_BASE_URL
-  const { baseUrl, prefix, api } = opts
-  if (!baseUrl) {
-    throw new Error('Missing AP_BASE_URL environment variable')
-  }
+export function mountActivityPub(
+  app: express.Express,
+  ap: ActivityPub,
+  opts: ActivityPubOpts,
+) {
+  const { prefix, api } = opts
 
   // init state
-  const ap = new ActivityPub(db, baseUrl)
   app.locals.activitypub = ap
 
   const notFound: express.Handler = (_req, res, next) => {

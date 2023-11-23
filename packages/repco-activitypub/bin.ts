@@ -1,14 +1,23 @@
 import 'source-map-support/register.js'
 import Dotenv from 'dotenv'
 import express from 'express'
-import { initActivityPub } from './src/server.js'
+import { PrismaClient } from 'repco-prisma'
+import { ActivityPub, mountActivityPub } from './src/server.js'
 
 Dotenv.config()
 Dotenv.config({ path: '../../.env' })
 
 const app = express()
 
-initActivityPub(app, {
+const baseUrl = process.env.AP_BASE_URL
+if (!baseUrl) {
+  throw new Error('Missing AP_BASE_URL environment variable')
+}
+
+const db = new PrismaClient()
+const ap = new ActivityPub(db, baseUrl)
+
+mountActivityPub(app, ap, {
   prefix: '/ap',
   api: {
     prefix: '/api/ap',

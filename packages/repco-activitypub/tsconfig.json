@@ -8,10 +8,7 @@
   },
   "references": [
     {
-      "path": "../repco-core"
-    },
-    {
-      "path": "../repco-graphql"
+      "path": "../repco-prisma"
     },
     {
       "path": "../repco-common"

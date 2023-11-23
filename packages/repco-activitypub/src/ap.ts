@@ -1,7 +1,7 @@
 import * as schema from './ap/schema.js'
-import { Prisma, PrismaClient } from '@prisma/client'
 import { randomBytes } from 'crypto'
 import { EventEmitter } from 'events'
+import { Prisma, PrismaClient } from 'repco-prisma'
 import {
   generateRsaKeypairPem,
   Keypair,
@@ -71,7 +71,7 @@ export class ActivityPub extends EventEmitter {
 
   // get the actor ids of the actors that this local actor follows
   async getFollows(localName: string): Promise<string[]> {
-    const followed = await this.db.apFollowedActors.findMany({
+    const followed = await this.db.apFollows.findMany({
       where: { localName },
     })
     const actorIds = followed.map((r) => r.remoteId)
@@ -79,18 +79,18 @@ export class ActivityPub extends EventEmitter {
   }
 
   // get the messages of all actors that this local actor follows
-  async getMessages(
+  async getActivities(
     localName: string,
     since?: string,
   ): Promise<schema.Activity[]> {
     const actorIds = await this.getFollows(localName)
     if (!actorIds.length) return []
-    const where: Prisma.ApMessagesWhereInput = { actorId: { in: actorIds } }
+    const where: Prisma.ApActivitiesWhereInput = { actorId: { in: actorIds } }
     if (since) {
       const fromDate = new Date(since)
       where.receivedAt = { gt: fromDate }
     }
-    const rows = await this.db.apMessages.findMany({
+    const rows = await this.db.apActivities.findMany({
       where,
       orderBy: { receivedAt: 'asc' },
     })
@@ -128,7 +128,7 @@ export class ActivityPub extends EventEmitter {
       localName,
       remoteId: remote.id,
     }
-    await this.db.apFollowedActors.upsert({
+    await this.db.apFollows.upsert({
       create: data,
       update: data,
       where: { localName_remoteId: data },
@@ -160,8 +160,13 @@ export class ActivityPub extends EventEmitter {
   }
 
   async verifyAndPostInbox(body: any, reqParams: SignOpts) {
-    await this.verifySignature(reqParams)
-    await this.postInbox(body)
+    try {
+      await this.verifySignature(reqParams)
+      await this.postInbox(body)
+    } catch (err) {
+      console.error('failed to process inbox post', err)
+      throw err
+    }
   }
 
   async verifySignature(signOpts: SignOpts) {
@@ -180,6 +185,9 @@ export class ActivityPub extends EventEmitter {
   async getRemotePublicKey(keyId: string): Promise<any> {
     if (!this.remoteActorKeys[keyId]) {
       const keyRes = await fetchAp(keyId)
+      if (!keyRes.publicKey) {
+        return new ApiError(400, `Failed to fetch public key for ${keyId}`)
+      }
       const { publicKey } = keyRes
       this.remoteActorKeys[keyId] = publicKey
     }
@@ -198,7 +206,7 @@ export class ActivityPub extends EventEmitter {
       receivedAt: new Date(),
     }
     const where = { id: activity.id }
-    await this.db.apMessages.upsert({ create: data, update: data, where })
+    await this.db.apActivities.upsert({ create: data, update: data, where })
     this.emit('update', activity.actor, activity)
   }
 

@@ -45,7 +45,7 @@ routes.post('/actors/:name/follow', async (req, res, _next) => {
 
 routes.get('/actors/:name/follow', async (req, res, _next) => {
   const ap = state(req)
-  const rows = await ap.db.apFollowedActors.findMany({
+  const rows = await ap.db.apFollows.findMany({
     where: { localName: req.params.name },
   })
   res.json({ data: rows })
@@ -57,7 +57,7 @@ routes.get('/actors/:name/updates', async (req, res, _next) => {
     throw new ApiError(400, 'invalid `since` parameter')
   }
   const ap = state(req)
-  const updates = await ap.getMessages(req.params.name, since)
+  const updates = await ap.getActivities(req.params.name, since)
   res.json({ data: updates })
 })
 
