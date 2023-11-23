@@ -24,6 +24,7 @@ import {
 import { EntityForm } from '../entity.js'
 import { HttpError } from '../util/error.js'
 import { notEmpty } from '../util/misc.js'
+import { getGlobalApInstance } from 'repco-activitypub'
 
 const configSchema = zod.object({
   user: zod.string(),
@@ -184,7 +185,31 @@ export class ActivityPubDataSource
     return lastPageNumber
   }
 
+  // this would be the initialization needed, roughly
+  // untested!!
+  // async getAndInitAp() {
+  //   const remoteActorId = `@${this.config.user}@${this.config.domain}`
+  //   const localName = this.config.repo
+  //   const ap = getGlobalApInstance()
+  //   if (!ap) throw new Error('activitypub is not initialized')
+  //   // ensure actor and follow
+  //   const actor = await ap.getOrCreateActor(localName)
+  //   const follows = await ap.getFollows(actor.name)
+  //   if (follows.indexOf(remoteActorId) == -1) {
+  //     await ap.followRemoteActor(actor.name, remoteActorId)
+  //   }
+  //   return ap
+  // }
+
   async fetchUpdates(cursorString: string | null): Promise<FetchUpdatesResult> {
+    // this would look for the latest updates
+    // first it should finish fetching the history as currently likely
+    // or we move that functionality to repco-activitypub
+    // would have to be tested, not sure if the remote servers push all history to our ap server after we follow them
+    // const ap = await this.getAndInitAp()
+    // const localActorName = this.config.repo
+    // const updates = await ap.getActivities(localActorName)
+
     try {
       let channelSourceRecord
       // First ingest: save channel as ContentGrouping
