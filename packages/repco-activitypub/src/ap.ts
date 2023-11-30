@@ -244,7 +244,7 @@ function webfingerRecord(url: URL | string, domain: string, username: string) {
 
 function actorRecord(url: URL | string, name: string, publicKeyPem: string) {
   return {
-    [CTX]: [CONTEXTS.activitystreams, CONTEXTS.security],
+    ...contexts(),
     id: `${url}/u/${name}`,
     type: 'Person',
     preferredUsername: `${name}`,
@@ -259,6 +259,16 @@ function actorRecord(url: URL | string, name: string, publicKeyPem: string) {
       owner: `${url}/u/${name}`,
       publicKeyPem,
     },
+  }
+}
+
+export type HasContext = {
+  [CTX]: string[]
+}
+
+export function contexts(): HasContext {
+  return {
+    [CTX]: [CONTEXTS.activitystreams, CONTEXTS.security],
   }
 }
 

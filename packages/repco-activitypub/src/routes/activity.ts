@@ -1,4 +1,5 @@
 import express from 'express'
+import { contexts } from '../ap.js'
 import { ApiError } from '../error.js'
 import { state } from '../server.js'
 
@@ -25,7 +26,30 @@ routes.post('/inbox', async (req, res) => {
 routes.get('/u/:name', async (req, res) => {
   const ap = state(req)
   const record = await ap.getActorRecord(req.params.name)
-  sendAp(res, record)
+  replyAp(res, record)
+})
+
+routes.get('/u/:name/followers', async (req, res) => {
+  const ap = state(req)
+  const id = `${ap.baseUrl}/u/${req.params.name}/followers`
+  const data = {
+    id,
+    type: 'OrderedCollection',
+    totalItems: 0,
+  }
+  replyAp(res, { ...contexts(), ...data })
+})
+
+// todo: return all activities from followers?
+routes.get('/u/:name/outbox', async (req, res) => {
+  const ap = state(req)
+  const id = `${ap.baseUrl}/u/${req.params.name}/outbox`
+  const data = {
+    id,
+    type: 'OrderedCollection',
+    totalItems: 0,
+  }
+  replyAp(res, { ...contexts(), ...data })
 })
 
 export const webfinger: express.RequestHandler = async (req, res) => {
@@ -43,7 +67,7 @@ export const nodeinfo: express.RequestHandler = async (_req, _res) => {
   throw new ApiError(404, 'not implemented')
 }
 
-function sendAp(res: express.Response, data: any) {
+function replyAp(res: express.Response, data: any) {
   res.setHeader('content-type', 'application/activity+json')
   res.send(JSON.stringify(data))
 }

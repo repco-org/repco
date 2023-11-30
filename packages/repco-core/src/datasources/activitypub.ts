@@ -103,7 +103,11 @@ export class ActivityPubDataSource
     this.user = config.user
     this.domain = config.domain
     this.account = config.user + '@' + config.domain
-    this.host = 'https://' + config.domain
+    if (config.domain.startsWith('http://') || config.domain.startsWith('https://')) {
+      this.host = config.domain
+    } else {
+      this.host = 'https://' + config.domain
+    }
     this.uriPrefix = `repco:activityPub`
     this.repo = config.repo
   }
@@ -187,27 +191,27 @@ export class ActivityPubDataSource
 
   // this would be the initialization needed, roughly
   // untested!!
-  // async getAndInitAp() {
-  //   const remoteActorId = `@${this.config.user}@${this.config.domain}`
-  //   const localName = this.config.repo
-  //   const ap = getGlobalApInstance()
-  //   if (!ap) throw new Error('activitypub is not initialized')
-  //   // ensure actor and follow
-  //   const actor = await ap.getOrCreateActor(localName)
-  //   const follows = await ap.getFollows(actor.name)
-  //   if (follows.indexOf(remoteActorId) == -1) {
-  //     await ap.followRemoteActor(actor.name, remoteActorId)
-  //   }
-  //   return ap
-  // }
+  async getAndInitAp() {
+    const remoteActorId = `@${this.config.user}@${this.config.domain}`
+    const localName = this.config.repo
+    const ap = getGlobalApInstance()
+    if (!ap) throw new Error('activitypub is not initialized')
+    // ensure actor and follow
+    const actor = await ap.getOrCreateActor(localName)
+    const follows = await ap.getFollows(actor.name)
+    if (follows.indexOf(remoteActorId) == -1) {
+      await ap.followRemoteActor(actor.name, remoteActorId)
+    }
+    return ap
+  }
 
   async fetchUpdates(cursorString: string | null): Promise<FetchUpdatesResult> {
     // this would look for the latest updates
     // first it should finish fetching the history as currently likely
     // or we move that functionality to repco-activitypub
     // would have to be tested, not sure if the remote servers push all history to our ap server after we follow them
-    // const ap = await this.getAndInitAp()
-    // const localActorName = this.config.repo
+    const ap = await this.getAndInitAp()
+    const localActorName = this.config.repo
     // const updates = await ap.getActivities(localActorName)
 
     try {
