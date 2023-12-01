@@ -183,7 +183,7 @@ export class CbaDataSource implements DataSource {
               endpoint === 'series' ||
               endpoint === 'station'
             ) {
-              multilingual = 'multilingual'
+              multilingual = '&multilingual'
             }
             const url = this._url(`/${endpoint}?${params}${multilingual}`)
             const bodies = await this._fetch(url)
