@@ -221,7 +221,7 @@ export class ActivityPubDataSource
         lastIngest: new Date(),
       }
       console.log('cursor', cursor)
-      const activities = await ap.getActivitiesforRemoteActor(
+      const activities = await ap.getActivitiesForRemoteActor(
         profile,
         cursor.lastIngest,
       )
