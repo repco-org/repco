@@ -94,7 +94,7 @@ export class ActivityPub extends EventEmitter {
   }
 
   // get the messages of all actors that this local actor follows
-  async getActivities(
+  async getActivitiesForLocalActor(
     localName: string,
     since?: string,
   ): Promise<schema.Activity[]> {
@@ -112,14 +112,39 @@ export class ActivityPub extends EventEmitter {
     return rows.map((row) => row.details as any as schema.Activity)
   }
 
+  async getActivitiesforRemoteActor(
+    actorId: string,
+    fromDate?: Date,
+  ): Promise<schema.Activity[]> {
+    const where: Prisma.ApActivitiesWhereInput = { actorId }
+    if (fromDate) {
+      where.receivedAt = { gt: fromDate }
+    }
+    const rows = await this.db.apActivities.findMany({
+      where,
+      orderBy: { receivedAt: 'asc' },
+    })
+    return rows.map((row) => row.details as any as schema.Activity)
+  }
+
   async listActors() {
     const data = await this.db.apLocalActor.findMany()
     return data.map((row) => row.name)
   }
 
+  /**
+    * follow a remote actor
+    *
+    * returns the remote actor id
+    */
   async followRemoteActor(localName: string, remoteHandle: string) {
     const local = await this.getActor(localName)
     const remote = await fetchActorFromWebfinger(remoteHandle)
+
+    const existingFollows = await this.getFollows(localName)
+    if (existingFollows.indexOf(remote.id) !== -1) {
+      return remote.id
+    }
 
     const guid = randomBytes(16).toString('hex')
     const message = {
@@ -140,7 +165,7 @@ export class ActivityPub extends EventEmitter {
       where: { localName_remoteId: data },
     })
     this.emit('follow', localName, remote.id)
-    return message
+    return remote.id
   }
 
   async send(from: LocalActor, target: schema.Actor, data: any) {

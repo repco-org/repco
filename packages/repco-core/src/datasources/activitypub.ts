@@ -50,12 +50,12 @@ type ChannelInfo = {
 }
 
 type Cursor = {
-  lastPublishedDate: Date
+  lastIngest: Date
 }
 
 function parseCursor(input?: string | null): Cursor {
   const cursor = input ? JSON.parse(input) : {}
-  const dateFields = ['lastPublishedDate']
+  const dateFields = ['lastIngest']
   for (const field of dateFields) {
     if (cursor[field]) cursor[field] = new Date(cursor[field])
   }
@@ -195,121 +195,140 @@ export class ActivityPubDataSource
     return lastPageNumber
   }
 
-  // this would be the initialization needed, roughly
-  // untested!!
   async getAndInitAp() {
     const remoteActorId = `@${this.config.user}@${this.config.domain}`
-    const localName = this.config.repo
+    const localName = this.repo
     const ap = getGlobalApInstance()
     if (!ap) throw new Error('activitypub is not initialized')
     // ensure actor and follow
-    const actor = await ap.getOrCreateActor(localName)
-    const follows = await ap.getFollows(actor.name)
-    if (follows.indexOf(remoteActorId) == -1) {
-      await ap.followRemoteActor(actor.name, remoteActorId)
-    }
-    return ap
+    const localActor = await ap.getOrCreateActor(localName)
+    const remoteId = await ap.followRemoteActor(localActor.name, remoteActorId)
+    return { ap, remoteId }
   }
 
   async fetchUpdates(cursorString: string | null): Promise<FetchUpdatesResult> {
-    // this would look for the latest updates
-    // first it should finish fetching the history as currently likely
-    // or we move that functionality to repco-activitypub
-    // would have to be tested, not sure if the remote servers push all history to our ap server after we follow them
-    const ap = await this.getAndInitAp()
-    const localActorName = this.config.repo
-    // const updates = await ap.getActivities(localActorName)
+    const nextCursor = {
+      lastIngest: new Date(),
+    }
 
-    try {
-      let channelSourceRecord
-      // First ingest: save channel as ContentGrouping
-      if (cursorString === null) {
+    const { ap, remoteId } = await this.getAndInitAp()
+    const profile = remoteId
+
+    // we have a previous cursor. ingest updates that were pushed to our inbox.
+    if (cursorString) {
+      const cursor = parseCursor(cursorString)
+      const nextCursor = {
+        lastIngest: new Date(),
+      }
+      console.log('cursor', cursor)
+      const activities = await ap.getActivitiesforRemoteActor(
+        profile,
+        cursor.lastIngest,
+      )
+      console.log('new activities', activities.length, activities)
+      if (!activities.length) {
+        console.log('return with old cursor!')
+        return { cursor: cursorString, records: [] }
+      }
+      // TODO: activities to records
+      const records: SourceRecordForm[] = []
+      return {
+        cursor: JSON.stringify(nextCursor),
+        records,
+      }
+      // we do not have a previous cursor. ingest history by fetching everything from the actor's outbox
+    } else {
+      try {
+        // First ingest: save channel as ContentGrouping
         const channelInfo: ChannelInfo = { account: this.account }
-        channelSourceRecord = {
+        const channelSourceRecord = {
           body: JSON.stringify(channelInfo),
           contentType: 'application/json',
           sourceType: 'activityPubChannel',
           sourceUri: this._uri('account', this.account),
         }
-      }
-      const cursor = parseCursor(cursorString)
-      const info = await this.fetchWebfinger<HostInfo>()
-      const profile = info.links.find((link) => link.rel === 'self')?.href
-      const outbox =
-        profile && (await this._fetchAs<OutBox>(`${profile}/outbox`))
-      const firstPageUrl = outbox && outbox.first
-      if (!firstPageUrl) {
-        throw new Error(`Could not find first page of outbox ${profile}/outbox`)
-      }
-      // collect new video entities
-      const newVideoObjects: VideoObject[] = []
-      // start with last page
-      let pageNumber = outbox && this._getLastPageNumber(outbox.totalItems)
-      if (!pageNumber) {
-        throw new Error(
-          `Could not get number of last page of outbox ${profile}/outbox`,
-        )
-      }
-      pageNumber++
-      // loop backwards over pages
-      while (pageNumber >= 2) {
-        pageNumber--
-        const currentPageUrl =
-          firstPageUrl && firstPageUrl.replace('page=1', `page=${pageNumber}`)
-        const currentPage =
-          currentPageUrl && (await this._fetchAs<Page>(currentPageUrl))
-        // if no items are on the page
-        if (currentPage && currentPage.orderedItems.length === 0) {
-          continue
+
+        const outbox =
+          profile && (await this._fetchAs<OutBox>(`${profile}/outbox`))
+        const firstPageUrl = outbox && outbox.first
+        if (!firstPageUrl) {
+          throw new Error(
+            `Could not find first page of outbox ${profile}/outbox`,
+          )
         }
-        const items =
-          currentPage &&
-          (await Promise.all(
-            currentPage.orderedItems.map((item) => {
-              if (item.type === 'Announce' && typeof item.object === 'string') {
-                return this._fetchAs<VideoObject>(item.object)
-              } else if (item.type === 'Create' && item.object !== undefined) {
-                return this._fetchAs<VideoObject>(
-                  (item.object as VideoObject).id,
-                )
-              }
-            }),
-          ))
-        if (items === undefined || items === '') {
-          throw new Error(`Could not catch items under url ${currentPageUrl}.`)
+        // collect new video entities
+        const newVideoObjects: VideoObject[] = []
+        // start with last page
+        let pageNumber = outbox && this._getLastPageNumber(outbox.totalItems)
+        if (!pageNumber) {
+          throw new Error(
+            `Could not get number of last page of outbox ${profile}/outbox`,
+          )
         }
-        // iterate over items on page backwards to find items that are newer than the cursor
-        for (let i = items.length - 1; i >= 0; i--) {
-          const item = items[i]
-          if (item === undefined) {
+        pageNumber++
+        // loop backwards over pages
+        while (pageNumber >= 2) {
+          pageNumber--
+          const currentPageUrl =
+            firstPageUrl && firstPageUrl.replace('page=1', `page=${pageNumber}`)
+          const currentPage =
+            currentPageUrl && (await this._fetchAs<Page>(currentPageUrl))
+          // if no items are on the page
+          if (currentPage && currentPage.orderedItems.length === 0) {
             continue
           }
-          if (new Date(item.published) <= cursor.lastPublishedDate) {
-            continue
+          const items =
+            currentPage &&
+            (await Promise.all(
+              currentPage.orderedItems.map((item: any) => {
+                if (
+                  item.type === 'Announce' &&
+                  typeof item.object === 'string'
+                ) {
+                  return this._fetchAs<VideoObject>(item.object)
+                } else if (
+                  item.type === 'Create' &&
+                  item.object !== undefined
+                ) {
+                  return this._fetchAs<VideoObject>(
+                    (item.object as VideoObject).id,
+                  )
+                }
+              }),
+            ))
+          if (items === undefined || items === '') {
+            throw new Error(
+              `Could not catch items under url ${currentPageUrl}.`,
+            )
           }
-          newVideoObjects.push(item)
-          cursor.lastPublishedDate = new Date(item.published)
+          // iterate over items on page backwards to find items that are newer than the cursor
+          for (let i = items.length - 1; i >= 0; i--) {
+            const item = items[i]
+            if (item === undefined) {
+              continue
+            }
+            newVideoObjects.push(item)
+          }
         }
+        const records = [
+          {
+            body: JSON.stringify(newVideoObjects),
+            contentType: 'application/json',
+            sourceType: 'videoObjects',
+            sourceUri: firstPageUrl + '#' + nextCursor.lastIngest.toISOString(),
+          },
+        ]
+        if (channelSourceRecord !== undefined) {
+          records.push(channelSourceRecord as SourceRecordForm)
+        }
+        return {
+          cursor: JSON.stringify(nextCursor),
+          records,
+        }
+      } catch (error) {
+        console.error(`Error fetching updates: ${error}`)
+        throw error
       }
-      const records = [
-        {
-          body: JSON.stringify(newVideoObjects),
-          contentType: 'application/json',
-          sourceType: 'videoObjects',
-          sourceUri:
-            firstPageUrl + '#' + cursor.lastPublishedDate.toISOString(),
-        },
-      ]
-      if (channelSourceRecord !== undefined) {
-        records.push(channelSourceRecord as SourceRecordForm)
-      }
-      return {
-        cursor: JSON.stringify(cursor),
-        records,
-      }
-    } catch (error) {
-      console.error(`Error fetching updates: ${error}`)
-      throw error
     }
   }
 

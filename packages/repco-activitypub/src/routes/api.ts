@@ -57,7 +57,7 @@ routes.get('/actors/:name/updates', async (req, res, _next) => {
     throw new ApiError(400, 'invalid `since` parameter')
   }
   const ap = state(req)
-  const updates = await ap.getActivities(req.params.name, since)
+  const updates = await ap.getActivitiesForLocalActor(req.params.name, since)
   res.json({ data: updates })
 })
 
