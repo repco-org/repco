@@ -1,6 +1,7 @@
 import * as ucans from '@ucans/ucans'
 import * as common from 'repco-common/zod'
 import { CID } from 'multiformats/cid.js'
+import { EventEmitter } from 'node:events'
 import { createLogger, Logger } from 'repco-common'
 import {
   CommitBundle,
@@ -53,7 +54,6 @@ import { ParseError } from './util/error.js'
 import { createEntityId } from './util/id.js'
 import { notEmpty } from './util/misc.js'
 import { Mutex } from './util/mutex.js'
-import { EventEmitter } from 'node:events'
 
 // export * from './repo/types.js'
 
@@ -570,6 +570,7 @@ export class Repo extends EventEmitter {
   }
 
   private async updateDomainView(entity: EntityInputWithRevision) {
+    console.log(entity)
     const domainUpsertPromise = repco.upsertEntity(
       this.prisma,
       entity.revision.uid,
