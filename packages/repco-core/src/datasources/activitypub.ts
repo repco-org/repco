@@ -1,5 +1,6 @@
 import zod from 'zod'
 import { parse, toSeconds } from 'iso8601-duration'
+import { getGlobalApInstance } from 'repco-activitypub'
 import { log } from 'repco-common'
 import { ConceptKind, ContentGroupingVariant, form } from 'repco-prisma'
 import { ConceptInput } from 'repco-prisma/generated/repco/zod.js'
@@ -24,7 +25,6 @@ import {
 import { EntityForm } from '../entity.js'
 import { HttpError } from '../util/error.js'
 import { notEmpty } from '../util/misc.js'
-import { getGlobalApInstance } from 'repco-activitypub'
 
 const configSchema = zod.object({
   user: zod.string(),
@@ -102,12 +102,18 @@ export class ActivityPubDataSource
     super()
     this.user = config.user
     this.domain = config.domain
-    this.account = config.user + '@' + config.domain
-    if (config.domain.startsWith('http://') || config.domain.startsWith('https://')) {
+    let domain
+    if (
+      config.domain.startsWith('http://') ||
+      config.domain.startsWith('https://')
+    ) {
       this.host = config.domain
+      domain = config.domain.replace(/^http(s?):\/\//, '')
     } else {
       this.host = 'https://' + config.domain
+      domain = config.domain
     }
+    this.account = config.user + '@' + domain
     this.uriPrefix = `repco:activityPub`
     this.repo = config.repo
   }
