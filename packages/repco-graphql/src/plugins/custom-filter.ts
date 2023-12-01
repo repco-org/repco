@@ -7,7 +7,9 @@ const CustomFilterPlugin = makeAddPgTableConditionPlugin(
   'language',
   (build) => ({
     description: 'Filters the list to Revisions that have a specific language.',
-    type: new build.graphql.GraphQLList(new GraphQLNonNull(GraphQLString)),
+    type: new build.graphql.GraphQLList(
+      new GraphQLNonNull(GraphQLString) as any,
+    ),
   }),
   (value, helpers, build) => {
     const { sql, sqlTableAlias } = helpers

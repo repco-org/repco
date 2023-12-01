@@ -58,8 +58,8 @@ export const loader: LoaderFunction = async ({ request }) => {
       data?.contentItems?.nodes.map((node) => {
         return {
           ...node,
-          title: sanitize(node?.title, { allowedTags: [] }),
-          summary: sanitize(node?.summary || '', { allowedTags: [] }),
+          title: sanitize(node?.title[Object.keys(node?.title)[0]]['value'], { allowedTags: [] }),
+          summary: sanitize(node?.summary[Object.keys(node?.title)[0]]['value'] || '', { allowedTags: [] }),
         }
       }) || [],
     pageInfo: data?.contentItems?.pageInfo,
@@ -117,11 +117,10 @@ export default function ItemsIndex() {
                       </NavLink>
                       <p className="text-xs text-slate-600">
                         {new Date(node.pubDate).toLocaleDateString()}
-                        {node.publicationService?.name && ' - '}
-                        {node.publicationService?.name}
+                        {node.publicationService?.name[Object.keys(node.publicationService?.name)[0]]['value'] && ' - '}
+                        {node.publicationService?.name[Object.keys(node.publicationService?.name)[0]]['value']}
                       </p>
                     </div>
-
                     <p className="text-xs">{node.summary || ''}</p>
                   </div>
                 </div>
