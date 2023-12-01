@@ -619,6 +619,7 @@ export class Repo extends EventEmitter {
   }
 
   private async updateDomainView(entity: EntityInputWithRevision) {
+    console.log(entity)
     const domainUpsertPromise = repco.upsertEntity(
       this.prisma,
       entity.revision.uid,

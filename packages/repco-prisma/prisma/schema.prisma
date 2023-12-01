@@ -198,6 +198,7 @@ model Revision {
   Chapter            Chapter?
   Contribution       Contribution?
   Metadata           Metadata?
+  Transcript         Transcript?
   Subtitles          Subtitles?
 }
 
@@ -390,6 +391,7 @@ model PublicationService {
 /// @repco(Entity)
 model Transcript {
   uid         String @id @unique
+  revisionId  String @unique
   language    String
   text        String
   engine      String
@@ -401,6 +403,7 @@ model Transcript {
 
   //TODO: Contributor relation
   MediaAsset MediaAsset @relation(fields: [mediaAssetUid], references: [uid])
+  Revision   Revision   @relation(fields: [revisionId], references: [id])
 }
 
 // might not be needed?

@@ -502,8 +502,12 @@ export class CbaDataSource implements DataSource {
       content: asset,
       headers: { EntityUris: [audioId] },
     }
-
-    var transcripts = this._mapTranscripts(media, media.transcripts, {})
+    var transcripts: Array<EntityForm> = []
+    if (media.transcripts.length > 0) {
+      transcripts = this._mapTranscripts(media, media.transcripts, {
+        uri: audioId,
+      })
+    }
 
     return [fileEntity, mediaEntity, ...transcripts]
   }
@@ -568,7 +572,9 @@ export class CbaDataSource implements DataSource {
       headers: { EntityUris: [imageId] },
     }
 
-    var transcripts = this._mapTranscripts(media, media.transcripts, {})
+    var transcripts = this._mapTranscripts(media, media.transcripts, {
+      uri: imageId,
+    })
 
     return [fileEntity, mediaEntity, ...transcripts]
   }
@@ -821,12 +827,11 @@ export class CbaDataSource implements DataSource {
       const content: form.TranscriptInput = {
         language: transcript['language'],
         text: transcript['transcript'],
-        engine: '',
+        engine: 'engine',
         MediaAsset: mediaAssetLinks,
-        license: '',
-        subtitleUrl: '',
-        author: '',
-        //TODO: refresh zod client and add new fields
+        license: transcript['license'],
+        subtitleUrl: transcript['subtitles'],
+        author: transcript['author'],
       }
       entities.push({
         type: 'Transcript',

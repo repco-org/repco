@@ -18272,6 +18272,52 @@ type Revision {
   ): RevisionMediaAssetsBySubtitleRevisionIdAndMediaAssetUidManyToManyConnection!
 
   """
+  Reads and enables pagination through a set of `MediaAsset`.
+  """
+  mediaAssetsByTranscriptRevisionIdAndMediaAssetUid(
+    """
+    Read all values in the set after (below) this cursor.
+    """
+    after: Cursor
+
+    """
+    Read all values in the set before (above) this cursor.
+    """
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: MediaAssetCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: MediaAssetFilter
+
+    """
+    Only read the first `n` values of the set.
+    """
+    first: Int
+
+    """
+    Only read the last `n` values of the set.
+    """
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """
+    The method to use when ordering `MediaAsset`.
+    """
+    orderBy: [MediaAssetsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): RevisionMediaAssetsByTranscriptRevisionIdAndMediaAssetUidManyToManyConnection!
+
+  """
   Reads and enables pagination through a set of `Metadatum`.
   """
   metadata(
@@ -18516,9 +18562,9 @@ type Revision {
   ): RevisionsConnection!
 
   """
-  Reads and enables pagination through a set of `Subtitle`.
+  Reads and enables pagination through a set of `Transcript`.
   """
-  subtitles(
+  transcripts(
     """
     Read all values in the set after (below) this cursor.
     """
@@ -18532,12 +18578,12 @@ type Revision {
     """
     A condition to be used in determining which values should be returned by the collection.
     """
-    condition: SubtitleCondition
+    condition: TranscriptCondition
 
     """
     A filter to be used in determining which values should be returned by the collection.
     """
-    filter: SubtitleFilter
+    filter: TranscriptFilter
 
     """
     Only read the first `n` values of the set.
@@ -18556,10 +18602,10 @@ type Revision {
     offset: Int
 
     """
-    The method to use when ordering `Subtitle`.
+    The method to use when ordering `Transcript`.
     """
-    orderBy: [SubtitlesOrderBy!] = [PRIMARY_KEY_ASC]
-  ): SubtitlesConnection!
+    orderBy: [TranscriptsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): TranscriptsConnection!
   uid: String!
 }
 
@@ -19668,14 +19714,14 @@ input RevisionFilter {
   revisionsByPrevRevisionIdExist: Boolean
 
   """
-  Filter by the object’s `subtitles` relation.
+  Filter by the object’s `transcripts` relation.
   """
-  subtitles: RevisionToManySubtitleFilter
+  transcripts: RevisionToManyTranscriptFilter
 
   """
-  Some related `subtitles` exist.
+  Some related `transcripts` exist.
   """
-  subtitlesExist: Boolean
+  transcriptsExist: Boolean
 
   """
   Filter by the object’s `uid` field.
@@ -20028,7 +20074,93 @@ type RevisionMediaAssetsByChapterRevisionIdAndMediaAssetUidManyToManyEdge {
 }
 
 """
-A connection to a list of `MediaAsset` values, with data from `Subtitle`.
+A connection to a list of `MediaAsset` values, with data from `Transcript`.
+"""
+type RevisionMediaAssetsByTranscriptRevisionIdAndMediaAssetUidManyToManyConnection {
+  """
+  A list of edges which contains the `MediaAsset`, info from the `Transcript`, and the cursor to aid in pagination.
+  """
+  edges: [RevisionMediaAssetsByTranscriptRevisionIdAndMediaAssetUidManyToManyEdge!]!
+
+  """
+  A list of `MediaAsset` objects.
+  """
+  nodes: [MediaAsset!]!
+
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `MediaAsset` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""
+A `MediaAsset` edge in the connection, with data from `Transcript`.
+"""
+type RevisionMediaAssetsByTranscriptRevisionIdAndMediaAssetUidManyToManyEdge {
+  """
+  A cursor for use in pagination.
+  """
+  cursor: Cursor
+
+  """
+  The `MediaAsset` at the end of the edge.
+  """
+  node: MediaAsset!
+
+  """
+  Reads and enables pagination through a set of `Transcript`.
+  """
+  transcripts(
+    """
+    Read all values in the set after (below) this cursor.
+    """
+    after: Cursor
+
+    """
+    Read all values in the set before (above) this cursor.
+    """
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: TranscriptCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: TranscriptFilter
+
+    """
+    Only read the first `n` values of the set.
+    """
+    first: Int
+
+    """
+    Only read the last `n` values of the set.
+    """
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """
+    The method to use when ordering `Transcript`.
+    """
+    orderBy: [TranscriptsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): TranscriptsConnection!
+}
+
+"""
+A connection to a list of `PublicationService` values, with data from `BroadcastEvent`.
 """
 type RevisionMediaAssetsBySubtitleRevisionIdAndMediaAssetUidManyToManyConnection {
   """
@@ -20566,23 +20698,23 @@ input RevisionToManyRevisionFilter {
 }
 
 """
-A filter to be used against many `Subtitle` object types. All fields are combined with a logical ‘and.’
+A filter to be used against many `Transcript` object types. All fields are combined with a logical ‘and.’
 """
-input RevisionToManySubtitleFilter {
+input RevisionToManyTranscriptFilter {
   """
-  Every related `Subtitle` matches the filter criteria. All fields are combined with a logical ‘and.’
+  Every related `Transcript` matches the filter criteria. All fields are combined with a logical ‘and.’
   """
-  every: SubtitleFilter
+  every: TranscriptFilter
 
   """
-  No related `Subtitle` matches the filter criteria. All fields are combined with a logical ‘and.’
+  No related `Transcript` matches the filter criteria. All fields are combined with a logical ‘and.’
   """
-  none: SubtitleFilter
+  none: TranscriptFilter
 
   """
-  Some related `Subtitle` matches the filter criteria. All fields are combined with a logical ‘and.’
+  Some related `Transcript` matches the filter criteria. All fields are combined with a logical ‘and.’
   """
-  some: SubtitleFilter
+  some: TranscriptFilter
 }
 
 """
@@ -21721,15 +21853,24 @@ enum SubtitlesOrderBy {
   UID_DESC
 }
 
-type Translation {
+type Transcript {
+  author: String!
   engine: String!
   language: String!
+  license: String!
 
   """
   Reads a single `MediaAsset` that is related to this `Translation`.
   """
   mediaAsset: MediaAsset
   mediaAssetUid: String!
+
+  """
+  Reads a single `Revision` that is related to this `Transcript`.
+  """
+  revision: Revision
+  revisionId: String!
+  subtitleUrl: String!
   text: String!
   uid: String!
 }
@@ -21738,7 +21879,12 @@ type Translation {
 A condition to be used against `Translation` object types. All fields are tested
 for equality and combined with a logical ‘and.’
 """
-input TranslationCondition {
+input TranscriptCondition {
+  """
+  Checks for equality with the object’s `author` field.
+  """
+  author: String
+
   """
   Checks for equality with the object’s `engine` field.
   """
@@ -21750,9 +21896,24 @@ input TranslationCondition {
   language: String
 
   """
+  Checks for equality with the object’s `license` field.
+  """
+  license: String
+
+  """
   Checks for equality with the object’s `mediaAssetUid` field.
   """
   mediaAssetUid: String
+
+  """
+  Checks for equality with the object’s `revisionId` field.
+  """
+  revisionId: String
+
+  """
+  Checks for equality with the object’s `subtitleUrl` field.
+  """
+  subtitleUrl: String
 
   """
   Checks for equality with the object’s `text` field.
@@ -21775,6 +21936,11 @@ input TranslationFilter {
   and: [TranslationFilter!]
 
   """
+  Filter by the object’s `author` field.
+  """
+  author: StringFilter
+
+  """
   Filter by the object’s `engine` field.
   """
   engine: StringFilter
@@ -21783,6 +21949,11 @@ input TranslationFilter {
   Filter by the object’s `language` field.
   """
   language: StringFilter
+
+  """
+  Filter by the object’s `license` field.
+  """
+  license: StringFilter
 
   """
   Filter by the object’s `mediaAsset` relation.
@@ -21803,6 +21974,21 @@ input TranslationFilter {
   Checks for any expressions in this list.
   """
   or: [TranslationFilter!]
+
+  """
+  Filter by the object’s `revision` relation.
+  """
+  revision: RevisionFilter
+
+  """
+  Filter by the object’s `revisionId` field.
+  """
+  revisionId: StringFilter
+
+  """
+  Filter by the object’s `subtitleUrl` field.
+  """
+  subtitleUrl: StringFilter
 
   """
   Filter by the object’s `text` field.
@@ -21856,18 +22042,26 @@ type TranslationsEdge {
 }
 
 """
-Methods to use when ordering `Translation`.
+Methods to use when ordering `Transcript`.
 """
-enum TranslationsOrderBy {
+enum TranscriptsOrderBy {
+  AUTHOR_ASC
+  AUTHOR_DESC
   ENGINE_ASC
   ENGINE_DESC
   LANGUAGE_ASC
   LANGUAGE_DESC
+  LICENSE_ASC
+  LICENSE_DESC
   MEDIA_ASSET_UID_ASC
   MEDIA_ASSET_UID_DESC
   NATURAL
   PRIMARY_KEY_ASC
   PRIMARY_KEY_DESC
+  REVISION_ID_ASC
+  REVISION_ID_DESC
+  SUBTITLE_URL_ASC
+  SUBTITLE_URL_DESC
   TEXT_ASC
   TEXT_DESC
   UID_ASC
