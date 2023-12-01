@@ -1,6 +1,7 @@
 import * as ucans from '@ucans/ucans'
 import * as common from 'repco-common/zod'
 import { CID } from 'multiformats/cid.js'
+import { EventEmitter } from 'node:events'
 import { createLogger, Logger } from 'repco-common'
 import {
   CommitBundle,
@@ -22,8 +23,8 @@ import {
   EntityInputWithHeaders,
   EntityInputWithRevision,
   EntityMaybeContent,
-  headersForm,
   HeadersForm,
+  headersForm,
   UnknownEntityInput,
 } from './entity.js'
 import {
@@ -53,7 +54,6 @@ import { ParseError } from './util/error.js'
 import { createEntityId } from './util/id.js'
 import { notEmpty } from './util/misc.js'
 import { Mutex } from './util/mutex.js'
-import { EventEmitter } from 'node:events'
 
 // export * from './repo/types.js'
 
@@ -445,7 +445,10 @@ export class Repo extends EventEmitter {
     return importRepoFromCar(this, stream, onProgress)
   }
 
-  async saveBatch(inputs: UnknownEntityInput[], opts: Partial<SaveBatchOpts> = {}) {
+  async saveBatch(
+    inputs: UnknownEntityInput[],
+    opts: Partial<SaveBatchOpts> = {},
+  ) {
     if (!this.writeable) throw new Error('Repo is not writeable')
     const fullOpts: SaveBatchOpts = { ...SAVE_BATCH_DEFAULTS, ...opts }
 
@@ -510,70 +513,82 @@ export class Repo extends EventEmitter {
   async saveFromIpld(bundle: CommitBundle) {
     const { headers, body } = bundle
     await this.ensureAgent(headers.Author)
-    const revisionsDb = body.map((revision) =>
-      revisionIpldToDb(revision, headers),
-    )
-    await this.saveRevisionBatch(revisionsDb)
-    let parent = null
-    if (headers.Parents?.length && headers.Parents[0])
-      parent = headers.Parents[0].toString()
-    await this.prisma.commit.create({
-      data: {
-        rootCid: headers.RootCid.toString(),
-        commitCid: headers.Cid.toString(),
-        repoDid: headers.Repo,
-        agentDid: headers.Author,
-        parent,
-        timestamp: headers.DateCreated,
-        Revisions: {
-          connect: body.map((revisionBundle) => ({
-            revisionCid: revisionBundle.headers.Cid.toString(),
-          })),
-        },
-      },
-    })
-    const head = headers.RootCid.toString()
-    const tail = parent ? undefined : head
-    await this.prisma.repo.update({
-      where: { did: this.did },
-      data: { head, tail },
-    })
-
-    const data = body.map(
-      (revisionBundle, i) => [revisionBundle, revisionsDb[i]] as const,
-    )
-    // update domain views
-    return await this.updateDomainViews(data)
-  }
-
-  private async updateDomainViews(
-    data: (readonly [RevisionBundle, Revision])[],
-  ) {
-    const ret = []
-    for (const [revisionBundle, revisionDb] of data) {
-      const input = repco.parseEntity(
-        revisionBundle.headers.EntityType,
-        revisionBundle.body,
+    assertFullClient(this.prisma)
+    return await this.prisma.$transaction(async (tx) => {
+      // 1. create revisions
+      const revisionsDb = body.map((revision) =>
+        revisionIpldToDb(revision, headers),
       )
-      const data = {
-        ...input,
-        revision: revisionDb,
-        uid: revisionBundle.headers.EntityUid,
-      }
-      await this.updateDomainView(data)
-      ret.push(data)
-    }
-    return ret
-  }
+      await tx.revision.createMany({
+        data: revisionsDb,
+      })
 
-  private async updateDomainView(entity: EntityInputWithRevision) {
-    const domainUpsertPromise = repco.upsertEntity(
-      this.prisma,
-      entity.revision.uid,
-      entity.revision.id,
-      entity,
-    )
-    await domainUpsertPromise
+      // 2. update Entity table
+      const deleteEntities = revisionsDb
+        .filter((r) => r.prevRevisionId)
+        .map((r) => r.uid)
+      await tx.entity.deleteMany({
+        where: { uid: { in: deleteEntities } },
+      })
+      const entityUpsert = revisionsDb.map((revision) => ({
+        uid: revision.uid,
+        revisionId: revision.id,
+        type: revision.entityType,
+      }))
+      await tx.entity.createMany({
+        data: entityUpsert,
+      })
+
+      // 3. upsert entity tables
+      const data = body.map(
+        (revisionBundle, i) => [revisionBundle, revisionsDb[i]] as const,
+      )
+      const ret = []
+      for (const [revisionBundle, revisionDb] of data) {
+        const input = repco.parseEntity(
+          revisionBundle.headers.EntityType,
+          revisionBundle.body,
+        )
+        const data = {
+          ...input,
+          revision: revisionDb,
+          uid: revisionBundle.headers.EntityUid,
+        }
+        await repco.upsertEntity(tx, data.revision.uid, data.revision.id, data)
+        ret.push(data)
+      }
+
+      // 4. create commit
+      let parent = null
+      if (headers.Parents?.length && headers.Parents[0]) {
+        parent = headers.Parents[0].toString()
+      }
+      await tx.commit.create({
+        data: {
+          rootCid: headers.RootCid.toString(),
+          commitCid: headers.Cid.toString(),
+          repoDid: headers.Repo,
+          agentDid: headers.Author,
+          parent,
+          timestamp: headers.DateCreated,
+          Revisions: {
+            connect: body.map((revisionBundle) => ({
+              revisionCid: revisionBundle.headers.Cid.toString(),
+            })),
+          },
+        },
+      })
+
+      // 5. update repo head
+      const head = headers.RootCid.toString()
+      const tail = parent ? undefined : head
+      await tx.repo.update({
+        where: { did: this.did },
+        data: { head, tail },
+      })
+
+      return ret
+    })
   }
 
   async assignUids(
@@ -659,26 +674,6 @@ export class Repo extends EventEmitter {
     }
   }
 
-  private async saveRevisionBatch(revisions: Revision[]): Promise<void> {
-    await this.prisma.revision.createMany({
-      data: revisions,
-    })
-    const deleteEntities = revisions
-      .filter((r) => r.prevRevisionId)
-      .map((r) => r.uid)
-    await this.prisma.entity.deleteMany({
-      where: { uid: { in: deleteEntities } },
-    })
-    const entityUpsert = revisions.map((revision) => ({
-      uid: revision.uid,
-      revisionId: revision.id,
-      type: revision.entityType,
-    }))
-    await this.prisma.entity.createMany({
-      data: entityUpsert,
-    })
-  }
-
   async getUnique<T extends boolean>(
     where: Prisma.RevisionWhereUniqueInput,
     includeContent: T,
@@ -762,7 +757,10 @@ function assertFullClient(
   }
 }
 
-type EntityFormWithHeaders = { entity: repco.EntityInput; headers: HeadersForm }
+type EntityFormWithHeaders = {
+  entity: repco.EntityInput
+  headers: HeadersForm
+}
 
 function parseEntity(input: UnknownEntityInput): EntityFormWithHeaders {
   try {
@@ -779,7 +777,9 @@ function parseEntity(input: UnknownEntityInput): EntityFormWithHeaders {
   }
 }
 
-export function parseEntities(inputs: UnknownEntityInput[]): EntityFormWithHeaders[] {
+export function parseEntities(
+  inputs: UnknownEntityInput[],
+): EntityFormWithHeaders[] {
   return inputs.map(parseEntity)
 }
 
