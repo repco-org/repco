@@ -504,4 +504,6 @@ model ApActivities {
   objectId String
   receivedAt DateTime
   details Json
+
+  attributedTo String[]
 }

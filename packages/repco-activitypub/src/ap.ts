@@ -18,7 +18,7 @@ export const CONTEXTS = {
   security: 'https://w3id.org/security/v1',
 }
 
-const extractId = (object: schema.ObjectId): string =>
+const extractId = (object: schema.ObjectOrId): string =>
   typeof object === 'string' ? object : object.id
 
 type LocalActorDb = {
@@ -112,11 +112,11 @@ export class ActivityPub extends EventEmitter {
     return rows.map((row) => row.details as any as schema.Activity)
   }
 
-  async getActivitiesforRemoteActor(
+  async getActivitiesForRemoteActor(
     actorId: string,
     fromDate?: Date,
   ): Promise<schema.Activity[]> {
-    const where: Prisma.ApActivitiesWhereInput = { actorId }
+    const where: Prisma.ApActivitiesWhereInput = { attributedTo: { has: actorId }}
     if (fromDate) {
       where.receivedAt = { gt: fromDate }
     }
@@ -133,10 +133,10 @@ export class ActivityPub extends EventEmitter {
   }
 
   /**
-    * follow a remote actor
-    *
-    * returns the remote actor id
-    */
+   * follow a remote actor
+   *
+   * returns the remote actor id
+   */
   async followRemoteActor(localName: string, remoteHandle: string) {
     const local = await this.getActor(localName)
     const remote = await fetchActorFromWebfinger(remoteHandle)
@@ -225,9 +225,28 @@ export class ActivityPub extends EventEmitter {
     return this.remoteActorKeys[keyId]
   }
 
+  async fetchObject(objectOrId: schema.ObjectOrId): Promise<schema.Object> {
+    if (typeof objectOrId === 'object') {
+      return objectOrId
+    } else {
+      const obj = await fetchAp(objectOrId)
+      return schema.object.parse(obj)
+    }
+  }
+
   async postInbox(input: any) {
     const activity = schema.activity.parse(input)
-    const objectId = extractId(activity.object)
+    const object = await this.fetchObject(activity.object)
+    const objectId = object.id
+    const attributedTo: string[] = []
+    if (object.attributedTo) {
+      for (const attr of object.attributedTo) {
+        attributedTo.push(extractId(attr))
+      }
+    }
+    if (attributedTo.indexOf(activity.actor) === -1) {
+      attributedTo.push(activity.actor)
+    }
     const data = {
       id: activity.id,
       actorId: activity.actor,
@@ -235,6 +254,7 @@ export class ActivityPub extends EventEmitter {
       details: activity as any,
       objectId: objectId,
       receivedAt: new Date(),
+      attributedTo,
     }
     const where = { id: activity.id }
     await this.db.apActivities.upsert({ create: data, update: data, where })
