@@ -22,7 +22,7 @@ const WrapResolversPlugin = makeWrapResolversPlugin(
       const rootField = resolveInfo.schema.getQueryType()?.getFields()[
         fieldName
       ]
-      if (rootField && hasPaginationArgs(rootField)) {
+      if (rootField && hasPaginationArgs(rootField as any)) {
         if (args.first >= 100) {
           throw new Error('Argument `first` may not be larger than 100')
         }

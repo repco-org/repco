@@ -83,7 +83,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     publicationServicesNodes = top10
   }
 
-  const labels = publicationServicesNodes.map((item) => item.name)
+  const labels = publicationServicesNodes.map((item) => item.name[Object.keys(item.name)[0]]['value'])
   const dataPoints = publicationServicesNodes.map(
     (item) => item.contentItems?.totalCount,
   )
@@ -176,9 +176,9 @@ export default function Index() {
               (node: any, index: number) => (
                 <li key={index}>
                   <NavLink to={`/items/${node.uid}`}>
-                    {node.title.length > 20
-                      ? node.title.slice(0, 45) + '...'
-                      : node.title}
+                    {node.title[Object.keys(node?.title)[0]]['value'].length > 20
+                      ? node.title[Object.keys(node?.title)[0]]['value'].slice(0, 45) + '...'
+                      : node.title[Object.keys(node?.title)[0]]['value']}
                   </NavLink>
                 </li>
               ),

@@ -5775,6 +5775,4859 @@ input DatetimeFilter {
   notIn: [Datetime!]
 }
 
+type ElasticAPI_default {
+  """
+  Perform a [bulk](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-bulk.html) request
+  """
+  bulk(
+    """
+    True or false to return the _source field or not, or default list of fields to return, can be overridden on each sub-request
+    """
+    _source: JSON
+
+    """
+    Default list of fields to exclude from the returned _source field, can be overridden on each sub-request
+    """
+    _sourceExcludes: JSON
+
+    """
+    Default list of fields to extract and return from the _source field, can be overridden on each sub-request
+    """
+    _sourceIncludes: JSON
+    body: JSON!
+
+    """
+    Default index for items which don't provide one
+    """
+    index: String
+
+    """
+    The pipeline id to preprocess incoming documents with
+    """
+    pipeline: String
+
+    """
+    If `true` then refresh the effected shards to make this operation visible to search, if `wait_for` then wait for a refresh to make this operation visible to search, if `false` (the default) then do nothing with refreshes.
+    """
+    refresh: ElasticAPI_defaultEnum_Refresh
+
+    """
+    Specific routing value
+    """
+    routing: String
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+
+    """
+    Default document type for items which don't provide one
+    """
+    type: String
+
+    """
+    Sets the number of shard copies that must be active before proceeding with the bulk operation. Defaults to 1, meaning the primary shard only. Set to `all` for all shard copies, otherwise set to any non-negative value less than or equal to the total number of copies for the shard (number of replicas + 1)
+    """
+    waitForActiveShards: String
+  ): JSON
+  cat: ElasticAPI_default_Cat
+
+  """
+  Perform a [clearScroll](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-request-body.html#_clear_scroll_api) request
+  """
+  clearScroll: JSON
+  cluster: ElasticAPI_default_Cluster
+
+  """
+  Perform a [count](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-count.html) request
+  """
+  count(
+    """
+    Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+    """
+    allowNoIndices: Boolean
+
+    """
+    Specify whether wildcard and prefix queries should be analyzed (default: false)
+    """
+    analyzeWildcard: Boolean
+
+    """
+    The analyzer to use for the query string
+    """
+    analyzer: String
+    body: JSON
+    defaultOperator: ElasticAPI_defaultEnum_DefaultOperator = OR
+
+    """
+    The field to use as default where no field prefix is given in the query string
+    """
+    df: String
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = open
+
+    """
+    Whether specified concrete, expanded or aliased indices should be ignored when throttled
+    """
+    ignoreThrottled: Boolean
+
+    """
+    Whether specified concrete indices should be ignored when unavailable (missing or closed)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    A comma-separated list of indices to restrict the results
+    """
+    index: JSON
+
+    """
+    Specify whether format-based query failures (such as providing text to a numeric field) should be ignored
+    """
+    lenient: Boolean
+
+    """
+    Include only documents with a specific `_score` value in the result
+    """
+    minScore: Float
+
+    """
+    Specify the node or shard the operation should be performed on (default: random)
+    """
+    preference: String
+
+    """
+    Query in the Lucene query string syntax
+    """
+    q: String
+
+    """
+    A comma-separated list of specific routing values
+    """
+    routing: JSON
+
+    """
+    The maximum count for each shard, upon reaching which the query execution will terminate early
+    """
+    terminateAfter: Float
+  ): JSON
+
+  """
+  Perform a [create](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-index_.html) request
+  """
+  create(
+    body: JSON!
+
+    """
+    Document ID
+    """
+    id: String
+
+    """
+    The name of the index
+    """
+    index: String
+
+    """
+    The pipeline id to preprocess incoming documents with
+    """
+    pipeline: String
+
+    """
+    If `true` then refresh the affected shards to make this operation visible to search, if `wait_for` then wait for a refresh to make this operation visible to search, if `false` (the default) then do nothing with refreshes.
+    """
+    refresh: ElasticAPI_defaultEnum_Refresh
+
+    """
+    Specific routing value
+    """
+    routing: String
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+
+    """
+    Explicit version number for concurrency control
+    """
+    version: Float
+
+    """
+    Specific version type
+    """
+    versionType: ElasticAPI_defaultEnum_VersionType
+
+    """
+    Sets the number of shard copies that must be active before proceeding with the index operation. Defaults to 1, meaning the primary shard only. Set to `all` for all shard copies, otherwise set to any non-negative value less than or equal to the total number of copies for the shard (number of replicas + 1)
+    """
+    waitForActiveShards: String
+  ): JSON
+
+  """
+  Perform a [delete](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-delete.html) request
+  """
+  delete(
+    """
+    The document ID
+    """
+    id: String
+
+    """
+    only perform the delete operation if the last operation that has changed the document has the specified primary term
+    """
+    ifPrimaryTerm: Float
+
+    """
+    only perform the delete operation if the last operation that has changed the document has the specified sequence number
+    """
+    ifSeqNo: Float
+
+    """
+    The name of the index
+    """
+    index: String
+
+    """
+    If `true` then refresh the effected shards to make this operation visible to search, if `wait_for` then wait for a refresh to make this operation visible to search, if `false` (the default) then do nothing with refreshes.
+    """
+    refresh: ElasticAPI_defaultEnum_Refresh
+
+    """
+    Specific routing value
+    """
+    routing: String
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+
+    """
+    Explicit version number for concurrency control
+    """
+    version: Float
+
+    """
+    Specific version type
+    """
+    versionType: ElasticAPI_defaultEnum_VersionType
+
+    """
+    Sets the number of shard copies that must be active before proceeding with the delete operation. Defaults to 1, meaning the primary shard only. Set to `all` for all shard copies, otherwise set to any non-negative value less than or equal to the total number of copies for the shard (number of replicas + 1)
+    """
+    waitForActiveShards: String
+  ): JSON
+
+  """
+  Perform a [deleteByQuery](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-delete-by-query.html) request
+  """
+  deleteByQuery(
+    """
+    True or false to return the _source field or not, or a list of fields to return
+    """
+    _source: JSON
+
+    """
+    A list of fields to exclude from the returned _source field
+    """
+    _sourceExcludes: JSON
+
+    """
+    A list of fields to extract and return from the _source field
+    """
+    _sourceIncludes: JSON
+
+    """
+    Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+    """
+    allowNoIndices: Boolean
+
+    """
+    Specify whether wildcard and prefix queries should be analyzed (default: false)
+    """
+    analyzeWildcard: Boolean
+
+    """
+    The analyzer to use for the query string
+    """
+    analyzer: String
+    body: JSON!
+    conflicts: ElasticAPI_defaultEnum_Conflicts = abort
+    defaultOperator: ElasticAPI_defaultEnum_DefaultOperator = OR
+
+    """
+    The field to use as default where no field prefix is given in the query string
+    """
+    df: String
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = open
+
+    """
+    Starting offset (default: 0)
+    """
+    from: Float
+
+    """
+    Whether specified concrete indices should be ignored when unavailable (missing or closed)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    A comma-separated list of index names to search; use `_all` or empty string to perform the operation on all indices
+    """
+    index: JSON
+
+    """
+    Specify whether format-based query failures (such as providing text to a numeric field) should be ignored
+    """
+    lenient: Boolean
+
+    """
+    Maximum number of documents to process (default: all documents)
+    """
+    maxDocs: Float
+
+    """
+    Specify the node or shard the operation should be performed on (default: random)
+    """
+    preference: String
+
+    """
+    Query in the Lucene query string syntax
+    """
+    q: String
+
+    """
+    Should the effected indexes be refreshed?
+    """
+    refresh: Boolean
+
+    """
+    Specify if request cache should be used for this request or not, defaults to index level setting
+    """
+    requestCache: Boolean
+
+    """
+    The throttle for this request in sub-requests per second. -1 means no throttle.
+    """
+    requestsPerSecond: Float
+
+    """
+    A comma-separated list of specific routing values
+    """
+    routing: JSON
+
+    """
+    Specify how long a consistent view of the index should be maintained for scrolled search
+    """
+    scroll: String
+
+    """
+    Size on the scroll request powering the delete by query
+    """
+    scrollSize: Float
+
+    """
+    Explicit timeout for each search request. Defaults to no timeout.
+    """
+    searchTimeout: String
+
+    """
+    Search operation type
+    """
+    searchType: ElasticAPI_defaultEnum_SearchType
+
+    """
+    Deprecated, please use `max_docs` instead
+    """
+    size: Float
+    slices: Float = 1
+
+    """
+    A comma-separated list of <field>:<direction> pairs
+    """
+    sort: JSON
+
+    """
+    Specific 'tag' of the request for logging and statistical purposes
+    """
+    stats: JSON
+
+    """
+    The maximum number of documents to collect for each shard, upon reaching which the query execution will terminate early.
+    """
+    terminateAfter: Float
+    timeout: String = "1m"
+
+    """
+    Specify whether to return document version as part of a hit
+    """
+    version: Boolean
+
+    """
+    Sets the number of shard copies that must be active before proceeding with the delete by query operation. Defaults to 1, meaning the primary shard only. Set to `all` for all shard copies, otherwise set to any non-negative value less than or equal to the total number of copies for the shard (number of replicas + 1)
+    """
+    waitForActiveShards: String
+    waitForCompletion: Boolean = true
+  ): JSON
+
+  """
+  Perform a [deleteByQueryRethrottle](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-delete-by-query.html) request
+  """
+  deleteByQueryRethrottle(
+    body: JSON
+
+    """
+    The throttle to set on this request in floating sub-requests per second. -1 means set no throttle.
+    """
+    requestsPerSecond: Float
+
+    """
+    The task id to rethrottle
+    """
+    taskId: String
+  ): JSON
+
+  """
+  Perform a [deleteScript](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/modules-scripting.html) request
+  """
+  deleteScript(
+    """
+    Script ID
+    """
+    id: String
+
+    """
+    Specify timeout for connection to master
+    """
+    masterTimeout: String
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+  ): JSON
+
+  """
+  Perform a [exists](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-get.html) request
+  """
+  exists(
+    """
+    True or false to return the _source field or not, or a list of fields to return
+    """
+    _source: JSON
+
+    """
+    A list of fields to exclude from the returned _source field
+    """
+    _sourceExcludes: JSON
+
+    """
+    A list of fields to extract and return from the _source field
+    """
+    _sourceIncludes: JSON
+
+    """
+    The document ID
+    """
+    id: String
+
+    """
+    The name of the index
+    """
+    index: String
+
+    """
+    Specify the node or shard the operation should be performed on (default: random)
+    """
+    preference: String
+
+    """
+    Specify whether to perform the operation in realtime or search mode
+    """
+    realtime: Boolean
+
+    """
+    Refresh the shard containing the document before performing the operation
+    """
+    refresh: Boolean
+
+    """
+    Specific routing value
+    """
+    routing: String
+
+    """
+    A comma-separated list of stored fields to return in the response
+    """
+    storedFields: JSON
+
+    """
+    Explicit version number for concurrency control
+    """
+    version: Float
+
+    """
+    Specific version type
+    """
+    versionType: ElasticAPI_defaultEnum_VersionType
+  ): JSON
+
+  """
+  Perform a [existsSource](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-get.html) request
+  """
+  existsSource(
+    """
+    True or false to return the _source field or not, or a list of fields to return
+    """
+    _source: JSON
+
+    """
+    A list of fields to exclude from the returned _source field
+    """
+    _sourceExcludes: JSON
+
+    """
+    A list of fields to extract and return from the _source field
+    """
+    _sourceIncludes: JSON
+
+    """
+    The document ID
+    """
+    id: String
+
+    """
+    The name of the index
+    """
+    index: String
+
+    """
+    Specify the node or shard the operation should be performed on (default: random)
+    """
+    preference: String
+
+    """
+    Specify whether to perform the operation in realtime or search mode
+    """
+    realtime: Boolean
+
+    """
+    Refresh the shard containing the document before performing the operation
+    """
+    refresh: Boolean
+
+    """
+    Specific routing value
+    """
+    routing: String
+
+    """
+    Explicit version number for concurrency control
+    """
+    version: Float
+
+    """
+    Specific version type
+    """
+    versionType: ElasticAPI_defaultEnum_VersionType
+  ): JSON
+
+  """
+  Perform a [explain](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-explain.html) request
+  """
+  explain(
+    """
+    True or false to return the _source field or not, or a list of fields to return
+    """
+    _source: JSON
+
+    """
+    A list of fields to exclude from the returned _source field
+    """
+    _sourceExcludes: JSON
+
+    """
+    A list of fields to extract and return from the _source field
+    """
+    _sourceIncludes: JSON
+
+    """
+    Specify whether wildcards and prefix queries in the query string query should be analyzed (default: false)
+    """
+    analyzeWildcard: Boolean
+
+    """
+    The analyzer for the query string query
+    """
+    analyzer: String
+    body: JSON
+    defaultOperator: ElasticAPI_defaultEnum_DefaultOperator = OR
+
+    """
+    The default field for query string query (default: _all)
+    """
+    df: String
+
+    """
+    The document ID
+    """
+    id: String
+
+    """
+    The name of the index
+    """
+    index: String
+
+    """
+    Specify whether format-based query failures (such as providing text to a numeric field) should be ignored
+    """
+    lenient: Boolean
+
+    """
+    Specify the node or shard the operation should be performed on (default: random)
+    """
+    preference: String
+
+    """
+    Query in the Lucene query string syntax
+    """
+    q: String
+
+    """
+    Specific routing value
+    """
+    routing: String
+
+    """
+    A comma-separated list of stored fields to return in the response
+    """
+    storedFields: JSON
+  ): JSON
+
+  """
+  Perform a [fieldCaps](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-field-caps.html) request
+  """
+  fieldCaps(
+    """
+    Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+    """
+    allowNoIndices: Boolean
+    body: JSON
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = open
+
+    """
+    A comma-separated list of field names
+    """
+    fields: JSON
+
+    """
+    Whether specified concrete indices should be ignored when unavailable (missing or closed)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    Indicates whether unmapped fields should be included in the response.
+    """
+    includeUnmapped: Boolean
+
+    """
+    A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
+    """
+    index: JSON
+  ): JSON
+
+  """
+  Perform a [get](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-get.html) request
+  """
+  get(
+    """
+    True or false to return the _source field or not, or a list of fields to return
+    """
+    _source: JSON
+
+    """
+    A list of fields to exclude from the returned _source field
+    """
+    _sourceExcludes: JSON
+
+    """
+    A list of fields to extract and return from the _source field
+    """
+    _sourceIncludes: JSON
+
+    """
+    The document ID
+    """
+    id: String
+
+    """
+    The name of the index
+    """
+    index: String
+
+    """
+    Specify the node or shard the operation should be performed on (default: random)
+    """
+    preference: String
+
+    """
+    Specify whether to perform the operation in realtime or search mode
+    """
+    realtime: Boolean
+
+    """
+    Refresh the shard containing the document before performing the operation
+    """
+    refresh: Boolean
+
+    """
+    Specific routing value
+    """
+    routing: String
+
+    """
+    A comma-separated list of stored fields to return in the response
+    """
+    storedFields: JSON
+
+    """
+    Explicit version number for concurrency control
+    """
+    version: Float
+
+    """
+    Specific version type
+    """
+    versionType: ElasticAPI_defaultEnum_VersionType
+  ): JSON
+
+  """
+  Perform a [getScript](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/modules-scripting.html) request
+  """
+  getScript(
+    """
+    Script ID
+    """
+    id: String
+
+    """
+    Specify timeout for connection to master
+    """
+    masterTimeout: String
+  ): JSON
+
+  """
+  Perform a [getSource](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-get.html) request
+  """
+  getSource(
+    """
+    True or false to return the _source field or not, or a list of fields to return
+    """
+    _source: JSON
+
+    """
+    A list of fields to exclude from the returned _source field
+    """
+    _sourceExcludes: JSON
+
+    """
+    A list of fields to extract and return from the _source field
+    """
+    _sourceIncludes: JSON
+
+    """
+    The document ID
+    """
+    id: String
+
+    """
+    The name of the index
+    """
+    index: String
+
+    """
+    Specify the node or shard the operation should be performed on (default: random)
+    """
+    preference: String
+
+    """
+    Specify whether to perform the operation in realtime or search mode
+    """
+    realtime: Boolean
+
+    """
+    Refresh the shard containing the document before performing the operation
+    """
+    refresh: Boolean
+
+    """
+    Specific routing value
+    """
+    routing: String
+
+    """
+    Explicit version number for concurrency control
+    """
+    version: Float
+
+    """
+    Specific version type
+    """
+    versionType: ElasticAPI_defaultEnum_VersionType
+  ): JSON
+
+  """
+  Perform a [index](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-index_.html) request
+  """
+  index(
+    body: JSON!
+
+    """
+    Document ID
+    """
+    id: String
+
+    """
+    only perform the index operation if the last operation that has changed the document has the specified primary term
+    """
+    ifPrimaryTerm: Float
+
+    """
+    only perform the index operation if the last operation that has changed the document has the specified sequence number
+    """
+    ifSeqNo: Float
+
+    """
+    The name of the index
+    """
+    index: String
+    opType: ElasticAPI_defaultEnum_OpType = index
+
+    """
+    The pipeline id to preprocess incoming documents with
+    """
+    pipeline: String
+
+    """
+    If `true` then refresh the affected shards to make this operation visible to search, if `wait_for` then wait for a refresh to make this operation visible to search, if `false` (the default) then do nothing with refreshes.
+    """
+    refresh: ElasticAPI_defaultEnum_Refresh
+
+    """
+    Specific routing value
+    """
+    routing: String
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+
+    """
+    Explicit version number for concurrency control
+    """
+    version: Float
+
+    """
+    Specific version type
+    """
+    versionType: ElasticAPI_defaultEnum_VersionType
+
+    """
+    Sets the number of shard copies that must be active before proceeding with the index operation. Defaults to 1, meaning the primary shard only. Set to `all` for all shard copies, otherwise set to any non-negative value less than or equal to the total number of copies for the shard (number of replicas + 1)
+    """
+    waitForActiveShards: String
+  ): JSON
+  indices: ElasticAPI_default_Indices
+
+  """
+  Perform a [info](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/index.html) request
+  """
+  info: JSON
+  ingest: ElasticAPI_default_Ingest
+
+  """
+  Perform a [mget](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-multi-get.html) request
+  """
+  mget(
+    """
+    True or false to return the _source field or not, or a list of fields to return
+    """
+    _source: JSON
+
+    """
+    A list of fields to exclude from the returned _source field
+    """
+    _sourceExcludes: JSON
+
+    """
+    A list of fields to extract and return from the _source field
+    """
+    _sourceIncludes: JSON
+    body: JSON!
+
+    """
+    The name of the index
+    """
+    index: String
+
+    """
+    Specify the node or shard the operation should be performed on (default: random)
+    """
+    preference: String
+
+    """
+    Specify whether to perform the operation in realtime or search mode
+    """
+    realtime: Boolean
+
+    """
+    Refresh the shard containing the document before performing the operation
+    """
+    refresh: Boolean
+
+    """
+    Specific routing value
+    """
+    routing: String
+
+    """
+    A comma-separated list of stored fields to return in the response
+    """
+    storedFields: JSON
+  ): JSON
+
+  """
+  Perform a [msearch](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-multi-search.html) request
+  """
+  msearch(
+    body: JSON!
+    ccsMinimizeRoundtrips: Boolean = true
+
+    """
+    A comma-separated list of index names to use as default
+    """
+    index: JSON
+
+    """
+    Controls the maximum number of concurrent searches the multi search api will execute
+    """
+    maxConcurrentSearches: Float
+    maxConcurrentShardRequests: Float = 5
+    preFilterShardSize: Float = 128
+
+    """
+    Indicates whether hits.total should be rendered as an integer or an object in the rest search response
+    """
+    restTotalHitsAsInt: Boolean
+
+    """
+    Search operation type
+    """
+    searchType: ElasticAPI_defaultEnum_SearchType_1
+
+    """
+    Specify whether aggregation and suggester names should be prefixed by their respective types in the response
+    """
+    typedKeys: Boolean
+  ): JSON
+
+  """
+  Perform a [msearchTemplate](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-multi-search.html) request
+  """
+  msearchTemplate(
+    body: JSON!
+    ccsMinimizeRoundtrips: Boolean = true
+
+    """
+    A comma-separated list of index names to use as default
+    """
+    index: JSON
+
+    """
+    Controls the maximum number of concurrent searches the multi search api will execute
+    """
+    maxConcurrentSearches: Float
+
+    """
+    Indicates whether hits.total should be rendered as an integer or an object in the rest search response
+    """
+    restTotalHitsAsInt: Boolean
+
+    """
+    Search operation type
+    """
+    searchType: ElasticAPI_defaultEnum_SearchType_1
+
+    """
+    Specify whether aggregation and suggester names should be prefixed by their respective types in the response
+    """
+    typedKeys: Boolean
+  ): JSON
+
+  """
+  Perform a [mtermvectors](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-multi-termvectors.html) request
+  """
+  mtermvectors(
+    body: JSON
+    fieldStatistics: Boolean = true
+
+    """
+    A comma-separated list of fields to return. Applies to all returned documents unless otherwise specified in body "params" or "docs".
+    """
+    fields: JSON
+
+    """
+    A comma-separated list of documents ids. You must define ids as parameter or set "ids" or "docs" in the request body
+    """
+    ids: JSON
+
+    """
+    The index in which the document resides.
+    """
+    index: String
+    offsets: Boolean = true
+    payloads: Boolean = true
+    positions: Boolean = true
+
+    """
+    Specify the node or shard the operation should be performed on (default: random) .Applies to all returned documents unless otherwise specified in body "params" or "docs".
+    """
+    preference: String
+
+    """
+    Specifies if requests are real-time as opposed to near-real-time (default: true).
+    """
+    realtime: Boolean
+
+    """
+    Specific routing value. Applies to all returned documents unless otherwise specified in body "params" or "docs".
+    """
+    routing: String
+
+    """
+    Specifies if total term frequency and document frequency should be returned. Applies to all returned documents unless otherwise specified in body "params" or "docs".
+    """
+    termStatistics: Boolean
+
+    """
+    Explicit version number for concurrency control
+    """
+    version: Float
+
+    """
+    Specific version type
+    """
+    versionType: ElasticAPI_defaultEnum_VersionType
+  ): JSON
+  nodes: ElasticAPI_default_Nodes
+
+  """
+  Perform a [ping](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/index.html) request
+  """
+  ping: JSON
+
+  """
+  Perform a [putScript](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/modules-scripting.html) request
+  """
+  putScript(
+    body: JSON!
+
+    """
+    Script context
+    """
+    context: String
+
+    """
+    Script ID
+    """
+    id: String
+
+    """
+    Specify timeout for connection to master
+    """
+    masterTimeout: String
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+  ): JSON
+
+  """
+  Perform a [rankEval](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-rank-eval.html) request
+  """
+  rankEval(
+    """
+    Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+    """
+    allowNoIndices: Boolean
+    body: JSON!
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = open
+
+    """
+    Whether specified concrete indices should be ignored when unavailable (missing or closed)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    A comma-separated list of index names to search; use `_all` or empty string to perform the operation on all indices
+    """
+    index: JSON
+  ): JSON
+
+  """
+  Perform a [reindex](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-reindex.html) request
+  """
+  reindex(
+    body: JSON!
+
+    """
+    Maximum number of documents to process (default: all documents)
+    """
+    maxDocs: Float
+
+    """
+    Should the effected indexes be refreshed?
+    """
+    refresh: Boolean
+
+    """
+    The throttle to set on this request in sub-requests per second. -1 means no throttle.
+    """
+    requestsPerSecond: Float
+    scroll: String = "5m"
+    slices: Float = 1
+    timeout: String = "1m"
+
+    """
+    Sets the number of shard copies that must be active before proceeding with the reindex operation. Defaults to 1, meaning the primary shard only. Set to `all` for all shard copies, otherwise set to any non-negative value less than or equal to the total number of copies for the shard (number of replicas + 1)
+    """
+    waitForActiveShards: String
+    waitForCompletion: Boolean = true
+  ): JSON
+
+  """
+  Perform a [reindexRethrottle](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-reindex.html) request
+  """
+  reindexRethrottle(
+    body: JSON
+
+    """
+    The throttle to set on this request in floating sub-requests per second. -1 means set no throttle.
+    """
+    requestsPerSecond: Float
+
+    """
+    The task id to rethrottle
+    """
+    taskId: String
+  ): JSON
+
+  """
+  Perform a [renderSearchTemplate](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-template.html#_validating_templates) request
+  """
+  renderSearchTemplate(
+    body: JSON
+
+    """
+    The id of the stored search template
+    """
+    id: String
+  ): JSON
+
+  """
+  Perform a [scriptsPainlessExecute](https://www.elastic.co/guide/en/elasticsearch/painless/7.6/painless-execute-api.html) request
+  """
+  scriptsPainlessExecute(body: JSON): JSON
+
+  """
+  Perform a [scroll](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-request-body.html#request-body-search-scroll) request
+  """
+  scroll(
+    body: JSON
+
+    """
+    Indicates whether hits.total should be rendered as an integer or an object in the rest search response
+    """
+    restTotalHitsAsInt: Boolean
+
+    """
+    Specify how long a consistent view of the index should be maintained for scrolled search
+    """
+    scroll: String
+
+    """
+    The scroll ID
+    """
+    scrollId: String
+  ): JSON
+
+  """
+  Perform a [search](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-search.html) request
+  """
+  search(
+    """
+    True or false to return the _source field or not, or a list of fields to return
+    """
+    _source: JSON
+
+    """
+    A list of fields to exclude from the returned _source field
+    """
+    _sourceExcludes: JSON
+
+    """
+    A list of fields to extract and return from the _source field
+    """
+    _sourceIncludes: JSON
+
+    """
+    Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+    """
+    allowNoIndices: Boolean
+    allowPartialSearchResults: Boolean = true
+
+    """
+    Specify whether wildcard and prefix queries should be analyzed (default: false)
+    """
+    analyzeWildcard: Boolean
+
+    """
+    The analyzer to use for the query string
+    """
+    analyzer: String
+    batchedReduceSize: Float = 512
+    body: JSON
+    ccsMinimizeRoundtrips: Boolean = true
+    defaultOperator: ElasticAPI_defaultEnum_DefaultOperator = OR
+
+    """
+    The field to use as default where no field prefix is given in the query string
+    """
+    df: String
+
+    """
+    A comma-separated list of fields to return as the docvalue representation of a field for each hit
+    """
+    docvalueFields: JSON
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = open
+
+    """
+    Specify whether to return detailed information about score computation as part of a hit
+    """
+    explain: Boolean
+
+    """
+    Starting offset (default: 0)
+    """
+    from: Float
+
+    """
+    Whether specified concrete, expanded or aliased indices should be ignored when throttled
+    """
+    ignoreThrottled: Boolean
+
+    """
+    Whether specified concrete indices should be ignored when unavailable (missing or closed)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    A comma-separated list of index names to search; use `_all` or empty string to perform the operation on all indices
+    """
+    index: JSON
+
+    """
+    Specify whether format-based query failures (such as providing text to a numeric field) should be ignored
+    """
+    lenient: Boolean
+    maxConcurrentShardRequests: Float = 5
+    preFilterShardSize: Float = 128
+
+    """
+    Specify the node or shard the operation should be performed on (default: random)
+    """
+    preference: String
+
+    """
+    Query in the Lucene query string syntax
+    """
+    q: String
+
+    """
+    Specify if request cache should be used for this request or not, defaults to index level setting
+    """
+    requestCache: Boolean
+
+    """
+    Indicates whether hits.total should be rendered as an integer or an object in the rest search response
+    """
+    restTotalHitsAsInt: Boolean
+
+    """
+    A comma-separated list of specific routing values
+    """
+    routing: JSON
+
+    """
+    Specify how long a consistent view of the index should be maintained for scrolled search
+    """
+    scroll: String
+
+    """
+    Search operation type
+    """
+    searchType: ElasticAPI_defaultEnum_SearchType
+
+    """
+    Specify whether to return sequence number and primary term of the last modification of each hit
+    """
+    seqNoPrimaryTerm: Boolean
+
+    """
+    Number of hits to return (default: 10)
+    """
+    size: Float
+
+    """
+    A comma-separated list of <field>:<direction> pairs
+    """
+    sort: JSON
+
+    """
+    Specific 'tag' of the request for logging and statistical purposes
+    """
+    stats: JSON
+
+    """
+    A comma-separated list of stored fields to return as part of a hit
+    """
+    storedFields: JSON
+
+    """
+    Specify which field to use for suggestions
+    """
+    suggestField: String
+    suggestMode: ElasticAPI_defaultEnum_SuggestMode = missing
+
+    """
+    How many suggestions to return in response
+    """
+    suggestSize: Float
+
+    """
+    The source text for which the suggestions should be returned
+    """
+    suggestText: String
+
+    """
+    The maximum number of documents to collect for each shard, upon reaching which the query execution will terminate early.
+    """
+    terminateAfter: Float
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+
+    """
+    Whether to calculate and return scores even if they are not used for sorting
+    """
+    trackScores: Boolean
+
+    """
+    Indicate if the number of documents that match the query should be tracked
+    """
+    trackTotalHits: Boolean
+
+    """
+    Specify whether aggregation and suggester names should be prefixed by their respective types in the response
+    """
+    typedKeys: Boolean
+
+    """
+    Specify whether to return document version as part of a hit
+    """
+    version: Boolean
+  ): JSON
+
+  """
+  Perform a [searchShards](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-shards.html) request
+  """
+  searchShards(
+    """
+    Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+    """
+    allowNoIndices: Boolean
+    body: JSON
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = open
+
+    """
+    Whether specified concrete indices should be ignored when unavailable (missing or closed)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    A comma-separated list of index names to search; use `_all` or empty string to perform the operation on all indices
+    """
+    index: JSON
+
+    """
+    Return local information, do not retrieve the state from master node (default: false)
+    """
+    local: Boolean
+
+    """
+    Specify the node or shard the operation should be performed on (default: random)
+    """
+    preference: String
+
+    """
+    Specific routing value
+    """
+    routing: String
+  ): JSON
+
+  """
+  Perform a [searchTemplate](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-template.html) request
+  """
+  searchTemplate(
+    """
+    Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+    """
+    allowNoIndices: Boolean
+    body: JSON!
+    ccsMinimizeRoundtrips: Boolean = true
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = open
+
+    """
+    Specify whether to return detailed information about score computation as part of a hit
+    """
+    explain: Boolean
+
+    """
+    Whether specified concrete, expanded or aliased indices should be ignored when throttled
+    """
+    ignoreThrottled: Boolean
+
+    """
+    Whether specified concrete indices should be ignored when unavailable (missing or closed)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    A comma-separated list of index names to search; use `_all` or empty string to perform the operation on all indices
+    """
+    index: JSON
+
+    """
+    Specify the node or shard the operation should be performed on (default: random)
+    """
+    preference: String
+
+    """
+    Specify whether to profile the query execution
+    """
+    profile: Boolean
+
+    """
+    Indicates whether hits.total should be rendered as an integer or an object in the rest search response
+    """
+    restTotalHitsAsInt: Boolean
+
+    """
+    A comma-separated list of specific routing values
+    """
+    routing: JSON
+
+    """
+    Specify how long a consistent view of the index should be maintained for scrolled search
+    """
+    scroll: String
+
+    """
+    Search operation type
+    """
+    searchType: ElasticAPI_defaultEnum_SearchType_1
+
+    """
+    Specify whether aggregation and suggester names should be prefixed by their respective types in the response
+    """
+    typedKeys: Boolean
+  ): JSON
+  snapshot: ElasticAPI_default_Snapshot
+  tasks: ElasticAPI_default_Tasks
+
+  """
+  Perform a [termvectors](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-termvectors.html) request
+  """
+  termvectors(
+    body: JSON
+    fieldStatistics: Boolean = true
+
+    """
+    A comma-separated list of fields to return.
+    """
+    fields: JSON
+
+    """
+    The id of the document, when not specified a doc param should be supplied.
+    """
+    id: String
+
+    """
+    The index in which the document resides.
+    """
+    index: String
+    offsets: Boolean = true
+    payloads: Boolean = true
+    positions: Boolean = true
+
+    """
+    Specify the node or shard the operation should be performed on (default: random).
+    """
+    preference: String
+
+    """
+    Specifies if request is real-time as opposed to near-real-time (default: true).
+    """
+    realtime: Boolean
+
+    """
+    Specific routing value.
+    """
+    routing: String
+
+    """
+    Specifies if total term frequency and document frequency should be returned.
+    """
+    termStatistics: Boolean
+
+    """
+    Explicit version number for concurrency control
+    """
+    version: Float
+
+    """
+    Specific version type
+    """
+    versionType: ElasticAPI_defaultEnum_VersionType
+  ): JSON
+
+  """
+  Perform a [update](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-update.html) request
+  """
+  update(
+    """
+    True or false to return the _source field or not, or a list of fields to return
+    """
+    _source: JSON
+
+    """
+    A list of fields to exclude from the returned _source field
+    """
+    _sourceExcludes: JSON
+
+    """
+    A list of fields to extract and return from the _source field
+    """
+    _sourceIncludes: JSON
+    body: JSON!
+
+    """
+    Document ID
+    """
+    id: String
+
+    """
+    only perform the update operation if the last operation that has changed the document has the specified primary term
+    """
+    ifPrimaryTerm: Float
+
+    """
+    only perform the update operation if the last operation that has changed the document has the specified sequence number
+    """
+    ifSeqNo: Float
+
+    """
+    The name of the index
+    """
+    index: String
+
+    """
+    The script language (default: painless)
+    """
+    lang: String
+
+    """
+    If `true` then refresh the effected shards to make this operation visible to search, if `wait_for` then wait for a refresh to make this operation visible to search, if `false` (the default) then do nothing with refreshes.
+    """
+    refresh: ElasticAPI_defaultEnum_Refresh
+
+    """
+    Specify how many times should the operation be retried when a conflict occurs (default: 0)
+    """
+    retryOnConflict: Float
+
+    """
+    Specific routing value
+    """
+    routing: String
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+
+    """
+    Sets the number of shard copies that must be active before proceeding with the update operation. Defaults to 1, meaning the primary shard only. Set to `all` for all shard copies, otherwise set to any non-negative value less than or equal to the total number of copies for the shard (number of replicas + 1)
+    """
+    waitForActiveShards: String
+  ): JSON
+
+  """
+  Perform a [updateByQuery](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-update-by-query.html) request
+  """
+  updateByQuery(
+    """
+    True or false to return the _source field or not, or a list of fields to return
+    """
+    _source: JSON
+
+    """
+    A list of fields to exclude from the returned _source field
+    """
+    _sourceExcludes: JSON
+
+    """
+    A list of fields to extract and return from the _source field
+    """
+    _sourceIncludes: JSON
+
+    """
+    Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+    """
+    allowNoIndices: Boolean
+
+    """
+    Specify whether wildcard and prefix queries should be analyzed (default: false)
+    """
+    analyzeWildcard: Boolean
+
+    """
+    The analyzer to use for the query string
+    """
+    analyzer: String
+    body: JSON
+    conflicts: ElasticAPI_defaultEnum_Conflicts = abort
+    defaultOperator: ElasticAPI_defaultEnum_DefaultOperator = OR
+
+    """
+    The field to use as default where no field prefix is given in the query string
+    """
+    df: String
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = open
+
+    """
+    Starting offset (default: 0)
+    """
+    from: Float
+
+    """
+    Whether specified concrete indices should be ignored when unavailable (missing or closed)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    A comma-separated list of index names to search; use `_all` or empty string to perform the operation on all indices
+    """
+    index: JSON
+
+    """
+    Specify whether format-based query failures (such as providing text to a numeric field) should be ignored
+    """
+    lenient: Boolean
+
+    """
+    Maximum number of documents to process (default: all documents)
+    """
+    maxDocs: Float
+
+    """
+    Ingest pipeline to set on index requests made by this action. (default: none)
+    """
+    pipeline: String
+
+    """
+    Specify the node or shard the operation should be performed on (default: random)
+    """
+    preference: String
+
+    """
+    Query in the Lucene query string syntax
+    """
+    q: String
+
+    """
+    Should the effected indexes be refreshed?
+    """
+    refresh: Boolean
+
+    """
+    Specify if request cache should be used for this request or not, defaults to index level setting
+    """
+    requestCache: Boolean
+
+    """
+    The throttle to set on this request in sub-requests per second. -1 means no throttle.
+    """
+    requestsPerSecond: Float
+
+    """
+    A comma-separated list of specific routing values
+    """
+    routing: JSON
+
+    """
+    Specify how long a consistent view of the index should be maintained for scrolled search
+    """
+    scroll: String
+
+    """
+    Size on the scroll request powering the update by query
+    """
+    scrollSize: Float
+
+    """
+    Explicit timeout for each search request. Defaults to no timeout.
+    """
+    searchTimeout: String
+
+    """
+    Search operation type
+    """
+    searchType: ElasticAPI_defaultEnum_SearchType
+
+    """
+    Deprecated, please use `max_docs` instead
+    """
+    size: Float
+    slices: Float = 1
+
+    """
+    A comma-separated list of <field>:<direction> pairs
+    """
+    sort: JSON
+
+    """
+    Specific 'tag' of the request for logging and statistical purposes
+    """
+    stats: JSON
+
+    """
+    The maximum number of documents to collect for each shard, upon reaching which the query execution will terminate early.
+    """
+    terminateAfter: Float
+    timeout: String = "1m"
+
+    """
+    Specify whether to return document version as part of a hit
+    """
+    version: Boolean
+
+    """
+    Should the document increment the version number (internal) on hit or not (reindex)
+    """
+    versionType: Boolean
+
+    """
+    Sets the number of shard copies that must be active before proceeding with the update by query operation. Defaults to 1, meaning the primary shard only. Set to `all` for all shard copies, otherwise set to any non-negative value less than or equal to the total number of copies for the shard (number of replicas + 1)
+    """
+    waitForActiveShards: String
+    waitForCompletion: Boolean = true
+  ): JSON
+
+  """
+  Perform a [updateByQueryRethrottle](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-update-by-query.html) request
+  """
+  updateByQueryRethrottle(
+    body: JSON
+
+    """
+    The throttle to set on this request in floating sub-requests per second. -1 means set no throttle.
+    """
+    requestsPerSecond: Float
+
+    """
+    The task id to rethrottle
+    """
+    taskId: String
+  ): JSON
+}
+
+enum ElasticAPI_defaultEnum_Bytes {
+  b
+  g
+  gb
+  k
+  kb
+  m
+  mb
+  p
+  pb
+  t
+  tb
+}
+
+enum ElasticAPI_defaultEnum_Bytes_1 {
+  b
+  g
+  k
+  m
+}
+
+enum ElasticAPI_defaultEnum_Conflicts {
+  abort
+  proceed
+}
+
+enum ElasticAPI_defaultEnum_DefaultOperator {
+  AND
+  OR
+}
+
+enum ElasticAPI_defaultEnum_ExpandWildcards {
+  all
+  closed
+  none
+  open
+}
+
+enum ElasticAPI_defaultEnum_GroupBy {
+  nodes
+  none
+  parents
+}
+
+enum ElasticAPI_defaultEnum_Health {
+  green
+  red
+  yellow
+}
+
+enum ElasticAPI_defaultEnum_Level {
+  cluster
+  indices
+  shards
+}
+
+enum ElasticAPI_defaultEnum_Level_1 {
+  indices
+  node
+  shards
+}
+
+enum ElasticAPI_defaultEnum_OpType {
+  create
+  index
+}
+
+enum ElasticAPI_defaultEnum_Refresh {
+  empty_string
+  false_string
+  true_string
+  wait_for
+}
+
+enum ElasticAPI_defaultEnum_SearchType {
+  dfs_query_then_fetch
+  query_then_fetch
+}
+
+enum ElasticAPI_defaultEnum_SearchType_1 {
+  dfs_query_and_fetch
+  dfs_query_then_fetch
+  query_and_fetch
+  query_then_fetch
+}
+
+enum ElasticAPI_defaultEnum_Size {
+  empty_string
+  g
+  k
+  m
+  p
+  t
+}
+
+enum ElasticAPI_defaultEnum_SuggestMode {
+  always
+  missing
+  popular
+}
+
+enum ElasticAPI_defaultEnum_Type {
+  block
+  cpu
+  wait
+}
+
+enum ElasticAPI_defaultEnum_VersionType {
+  external
+  external_gte
+  force
+  internal
+}
+
+enum ElasticAPI_defaultEnum_WaitForEvents {
+  high
+  immediate
+  languid
+  low
+  normal
+  urgent
+}
+
+enum ElasticAPI_defaultEnum_WaitForStatus {
+  green
+  red
+  yellow
+}
+
+type ElasticAPI_default_Cat {
+  """
+  Perform a [cat.aliases](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat.html) request
+  """
+  aliases(
+    """
+    a short version of the Accept header, e.g. json, yaml
+    """
+    format: String = "json"
+
+    """
+    Comma-separated list of column names to display
+    """
+    h: JSON
+
+    """
+    Return help information
+    """
+    help: Boolean
+
+    """
+    Return local information, do not retrieve the state from master node (default: false)
+    """
+    local: Boolean
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    A comma-separated list of alias names to return
+    """
+    name: JSON
+
+    """
+    Comma-separated list of column names or column aliases to sort by
+    """
+    s: JSON
+
+    """
+    Verbose mode. Display column headers
+    """
+    v: Boolean
+  ): JSON
+
+  """
+  Perform a [cat.allocation](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-allocation.html) request
+  """
+  allocation(
+    """
+    The unit in which to display byte values
+    """
+    bytes: ElasticAPI_defaultEnum_Bytes
+
+    """
+    a short version of the Accept header, e.g. json, yaml
+    """
+    format: String = "json"
+
+    """
+    Comma-separated list of column names to display
+    """
+    h: JSON
+
+    """
+    Return help information
+    """
+    help: Boolean
+
+    """
+    Return local information, do not retrieve the state from master node (default: false)
+    """
+    local: Boolean
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    A comma-separated list of node IDs or names to limit the returned information
+    """
+    nodeId: JSON
+
+    """
+    Comma-separated list of column names or column aliases to sort by
+    """
+    s: JSON
+
+    """
+    Verbose mode. Display column headers
+    """
+    v: Boolean
+  ): JSON
+
+  """
+  Perform a [cat.count](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-count.html) request
+  """
+  count(
+    """
+    a short version of the Accept header, e.g. json, yaml
+    """
+    format: String = "json"
+
+    """
+    Comma-separated list of column names to display
+    """
+    h: JSON
+
+    """
+    Return help information
+    """
+    help: Boolean
+
+    """
+    A comma-separated list of index names to limit the returned information
+    """
+    index: JSON
+
+    """
+    Return local information, do not retrieve the state from master node (default: false)
+    """
+    local: Boolean
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    Comma-separated list of column names or column aliases to sort by
+    """
+    s: JSON
+
+    """
+    Verbose mode. Display column headers
+    """
+    v: Boolean
+  ): JSON
+
+  """
+  Perform a [cat.fielddata](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-fielddata.html) request
+  """
+  fielddata(
+    """
+    The unit in which to display byte values
+    """
+    bytes: ElasticAPI_defaultEnum_Bytes
+
+    """
+    A comma-separated list of fields to return the fielddata size
+    """
+    fields: JSON
+
+    """
+    a short version of the Accept header, e.g. json, yaml
+    """
+    format: String = "json"
+
+    """
+    Comma-separated list of column names to display
+    """
+    h: JSON
+
+    """
+    Return help information
+    """
+    help: Boolean
+
+    """
+    Return local information, do not retrieve the state from master node (default: false)
+    """
+    local: Boolean
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    Comma-separated list of column names or column aliases to sort by
+    """
+    s: JSON
+
+    """
+    Verbose mode. Display column headers
+    """
+    v: Boolean
+  ): JSON
+
+  """
+  Perform a [cat.health](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-health.html) request
+  """
+  health(
+    """
+    a short version of the Accept header, e.g. json, yaml
+    """
+    format: String = "json"
+
+    """
+    Comma-separated list of column names to display
+    """
+    h: JSON
+
+    """
+    Return help information
+    """
+    help: Boolean
+
+    """
+    Return local information, do not retrieve the state from master node (default: false)
+    """
+    local: Boolean
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    Comma-separated list of column names or column aliases to sort by
+    """
+    s: JSON
+    ts: Boolean = true
+
+    """
+    Verbose mode. Display column headers
+    """
+    v: Boolean
+  ): JSON
+
+  """
+  Perform a [cat.help](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat.html) request
+  """
+  help(
+    """
+    Return help information
+    """
+    help: Boolean
+
+    """
+    Comma-separated list of column names or column aliases to sort by
+    """
+    s: JSON
+  ): JSON
+
+  """
+  Perform a [cat.indices](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-indices.html) request
+  """
+  indices(
+    """
+    The unit in which to display byte values
+    """
+    bytes: ElasticAPI_defaultEnum_Bytes_1
+
+    """
+    a short version of the Accept header, e.g. json, yaml
+    """
+    format: String = "json"
+
+    """
+    Comma-separated list of column names to display
+    """
+    h: JSON
+
+    """
+    A health status ("green", "yellow", or "red" to filter only indices matching the specified health status
+    """
+    health: ElasticAPI_defaultEnum_Health
+
+    """
+    Return help information
+    """
+    help: Boolean
+
+    """
+    If set to true segment stats will include stats for segments that are not currently loaded into memory
+    """
+    includeUnloadedSegments: Boolean
+
+    """
+    A comma-separated list of index names to limit the returned information
+    """
+    index: JSON
+
+    """
+    Return local information, do not retrieve the state from master node (default: false)
+    """
+    local: Boolean
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    Set to true to return stats only for primary shards
+    """
+    pri: Boolean
+
+    """
+    Comma-separated list of column names or column aliases to sort by
+    """
+    s: JSON
+
+    """
+    Verbose mode. Display column headers
+    """
+    v: Boolean
+  ): JSON
+
+  """
+  Perform a [cat.master](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-master.html) request
+  """
+  master(
+    """
+    a short version of the Accept header, e.g. json, yaml
+    """
+    format: String = "json"
+
+    """
+    Comma-separated list of column names to display
+    """
+    h: JSON
+
+    """
+    Return help information
+    """
+    help: Boolean
+
+    """
+    Return local information, do not retrieve the state from master node (default: false)
+    """
+    local: Boolean
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    Comma-separated list of column names or column aliases to sort by
+    """
+    s: JSON
+
+    """
+    Verbose mode. Display column headers
+    """
+    v: Boolean
+  ): JSON
+
+  """
+  Perform a [cat.nodeattrs](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-nodeattrs.html) request
+  """
+  nodeattrs(
+    """
+    a short version of the Accept header, e.g. json, yaml
+    """
+    format: String = "json"
+
+    """
+    Comma-separated list of column names to display
+    """
+    h: JSON
+
+    """
+    Return help information
+    """
+    help: Boolean
+
+    """
+    Return local information, do not retrieve the state from master node (default: false)
+    """
+    local: Boolean
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    Comma-separated list of column names or column aliases to sort by
+    """
+    s: JSON
+
+    """
+    Verbose mode. Display column headers
+    """
+    v: Boolean
+  ): JSON
+
+  """
+  Perform a [cat.nodes](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-nodes.html) request
+  """
+  nodes(
+    """
+    a short version of the Accept header, e.g. json, yaml
+    """
+    format: String = "json"
+
+    """
+    Return the full node ID instead of the shortened version (default: false)
+    """
+    fullId: Boolean
+
+    """
+    Comma-separated list of column names to display
+    """
+    h: JSON
+
+    """
+    Return help information
+    """
+    help: Boolean
+
+    """
+    Return local information, do not retrieve the state from master node (default: false)
+    """
+    local: Boolean
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    Comma-separated list of column names or column aliases to sort by
+    """
+    s: JSON
+
+    """
+    Verbose mode. Display column headers
+    """
+    v: Boolean
+  ): JSON
+
+  """
+  Perform a [cat.pendingTasks](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-pending-tasks.html) request
+  """
+  pendingTasks(
+    """
+    a short version of the Accept header, e.g. json, yaml
+    """
+    format: String = "json"
+
+    """
+    Comma-separated list of column names to display
+    """
+    h: JSON
+
+    """
+    Return help information
+    """
+    help: Boolean
+
+    """
+    Return local information, do not retrieve the state from master node (default: false)
+    """
+    local: Boolean
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    Comma-separated list of column names or column aliases to sort by
+    """
+    s: JSON
+
+    """
+    Verbose mode. Display column headers
+    """
+    v: Boolean
+  ): JSON
+
+  """
+  Perform a [cat.plugins](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-plugins.html) request
+  """
+  plugins(
+    """
+    a short version of the Accept header, e.g. json, yaml
+    """
+    format: String = "json"
+
+    """
+    Comma-separated list of column names to display
+    """
+    h: JSON
+
+    """
+    Return help information
+    """
+    help: Boolean
+
+    """
+    Return local information, do not retrieve the state from master node (default: false)
+    """
+    local: Boolean
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    Comma-separated list of column names or column aliases to sort by
+    """
+    s: JSON
+
+    """
+    Verbose mode. Display column headers
+    """
+    v: Boolean
+  ): JSON
+
+  """
+  Perform a [cat.recovery](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-recovery.html) request
+  """
+  recovery(
+    """
+    The unit in which to display byte values
+    """
+    bytes: ElasticAPI_defaultEnum_Bytes
+
+    """
+    a short version of the Accept header, e.g. json, yaml
+    """
+    format: String = "json"
+
+    """
+    Comma-separated list of column names to display
+    """
+    h: JSON
+
+    """
+    Return help information
+    """
+    help: Boolean
+
+    """
+    A comma-separated list of index names to limit the returned information
+    """
+    index: JSON
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    Comma-separated list of column names or column aliases to sort by
+    """
+    s: JSON
+
+    """
+    Verbose mode. Display column headers
+    """
+    v: Boolean
+  ): JSON
+
+  """
+  Perform a [cat.repositories](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-repositories.html) request
+  """
+  repositories(
+    """
+    a short version of the Accept header, e.g. json, yaml
+    """
+    format: String = "json"
+
+    """
+    Comma-separated list of column names to display
+    """
+    h: JSON
+
+    """
+    Return help information
+    """
+    help: Boolean
+
+    """
+    Return local information, do not retrieve the state from master node
+    """
+    local: Boolean
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    Comma-separated list of column names or column aliases to sort by
+    """
+    s: JSON
+
+    """
+    Verbose mode. Display column headers
+    """
+    v: Boolean
+  ): JSON
+
+  """
+  Perform a [cat.segments](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-segments.html) request
+  """
+  segments(
+    """
+    The unit in which to display byte values
+    """
+    bytes: ElasticAPI_defaultEnum_Bytes
+
+    """
+    a short version of the Accept header, e.g. json, yaml
+    """
+    format: String = "json"
+
+    """
+    Comma-separated list of column names to display
+    """
+    h: JSON
+
+    """
+    Return help information
+    """
+    help: Boolean
+
+    """
+    A comma-separated list of index names to limit the returned information
+    """
+    index: JSON
+
+    """
+    Comma-separated list of column names or column aliases to sort by
+    """
+    s: JSON
+
+    """
+    Verbose mode. Display column headers
+    """
+    v: Boolean
+  ): JSON
+
+  """
+  Perform a [cat.shards](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-shards.html) request
+  """
+  shards(
+    """
+    The unit in which to display byte values
+    """
+    bytes: ElasticAPI_defaultEnum_Bytes
+
+    """
+    a short version of the Accept header, e.g. json, yaml
+    """
+    format: String = "json"
+
+    """
+    Comma-separated list of column names to display
+    """
+    h: JSON
+
+    """
+    Return help information
+    """
+    help: Boolean
+
+    """
+    A comma-separated list of index names to limit the returned information
+    """
+    index: JSON
+
+    """
+    Return local information, do not retrieve the state from master node (default: false)
+    """
+    local: Boolean
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    Comma-separated list of column names or column aliases to sort by
+    """
+    s: JSON
+
+    """
+    Verbose mode. Display column headers
+    """
+    v: Boolean
+  ): JSON
+
+  """
+  Perform a [cat.snapshots](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-snapshots.html) request
+  """
+  snapshots(
+    """
+    a short version of the Accept header, e.g. json, yaml
+    """
+    format: String = "json"
+
+    """
+    Comma-separated list of column names to display
+    """
+    h: JSON
+
+    """
+    Return help information
+    """
+    help: Boolean
+
+    """
+    Set to true to ignore unavailable snapshots
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    Name of repository from which to fetch the snapshot information
+    """
+    repository: JSON
+
+    """
+    Comma-separated list of column names or column aliases to sort by
+    """
+    s: JSON
+
+    """
+    Verbose mode. Display column headers
+    """
+    v: Boolean
+  ): JSON
+
+  """
+  Perform a [cat.tasks](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/tasks.html) request
+  """
+  tasks(
+    """
+    A comma-separated list of actions that should be returned. Leave empty to return all.
+    """
+    actions: JSON
+
+    """
+    Return detailed task information (default: false)
+    """
+    detailed: Boolean
+
+    """
+    a short version of the Accept header, e.g. json, yaml
+    """
+    format: String = "json"
+
+    """
+    Comma-separated list of column names to display
+    """
+    h: JSON
+
+    """
+    Return help information
+    """
+    help: Boolean
+
+    """
+    A comma-separated list of node IDs or names to limit the returned information; use `_local` to return information from the node you're connecting to, leave empty to get information from all nodes
+    """
+    nodeId: JSON
+
+    """
+    Return tasks with specified parent task id. Set to -1 to return all.
+    """
+    parentTask: Float
+
+    """
+    Comma-separated list of column names or column aliases to sort by
+    """
+    s: JSON
+
+    """
+    Verbose mode. Display column headers
+    """
+    v: Boolean
+  ): JSON
+
+  """
+  Perform a [cat.templates](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-templates.html) request
+  """
+  templates(
+    """
+    a short version of the Accept header, e.g. json, yaml
+    """
+    format: String = "json"
+
+    """
+    Comma-separated list of column names to display
+    """
+    h: JSON
+
+    """
+    Return help information
+    """
+    help: Boolean
+
+    """
+    Return local information, do not retrieve the state from master node (default: false)
+    """
+    local: Boolean
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    A pattern that returned template names must match
+    """
+    name: String
+
+    """
+    Comma-separated list of column names or column aliases to sort by
+    """
+    s: JSON
+
+    """
+    Verbose mode. Display column headers
+    """
+    v: Boolean
+  ): JSON
+
+  """
+  Perform a [cat.threadPool](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-thread-pool.html) request
+  """
+  threadPool(
+    """
+    a short version of the Accept header, e.g. json, yaml
+    """
+    format: String = "json"
+
+    """
+    Comma-separated list of column names to display
+    """
+    h: JSON
+
+    """
+    Return help information
+    """
+    help: Boolean
+
+    """
+    Return local information, do not retrieve the state from master node (default: false)
+    """
+    local: Boolean
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    Comma-separated list of column names or column aliases to sort by
+    """
+    s: JSON
+
+    """
+    The multiplier in which to display values
+    """
+    size: ElasticAPI_defaultEnum_Size
+
+    """
+    A comma-separated list of regular-expressions to filter the thread pools in the output
+    """
+    threadPoolPatterns: JSON
+
+    """
+    Verbose mode. Display column headers
+    """
+    v: Boolean
+  ): JSON
+}
+
+type ElasticAPI_default_Cluster {
+  """
+  Perform a [cluster.allocationExplain](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cluster-allocation-explain.html) request
+  """
+  allocationExplain(
+    body: JSON
+
+    """
+    Return information about disk usage and shard sizes (default: false)
+    """
+    includeDiskInfo: Boolean
+
+    """
+    Return 'YES' decisions in explanation (default: false)
+    """
+    includeYesDecisions: Boolean
+  ): JSON
+
+  """
+  Perform a [cluster.getSettings](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cluster-update-settings.html) request
+  """
+  getSettings(
+    """
+    Return settings in flat format (default: false)
+    """
+    flatSettings: Boolean
+
+    """
+    Whether to return all default clusters setting.
+    """
+    includeDefaults: Boolean
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+  ): JSON
+
+  """
+  Perform a [cluster.health](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cluster-health.html) request
+  """
+  health(
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = all
+
+    """
+    Limit the information returned to a specific index
+    """
+    index: JSON
+    level: ElasticAPI_defaultEnum_Level = cluster
+
+    """
+    Return local information, do not retrieve the state from master node (default: false)
+    """
+    local: Boolean
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+
+    """
+    Wait until the specified number of shards is active
+    """
+    waitForActiveShards: String
+
+    """
+    Wait until all currently queued events with the given priority are processed
+    """
+    waitForEvents: ElasticAPI_defaultEnum_WaitForEvents
+
+    """
+    Whether to wait until there are no initializing shards in the cluster
+    """
+    waitForNoInitializingShards: Boolean
+
+    """
+    Whether to wait until there are no relocating shards in the cluster
+    """
+    waitForNoRelocatingShards: Boolean
+
+    """
+    Wait until the specified number of nodes is available
+    """
+    waitForNodes: String
+
+    """
+    Wait until cluster is in a specific state
+    """
+    waitForStatus: ElasticAPI_defaultEnum_WaitForStatus
+  ): JSON
+
+  """
+  Perform a [cluster.pendingTasks](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cluster-pending.html) request
+  """
+  pendingTasks(
+    """
+    Return local information, do not retrieve the state from master node (default: false)
+    """
+    local: Boolean
+
+    """
+    Specify timeout for connection to master
+    """
+    masterTimeout: String
+  ): JSON
+
+  """
+  Perform a [cluster.putSettings](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cluster-update-settings.html) request
+  """
+  putSettings(
+    body: JSON!
+
+    """
+    Return settings in flat format (default: false)
+    """
+    flatSettings: Boolean
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+  ): JSON
+
+  """
+  Perform a [cluster.remoteInfo](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cluster-remote-info.html) request
+  """
+  remoteInfo: JSON
+
+  """
+  Perform a [cluster.reroute](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cluster-reroute.html) request
+  """
+  reroute(
+    body: JSON
+
+    """
+    Simulate the operation only and return the resulting state
+    """
+    dryRun: Boolean
+
+    """
+    Return an explanation of why the commands can or cannot be executed
+    """
+    explain: Boolean
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    Limit the information returned to the specified metrics. Defaults to all but metadata
+    """
+    metric: JSON
+
+    """
+    Retries allocation of shards that are blocked due to too many subsequent allocation failures
+    """
+    retryFailed: Boolean
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+  ): JSON
+
+  """
+  Perform a [cluster.state](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cluster-state.html) request
+  """
+  state(
+    """
+    Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+    """
+    allowNoIndices: Boolean
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = open
+
+    """
+    Return settings in flat format (default: false)
+    """
+    flatSettings: Boolean
+
+    """
+    Whether specified concrete indices should be ignored when unavailable (missing or closed)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
+    """
+    index: JSON
+
+    """
+    Return local information, do not retrieve the state from master node (default: false)
+    """
+    local: Boolean
+
+    """
+    Specify timeout for connection to master
+    """
+    masterTimeout: String
+
+    """
+    Limit the information returned to the specified metrics
+    """
+    metric: JSON
+
+    """
+    Wait for the metadata version to be equal or greater than the specified metadata version
+    """
+    waitForMetadataVersion: Float
+
+    """
+    The maximum time to wait for wait_for_metadata_version before timing out
+    """
+    waitForTimeout: String
+  ): JSON
+
+  """
+  Perform a [cluster.stats](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cluster-stats.html) request
+  """
+  stats(
+    """
+    Return settings in flat format (default: false)
+    """
+    flatSettings: Boolean
+
+    """
+    A comma-separated list of node IDs or names to limit the returned information; use `_local` to return information from the node you're connecting to, leave empty to get information from all nodes
+    """
+    nodeId: JSON
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+  ): JSON
+}
+
+type ElasticAPI_default_Indices {
+  """
+  Perform a [indices.analyze](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-analyze.html) request
+  """
+  analyze(
+    body: JSON
+
+    """
+    The name of the index to scope the operation
+    """
+    index: String
+  ): JSON
+
+  """
+  Perform a [indices.clearCache](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-clearcache.html) request
+  """
+  clearCache(
+    """
+    Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+    """
+    allowNoIndices: Boolean
+    body: JSON
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = open
+
+    """
+    Clear field data
+    """
+    fielddata: Boolean
+
+    """
+    A comma-separated list of fields to clear when using the `fielddata` parameter (default: all)
+    """
+    fields: JSON
+
+    """
+    Whether specified concrete indices should be ignored when unavailable (missing or closed)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    A comma-separated list of index name to limit the operation
+    """
+    index: JSON
+
+    """
+    Clear query caches
+    """
+    query: Boolean
+
+    """
+    Clear request cache
+    """
+    request: Boolean
+  ): JSON
+
+  """
+  Perform a [indices.clone](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-clone-index.html) request
+  """
+  clone(
+    body: JSON
+
+    """
+    The name of the source index to clone
+    """
+    index: String
+
+    """
+    Specify timeout for connection to master
+    """
+    masterTimeout: String
+
+    """
+    The name of the target index to clone into
+    """
+    target: String
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+
+    """
+    Set the number of active shards to wait for on the cloned index before the operation returns.
+    """
+    waitForActiveShards: String
+  ): JSON
+
+  """
+  Perform a [indices.close](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-open-close.html) request
+  """
+  close(
+    """
+    Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+    """
+    allowNoIndices: Boolean
+    body: JSON
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = open
+
+    """
+    Whether specified concrete indices should be ignored when unavailable (missing or closed)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    A comma separated list of indices to close
+    """
+    index: JSON
+
+    """
+    Specify timeout for connection to master
+    """
+    masterTimeout: String
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+
+    """
+    Sets the number of active shards to wait for before the operation returns.
+    """
+    waitForActiveShards: String
+  ): JSON
+
+  """
+  Perform a [indices.create](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-create-index.html) request
+  """
+  create(
+    body: JSON
+
+    """
+    Whether a type should be expected in the body of the mappings.
+    """
+    includeTypeName: Boolean
+
+    """
+    The name of the index
+    """
+    index: String
+
+    """
+    Specify timeout for connection to master
+    """
+    masterTimeout: String
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+
+    """
+    Set the number of active shards to wait for before the operation returns.
+    """
+    waitForActiveShards: String
+  ): JSON
+
+  """
+  Perform a [indices.delete](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-delete-index.html) request
+  """
+  delete(
+    """
+    Ignore if a wildcard expression resolves to no concrete indices (default: false)
+    """
+    allowNoIndices: Boolean
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = open
+
+    """
+    Ignore unavailable indexes (default: false)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    A comma-separated list of indices to delete; use `_all` or `*` string to delete all indices
+    """
+    index: JSON
+
+    """
+    Specify timeout for connection to master
+    """
+    masterTimeout: String
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+  ): JSON
+
+  """
+  Perform a [indices.deleteAlias](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-aliases.html) request
+  """
+  deleteAlias(
+    """
+    A comma-separated list of index names (supports wildcards); use `_all` for all indices
+    """
+    index: JSON
+
+    """
+    Specify timeout for connection to master
+    """
+    masterTimeout: String
+
+    """
+    A comma-separated list of aliases to delete (supports wildcards); use `_all` to delete all aliases for the specified indices.
+    """
+    name: JSON
+
+    """
+    Explicit timestamp for the document
+    """
+    timeout: String
+  ): JSON
+
+  """
+  Perform a [indices.deleteTemplate](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-templates.html) request
+  """
+  deleteTemplate(
+    """
+    Specify timeout for connection to master
+    """
+    masterTimeout: String
+
+    """
+    The name of the template
+    """
+    name: String
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+  ): JSON
+
+  """
+  Perform a [indices.exists](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-exists.html) request
+  """
+  exists(
+    """
+    Ignore if a wildcard expression resolves to no concrete indices (default: false)
+    """
+    allowNoIndices: Boolean
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = open
+
+    """
+    Return settings in flat format (default: false)
+    """
+    flatSettings: Boolean
+
+    """
+    Ignore unavailable indexes (default: false)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    Whether to return all default setting for each of the indices.
+    """
+    includeDefaults: Boolean
+
+    """
+    A comma-separated list of index names
+    """
+    index: JSON
+
+    """
+    Return local information, do not retrieve the state from master node (default: false)
+    """
+    local: Boolean
+  ): JSON
+
+  """
+  Perform a [indices.existsAlias](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-aliases.html) request
+  """
+  existsAlias(
+    """
+    Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+    """
+    allowNoIndices: Boolean
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = all
+
+    """
+    Whether specified concrete indices should be ignored when unavailable (missing or closed)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    A comma-separated list of index names to filter aliases
+    """
+    index: JSON
+
+    """
+    Return local information, do not retrieve the state from master node (default: false)
+    """
+    local: Boolean
+
+    """
+    A comma-separated list of alias names to return
+    """
+    name: JSON
+  ): JSON
+
+  """
+  Perform a [indices.existsTemplate](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-templates.html) request
+  """
+  existsTemplate(
+    """
+    Return settings in flat format (default: false)
+    """
+    flatSettings: Boolean
+
+    """
+    Return local information, do not retrieve the state from master node (default: false)
+    """
+    local: Boolean
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    The comma separated names of the index templates
+    """
+    name: JSON
+  ): JSON
+
+  """
+  Perform a [indices.existsType](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-types-exists.html) request
+  """
+  existsType(
+    """
+    Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+    """
+    allowNoIndices: Boolean
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = open
+
+    """
+    Whether specified concrete indices should be ignored when unavailable (missing or closed)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    A comma-separated list of index names; use `_all` to check the types across all indices
+    """
+    index: JSON
+
+    """
+    Return local information, do not retrieve the state from master node (default: false)
+    """
+    local: Boolean
+
+    """
+    A comma-separated list of document types to check
+    """
+    type: JSON
+  ): JSON
+
+  """
+  Perform a [indices.flush](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-flush.html) request
+  """
+  flush(
+    """
+    Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+    """
+    allowNoIndices: Boolean
+    body: JSON
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = open
+
+    """
+    Whether a flush should be forced even if it is not necessarily needed ie. if no changes will be committed to the index. This is useful if transaction log IDs should be incremented even if no uncommitted changes are present. (This setting can be considered as internal)
+    """
+    force: Boolean
+
+    """
+    Whether specified concrete indices should be ignored when unavailable (missing or closed)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    A comma-separated list of index names; use `_all` or empty string for all indices
+    """
+    index: JSON
+
+    """
+    If set to true the flush operation will block until the flush can be executed if another flush operation is already executing. The default is true. If set to false the flush will be skipped iff if another flush operation is already running.
+    """
+    waitIfOngoing: Boolean
+  ): JSON
+
+  """
+  Perform a [indices.flushSynced](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-synced-flush-api.html) request
+  """
+  flushSynced(
+    """
+    Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+    """
+    allowNoIndices: Boolean
+    body: JSON
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = open
+
+    """
+    Whether specified concrete indices should be ignored when unavailable (missing or closed)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    A comma-separated list of index names; use `_all` or empty string for all indices
+    """
+    index: JSON
+  ): JSON
+
+  """
+  Perform a [indices.forcemerge](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-forcemerge.html) request
+  """
+  forcemerge(
+    """
+    Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+    """
+    allowNoIndices: Boolean
+    body: JSON
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = open
+
+    """
+    Specify whether the index should be flushed after performing the operation (default: true)
+    """
+    flush: Boolean
+
+    """
+    Whether specified concrete indices should be ignored when unavailable (missing or closed)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
+    """
+    index: JSON
+
+    """
+    The number of segments the index should be merged into (default: dynamic)
+    """
+    maxNumSegments: Float
+
+    """
+    Specify whether the operation should only expunge deleted documents
+    """
+    onlyExpungeDeletes: Boolean
+  ): JSON
+
+  """
+  Perform a [indices.get](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-get-index.html) request
+  """
+  get(
+    """
+    Ignore if a wildcard expression resolves to no concrete indices (default: false)
+    """
+    allowNoIndices: Boolean
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = open
+
+    """
+    Return settings in flat format (default: false)
+    """
+    flatSettings: Boolean
+
+    """
+    Ignore unavailable indexes (default: false)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    Whether to return all default setting for each of the indices.
+    """
+    includeDefaults: Boolean
+
+    """
+    Whether to add the type name to the response (default: false)
+    """
+    includeTypeName: Boolean
+
+    """
+    A comma-separated list of index names
+    """
+    index: JSON
+
+    """
+    Return local information, do not retrieve the state from master node (default: false)
+    """
+    local: Boolean
+
+    """
+    Specify timeout for connection to master
+    """
+    masterTimeout: String
+  ): JSON
+
+  """
+  Perform a [indices.getAlias](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-aliases.html) request
+  """
+  getAlias(
+    """
+    Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+    """
+    allowNoIndices: Boolean
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = all
+
+    """
+    Whether specified concrete indices should be ignored when unavailable (missing or closed)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    A comma-separated list of index names to filter aliases
+    """
+    index: JSON
+
+    """
+    Return local information, do not retrieve the state from master node (default: false)
+    """
+    local: Boolean
+
+    """
+    A comma-separated list of alias names to return
+    """
+    name: JSON
+  ): JSON
+
+  """
+  Perform a [indices.getFieldMapping](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-get-field-mapping.html) request
+  """
+  getFieldMapping(
+    """
+    Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+    """
+    allowNoIndices: Boolean
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = open
+
+    """
+    A comma-separated list of fields
+    """
+    fields: JSON
+
+    """
+    Whether specified concrete indices should be ignored when unavailable (missing or closed)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    Whether the default mapping values should be returned as well
+    """
+    includeDefaults: Boolean
+
+    """
+    Whether a type should be returned in the body of the mappings.
+    """
+    includeTypeName: Boolean
+
+    """
+    A comma-separated list of index names
+    """
+    index: JSON
+
+    """
+    Return local information, do not retrieve the state from master node (default: false)
+    """
+    local: Boolean
+  ): JSON
+
+  """
+  Perform a [indices.getMapping](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-get-mapping.html) request
+  """
+  getMapping(
+    """
+    Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+    """
+    allowNoIndices: Boolean
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = open
+
+    """
+    Whether specified concrete indices should be ignored when unavailable (missing or closed)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    Whether to add the type name to the response (default: false)
+    """
+    includeTypeName: Boolean
+
+    """
+    A comma-separated list of index names
+    """
+    index: JSON
+
+    """
+    Return local information, do not retrieve the state from master node (default: false)
+    """
+    local: Boolean
+
+    """
+    Specify timeout for connection to master
+    """
+    masterTimeout: String
+  ): JSON
+
+  """
+  Perform a [indices.getSettings](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-get-settings.html) request
+  """
+  getSettings(
+    """
+    Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+    """
+    allowNoIndices: Boolean
+    expandWildcards: [ElasticAPI_defaultEnum_ExpandWildcards] = [open, closed]
+
+    """
+    Return settings in flat format (default: false)
+    """
+    flatSettings: Boolean
+
+    """
+    Whether specified concrete indices should be ignored when unavailable (missing or closed)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    Whether to return all default setting for each of the indices.
+    """
+    includeDefaults: Boolean
+
+    """
+    A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
+    """
+    index: JSON
+
+    """
+    Return local information, do not retrieve the state from master node (default: false)
+    """
+    local: Boolean
+
+    """
+    Specify timeout for connection to master
+    """
+    masterTimeout: String
+
+    """
+    The name of the settings that should be included
+    """
+    name: JSON
+  ): JSON
+
+  """
+  Perform a [indices.getTemplate](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-templates.html) request
+  """
+  getTemplate(
+    """
+    Return settings in flat format (default: false)
+    """
+    flatSettings: Boolean
+
+    """
+    Whether a type should be returned in the body of the mappings.
+    """
+    includeTypeName: Boolean
+
+    """
+    Return local information, do not retrieve the state from master node (default: false)
+    """
+    local: Boolean
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    The comma separated names of the index templates
+    """
+    name: JSON
+  ): JSON
+
+  """
+  Perform a [indices.getUpgrade](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-upgrade.html) request
+  """
+  getUpgrade(
+    """
+    Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+    """
+    allowNoIndices: Boolean
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = open
+
+    """
+    Whether specified concrete indices should be ignored when unavailable (missing or closed)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
+    """
+    index: JSON
+  ): JSON
+
+  """
+  Perform a [indices.open](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-open-close.html) request
+  """
+  open(
+    """
+    Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+    """
+    allowNoIndices: Boolean
+    body: JSON
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = closed
+
+    """
+    Whether specified concrete indices should be ignored when unavailable (missing or closed)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    A comma separated list of indices to open
+    """
+    index: JSON
+
+    """
+    Specify timeout for connection to master
+    """
+    masterTimeout: String
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+
+    """
+    Sets the number of active shards to wait for before the operation returns.
+    """
+    waitForActiveShards: String
+  ): JSON
+
+  """
+  Perform a [indices.putAlias](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-aliases.html) request
+  """
+  putAlias(
+    body: JSON
+
+    """
+    A comma-separated list of index names the alias should point to (supports wildcards); use `_all` to perform the operation on all indices.
+    """
+    index: JSON
+
+    """
+    Specify timeout for connection to master
+    """
+    masterTimeout: String
+
+    """
+    The name of the alias to be created or updated
+    """
+    name: String
+
+    """
+    Explicit timestamp for the document
+    """
+    timeout: String
+  ): JSON
+
+  """
+  Perform a [indices.putMapping](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-put-mapping.html) request
+  """
+  putMapping(
+    """
+    Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+    """
+    allowNoIndices: Boolean
+    body: JSON!
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = open
+
+    """
+    Whether specified concrete indices should be ignored when unavailable (missing or closed)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    Whether a type should be expected in the body of the mappings.
+    """
+    includeTypeName: Boolean
+
+    """
+    A comma-separated list of index names the mapping should be added to (supports wildcards); use `_all` or omit to add the mapping on all indices.
+    """
+    index: JSON
+
+    """
+    Specify timeout for connection to master
+    """
+    masterTimeout: String
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+  ): JSON
+
+  """
+  Perform a [indices.putSettings](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-update-settings.html) request
+  """
+  putSettings(
+    """
+    Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+    """
+    allowNoIndices: Boolean
+    body: JSON!
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = open
+
+    """
+    Return settings in flat format (default: false)
+    """
+    flatSettings: Boolean
+
+    """
+    Whether specified concrete indices should be ignored when unavailable (missing or closed)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
+    """
+    index: JSON
+
+    """
+    Specify timeout for connection to master
+    """
+    masterTimeout: String
+
+    """
+    Whether to update existing settings. If set to `true` existing settings on an index remain unchanged, the default is `false`
+    """
+    preserveExisting: Boolean
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+  ): JSON
+
+  """
+  Perform a [indices.putTemplate](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-templates.html) request
+  """
+  putTemplate(
+    body: JSON!
+
+    """
+    Whether the index template should only be added if new or can also replace an existing one
+    """
+    create: Boolean
+
+    """
+    Return settings in flat format (default: false)
+    """
+    flatSettings: Boolean
+
+    """
+    Whether a type should be returned in the body of the mappings.
+    """
+    includeTypeName: Boolean
+
+    """
+    Specify timeout for connection to master
+    """
+    masterTimeout: String
+
+    """
+    The name of the template
+    """
+    name: String
+
+    """
+    The order for this template when merging multiple matching ones (higher numbers are merged later, overriding the lower numbers)
+    """
+    order: Float
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+  ): JSON
+
+  """
+  Perform a [indices.recovery](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-recovery.html) request
+  """
+  recovery(
+    """
+    Display only those recoveries that are currently on-going
+    """
+    activeOnly: Boolean
+
+    """
+    Whether to display detailed information about shard recovery
+    """
+    detailed: Boolean
+
+    """
+    A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
+    """
+    index: JSON
+  ): JSON
+
+  """
+  Perform a [indices.refresh](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-refresh.html) request
+  """
+  refresh(
+    """
+    Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+    """
+    allowNoIndices: Boolean
+    body: JSON
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = open
+
+    """
+    Whether specified concrete indices should be ignored when unavailable (missing or closed)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
+    """
+    index: JSON
+  ): JSON
+
+  """
+  Perform a [indices.rollover](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-rollover-index.html) request
+  """
+  rollover(
+    """
+    The name of the alias to rollover
+    """
+    alias: String
+    body: JSON
+
+    """
+    If set to true the rollover action will only be validated but not actually performed even if a condition matches. The default is false
+    """
+    dryRun: Boolean
+
+    """
+    Whether a type should be included in the body of the mappings.
+    """
+    includeTypeName: Boolean
+
+    """
+    Specify timeout for connection to master
+    """
+    masterTimeout: String
+
+    """
+    The name of the rollover index
+    """
+    newIndex: String
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+
+    """
+    Set the number of active shards to wait for on the newly created rollover index before the operation returns.
+    """
+    waitForActiveShards: String
+  ): JSON
+
+  """
+  Perform a [indices.segments](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-segments.html) request
+  """
+  segments(
+    """
+    Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+    """
+    allowNoIndices: Boolean
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = open
+
+    """
+    Whether specified concrete indices should be ignored when unavailable (missing or closed)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
+    """
+    index: JSON
+
+    """
+    Includes detailed memory usage by Lucene.
+    """
+    verbose: Boolean
+  ): JSON
+
+  """
+  Perform a [indices.shardStores](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-shards-stores.html) request
+  """
+  shardStores(
+    """
+    Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+    """
+    allowNoIndices: Boolean
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = open
+
+    """
+    Whether specified concrete indices should be ignored when unavailable (missing or closed)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
+    """
+    index: JSON
+
+    """
+    A comma-separated list of statuses used to filter on shards to get store information for
+    """
+    status: JSON
+  ): JSON
+
+  """
+  Perform a [indices.shrink](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-shrink-index.html) request
+  """
+  shrink(
+    body: JSON
+
+    """
+    whether or not to copy settings from the source index (defaults to false)
+    """
+    copySettings: Boolean
+
+    """
+    The name of the source index to shrink
+    """
+    index: String
+
+    """
+    Specify timeout for connection to master
+    """
+    masterTimeout: String
+
+    """
+    The name of the target index to shrink into
+    """
+    target: String
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+
+    """
+    Set the number of active shards to wait for on the shrunken index before the operation returns.
+    """
+    waitForActiveShards: String
+  ): JSON
+
+  """
+  Perform a [indices.split](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-split-index.html) request
+  """
+  split(
+    body: JSON
+
+    """
+    whether or not to copy settings from the source index (defaults to false)
+    """
+    copySettings: Boolean
+
+    """
+    The name of the source index to split
+    """
+    index: String
+
+    """
+    Specify timeout for connection to master
+    """
+    masterTimeout: String
+
+    """
+    The name of the target index to split into
+    """
+    target: String
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+
+    """
+    Set the number of active shards to wait for on the shrunken index before the operation returns.
+    """
+    waitForActiveShards: String
+  ): JSON
+
+  """
+  Perform a [indices.stats](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-stats.html) request
+  """
+  stats(
+    """
+    A comma-separated list of fields for `fielddata` and `suggest` index metric (supports wildcards)
+    """
+    completionFields: JSON
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = open
+
+    """
+    A comma-separated list of fields for `fielddata` index metric (supports wildcards)
+    """
+    fielddataFields: JSON
+
+    """
+    A comma-separated list of fields for `fielddata` and `completion` index metric (supports wildcards)
+    """
+    fields: JSON
+    forbidClosedIndices: Boolean = true
+
+    """
+    A comma-separated list of search groups for `search` index metric
+    """
+    groups: JSON
+
+    """
+    Whether to report the aggregated disk usage of each one of the Lucene index files (only applies if segment stats are requested)
+    """
+    includeSegmentFileSizes: Boolean
+
+    """
+    If set to true segment stats will include stats for segments that are not currently loaded into memory
+    """
+    includeUnloadedSegments: Boolean
+
+    """
+    A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
+    """
+    index: JSON
+    level: ElasticAPI_defaultEnum_Level = indices
+
+    """
+    Limit the information returned the specific metrics.
+    """
+    metric: JSON
+
+    """
+    A comma-separated list of document types for the `indexing` index metric
+    """
+    types: JSON
+  ): JSON
+
+  """
+  Perform a [indices.updateAliases](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-aliases.html) request
+  """
+  updateAliases(
+    body: JSON!
+
+    """
+    Specify timeout for connection to master
+    """
+    masterTimeout: String
+
+    """
+    Request timeout
+    """
+    timeout: String
+  ): JSON
+
+  """
+  Perform a [indices.upgrade](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-upgrade.html) request
+  """
+  upgrade(
+    """
+    Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+    """
+    allowNoIndices: Boolean
+    body: JSON
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = open
+
+    """
+    Whether specified concrete indices should be ignored when unavailable (missing or closed)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
+    """
+    index: JSON
+
+    """
+    If true, only ancient (an older Lucene major release) segments will be upgraded
+    """
+    onlyAncientSegments: Boolean
+
+    """
+    Specify whether the request should block until the all segments are upgraded (default: false)
+    """
+    waitForCompletion: Boolean
+  ): JSON
+
+  """
+  Perform a [indices.validateQuery](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-validate.html) request
+  """
+  validateQuery(
+    """
+    Execute validation on all shards instead of one random shard per index
+    """
+    allShards: Boolean
+
+    """
+    Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+    """
+    allowNoIndices: Boolean
+
+    """
+    Specify whether wildcard and prefix queries should be analyzed (default: false)
+    """
+    analyzeWildcard: Boolean
+
+    """
+    The analyzer to use for the query string
+    """
+    analyzer: String
+    body: JSON
+    defaultOperator: ElasticAPI_defaultEnum_DefaultOperator = OR
+
+    """
+    The field to use as default where no field prefix is given in the query string
+    """
+    df: String
+    expandWildcards: ElasticAPI_defaultEnum_ExpandWildcards = open
+
+    """
+    Return detailed information about the error
+    """
+    explain: Boolean
+
+    """
+    Whether specified concrete indices should be ignored when unavailable (missing or closed)
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    A comma-separated list of index names to restrict the operation; use `_all` or empty string to perform the operation on all indices
+    """
+    index: JSON
+
+    """
+    Specify whether format-based query failures (such as providing text to a numeric field) should be ignored
+    """
+    lenient: Boolean
+
+    """
+    Query in the Lucene query string syntax
+    """
+    q: String
+
+    """
+    Provide a more detailed explanation showing the actual Lucene query that will be executed.
+    """
+    rewrite: Boolean
+  ): JSON
+}
+
+type ElasticAPI_default_Ingest {
+  """
+  Perform a [ingest.deletePipeline](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/delete-pipeline-api.html) request
+  """
+  deletePipeline(
+    """
+    Pipeline ID
+    """
+    id: String
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+  ): JSON
+
+  """
+  Perform a [ingest.getPipeline](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/get-pipeline-api.html) request
+  """
+  getPipeline(
+    """
+    Comma separated list of pipeline ids. Wildcards supported
+    """
+    id: String
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+  ): JSON
+
+  """
+  Perform a [ingest.processorGrok](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/grok-processor.html#grok-processor-rest-get) request
+  """
+  processorGrok: JSON
+
+  """
+  Perform a [ingest.putPipeline](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/put-pipeline-api.html) request
+  """
+  putPipeline(
+    body: JSON!
+
+    """
+    Pipeline ID
+    """
+    id: String
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+  ): JSON
+
+  """
+  Perform a [ingest.simulate](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/simulate-pipeline-api.html) request
+  """
+  simulate(
+    body: JSON!
+
+    """
+    Pipeline ID
+    """
+    id: String
+
+    """
+    Verbose mode. Display data output for each processor in executed pipeline
+    """
+    verbose: Boolean
+  ): JSON
+}
+
+type ElasticAPI_default_Nodes {
+  """
+  Perform a [nodes.hotThreads](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cluster-nodes-hot-threads.html) request
+  """
+  hotThreads(
+    """
+    Don't show threads that are in known-idle places, such as waiting on a socket select or pulling from an empty task queue (default: true)
+    """
+    ignoreIdleThreads: Boolean
+
+    """
+    The interval for the second sampling of threads
+    """
+    interval: String
+
+    """
+    Number of samples of thread stacktrace (default: 10)
+    """
+    snapshots: Float
+
+    """
+    Specify the number of threads to provide information for (default: 3)
+    """
+    threads: Float
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+
+    """
+    The type to sample (default: cpu)
+    """
+    type: ElasticAPI_defaultEnum_Type
+  ): JSON
+
+  """
+  Perform a [nodes.info](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cluster-nodes-info.html) request
+  """
+  info(
+    """
+    Return settings in flat format (default: false)
+    """
+    flatSettings: Boolean
+
+    """
+    A comma-separated list of metrics you wish returned. Leave empty to return all.
+    """
+    metric: JSON
+
+    """
+    A comma-separated list of node IDs or names to limit the returned information; use `_local` to return information from the node you're connecting to, leave empty to get information from all nodes
+    """
+    nodeId: JSON
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+  ): JSON
+
+  """
+  Perform a [nodes.reloadSecureSettings](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/secure-settings.html#reloadable-secure-settings) request
+  """
+  reloadSecureSettings(
+    body: JSON
+
+    """
+    A comma-separated list of node IDs to span the reload/reinit call. Should stay empty because reloading usually involves all cluster nodes.
+    """
+    nodeId: JSON
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+  ): JSON
+
+  """
+  Perform a [nodes.stats](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cluster-nodes-stats.html) request
+  """
+  stats(
+    """
+    A comma-separated list of fields for `fielddata` and `suggest` index metric (supports wildcards)
+    """
+    completionFields: JSON
+
+    """
+    A comma-separated list of fields for `fielddata` index metric (supports wildcards)
+    """
+    fielddataFields: JSON
+
+    """
+    A comma-separated list of fields for `fielddata` and `completion` index metric (supports wildcards)
+    """
+    fields: JSON
+
+    """
+    A comma-separated list of search groups for `search` index metric
+    """
+    groups: Boolean
+
+    """
+    Whether to report the aggregated disk usage of each one of the Lucene index files (only applies if segment stats are requested)
+    """
+    includeSegmentFileSizes: Boolean
+
+    """
+    Limit the information returned for `indices` metric to the specific index metrics. Isn't used if `indices` (or `all`) metric isn't specified.
+    """
+    indexMetric: JSON
+    level: ElasticAPI_defaultEnum_Level_1 = node
+
+    """
+    Limit the information returned to the specified metrics
+    """
+    metric: JSON
+
+    """
+    A comma-separated list of node IDs or names to limit the returned information; use `_local` to return information from the node you're connecting to, leave empty to get information from all nodes
+    """
+    nodeId: JSON
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+
+    """
+    A comma-separated list of document types for the `indexing` index metric
+    """
+    types: JSON
+  ): JSON
+
+  """
+  Perform a [nodes.usage](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cluster-nodes-usage.html) request
+  """
+  usage(
+    """
+    Limit the information returned to the specified metrics
+    """
+    metric: JSON
+
+    """
+    A comma-separated list of node IDs or names to limit the returned information; use `_local` to return information from the node you're connecting to, leave empty to get information from all nodes
+    """
+    nodeId: JSON
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+  ): JSON
+}
+
+type ElasticAPI_default_Snapshot {
+  """
+  Perform a [snapshot.create](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/modules-snapshots.html) request
+  """
+  create(
+    body: JSON
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    A repository name
+    """
+    repository: String
+
+    """
+    A snapshot name
+    """
+    snapshot: String
+
+    """
+    Should this request wait until the operation has completed before returning
+    """
+    waitForCompletion: Boolean
+  ): JSON
+
+  """
+  Perform a [snapshot.createRepository](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/modules-snapshots.html) request
+  """
+  createRepository(
+    body: JSON!
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    A repository name
+    """
+    repository: String
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+
+    """
+    Whether to verify the repository after creation
+    """
+    verify: Boolean
+  ): JSON
+
+  """
+  Perform a [snapshot.delete](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/modules-snapshots.html) request
+  """
+  delete(
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    A repository name
+    """
+    repository: String
+
+    """
+    A snapshot name
+    """
+    snapshot: String
+  ): JSON
+
+  """
+  Perform a [snapshot.deleteRepository](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/modules-snapshots.html) request
+  """
+  deleteRepository(
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    A comma-separated list of repository names
+    """
+    repository: JSON
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+  ): JSON
+
+  """
+  Perform a [snapshot.get](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/modules-snapshots.html) request
+  """
+  get(
+    """
+    Whether to ignore unavailable snapshots, defaults to false which means a SnapshotMissingException is thrown
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    A repository name
+    """
+    repository: String
+
+    """
+    A comma-separated list of snapshot names
+    """
+    snapshot: JSON
+
+    """
+    Whether to show verbose snapshot info or only show the basic info found in the repository index blob
+    """
+    verbose: Boolean
+  ): JSON
+
+  """
+  Perform a [snapshot.getRepository](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/modules-snapshots.html) request
+  """
+  getRepository(
+    """
+    Return local information, do not retrieve the state from master node (default: false)
+    """
+    local: Boolean
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    A comma-separated list of repository names
+    """
+    repository: JSON
+  ): JSON
+
+  """
+  Perform a [snapshot.restore](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/modules-snapshots.html) request
+  """
+  restore(
+    body: JSON
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    A repository name
+    """
+    repository: String
+
+    """
+    A snapshot name
+    """
+    snapshot: String
+
+    """
+    Should this request wait until the operation has completed before returning
+    """
+    waitForCompletion: Boolean
+  ): JSON
+
+  """
+  Perform a [snapshot.status](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/modules-snapshots.html) request
+  """
+  status(
+    """
+    Whether to ignore unavailable snapshots, defaults to false which means a SnapshotMissingException is thrown
+    """
+    ignoreUnavailable: Boolean
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    A repository name
+    """
+    repository: String
+
+    """
+    A comma-separated list of snapshot names
+    """
+    snapshot: JSON
+  ): JSON
+
+  """
+  Perform a [snapshot.verifyRepository](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/modules-snapshots.html) request
+  """
+  verifyRepository(
+    body: JSON
+
+    """
+    Explicit operation timeout for connection to master node
+    """
+    masterTimeout: String
+
+    """
+    A repository name
+    """
+    repository: String
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+  ): JSON
+}
+
+type ElasticAPI_default_Tasks {
+  """
+  Perform a [tasks.cancel](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/tasks.html) request
+  """
+  cancel(
+    """
+    A comma-separated list of actions that should be cancelled. Leave empty to cancel all.
+    """
+    actions: JSON
+    body: JSON
+
+    """
+    A comma-separated list of node IDs or names to limit the returned information; use `_local` to return information from the node you're connecting to, leave empty to get information from all nodes
+    """
+    nodes: JSON
+
+    """
+    Cancel tasks with specified parent task id (node_id:task_number). Set to -1 to cancel all.
+    """
+    parentTaskId: String
+
+    """
+    Cancel the task with specified task id (node_id:task_number)
+    """
+    taskId: String
+  ): JSON
+
+  """
+  Perform a [tasks.get](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/tasks.html) request
+  """
+  get(
+    """
+    Return the task with specified id (node_id:task_number)
+    """
+    taskId: String
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+
+    """
+    Wait for the matching tasks to complete (default: false)
+    """
+    waitForCompletion: Boolean
+  ): JSON
+
+  """
+  Perform a [tasks.list](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/tasks.html) request
+  """
+  list(
+    """
+    A comma-separated list of actions that should be returned. Leave empty to return all.
+    """
+    actions: JSON
+
+    """
+    Return detailed task information (default: false)
+    """
+    detailed: Boolean
+    groupBy: ElasticAPI_defaultEnum_GroupBy = nodes
+
+    """
+    A comma-separated list of node IDs or names to limit the returned information; use `_local` to return information from the node you're connecting to, leave empty to get information from all nodes
+    """
+    nodes: JSON
+
+    """
+    Return tasks with specified parent task id (node_id:task_number). Set to -1 to return all.
+    """
+    parentTaskId: String
+
+    """
+    Explicit operation timeout
+    """
+    timeout: String
+
+    """
+    Wait for the matching tasks to complete (default: false)
+    """
+    waitForCompletion: Boolean
+  ): JSON
+}
+
 """
 A connection to a list of `Entity` values.
 """
@@ -7285,6 +12138,9 @@ input IntFilter {
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
 scalar JSON
+  @specifiedBy(
+    url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf"
+  )
 
 """
 A filter to be used against JSON fields. All fields are combined with a logical ‘and.’
@@ -7369,6 +12225,200 @@ input JSONFilter {
   Not included in the specified list.
   """
   notIn: [JSON!]
+}
+
+type Keypair {
+  did: String!
+  name: String
+  scope: KeypairScope!
+  secret: String!
+}
+
+"""
+A condition to be used against `Keypair` object types. All fields are tested for equality and combined with a logical ‘and.’
+"""
+input KeypairCondition {
+  """
+  Checks for equality with the object’s `did` field.
+  """
+  did: String
+
+  """
+  Checks for equality with the object’s `name` field.
+  """
+  name: String
+
+  """
+  Checks for equality with the object’s `scope` field.
+  """
+  scope: KeypairScope
+
+  """
+  Checks for equality with the object’s `secret` field.
+  """
+  secret: String
+}
+
+"""
+A filter to be used against `Keypair` object types. All fields are combined with a logical ‘and.’
+"""
+input KeypairFilter {
+  """
+  Checks for all expressions in this list.
+  """
+  and: [KeypairFilter!]
+
+  """
+  Filter by the object’s `did` field.
+  """
+  did: StringFilter
+
+  """
+  Filter by the object’s `name` field.
+  """
+  name: StringFilter
+
+  """
+  Negates the expression.
+  """
+  not: KeypairFilter
+
+  """
+  Checks for any expressions in this list.
+  """
+  or: [KeypairFilter!]
+
+  """
+  Filter by the object’s `scope` field.
+  """
+  scope: KeypairScopeFilter
+
+  """
+  Filter by the object’s `secret` field.
+  """
+  secret: StringFilter
+}
+
+enum KeypairScope {
+  INSTANCE
+  REPO
+}
+
+"""
+A filter to be used against KeypairScope fields. All fields are combined with a logical ‘and.’
+"""
+input KeypairScopeFilter {
+  """
+  Not equal to the specified value, treating null like an ordinary value.
+  """
+  distinctFrom: KeypairScope
+
+  """
+  Equal to the specified value.
+  """
+  equalTo: KeypairScope
+
+  """
+  Greater than the specified value.
+  """
+  greaterThan: KeypairScope
+
+  """
+  Greater than or equal to the specified value.
+  """
+  greaterThanOrEqualTo: KeypairScope
+
+  """
+  Included in the specified list.
+  """
+  in: [KeypairScope!]
+
+  """
+  Is null (if `true` is specified) or is not null (if `false` is specified).
+  """
+  isNull: Boolean
+
+  """
+  Less than the specified value.
+  """
+  lessThan: KeypairScope
+
+  """
+  Less than or equal to the specified value.
+  """
+  lessThanOrEqualTo: KeypairScope
+
+  """
+  Equal to the specified value, treating null like an ordinary value.
+  """
+  notDistinctFrom: KeypairScope
+
+  """
+  Not equal to the specified value.
+  """
+  notEqualTo: KeypairScope
+
+  """
+  Not included in the specified list.
+  """
+  notIn: [KeypairScope!]
+}
+
+"""
+A connection to a list of `Keypair` values.
+"""
+type KeypairsConnection {
+  """
+  A list of edges which contains the `Keypair` and cursor to aid in pagination.
+  """
+  edges: [KeypairsEdge!]!
+
+  """
+  A list of `Keypair` objects.
+  """
+  nodes: [Keypair!]!
+
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+
+  """
+  The count of *all* `Keypair` you could get from the connection.
+  """
+  totalCount: Int!
+}
+
+"""
+A `Keypair` edge in the connection.
+"""
+type KeypairsEdge {
+  """
+  A cursor for use in pagination.
+  """
+  cursor: Cursor
+
+  """
+  The `Keypair` at the end of the edge.
+  """
+  node: Keypair!
+}
+
+"""
+Methods to use when ordering `Keypair`.
+"""
+enum KeypairsOrderBy {
+  DID_ASC
+  DID_DESC
+  NAME_ASC
+  NAME_DESC
+  NATURAL
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
+  SCOPE_ASC
+  SCOPE_DESC
+  SECRET_ASC
+  SECRET_DESC
 }
 
 type License {
@@ -10643,6 +15693,11 @@ type Query {
   ): DataSourcesConnection
 
   """
+  Elastic API v_default
+  """
+  elastic(host: String = "http://user:pass@localhost:9200"): ElasticAPI_default
+
+  """
   Reads and enables pagination through a set of `Entity`.
   """
   entities(
@@ -10785,6 +15840,53 @@ type Query {
     """
     orderBy: [FilesOrderBy!] = [PRIMARY_KEY_ASC]
   ): FilesConnection
+  keypair(did: String!): Keypair
+
+  """
+  Reads and enables pagination through a set of `Keypair`.
+  """
+  keypairs(
+    """
+    Read all values in the set after (below) this cursor.
+    """
+    after: Cursor
+
+    """
+    Read all values in the set before (above) this cursor.
+    """
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: KeypairCondition
+
+    """
+    A filter to be used in determining which values should be returned by the collection.
+    """
+    filter: KeypairFilter
+
+    """
+    Only read the first `n` values of the set.
+    """
+    first: Int
+
+    """
+    Only read the last `n` values of the set.
+    """
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """
+    The method to use when ordering `Keypair`.
+    """
+    orderBy: [KeypairsOrderBy!] = [PRIMARY_KEY_ASC]
+  ): KeypairsConnection
   license(uid: String!): License
 
   """
