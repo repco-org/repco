@@ -7,6 +7,7 @@ import { ConceptInput } from 'repco-prisma/generated/repco/zod.js'
 import { fetch } from 'undici'
 import {
   ActivityHashTagObject,
+  ActivityHlsPlaylistUrlObject,
   ActivityIconObject,
   ActivityIdentifierObject,
   ActivityVideoUrlObject,
@@ -190,64 +191,101 @@ export class ActivityPubDataSource
     ]
   }
 
-  private _getLastPageNumber(numItems: number): number {
-    const lastPageNumber: number = Math.floor(numItems / 10) + 1
-    return lastPageNumber
+  async getAndInitAp() {
+    try {
+      const remoteActorId = `@${this.config.user}@${this.config.domain}`
+      const localName = this.repo
+      const ap = getGlobalApInstance()
+      if (!ap) throw new Error('activitypub is not initialized')
+      // ensure actor and follow
+      const localActor = await ap.getOrCreateActor(localName)
+      const remoteId = await ap.followRemoteActor(
+        localActor.name,
+        remoteActorId,
+      )
+      return { ap, remoteId }
+    } catch (error) {
+      console.error(`Error initializing Activitypub: ${error}`)
+      throw error
+    }
   }
 
-  async getAndInitAp() {
-    const remoteActorId = `@${this.config.user}@${this.config.domain}`
-    const localName = this.repo
-    const ap = getGlobalApInstance()
-    if (!ap) throw new Error('activitypub is not initialized')
-    // ensure actor and follow
-    const localActor = await ap.getOrCreateActor(localName)
-    const remoteId = await ap.followRemoteActor(localActor.name, remoteActorId)
-    return { ap, remoteId }
+  async handleActivities(item: any): Promise<VideoObject | undefined> {
+    if (
+      item.type === 'Announce' &&
+      typeof item.object === 'string' &&
+      item.actor.endsWith(this.user)
+    ) {
+      return this._fetchAs<VideoObject>(item.object)
+    } else if (item.type === 'Create' && item.object !== undefined) {
+      return this._fetchAs<VideoObject>((item.object as VideoObject).id)
+    } else if (
+      item.type === 'Update' &&
+      item.object &&
+      item.object.type === 'Video'
+    ) {
+      return this._fetchAs<VideoObject>((item.object as VideoObject).id)
+    } else {
+      return undefined
+    }
   }
 
   async fetchUpdates(cursorString: string | null): Promise<FetchUpdatesResult> {
     const nextCursor = {
       lastIngest: new Date(),
     }
-
     const { ap, remoteId } = await this.getAndInitAp()
     const profile = remoteId
 
     // we have a previous cursor. ingest updates that were pushed to our inbox.
     if (cursorString) {
-      const cursor = parseCursor(cursorString)
-      const nextCursor = {
-        lastIngest: new Date(),
-      }
-      console.log('cursor', cursor)
-      const activities = await ap.getActivitiesForRemoteActor(
-        profile,
-        cursor.lastIngest,
-      )
-      console.log('new activities', activities.length, activities)
-      if (!activities.length) {
-        console.log('return with old cursor!')
-        return { cursor: cursorString, records: [] }
-      }
-      // TODO: activities to records
-      const records: SourceRecordForm[] = []
-      return {
-        cursor: JSON.stringify(nextCursor),
-        records,
+      try {
+        const cursor = parseCursor(cursorString)
+        const activities = await ap.getActivitiesForRemoteActor(
+          profile,
+          cursor.lastIngest,
+        )
+        if (!activities.length) {
+          return { cursor: cursorString, records: [] }
+        }
+        // map activities to source records
+        const items = await Promise.all(
+          activities.map((item) => this.handleActivities(item)),
+        )
+        const newVideoObjects = items.filter(
+          (item): item is VideoObject => !!item,
+        )
+        if (!newVideoObjects.length) {
+          return { cursor: cursorString, records: [] }
+        }
+        const records: SourceRecordForm[] = [
+          {
+            body: JSON.stringify(newVideoObjects),
+            contentType: 'application/json',
+            sourceType: 'videoObjects',
+            sourceUri: this.account + '#' + nextCursor.lastIngest.toISOString(),
+          },
+        ]
+        return {
+          cursor: JSON.stringify(nextCursor),
+          records,
+        }
+      } catch (error) {
+        console.error(`Error fetching updates: ${error}`)
+        throw error
       }
       // we do not have a previous cursor. ingest history by fetching everything from the actor's outbox
     } else {
-      try {
-        // First ingest: save channel as ContentGrouping
-        const channelInfo: ChannelInfo = { account: this.account }
-        const channelSourceRecord = {
-          body: JSON.stringify(channelInfo),
-          contentType: 'application/json',
-          sourceType: 'activityPubChannel',
-          sourceUri: this._uri('account', this.account),
-        }
+      // First ingest: save channel as ContentGrouping
+      const channelInfo: ChannelInfo = { account: this.account }
+      const channelSourceRecord = {
+        body: JSON.stringify(channelInfo),
+        contentType: 'application/json',
+        sourceType: 'activityPubChannel',
+        sourceUri: this._uri('account', this.account),
+      }
 
+      try {
         const outbox =
           profile && (await this._fetchAs<OutBox>(`${profile}/outbox`))
         const firstPageUrl = outbox && outbox.first
@@ -257,67 +295,52 @@ export class ActivityPubDataSource
           )
         }
         // collect new video entities
-        const newVideoObjects: VideoObject[] = []
-        // start with last page
-        let pageNumber = outbox && this._getLastPageNumber(outbox.totalItems)
-        if (!pageNumber) {
-          throw new Error(
-            `Could not get number of last page of outbox ${profile}/outbox`,
-          )
-        }
-        pageNumber++
-        // loop backwards over pages
-        while (pageNumber >= 2) {
-          pageNumber--
-          const currentPageUrl =
-            firstPageUrl && firstPageUrl.replace('page=1', `page=${pageNumber}`)
-          const currentPage =
-            currentPageUrl && (await this._fetchAs<Page>(currentPageUrl))
-          // if no items are on the page
-          if (currentPage && currentPage.orderedItems.length === 0) {
-            continue
-          }
+        let newVideoObjects: VideoObject[] = []
+        // start with first page
+        let pageNumber = 1
+        let currentPageUrl = firstPageUrl
+        let currentPage =
+          currentPageUrl && (await this._fetchAs<Page>(currentPageUrl))
+
+        // loop over pages while there are still items on the page
+        while (currentPage && currentPage.orderedItems.length !== 0) {
           const items =
             currentPage &&
             (await Promise.all(
-              currentPage.orderedItems.map((item: any) => {
-                if (
-                  item.type === 'Announce' &&
-                  typeof item.object === 'string'
-                ) {
-                  return this._fetchAs<VideoObject>(item.object)
-                } else if (
-                  item.type === 'Create' &&
-                  item.object !== undefined
-                ) {
-                  return this._fetchAs<VideoObject>(
-                    (item.object as VideoObject).id,
-                  )
-                }
-              }),
+              currentPage.orderedItems.map((item) =>
+                this.handleActivities(item),
+              ),
             ))
-          if (items === undefined || items === '') {
+          if (items === undefined) {
             throw new Error(
               `Could not catch items under url ${currentPageUrl}.`,
             )
           }
-          // iterate over items on page backwards to find items that are newer than the cursor
-          for (let i = items.length - 1; i >= 0; i--) {
-            const item = items[i]
-            if (item === undefined) {
-              continue
-            }
-            newVideoObjects.push(item)
-          }
+          // collect items that are not undefined
+          newVideoObjects.push(
+            ...items.filter((item): item is VideoObject => !!item),
+          )
+
+          pageNumber++
+          currentPageUrl =
+            firstPageUrl && firstPageUrl.replace('page=1', `page=${pageNumber}`)
+          currentPage =
+            currentPageUrl && (await this._fetchAs<Page>(currentPageUrl))
         }
-        const records = [
-          {
-            body: JSON.stringify(newVideoObjects),
-            contentType: 'application/json',
-            sourceType: 'videoObjects',
-            sourceUri: firstPageUrl + '#' + nextCursor.lastIngest.toISOString(),
-          },
-        ]
+
+        // save collected items as source records
+        let records: SourceRecordForm[] = []
+        if (newVideoObjects.length) {
+          records = [
+            {
+              body: JSON.stringify(newVideoObjects),
+              contentType: 'application/json',
+              sourceType: 'videoObjects',
+              sourceUri:
+                this.account + '#' + nextCursor.lastIngest.toISOString(),
+            },
+          ]
+        }
         if (channelSourceRecord !== undefined) {
           records.push(channelSourceRecord as SourceRecordForm)
         }
@@ -499,9 +522,31 @@ export class ActivityPubDataSource
     const entities = []
 
     // create Files for videos in "url"
-    const videoUrls = video.url.filter(
+    let videoUrls: ActivityVideoUrlObject[] = []
+    // Depending on the transcoding peertube stores the videos in different locations of the videoObject
+    const webVideos = video.url.filter(
       (url) => url.mediaType && url.mediaType.startsWith('video'),
     ) as ActivityVideoUrlObject[]
+    if (webVideos.length) {
+      // Web Video transcoding enabled
+      videoUrls.push(...webVideos)
+    } else {
+      // HLS transcoding enabled
+      const hlsLink = video.url.find((url) =>
+        url.mediaType.endsWith('x-mpegURL'),
+      ) as ActivityHlsPlaylistUrlObject
+      const hlsUrls =
+        hlsLink &&
+        (hlsLink.tag.filter(
+          (url) =>
+            url.type === 'Link' &&
+            url.mediaType &&
+            url.mediaType.startsWith('video'),
+        ) as ActivityVideoUrlObject[])
+      if (hlsUrls.length) {
+        videoUrls.push(...hlsUrls)
+      }
+    }
     const videoFileEntities =
       videoUrls && videoUrls.map((url) => this._mapVideoToFileEntity(url))
     entities.push(...videoFileEntities)

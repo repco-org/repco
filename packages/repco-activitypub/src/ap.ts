@@ -116,7 +116,9 @@ export class ActivityPub extends EventEmitter {
     actorId: string,
     fromDate?: Date,
   ): Promise<schema.Activity[]> {
-    const where: Prisma.ApActivitiesWhereInput = { attributedTo: { has: actorId }}
+    const where: Prisma.ApActivitiesWhereInput = {
+      attributedTo: { has: actorId },
+    }
     if (fromDate) {
       where.receivedAt = { gt: fromDate }
     }
