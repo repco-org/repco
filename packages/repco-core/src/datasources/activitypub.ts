@@ -34,18 +34,6 @@ const configSchema = zod.object({
 })
 type ConfigSchema = zod.infer<typeof configSchema>
 
-const hostLink = zod.object({
-  rel: zod.string(),
-  href: zod.string().optional(),
-})
-
-const hostInfo = zod.object({
-  subject: zod.string().optional(),
-  alisases: zod.string().array().optional(),
-  links: hostLink.array(),
-})
-type HostInfo = zod.infer<typeof hostInfo>
-
 type ChannelInfo = {
   account: string
 }
@@ -295,7 +283,7 @@ export class ActivityPubDataSource
           )
         }
         // collect new video entities
-        let newVideoObjects: VideoObject[] = []
+        const newVideoObjects: VideoObject[] = []
         // start with first page
         let pageNumber = 1
         let currentPageUrl = firstPageUrl
@@ -522,7 +510,7 @@ export class ActivityPubDataSource
     const entities = []
 
     // create Files for videos in "url"
-    let videoUrls: ActivityVideoUrlObject[] = []
+    const videoUrls: ActivityVideoUrlObject[] = []
     // Depending on the transcoding peertube stores the videos in different locations of the videoObject
     const webVideos = video.url.filter(
       (url) => url.mediaType && url.mediaType.startsWith('video'),

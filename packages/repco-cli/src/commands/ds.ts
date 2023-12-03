@@ -1,10 +1,6 @@
 import Table from 'cli-table3'
 import pc from 'picocolors'
-import {
-  defaultDataSourcePlugins as plugins,
-  Ingester,
-  repoRegistry,
-} from 'repco-core'
+import { defaultDataSourcePlugins as plugins } from 'repco-core'
 import { request } from '../client.js'
 import { createCommand, createCommandGroup } from '../parse.js'
 

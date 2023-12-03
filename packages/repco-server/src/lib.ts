@@ -5,7 +5,11 @@ import cors from 'cors'
 import express, { Response } from 'express'
 import pinoHttp from 'pino-http'
 import { createHttpTerminator } from 'http-terminator'
-import { ActivityPub, mountActivityPub, setGlobalApInstance } from 'repco-activitypub'
+import {
+  ActivityPub,
+  mountActivityPub,
+  setGlobalApInstance,
+} from 'repco-activitypub'
 import { createLogger, Logger } from 'repco-common'
 import { PrismaClient } from 'repco-core'
 import { createGraphqlHandler, createPoolFromUrl } from 'repco-graphql'
