@@ -1,6 +1,6 @@
 import * as common from 'repco-common/zod'
 import { Prisma, repco } from 'repco-prisma'
-import { GGraph } from './graph.js'
+import { GGraph, GGraphError } from './graph.js'
 import { EntityInputWithHeaders } from '../entity.js'
 import { parseEntities, Repo } from '../repo.js'
 import { MapList } from '../util/collections.js'
@@ -43,6 +43,7 @@ export class RelationFinder {
     // check if already in map: resolve now
     if (this.uriMap.has(value.uri)) {
       value.uid = this.uriMap.get(value.uri)
+      // BUG? NOTHING HAPPENS WITH value.uid
     } else {
       this.pendingUris.add(value.uri)
       if (relation) this.relsByUri.push(value.uri, relation)
@@ -165,9 +166,19 @@ export class RelationFinder {
         .map((x) => x.uid) as string[]
       graph.push(entity.uid, edges)
     }
-    const stack = graph.resolve()
-
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    return stack.map((uid) => this.entities.get(uid)!)
+    try {
+      const stack = graph.resolve()
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const res = stack.map((uid) => this.entities.get(uid)!)
+      return res
+    } catch (err) {
+      if (err instanceof GGraphError) {
+        console.error('circular relation', {
+          from: this.entities.get(err.id),
+          edge: this.entities.get(err.edge),
+        })
+      }
+      throw err
+    }
   }
 }

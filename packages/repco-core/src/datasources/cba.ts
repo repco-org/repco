@@ -456,7 +456,7 @@ export class CbaDataSource implements DataSource {
       Concepts: media.media_tag.map((cbaId) => ({
         uri: this._uri('tags', cbaId),
       })),
-      File: { uri: fileId },
+      Files: [{ uri: fileId }],
     }
 
     const fileEntity: EntityForm = {
@@ -507,7 +507,7 @@ export class CbaDataSource implements DataSource {
       Concepts: media.media_tag.map((cbaId) => ({
         uri: this._uri('tags', cbaId),
       })),
-      File: { uri: fileId },
+      Files: [{ uri: fileId }],
     }
 
     const fileEntity: EntityForm = {
@@ -586,7 +586,7 @@ export class CbaDataSource implements DataSource {
     const revisionId = this._revisionUri(
       'station',
       station.id,
-      new Date(station.modified).getTime(),
+      parseAsUTC(station.modified).getTime(),
     )
 
     const uri = this._uri('station', station.id)
@@ -618,7 +618,7 @@ export class CbaDataSource implements DataSource {
     const revisionId = this._revisionUri(
       'series',
       series.id,
-      new Date(series.modified).getTime(),
+      parseAsUTC(series.modified).getTime(),
     )
     const uri = this._uri('series', series.id)
     const headers = {
@@ -663,7 +663,7 @@ export class CbaDataSource implements DataSource {
       const conceptLinks = [...categories, ...tags]
 
       const content: form.ContentItemInput = {
-        pubDate: new Date(post.date),
+        pubDate: parseAsUTC(post.date),
         content: post.content.rendered,
         contentFormat: 'text/html',
         title: post.title.rendered,
@@ -683,7 +683,7 @@ export class CbaDataSource implements DataSource {
       const revisionId = this._revisionUri(
         'post',
         post.id,
-        new Date(post.modified).getTime(),
+        parseAsUTC(post.modified).getTime(),
       )
       const entityUri = this._uri('post', post.id)
 
@@ -735,4 +735,13 @@ export class CbaDataSource implements DataSource {
       throw err
     }
   }
+}
+
+/**
+ * Parse a datetime string without timezone information as a UTC date
+ *
+ * @param dateString Datetime string in format 1998-10-17T00:00:00
+ */
+function parseAsUTC(dateString: string): Date {
+  return new Date(dateString + '.000Z')
 }

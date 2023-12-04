@@ -24,8 +24,8 @@ const intoSourceRecord = (body: EntityForm): SourceRecordForm => ({
 
 const DS_UID = 'urn:repco:datasource:test'
 
-const fromSourceRecord = (record: SourceRecordForm) =>
-  JSON.parse(record.body) as EntityForm
+// const fromSourceRecord = (record: SourceRecordForm) =>
+//   JSON.parse(record.body) as EntityForm
 
 class TestDataSourcePlugin implements DataSourcePlugin {
   createInstance(_config: any) {
@@ -101,7 +101,7 @@ class TestDataSource extends BaseDataSource implements DataSource {
           content: {
             title: 'Media1',
             mediaType: 'audio/mp3',
-            File: { uri: 'urn:test:file:1' },
+            Files: [{ uri: 'urn:test:file:1' }],
           },
           headers: { EntityUris: ['urn:test:media:1'] },
         }),
@@ -114,7 +114,7 @@ class TestDataSource extends BaseDataSource implements DataSource {
           content: {
             title: 'MediaMissingResolved',
             mediaType: 'audio/mp3',
-            File: { uri: 'urn:test:file:1' },
+            Files: [{ uri: 'urn:test:file:1' }],
           },
           headers: { EntityUris: ['urn:test:media:fail'] },
         }),
@@ -146,7 +146,7 @@ test('datasource', async (assert) => {
     where: { Revision: { entityUris: { has: uri } } },
     include: {
       MediaAssets: {
-        include: { File: true },
+        include: { Files: true },
       },
     },
   })
@@ -154,7 +154,7 @@ test('datasource', async (assert) => {
   const entity = entities[0]
   assert.is(entity.MediaAssets.length, 1)
   assert.is(
-    entity.MediaAssets[0].File.contentUrl,
+    entity.MediaAssets[0].Files[0].contentUrl,
     'http://example.org/file1.mp3',
   )
 })

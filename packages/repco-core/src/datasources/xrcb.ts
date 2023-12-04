@@ -486,7 +486,7 @@ export class XrcbDataSource extends BaseDataSource implements DataSource {
           title: post.acf.file_mp3.title || '',
           description: post.acf.file_mp3.description || '',
           mediaType: 'audio',
-          File: { uri: fileId },
+          Files: [{ uri: fileId }],
         }
 
         const audioFileEntity: EntityForm = {
@@ -524,7 +524,7 @@ export class XrcbDataSource extends BaseDataSource implements DataSource {
         const imageContent: form.MediaAssetInput = {
           title: post.acf?.img_podcast?.title ?? '',
           mediaType: 'image',
-          File: { uri: fileId },
+          Files: [{ uri: fileId }],
         }
 
         const imageFileEntity: EntityForm = {

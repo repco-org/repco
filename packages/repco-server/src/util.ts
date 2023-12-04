@@ -3,7 +3,6 @@ import { HEADER_NDJSON } from './constants.js'
 
 type RequestT = Request<any, any, any, any, Record<string, any>>
 
-
 export async function* batchAsyncIterator<T>(
   iter: AsyncIterable<T>,
   batchSize: number,

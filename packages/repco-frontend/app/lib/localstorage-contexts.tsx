@@ -2,7 +2,7 @@ import type { Dispatch, PropsWithChildren } from 'react'
 import { createContext, useReducer } from 'react'
 
 export type Context<T> = { state: State<T>; dispatch: Dispatch<Action<T>> }
-type Action<T> = Create<T> | Delete<T> | Update<T> | Replace<T> | Failure
+type Action<T> = Create<T> | Delete | Update<T> | Replace<T> | Failure
 
 export interface Entity<T> {
   id: string
@@ -19,7 +19,7 @@ interface Create<T> {
   payload: Entity<T>
 }
 
-interface Delete<T> {
+interface Delete {
   type: 'DELETE'
   payload: { id: string }
 }

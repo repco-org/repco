@@ -1,6 +1,7 @@
 import * as ucans from '@ucans/ucans'
 import * as common from 'repco-common/zod'
 import { CID } from 'multiformats/cid.js'
+import { EventEmitter } from 'node:events'
 import { createLogger, Logger } from 'repco-common'
 import {
   CommitBundle,
@@ -53,7 +54,6 @@ import { ParseError } from './util/error.js'
 import { createEntityId } from './util/id.js'
 import { notEmpty } from './util/misc.js'
 import { Mutex } from './util/mutex.js'
-import { EventEmitter } from 'node:events'
 
 // export * from './repo/types.js'
 
@@ -445,7 +445,10 @@ export class Repo extends EventEmitter {
     return importRepoFromCar(this, stream, onProgress)
   }
 
-  async saveBatch(inputs: UnknownEntityInput[], opts: Partial<SaveBatchOpts> = {}) {
+  async saveBatch(
+    inputs: UnknownEntityInput[],
+    opts: Partial<SaveBatchOpts> = {},
+  ) {
     if (!this.writeable) throw new Error('Repo is not writeable')
     const fullOpts: SaveBatchOpts = { ...SAVE_BATCH_DEFAULTS, ...opts }
 
@@ -779,7 +782,9 @@ function parseEntity(input: UnknownEntityInput): EntityFormWithHeaders {
   }
 }
 
-export function parseEntities(inputs: UnknownEntityInput[]): EntityFormWithHeaders[] {
+export function parseEntities(
+  inputs: UnknownEntityInput[],
+): EntityFormWithHeaders[] {
   return inputs.map(parseEntity)
 }
 

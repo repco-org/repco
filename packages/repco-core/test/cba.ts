@@ -1,6 +1,4 @@
 import test from 'brittle'
-import fs from 'fs/promises'
-import p from 'path'
 import { fileURLToPath } from 'node:url'
 import { assertFixture, mockFetch } from './util/fetch.js'
 import { setup } from './util/setup.js'
@@ -24,7 +22,7 @@ test('cba datasource - basic1', async (assert) => {
   plugins.register(cbaPlugin)
   await repo.dsr.create(repo.prisma, plugins, cbaPlugin.definition.uid, {
     pageLimit: 2,
-    apiKey: null
+    apiKey: null,
   })
   await ingestUpdatesFromDataSources(repo)
   // TODO: Provide mocking capability to uids
@@ -50,7 +48,7 @@ test('cba datasource - basic1', async (assert) => {
           // uid: true,
           mediaType: true,
           title: true,
-          File: {
+          Files: {
             select: {
               // uid: true,
               contentUrl: true,
