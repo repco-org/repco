@@ -2395,6 +2395,9 @@ export type DataSource = {
   config?: Maybe<Scalars['JSON']>
   cursor?: Maybe<Scalars['String']>
   pluginUid: Scalars['String']
+  /** Reads a single `Repo` that is related to this `DataSource`. */
+  repo?: Maybe<Repo>
+  repoDid: Scalars['String']
   /** Reads and enables pagination through a set of `SourceRecord`. */
   sourceRecords: SourceRecordsConnection
   uid: Scalars['String']
@@ -2424,6 +2427,8 @@ export type DataSourceCondition = {
   cursor?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `pluginUid` field. */
   pluginUid?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `repoDid` field. */
+  repoDid?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `uid` field. */
   uid?: InputMaybe<Scalars['String']>
 }
@@ -2444,6 +2449,10 @@ export type DataSourceFilter = {
   or?: InputMaybe<Array<DataSourceFilter>>
   /** Filter by the object’s `pluginUid` field. */
   pluginUid?: InputMaybe<StringFilter>
+  /** Filter by the object’s `repo` relation. */
+  repo?: InputMaybe<RepoFilter>
+  /** Filter by the object’s `repoDid` field. */
+  repoDid?: InputMaybe<StringFilter>
   /** Filter by the object’s `sourceRecords` relation. */
   sourceRecords?: InputMaybe<DataSourceToManySourceRecordFilter>
   /** Some related `sourceRecords` exist. */
@@ -2495,6 +2504,8 @@ export enum DataSourcesOrderBy {
   PluginUidDesc = 'PLUGIN_UID_DESC',
   PrimaryKeyAsc = 'PRIMARY_KEY_ASC',
   PrimaryKeyDesc = 'PRIMARY_KEY_DESC',
+  RepoDidAsc = 'REPO_DID_ASC',
+  RepoDidDesc = 'REPO_DID_DESC',
   UidAsc = 'UID_ASC',
   UidDesc = 'UID_DESC',
 }
@@ -4780,6 +4791,8 @@ export type Repo = {
   commits: CommitsConnection
   /** Reads and enables pagination through a set of `Commit`. */
   commitsByCommitRepoDidAndParent: RepoCommitsByCommitRepoDidAndParentManyToManyConnection
+  /** Reads and enables pagination through a set of `DataSource`. */
+  dataSources: DataSourcesConnection
   did: Scalars['String']
   gateways?: Maybe<Array<Maybe<Scalars['String']>>>
   head?: Maybe<Scalars['String']>
@@ -4820,6 +4833,17 @@ export type RepoCommitsByCommitRepoDidAndParentArgs = {
   last: InputMaybe<Scalars['Int']>
   offset: InputMaybe<Scalars['Int']>
   orderBy?: InputMaybe<Array<CommitsOrderBy>>
+}
+
+export type RepoDataSourcesArgs = {
+  after: InputMaybe<Scalars['Cursor']>
+  before: InputMaybe<Scalars['Cursor']>
+  condition: InputMaybe<DataSourceCondition>
+  filter: InputMaybe<DataSourceFilter>
+  first: InputMaybe<Scalars['Int']>
+  last: InputMaybe<Scalars['Int']>
+  offset: InputMaybe<Scalars['Int']>
+  orderBy?: InputMaybe<Array<DataSourcesOrderBy>>
 }
 
 export type RepoRevisionsArgs = {
@@ -4928,6 +4952,10 @@ export type RepoFilter = {
   commits?: InputMaybe<RepoToManyCommitFilter>
   /** Some related `commits` exist. */
   commitsExist?: InputMaybe<Scalars['Boolean']>
+  /** Filter by the object’s `dataSources` relation. */
+  dataSources?: InputMaybe<RepoToManyDataSourceFilter>
+  /** Some related `dataSources` exist. */
+  dataSourcesExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `did` field. */
   did?: InputMaybe<StringFilter>
   /** Filter by the object’s `gateways` field. */
@@ -4956,6 +4984,16 @@ export type RepoToManyCommitFilter = {
   none?: InputMaybe<CommitFilter>
   /** Some related `Commit` matches the filter criteria. All fields are combined with a logical ‘and.’ */
   some?: InputMaybe<CommitFilter>
+}
+
+/** A filter to be used against many `DataSource` object types. All fields are combined with a logical ‘and.’ */
+export type RepoToManyDataSourceFilter = {
+  /** Every related `DataSource` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<DataSourceFilter>
+  /** No related `DataSource` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<DataSourceFilter>
+  /** Some related `DataSource` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<DataSourceFilter>
 }
 
 /** A filter to be used against many `Revision` object types. All fields are combined with a logical ‘and.’ */

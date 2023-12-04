@@ -3,6 +3,8 @@ import p from 'path'
 import { createHash } from 'crypto'
 import type { Duplex } from 'stream'
 import { Dispatcher } from 'undici'
+// @ts-ignore
+import { getStatusText } from 'undici/lib/mock/mock-utils.js'
 
 export type CachingDispatcherOpts = {
   forward: boolean
@@ -50,7 +52,7 @@ export class CachingDispatcher extends Dispatcher {
           // Not in cache: Forward to outer dispatcher and store result in cache
           if (!this.opts.forward) {
             // If fowwarding is disabled: Error with 503
-            if (handlers.onHeaders) handlers.onHeaders(503, [], () => {})
+            if (handlers.onHeaders) handlers.onHeaders(503, [], () => {}, getStatusText(503))
             if (handlers.onComplete) handlers.onComplete([])
             return
           }
@@ -66,7 +68,7 @@ export class CachingDispatcher extends Dispatcher {
           const headers = [...cachedResponse.headers]
           headers.push('X-Cache', 'HIT')
           if (handlers.onHeaders)
-            handlers.onHeaders(cachedResponse.status, headers, () => {})
+            handlers.onHeaders(cachedResponse.status, headers, () => {}, getStatusText(cachedResponse.status))
           if (handlers.onData) handlers.onData(Buffer.from(cachedResponse.data))
           if (handlers.onComplete) handlers.onComplete(cachedResponse.trailers)
         }
@@ -122,7 +124,7 @@ export class DispatchAndCacheHandlers implements Dispatcher.DispatchHandlers {
     }
     if (this.inner.onHeaders) {
       if (stringHeaders) stringHeaders.push('X-Cache', 'MISS')
-      return this.inner.onHeaders(statusCode, stringHeaders, resume)
+      return this.inner.onHeaders(statusCode, stringHeaders, resume, getStatusText(statusCode))
     }
     return false
   }

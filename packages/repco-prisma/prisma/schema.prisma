@@ -37,9 +37,10 @@ model Repo {
   tail     String?  @unique
   gateways String[]
 
-  Head     Commit?    @relation("RepoToHead", fields: [head], references: [rootCid])
-  Revision Revision[]
-  Commits  Commit[]
+  Head        Commit?      @relation("RepoToHead", fields: [head], references: [rootCid])
+  Revision    Revision[]
+  Commits     Commit[]
+  Datasources DataSource[]
 }
 
 model Commit {
@@ -92,11 +93,13 @@ model Ucans {
 model DataSource {
   uid       String   @id @unique
   pluginUid String
+  repoDid   String
   config    Json?
   cursor    String?
   active    Boolean?
 
   SourceRecords SourceRecord[]
+  Repo          Repo           @relation(fields: [repoDid], references: [did])
 }
 
 enum KeypairScope {
@@ -425,7 +428,7 @@ model File {
   AsMediaAssets MediaAsset[]
   AsThumbnail   MediaAsset[]  @relation("thumbnail")
   contributors  Contributor[]
-  AsSubtitles    Subtitles[]  
+  AsSubtitles   Subtitles[]
 }
 
 enum ConceptKind {

@@ -56,6 +56,7 @@ const configSchema = zod.object({
   endpoint: zod.string().url().optional(),
   apiKey: zod.string().or(zod.null()).optional(),
   pageLimit: zod.number().int().optional(),
+  repo: zod.string(),
 })
 
 type ConfigSchema = zod.infer<typeof configSchema>
@@ -65,6 +66,7 @@ const DEFAULT_CONFIG: FullConfigSchema = {
   endpoint: 'https://cba.fro.at/wp-json/wp/v2',
   pageLimit: 30,
   apiKey: process.env.CBA_API_KEY,
+  repo: 'default',
 }
 
 /**
@@ -87,7 +89,7 @@ export class CbaDataSourcePlugin implements DataSourcePlugin {
    */
   get definition() {
     return {
-      uid: 'urn:repco:datasource:cba',
+      uid: 'repco:datasource:cba',
       name: 'CBA',
     }
   }
@@ -97,11 +99,13 @@ export class CbaDataSource implements DataSource {
   config: FullConfigSchema
   endpointOrigin: string
   uriPrefix: string
+  repo: string
   constructor(config: Partial<ConfigSchema>) {
     this.config = { ...DEFAULT_CONFIG, ...config }
     const endpointUrl = new URL(this.endpoint)
     this.endpointOrigin = endpointUrl.hostname
     this.uriPrefix = `repco:cba:${this.endpointOrigin}`
+    this.repo = this.config.repo
   }
 
   get endpoint() {
@@ -111,8 +115,8 @@ export class CbaDataSource implements DataSource {
   get definition(): DataSourceDefinition {
     return {
       name: 'Cultural Broacasting Archive',
-      uid: 'urn:datasource:cba:' + this.endpoint,
-      pluginUid: 'urn:repco:datasource:cba',
+      uid: `repco:${this.repo}:datasource:cba:` + this.endpoint,
+      pluginUid: 'repco:datasource:cba',
     }
   }
 

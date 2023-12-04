@@ -60,6 +60,7 @@ export type FormsWithUid = {
 const configSchema = zod.object({
   endpoint: zod.string().url().optional(),
   apiKey: zod.string().optional(),
+  repo: zod.string(),
 })
 type ConfigSchema = zod.infer<typeof configSchema>
 
@@ -76,7 +77,7 @@ export class XrcbDataSourcePlugin implements DataSourcePlugin {
   }
   get definition() {
     return {
-      uid: 'urn:repco:datasource:xrcb',
+      uid: 'repco:datasource:xrcb',
       name: 'XRCB',
     }
   }
@@ -95,6 +96,7 @@ export class XrcbDataSource extends BaseDataSource implements DataSource {
   endpointOrigin: string
   uriPrefix: string
   apiKey?: string
+  repo: string
   constructor(config: ConfigSchema) {
     super()
     this.endpoint = config.endpoint || DEFAULT_ENDPOINT
@@ -102,6 +104,7 @@ export class XrcbDataSource extends BaseDataSource implements DataSource {
     const endpointUrl = new URL(this.endpoint)
     this.endpointOrigin = endpointUrl.hostname
     this.uriPrefix = `repco:xrcb:${this.endpointOrigin}`
+    this.repo = config.repo
   }
 
   get config() {
@@ -111,8 +114,8 @@ export class XrcbDataSource extends BaseDataSource implements DataSource {
   get definition(): DataSourceDefinition {
     return {
       name: 'Xarxa de Ràdio Comunitària de Barcelona',
-      uid: 'urn:datasource:xrcb:' + this.endpoint,
-      pluginUid: 'urn:repco:datasource:xrcb',
+      uid: `repco:${this.repo}:datasource:xrcb:` + this.endpoint,
+      pluginUid: 'repco:datasource:xrcb',
     }
   }
 

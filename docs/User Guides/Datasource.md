@@ -19,7 +19,7 @@ A cursor may be any string; it's format is left to the datasource itself. Oftenl
 
 To implement a datasource, a DatasourcePlugin must be created which implements the DataSourcePlugins interface. A DatasourcePlugin returns a `name` and a `uid`. Repco prefers urns as uid.
 
-` {uid: 'urn:repco:datasource:cba', name: 'CBA',}`
+` {uid: 'repco:datasource:cba', name: 'CBA',}`
 
 Furthermore the actual datasource is created which is responsible for the mapping of the data to the Repco data model. For this the interface DataSource is implemented.
 
@@ -42,7 +42,7 @@ yarn repco ds add DATASOURCE_UID CONFIG
 ```
 For example, in order to add the peertube channel m.akyel_eurozine.com_channel on displayeurope.video as a DataSource run
 ```
-yarn repco ds add urn:repco:datasource:activitypub '{"user":"m.akyel_eurozine.com_channel", "domain":"displayeurope.video"}'
+yarn repco ds add repco:datasource:activitypub '{"user":"m.akyel_eurozine.com_channel", "domain":"displayeurope.video"}'
 ```
 Please note the correct use of single and double quotation marks in the config in order to provide valid json.
 This command will also perform an initial ingest.

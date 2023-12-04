@@ -2,7 +2,7 @@ import test from 'brittle'
 import { fileURLToPath } from 'node:url'
 import { assertFixture, mockFetch } from './util/fetch.js'
 import { setup } from './util/setup.js'
-import { Repo } from '../lib.js'
+import { repoRegistry } from '../lib.js'
 import { ingestUpdatesFromDataSources } from '../src/datasource.js'
 import { ActivityPubDataSourcePlugin } from '../src/datasources/activitypub.js'
 import { DataSourcePluginRegistry } from '../src/plugins.js'
@@ -19,7 +19,7 @@ const fixturePath = (name: string) =>
 test('peertube datasource - basic1', async (assert) => {
   mockFetch(assert, fixturePath('basic1'))
   const prisma = await setup(assert)
-  const repo = await Repo.create(prisma, 'test')
+  const repo = await repoRegistry.create(prisma, 'test')
   const plugins = new DataSourcePluginRegistry()
   const activityPubPlugin = new ActivityPubDataSourcePlugin()
   plugins.register(activityPubPlugin)
@@ -28,12 +28,11 @@ test('peertube datasource - basic1', async (assert) => {
     plugins,
     activityPubPlugin.definition.uid,
     {
-      // user: 'blender_channel',
-      // domain: 'video.blender.org'
       user: 'cryptix_channel',
-      // user: 'mirsal',
       domain: 'peertube.1312.media',
+      repo: repo.name,
     },
+    repo.did,
   )
   await ingestUpdatesFromDataSources(repo)
   // TODO: Provide mocking capability to uids

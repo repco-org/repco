@@ -1,7 +1,9 @@
 import exitHook from 'async-exit-hook'
 import { log, UntilStopped } from 'repco-common'
 import { defaultDataSourcePlugins, Ingester, Repo } from 'repco-core'
+import { repoRegistry } from 'repco-core/dist/src/repo.js'
 import { PrismaClient } from 'repco-prisma'
+import { runServer } from 'repco-server'
 import { createCommand } from '../parse.js'
 import { startPostgres } from '../util/postgres.js'
 
@@ -17,6 +19,7 @@ export const run = createCommand({
   },
   async run(opts) {
     const shutdown: Array<() => Promise<void>> = []
+    log.debug('start')
     if (opts.temp) {
       log.warn(
         'Running in temp mode with inmemory PostgreSQL - all changes will be lost',
@@ -46,7 +49,6 @@ export const run = createCommand({
     shutdown.push(ingest.shutdown)
 
     // start server
-    const { runServer } = await import('repco-server')
     const server = runServer(prisma, port)
     shutdown.push(server.shutdown)
 
@@ -66,7 +68,7 @@ export const run = createCommand({
 
 function ingestAll(prisma: PrismaClient) {
   const ingesters: Ingester[] = []
-  const tasks = Repo.mapAsync(prisma, async (repo) => {
+  const onRepo = async (repo: Repo) => {
     const ingester = new Ingester(defaultDataSourcePlugins, repo)
     ingesters.push(ingester)
     const queue = ingester.workLoop()
@@ -84,9 +86,12 @@ function ingestAll(prisma: PrismaClient) {
         log.debug(`ingest ${result.uid}: ${result.ok} ${cursor}`)
       }
     }
-  })
+  }
+  const tasks = repoRegistry.mapAsync(prisma, onRepo)
+  repoRegistry.on('create', onRepo)
 
   const shutdown = async () => {
+    repoRegistry.removeListener('create', onRepo)
     ingesters.forEach((ingester) => ingester.stop())
     await tasks
   }
@@ -99,7 +104,7 @@ function ingestAll(prisma: PrismaClient) {
 function syncAllRepos(prisma: PrismaClient) {
   const shutdownSignal = new UntilStopped()
 
-  const tasks = Repo.mapAsync(prisma, async (repo) => {
+  const tasks = repoRegistry.mapAsync(prisma, async (repo) => {
     if (repo.writeable) return
     try {
       while (!shutdownSignal.stopped) {

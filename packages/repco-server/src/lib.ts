@@ -44,6 +44,7 @@ export function runServer(prisma: PrismaClient, port: number) {
   app.use(graphqlHandler)
   app.use((_req, res, next) => {
     res.locals.prisma = prisma
+    res.locals.log = logger.logger
     next()
   })
   app.use((req, _res, next) => {

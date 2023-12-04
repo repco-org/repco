@@ -1,4 +1,5 @@
 import { PrismaClient } from 'repco-prisma'
+import { runServer } from 'repco-server'
 import { createCommand } from '../parse.js'
 
 export const server = createCommand({
@@ -10,7 +11,6 @@ export const server = createCommand({
   async run(opts) {
     const prisma = new PrismaClient()
     const port = Number(opts.port) || Number(process.env.PORT) || 8765
-    const { runServer } = await import('repco-server')
     runServer(prisma, port)
   },
 })
