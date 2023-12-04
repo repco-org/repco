@@ -1,6 +1,6 @@
 FROM alpine as base
 
-RUN apk add --update nodejs yarn
+RUN apk add --update nodejs yarn git curl wget
 WORKDIR /app
 
 FROM base as builder

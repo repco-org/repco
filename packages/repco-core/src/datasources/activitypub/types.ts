@@ -69,10 +69,37 @@ export interface ActivityVideoFileMetadataUrlObject {
   fps: number
 }
 
+export interface ActivityInfoHash {
+  type: 'Infohash'
+  name: string
+}
+
+export interface ActivityOtherUrl {
+  type: 'Link'
+  name?: string
+  mediaType: string
+  href: string
+  height?: number
+}
+
+export interface ActivityHlsPlaylistUrlObject {
+  type: 'Link'
+  mediaType: 'application/x-mpegURL'
+  href: string
+  tag: ActivityHlsPlaylistTag[]
+}
+
+export type ActivityHlsPlaylistTag =
+  | ActivityOtherUrl
+  | ActivityVideoFileMetadataUrlObject
+  | ActivityVideoUrlObject
+  | ActivityInfoHash
+
 export type ActivityUrlObject =
   | ActivityVideoUrlObject
   | ActivityHtmlUrlObject
   | ActivityVideoFileMetadataUrlObject
+  | ActivityHlsPlaylistUrlObject
 
 export type ActivityPubAttributedTo =
   | string

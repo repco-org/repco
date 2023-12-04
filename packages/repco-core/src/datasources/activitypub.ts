@@ -1,11 +1,13 @@
 import zod from 'zod'
 import { parse, toSeconds } from 'iso8601-duration'
+import { getGlobalApInstance } from 'repco-activitypub'
 import { log } from 'repco-common'
 import { ConceptKind, ContentGroupingVariant, form } from 'repco-prisma'
 import { ConceptInput } from 'repco-prisma/generated/repco/zod.js'
 import { fetch } from 'undici'
 import {
   ActivityHashTagObject,
+  ActivityHlsPlaylistUrlObject,
   ActivityIconObject,
   ActivityIdentifierObject,
   ActivityVideoUrlObject,
@@ -32,29 +34,17 @@ const configSchema = zod.object({
 })
 type ConfigSchema = zod.infer<typeof configSchema>
 
-const hostLink = zod.object({
-  rel: zod.string(),
-  href: zod.string().optional(),
-})
-
-const hostInfo = zod.object({
-  subject: zod.string().optional(),
-  alisases: zod.string().array().optional(),
-  links: hostLink.array(),
-})
-type HostInfo = zod.infer<typeof hostInfo>
-
 type ChannelInfo = {
   account: string
 }
 
 type Cursor = {
-  lastPublishedDate: Date
+  lastIngest: Date
 }
 
 function parseCursor(input?: string | null): Cursor {
   const cursor = input ? JSON.parse(input) : {}
-  const dateFields = ['lastPublishedDate']
+  const dateFields = ['lastIngest']
   for (const field of dateFields) {
     if (cursor[field]) cursor[field] = new Date(cursor[field])
   }
@@ -101,8 +91,18 @@ export class ActivityPubDataSource
     super()
     this.user = config.user
     this.domain = config.domain
-    this.account = config.user + '@' + config.domain
-    this.host = 'https://' + config.domain
+    let domain
+    if (
+      config.domain.startsWith('http://') ||
+      config.domain.startsWith('https://')
+    ) {
+      this.host = config.domain
+      domain = config.domain.replace(/^http(s?):\/\//, '')
+    } else {
+      this.host = 'https://' + config.domain
+      domain = config.domain
+    }
+    this.account = config.user + '@' + domain
     this.uriPrefix = `repco:activityPub`
     this.repo = config.repo
   }
@@ -179,102 +179,167 @@ export class ActivityPubDataSource
     ]
   }
 
-  private _getLastPageNumber(numItems: number): number {
-    const lastPageNumber: number = Math.floor(numItems / 10) + 1
-    return lastPageNumber
+  async getAndInitAp() {
+    try {
+      const remoteActorId = `@${this.config.user}@${this.config.domain}`
+      const localName = this.repo
+      const ap = getGlobalApInstance()
+      if (!ap) throw new Error('activitypub is not initialized')
+      // ensure actor and follow
+      const localActor = await ap.getOrCreateActor(localName)
+      const remoteId = await ap.followRemoteActor(
+        localActor.name,
+        remoteActorId,
+      )
+      return { ap, remoteId }
+    } catch (error) {
+      console.error(`Error initializing Activitypub: ${error}`)
+      throw error
+    }
+  }
+
+  async handleActivities(item: any): Promise<VideoObject | undefined> {
+    if (
+      item.type === 'Announce' &&
+      typeof item.object === 'string' &&
+      item.actor.endsWith(this.user)
+    ) {
+      return this._fetchAs<VideoObject>(item.object)
+    } else if (item.type === 'Create' && item.object !== undefined) {
+      return this._fetchAs<VideoObject>((item.object as VideoObject).id)
+    } else if (
+      item.type === 'Update' &&
+      item.object &&
+      item.object.type === 'Video'
+    ) {
+      return this._fetchAs<VideoObject>((item.object as VideoObject).id)
+    } else {
+      return undefined
+    }
   }
 
   async fetchUpdates(cursorString: string | null): Promise<FetchUpdatesResult> {
-    try {
-      let channelSourceRecord
-      // First ingest: save channel as ContentGrouping
-      if (cursorString === null) {
-        const channelInfo: ChannelInfo = { account: this.account }
-        channelSourceRecord = {
-          body: JSON.stringify(channelInfo),
-          contentType: 'application/json',
-          sourceType: 'activityPubChannel',
-          sourceUri: this._uri('account', this.account),
-        }
-      }
-      const cursor = parseCursor(cursorString)
-      const info = await this.fetchWebfinger<HostInfo>()
-      const profile = info.links.find((link) => link.rel === 'self')?.href
-      const outbox =
-        profile && (await this._fetchAs<OutBox>(`${profile}/outbox`))
-      const firstPageUrl = outbox && outbox.first
-      if (!firstPageUrl) {
-        throw new Error(`Could not find first page of outbox ${profile}/outbox`)
-      }
-      // collect new video entities
-      const newVideoObjects: VideoObject[] = []
-      // start with last page
-      let pageNumber = outbox && this._getLastPageNumber(outbox.totalItems)
-      if (!pageNumber) {
-        throw new Error(
-          `Could not get number of last page of outbox ${profile}/outbox`,
+    const nextCursor = {
+      lastIngest: new Date(),
+    }
+    const { ap, remoteId } = await this.getAndInitAp()
+    const profile = remoteId
+
+    // we have a previous cursor. ingest updates that were pushed to our inbox.
+    if (cursorString) {
+      try {
+        const cursor = parseCursor(cursorString)
+        const activities = await ap.getActivitiesForRemoteActor(
+          profile,
+          cursor.lastIngest,
         )
+        if (!activities.length) {
+          return { cursor: cursorString, records: [] }
+        }
+        // map activities to source records
+        const items = await Promise.all(
+          activities.map((item) => this.handleActivities(item)),
+        )
+        const newVideoObjects = items.filter(
+          (item): item is VideoObject => !!item,
+        )
+        if (!newVideoObjects.length) {
+          return { cursor: cursorString, records: [] }
+        }
+        const records: SourceRecordForm[] = [
+          {
+            body: JSON.stringify(newVideoObjects),
+            contentType: 'application/json',
+            sourceType: 'videoObjects',
+            sourceUri: this.account + '#' + nextCursor.lastIngest.toISOString(),
+          },
+        ]
+        return {
+          cursor: JSON.stringify(nextCursor),
+          records,
+        }
+      } catch (error) {
+        console.error(`Error fetching updates: ${error}`)
+        throw error
       }
-      pageNumber++
-      // loop backwards over pages
-      while (pageNumber >= 2) {
-        pageNumber--
-        const currentPageUrl =
-          firstPageUrl && firstPageUrl.replace('page=1', `page=${pageNumber}`)
-        const currentPage =
+      // we do not have a previous cursor. ingest history by fetching everything from the actor's outbox
+    } else {
+      // First ingest: save channel as ContentGrouping
+      const channelInfo: ChannelInfo = { account: this.account }
+      const channelSourceRecord = {
+        body: JSON.stringify(channelInfo),
+        contentType: 'application/json',
+        sourceType: 'activityPubChannel',
+        sourceUri: this._uri('account', this.account),
+      }
+
+      try {
+        const outbox =
+          profile && (await this._fetchAs<OutBox>(`${profile}/outbox`))
+        const firstPageUrl = outbox && outbox.first
+        if (!firstPageUrl) {
+          throw new Error(
+            `Could not find first page of outbox ${profile}/outbox`,
+          )
+        }
+        // collect new video entities
+        const newVideoObjects: VideoObject[] = []
+        // start with first page
+        let pageNumber = 1
+        let currentPageUrl = firstPageUrl
+        let currentPage =
           currentPageUrl && (await this._fetchAs<Page>(currentPageUrl))
-        // if no items are on the page
-        if (currentPage && currentPage.orderedItems.length === 0) {
-          continue
-        }
-        const items =
-          currentPage &&
-          (await Promise.all(
-            currentPage.orderedItems.map((item) => {
-              if (item.type === 'Announce' && typeof item.object === 'string') {
-                return this._fetchAs<VideoObject>(item.object)
-              } else if (item.type === 'Create' && item.object !== undefined) {
-                return this._fetchAs<VideoObject>(
-                  (item.object as VideoObject).id,
-                )
-              }
-            }),
-          ))
-        if (items === undefined || items === '') {
-          throw new Error(`Could not catch items under url ${currentPageUrl}.`)
-        }
-        // iterate over items on page backwards to find items that are newer than the cursor
-        for (let i = items.length - 1; i >= 0; i--) {
-          const item = items[i]
-          if (item === undefined) {
-            continue
+
+        // loop over pages while there are still items on the page
+        while (currentPage && currentPage.orderedItems.length !== 0) {
+          const items =
+            currentPage &&
+            (await Promise.all(
+              currentPage.orderedItems.map((item) =>
+                this.handleActivities(item),
+              ),
+            ))
+          if (items === undefined) {
+            throw new Error(
+              `Could not catch items under url ${currentPageUrl}.`,
+            )
           }
-          if (new Date(item.published) <= cursor.lastPublishedDate) {
-            continue
-          }
-          newVideoObjects.push(item)
-          cursor.lastPublishedDate = new Date(item.published)
+          // collect items that are not undefined
+          newVideoObjects.push(
+            ...items.filter((item): item is VideoObject => !!item),
+          )
+
+          pageNumber++
+          currentPageUrl =
+            firstPageUrl && firstPageUrl.replace('page=1', `page=${pageNumber}`)
+          currentPage =
+            currentPageUrl && (await this._fetchAs<Page>(currentPageUrl))
         }
+
+        // save collected items as source records
+        let records: SourceRecordForm[] = []
+        if (newVideoObjects.length) {
+          records = [
+            {
+              body: JSON.stringify(newVideoObjects),
+              contentType: 'application/json',
+              sourceType: 'videoObjects',
+              sourceUri:
+                this.account + '#' + nextCursor.lastIngest.toISOString(),
+            },
+          ]
+        }
+        if (channelSourceRecord !== undefined) {
+          records.push(channelSourceRecord as SourceRecordForm)
+        }
+        return {
+          cursor: JSON.stringify(nextCursor),
+          records,
+        }
+      } catch (error) {
+        console.error(`Error fetching updates: ${error}`)
+        throw error
       }
-      const records = [
-        {
-          body: JSON.stringify(newVideoObjects),
-          contentType: 'application/json',
-          sourceType: 'videoObjects',
-          sourceUri:
-            firstPageUrl + '#' + cursor.lastPublishedDate.toISOString(),
-        },
-      ]
-      if (channelSourceRecord !== undefined) {
-        records.push(channelSourceRecord as SourceRecordForm)
-      }
-      return {
-        cursor: JSON.stringify(cursor),
-        records,
-      }
-    } catch (error) {
-      console.error(`Error fetching updates: ${error}`)
-      throw error
     }
   }
 
@@ -445,9 +510,31 @@ export class ActivityPubDataSource
     const entities = []
 
     // create Files for videos in "url"
-    const videoUrls = video.url.filter(
+    const videoUrls: ActivityVideoUrlObject[] = []
+    // Depending on the transcoding peertube stores the videos in different locations of the videoObject
+    const webVideos = video.url.filter(
       (url) => url.mediaType && url.mediaType.startsWith('video'),
     ) as ActivityVideoUrlObject[]
+    if (webVideos.length) {
+      // Web Video transcoding enabled
+      videoUrls.push(...webVideos)
+    } else {
+      // HLS transcoding enabled
+      const hlsLink = video.url.find((url) =>
+        url.mediaType.endsWith('x-mpegURL'),
+      ) as ActivityHlsPlaylistUrlObject
+      const hlsUrls =
+        hlsLink &&
+        (hlsLink.tag.filter(
+          (url) =>
+            url.type === 'Link' &&
+            url.mediaType &&
+            url.mediaType.startsWith('video'),
+        ) as ActivityVideoUrlObject[])
+      if (hlsUrls.length) {
+        videoUrls.push(...hlsUrls)
+      }
+    }
     const videoFileEntities =
       videoUrls && videoUrls.map((url) => this._mapVideoToFileEntity(url))
     entities.push(...videoFileEntities)

@@ -44,7 +44,10 @@ export type SourceRecordForm = {
   [kParsedBody]?: any
 }
 
-export type FetchUpdatesResult = { cursor: string; records: SourceRecordForm[] }
+export type FetchUpdatesResult = {
+  cursor: string
+  records: SourceRecordForm[]
+}
 
 export type DataSourceDefinition = {
   // The unique ID for this data source instance.

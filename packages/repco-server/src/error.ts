@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 import { HttpError, RepoError } from 'repco-core'
 import { Prisma } from 'repco-prisma'
+import { logger } from './lib.js'
 
 export const notFoundHandler = (
   _req: Request,
@@ -18,9 +19,9 @@ export const handler = (
 ) => {
   ServerError.process(err)
   if (process.env.NODE_ENV !== 'production') {
-    console.log(`${req.method} ${req.url} ERR`, err)
+    logger.warn({ msg: `${req.method} ${req.url} ERR`, err })
   }
-  res.status(err.status).json({ ok: false, error: err.message })
+  res.status(err.status || 500).json({ ok: false, error: err.message })
 }
 
 export class ServerError extends Error {
@@ -50,6 +51,8 @@ export class ServerError extends Error {
     } else if (err instanceof HttpError) {
       status = err.code || 500
     }
-    ;(err as any).status = status
+    try {
+      ;(err as any).status = status
+    } catch (err) {}
   }
 }

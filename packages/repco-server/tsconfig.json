@@ -11,6 +11,9 @@
   },
   "references": [
     {
+      "path": "../repco-activitypub"
+    },
+    {
       "path": "../repco-core"
     },
     {

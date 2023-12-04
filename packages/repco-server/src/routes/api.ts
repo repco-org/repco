@@ -13,7 +13,7 @@ import {
 } from 'repco-core'
 import { Readable } from 'stream'
 import { router as adminRouter } from './admin.js'
-import { ServerError } from '../error.js'
+import { notFoundHandler, ServerError } from '../error.js'
 import { getLocals } from '../lib.js'
 import {
   acceptNdJson,
@@ -152,5 +152,7 @@ router.put('/changes', async (_req, _res) => {
   // }
   // throw new ServerError(400, 'Invalid content-type header.')
 })
+
+router.use(notFoundHandler)
 
 export default router

@@ -13,6 +13,24 @@ export const router = express.Router()
 
 const ADMIN_TOKEN = process.env.REPCO_ADMIN_TOKEN
 
+export function authorizeRequest(req: express.Request) {
+  if (!ADMIN_TOKEN || ADMIN_TOKEN.length < 16) {
+    return false
+  }
+
+  const authHeader = req.headers['authorization']
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return false
+  }
+
+  const token = authHeader.substring(7)
+  if (token == ADMIN_TOKEN) {
+    return true
+  } else {
+    return false
+  }
+}
+
 // check auth
 router.use((req, res, next) => {
   if (!ADMIN_TOKEN || ADMIN_TOKEN.length < 16) {
@@ -21,18 +39,11 @@ router.use((req, res, next) => {
     )
     return next(new ServerError(403, 'Unauthorized'))
   }
-
-  const authHeader = req.headers['authorization']
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return next(new ServerError(403, 'Unauthorized'))
+  if (!authorizeRequest(req)) {
+    next(new ServerError(403, 'Unauthorized'))
+  } else {
+    next()
   }
-
-  const token = authHeader.substring(7)
-  if (token != ADMIN_TOKEN) {
-    return next(new ServerError(403, 'Unauthorized'))
-  }
-
-  next()
 })
 
 router.get('/test', async (req, res) => {

@@ -24,6 +24,9 @@ export default function CustomTagsPlugin(builder: SchemaBuilder) {
         if (table.name.startsWith('directus')) {
           table.tags.omit = true
         }
+        if (table.name.startsWith('Ap')) {
+          table.tags.omit = true
+        }
       })
     return build
   })

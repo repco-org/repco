@@ -28,6 +28,7 @@
     "level": "^8.0.0",
     "multiformats": "^11.0.2",
     "repco-common": "*",
+    "repco-activitypub": "*",
     "repco-prisma": "*",
     "rss-parser": "^3.12.0",
     "speedometer": "^1.1.0",
