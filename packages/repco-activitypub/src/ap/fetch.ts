@@ -98,7 +98,7 @@ export async function fetchAp(url: string | URL, init: FetchInit = {}) {
   }
 
   init.headers = headers
-  
+
   // log('fetch: ' + url, {
   //   method: init.method,
   //   body: init.body,
