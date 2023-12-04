@@ -1,4 +1,3 @@
-import Table from 'cli-table3'
 import express from 'express'
 import pc from 'picocolors'
 import {
@@ -86,16 +85,18 @@ router.get('/repo', async (req, res) => {
   try {
     const { prisma } = getLocals(res)
     const repos = await repoRegistry.list(prisma)
-    const table = new Table({
-      head: ['DID', 'Name', 'Revisions'],
-    })
+    const repoList = []
     for (const repo of repos) {
       const count = await prisma.revision.count({
         where: { repoDid: repo.did },
       })
-      table.push([repo.did, repo.name || '', String(count)])
+      repoList.push({
+        did: repo.did,
+        name: repo.name || '',
+        count: String(count),
+      })
     }
-    res.send({ repo_table: table })
+    res.send({ repoList: repoList })
   } catch (err) {
     throw new ServerError(500, `Failed to list repos` + err)
   }
@@ -136,10 +137,10 @@ router.post('/repo/:repo/ds', async (req, res) => {
     const { prisma } = getLocals(res)
     const repo = await repoRegistry.open(prisma, req.params.repo)
     const { pluginUid, config } = req.body
-    const config_obj = JSON.parse(config)
+    const configObj = JSON.parse(config)
     // Add name of repo to config in order to create unique uids for datasources
-    config_obj.repo = repo.name
-    const instance = await repo.addDataSource(pluginUid, config_obj)
+    configObj.repo = repo.name
+    const instance = await repo.addDataSource(pluginUid, configObj)
     const def = instance.definition
     res.header('content-type', 'application/json')
     res.send({ uid: def.uid, pluginUid: def.pluginUid })

@@ -215,10 +215,10 @@ export const list = createCommand({
       const table = new Table({
         head: ['DID', 'Name', 'Revisions'],
       })
-      const repo_table: Table.Table = res.repo_table
-      repo_table.forEach((row) => {
-        table.push(row)
-      })
+      const repoList = res.repoList
+      for (const repoInfo of repoList) {
+        table.push([repoInfo.did, repoInfo.name, repoInfo.count])
+      }
       console.log(table.toString())
     } catch (err) {
       console.error('Error listing all repos', err)
