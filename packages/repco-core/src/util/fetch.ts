@@ -3,8 +3,6 @@ import p from 'path'
 import { createHash } from 'crypto'
 import type { Duplex } from 'stream'
 import { Dispatcher } from 'undici'
-// @ts-ignore
-import { getStatusText } from 'undici/lib/mock/mock-utils.js'
 
 export type CachingDispatcherOpts = {
   forward: boolean
@@ -53,7 +51,7 @@ export class CachingDispatcher extends Dispatcher {
           if (!this.opts.forward) {
             // If fowwarding is disabled: Error with 503
             if (handlers.onHeaders) {
-              handlers.onHeaders(503, [], () => {}, getStatusText(503))
+              handlers.onHeaders(503, [], () => {} /*, getStatusText(503)*/)
             }
             if (handlers.onComplete) handlers.onComplete([])
             return
@@ -74,7 +72,7 @@ export class CachingDispatcher extends Dispatcher {
               cachedResponse.status,
               headers,
               () => {},
-              getStatusText(cachedResponse.status),
+              /*getStatusText(cachedResponse.status),*/
             )
           }
           if (handlers.onData) {
@@ -138,7 +136,7 @@ export class DispatchAndCacheHandlers implements Dispatcher.DispatchHandlers {
         statusCode,
         stringHeaders,
         resume,
-        getStatusText(statusCode),
+        /*getStatusText(statusCode),*/
       )
     }
     return false

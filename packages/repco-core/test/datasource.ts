@@ -102,7 +102,7 @@ class TestDataSource extends BaseDataSource implements DataSource {
           content: {
             title: 'Media1',
             mediaType: 'audio/mp3',
-            File: { uri: 'urn:test:file:1' },
+            Files: [{ uri: 'urn:test:file:1' }],
             description: '{}',
           },
           headers: { EntityUris: ['urn:test:media:1'] },
@@ -116,7 +116,7 @@ class TestDataSource extends BaseDataSource implements DataSource {
           content: {
             title: 'MediaMissingResolved',
             mediaType: 'audio/mp3',
-            File: { uri: 'urn:test:file:1' },
+            Files: [{ uri: 'urn:test:file:1' }],
             description: '{}',
           },
           headers: { EntityUris: ['urn:test:media:fail'] },

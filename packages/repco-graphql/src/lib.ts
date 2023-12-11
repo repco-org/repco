@@ -12,10 +12,10 @@ import {
 } from 'graphql'
 import { elasticApiFieldConfig } from 'graphql-compose-elasticsearch'
 import { createPostGraphileSchema, postgraphile } from 'postgraphile'
+import ContentItemFilterPlugin from './plugins/content-item-filter.js'
 import ExportSchemaPlugin from './plugins/export-schema.js'
 // Change some inflection rules to better match our schema.
 import CustomInflector from './plugins/inflector.js'
-import JsonFilterPlugin from './plugins/json-filter.js'
 // Add custom tags to omit all queries for the relation tables
 import CustomTags from './plugins/tags.js'
 // Add a resolver wrapper to add default pagination args
@@ -61,7 +61,7 @@ export async function createGraphQlSchema(databaseUrl: string) {
     schemas: [schema, schemaElastic],
   })
 
-  const sorted = lexicographicSortSchema(mergedSchema)
+  const sorted = lexicographicSortSchema(schema)
   return sorted
 }
 
@@ -81,7 +81,7 @@ export function getPostGraphileOptions() {
       CustomInflector,
       WrapResolversPlugin,
       ExportSchemaPlugin,
-      JsonFilterPlugin,
+      ContentItemFilterPlugin,
       // CustomFilterPlugin,
     ],
     dynamicJson: true,
