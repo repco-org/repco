@@ -6,4 +6,4 @@ Dotenv.config()
 Dotenv.config({ path: '../../.env' })
 
 const prisma = new PrismaClient()
-runServer(prisma, Number(process.env.PORT) || 8765)
+runServer(prisma)
