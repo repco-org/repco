@@ -8,6 +8,14 @@ This repo contains both an [in-progress specification document](SPEC.md) and a f
 
 Note: These are priliminary docs for how to run Repco in a developer's setup. Docs for production deployment will come later.
 
+#### Requirements
+
+* Node.js v18+
+* yarn v1 (yarn classic)
+* Docker and Docker Compose
+
+### Development setup
+
 First clone this repo. Then, from within the repo folder, you can run the following commands:
 
 ```sh
@@ -25,8 +33,8 @@ yarn server
 yarn frontend
 # add new repo with name default
 yarn cli repo create default
-# add datasource
-yarn cli ds add -r <repo> <plugin-name> <endpoint>
+# add datasource giving a config in json format
+yarn cli ds add -r <repo> <plugin-name> <config>
 # for example the cba plugin - need to define the api key for cba in .env file
 yarn cli ds add -r default urn:repco:datasource:cba https://cba.media/wp-json/wp/v2
 # ingest updates from all datasources

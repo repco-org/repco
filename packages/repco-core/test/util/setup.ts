@@ -1,6 +1,7 @@
 import 'source-map-support/register.js'
 import getPort from 'get-port'
 import p from 'path'
+import split2 from 'split2'
 import { Test } from 'brittle'
 import {
   ChildProcess,
@@ -93,7 +94,7 @@ export async function setupDb(log: LogFn = console.log) {
   // wait until the container dies or is ready to accept connections
   await Promise.race([container, ready])
 
-  const databaseUrl = `postgresql://test:test@localhost:${port}/repco`
+  const databaseUrl = `postgresql://test:test@127.0.0.1:${port}/repco`
   const teardown = async () => {
     await spawn('docker', ['stop', '-t', '0', name])
   }
@@ -109,16 +110,15 @@ process.on('exit', () => {
   }
 })
 
-async function waitForLines(stream: Readable, lines: RegExp[]) {
-  if (!lines.length) return
+async function waitForLines(stream: Readable, expected_lines: RegExp[]) {
+  if (!expected_lines.length) return
   await new Promise<void>((resolve) => {
-    let cur = lines.shift()
-    stream.on('data', (buf) => {
-      for (const line of buf.toString().split('\n')) {
-        if (line.match(cur)) {
-          cur = lines.shift()
-          if (!cur) resolve()
-        }
+    let cur = expected_lines.shift()
+    stream.pipe(split2()).on('data', (line: string) => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      if (line.match(cur!)) {
+        cur = expected_lines.shift()
+        if (!cur) resolve()
       }
     })
   })

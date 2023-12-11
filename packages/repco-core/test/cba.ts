@@ -1,10 +1,8 @@
 import test from 'brittle'
-import fs from 'fs/promises'
-import p from 'path'
 import { fileURLToPath } from 'node:url'
 import { assertFixture, mockFetch } from './util/fetch.js'
 import { setup } from './util/setup.js'
-import { Repo } from '../lib.js'
+import { repoRegistry } from '../lib.js'
 import { ingestUpdatesFromDataSources } from '../src/datasource.js'
 import { CbaDataSourcePlugin } from '../src/datasources/cba.js'
 import { DataSourcePluginRegistry } from '../src/plugins.js'
@@ -18,14 +16,21 @@ const fixturePath = (name: string) =>
 test('cba datasource - basic1', async (assert) => {
   mockFetch(assert, fixturePath('basic1'))
   const prisma = await setup(assert)
-  const repo = await Repo.create(prisma, 'test')
+  const repo = await repoRegistry.create(prisma, 'test')
   const plugins = new DataSourcePluginRegistry()
   const cbaPlugin = new CbaDataSourcePlugin()
   plugins.register(cbaPlugin)
-  await repo.dsr.create(repo.prisma, plugins, cbaPlugin.definition.uid, {
-    pageLimit: 2,
-    apiKey: null
-  })
+  await repo.dsr.create(
+    repo.prisma,
+    plugins,
+    cbaPlugin.definition.uid,
+    {
+      pageLimit: 2,
+      apiKey: null,
+      repo: repo.name,
+    },
+    repo.did,
+  )
   await ingestUpdatesFromDataSources(repo)
   // TODO: Provide mocking capability to uids
   const entities = await prisma.contentItem.findMany({
@@ -50,7 +55,7 @@ test('cba datasource - basic1', async (assert) => {
           // uid: true,
           mediaType: true,
           title: true,
-          File: {
+          Files: {
             select: {
               // uid: true,
               contentUrl: true,

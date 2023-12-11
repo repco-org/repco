@@ -1,10 +1,30 @@
 import casual from 'casual-browserify'
 import prettyMs from 'pretty-ms'
 import { SingleBar } from 'cli-progress'
-import { EntityForm, Repo } from 'repco-core'
+import { EntityForm, repoRegistry } from 'repco-core'
+import { request } from '../client.js'
 import { createCommand, createCommandGroup } from '../parse.js'
 
 const round = (x: number) => Math.round(x * 100) / 100
+
+export const authTest = createCommand({
+  name: 'auth-test',
+  help: 'Test authentication to repco server',
+  options: {},
+  async run() {
+    try {
+      const res = await request('/test')
+      console.log('GET /test', res)
+      const res2 = await request('/test', {
+        method: 'POST',
+        body: { foo: 'bar' },
+      })
+      console.log('GET /test', res2)
+    } catch (err) {
+      console.error('got error', err)
+    }
+  },
+})
 
 export const createContent = createCommand({
   name: 'create-content',
@@ -23,7 +43,7 @@ export const createContent = createCommand({
     },
   },
   async run(opts, args) {
-    const repo = await Repo.openWithDefaults(args.repo)
+    const repo = await repoRegistry.openWithDefaults(args.repo)
     let count, batch
     if (opts.count) count = parseInt(opts.count)
     if (!count || isNaN(count)) count = 1000
@@ -71,5 +91,5 @@ function createItem() {
 export const commands = createCommandGroup({
   name: 'debug',
   help: 'Development helpers',
-  commands: [createContent],
+  commands: [createContent, authTest],
 })

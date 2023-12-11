@@ -18,6 +18,7 @@ import {
 import { fetch } from 'undici'
 import { ZodError } from 'zod'
 import { DataSource, DataSourceRegistry } from './datasource.js'
+import { plugins as defaultDataSourcePlugins } from './datasources/defaults.js'
 import {
   entityForm,
   EntityInputWithHeaders,
@@ -97,39 +98,73 @@ function defaultBlockStore(
   return new PrismaIpldBlockStore(prisma)
 }
 
-export class Repo extends EventEmitter {
-  public dsr: DataSourceRegistry
-  public blockstore: IpldBlockStore
-  public prisma: PrismaClient | Prisma.TransactionClient
-  public ipld: IpldRepo
+class RepoRegistry extends EventEmitter {
+  repos: Map<string, Repo> = new Map()
+  opening: Map<string, Promise<void>> = new Map()
 
-  public record: RepoRecord
-
-  private publishingCapability: string | null
-  private validatedAgents: Set<string> = new Set()
-
-  public static CACHE: Map<string, Repo> = new Map()
-  public static cache = true
-
-  private txlock = new Mutex()
-
-  public log: Logger
-
-  static async createOrOpen(prisma: PrismaClient, name: string, did?: string) {
-    try {
-      return await Repo.open(prisma, did || name)
-    } catch (_err) {
-      return await Repo.create(prisma, name)
+  public async open(
+    prisma: PrismaClient,
+    didOrName: string,
+    useCache = true,
+  ): Promise<Repo> {
+    const did = await this.nameToDid(prisma, didOrName)
+    if (useCache) {
+      if (!this.repos.has(did)) {
+        if (!this.opening.has(did)) {
+          await this._openInner(prisma, did)
+        } else {
+          await this.opening.get(did)
+        }
+      }
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      return this.repos.get(did)!
+    } else {
+      const did = await this.nameToDid(prisma, didOrName)
+      return this.load(prisma, did)
     }
   }
 
-  static async openWithDefaults(nameOrDid?: string) {
-    const prisma = new PrismaClient()
-    if (!nameOrDid) nameOrDid = process.env.REPCO_REPO || 'default'
-    return Repo.open(prisma, nameOrDid)
+  async _openInner(prisma: PrismaClient, did: string) {
+    let _resolve: (v: void | PromiseLike<void>) => void
+    let _reject: (e: any) => void
+    const promise = new Promise<void>((resolve, reject) => {
+      _resolve = resolve
+      _reject = reject
+    })
+    this.opening.set(did, promise)
+    try {
+      const repo = await this.load(prisma, did)
+      this.repos.set(did, repo)
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      _resolve!()
+    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      _reject!(err)
+    } finally {
+      this.opening.delete(did)
+    }
   }
 
-  static async create(prisma: PrismaClient, name: string, did?: string) {
+  async createOrOpen(prisma: PrismaClient, name: string, did?: string) {
+    try {
+      return await this.open(prisma, did || name)
+    } catch (_err) {
+      return await this.create(prisma, name)
+    }
+  }
+
+  async openWithDefaults(nameOrDid?: string) {
+    const prisma = new PrismaClient()
+    if (!nameOrDid) nameOrDid = process.env.REPCO_REPO || 'default'
+    return this.open(prisma, nameOrDid)
+  }
+
+  async create(
+    prisma: PrismaClient,
+    name: string,
+    did?: string,
+    useCache = true,
+  ) {
     if (!name.match(/[a-zA-Z0-9-]{3,64}/)) {
       throw new Error(
         'Repo name is invalid. Repo names must be between 3 and 64 alphanumerical characters',
@@ -157,47 +192,33 @@ export class Repo extends EventEmitter {
         name,
       },
     })
-    const repo = await Repo.open(prisma, did)
+    const repo = await this.open(prisma, did, useCache)
+    this.emit('create', repo)
     if (repo.writeable) {
       await repo.saveBatch([], { commitEmpty: true })
     }
     return repo
   }
 
-  static async open(prisma: PrismaClient, didOrName: string): Promise<Repo> {
-    if (Repo.cache && Repo.CACHE.has(didOrName)) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return Repo.CACHE.get(didOrName)!
-    }
-
-    const isDid = didOrName.startsWith('did:')
-    const params: OpenParams = {}
-    if (isDid) params.did = didOrName
-    else params.name = didOrName
-
-    const repo = await Repo.load(prisma, params)
-
-    if (Repo.cache) {
-      Repo.CACHE.set(repo.did, repo)
-      if (repo.name) Repo.CACHE.set(repo.name, repo)
-    }
-
-    return repo
-  }
-
-  static async load(prisma: PrismaClient, params: OpenParams): Promise<Repo> {
-    if (!params.did && !params.name) {
-      throw new Error(
-        'Invalid open params: One of `did` or `name` is required.',
-      )
-    }
+  async nameToDid(prisma: PrismaClient, name: string): Promise<string> {
+    if (name.startsWith('did:')) return name
     const record = await prisma.repo.findFirst({
-      where: { OR: [{ did: params.did }, { name: params.name }] },
+      where: { name },
+      select: { did: true },
     })
     if (!record) {
       throw new RepoError(ErrorCode.NOT_FOUND, `Repo not found`)
     }
-    const did = record.did
+    return record.did
+  }
+
+  async load(prisma: PrismaClient, did: string): Promise<Repo> {
+    const record = await prisma.repo.findFirst({
+      where: { did },
+    })
+    if (!record) {
+      throw new RepoError(ErrorCode.NOT_FOUND, `Repo not found`)
+    }
     const cap = await getPublishingUcanForInstance(prisma, did).catch(
       (_) => null,
     )
@@ -205,28 +226,46 @@ export class Repo extends EventEmitter {
     return repo
   }
 
-  static async list(prisma: PrismaClient): Promise<RepoRecord[]> {
+  async list(prisma: PrismaClient): Promise<RepoRecord[]> {
     const list = await prisma.repo.findMany()
     return list
   }
 
-  static async all(prisma: PrismaClient): Promise<Repo[]> {
-    const list = await Repo.list(prisma)
+  async all(prisma: PrismaClient): Promise<Repo[]> {
+    const list = await this.list(prisma)
     const repos = await Promise.all(
-      list.map(({ did }) => Repo.open(prisma, did)),
+      list.map(({ did }) => this.open(prisma, did)),
     )
     return repos
   }
 
-  static async mapAsync<T = void>(
+  async mapAsync<T = void>(
     prisma: PrismaClient,
     mapAsync: (repo: Repo) => Promise<T>,
   ) {
-    const repos = await Repo.all(prisma)
+    const repos = await this.all(prisma)
     const tasks = repos.map(mapAsync)
     const results = await Promise.all(tasks)
     return results
   }
+}
+
+export const repoRegistry = new RepoRegistry()
+
+export class Repo extends EventEmitter {
+  public dsr: DataSourceRegistry
+  public blockstore: IpldBlockStore
+  public prisma: PrismaClient | Prisma.TransactionClient
+  public ipld: IpldRepo
+
+  public record: RepoRecord
+
+  private publishingCapability: string | null
+  private validatedAgents: Set<string> = new Set()
+
+  private txlock = new Mutex()
+
+  public log: Logger
 
   constructor(
     prisma: PrismaClient | Prisma.TransactionClient,
@@ -271,6 +310,16 @@ export class Repo extends EventEmitter {
 
   get writeable() {
     return !!this.publishingCapability
+  }
+
+  async addDataSource(pluginUid: string, config: any) {
+    return await this.dsr.create(
+      this.prisma,
+      defaultDataSourcePlugins,
+      pluginUid,
+      config,
+      this.did,
+    )
   }
 
   async refreshInfo() {

@@ -10,8 +10,8 @@ export const loader: LoaderFunction = async ({ params }) => {
 
 export default function Playlist() {
   const { id } = useLoaderData()
-  const { playlists, usePlaylist } = usePlaylists()
-  const { addTrack, tracks, removeTrack } = usePlaylist(id)
+  const { usePlaylist } = usePlaylists()
+  const { tracks, removeTrack } = usePlaylist(id)
 
   return (
     <main className="px-2 flex flex-col space-y-4">

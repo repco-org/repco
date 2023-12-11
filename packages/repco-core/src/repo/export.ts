@@ -1,9 +1,9 @@
 import { CarWriter } from '@ipld/car'
 import { Block, BlockWriter } from '@ipld/car/api.js'
 import { CID } from 'multiformats/cid'
+import { CommitIpld, RootIpld } from 'repco-common/schema'
 import { Prisma } from 'repco-prisma'
 import { IpldBlockStore } from './blockstore.js'
-import { CommitIpld, RootIpld } from 'repco-common/schema'
 import { Repo } from '../repo.js'
 
 export async function exportRepoToCar(

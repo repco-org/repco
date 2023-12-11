@@ -1,7 +1,6 @@
 import * as ucans from '@ucans/ucans'
 import * as common from 'repco-common/zod'
 import { CID } from 'multiformats/cid'
-import { IpldBlockStore } from './blockstore.js'
 import {
   CommitBundle,
   CommitForm,
@@ -11,6 +10,7 @@ import {
   revisionIpld,
   rootIpld,
 } from 'repco-common/schema'
+import { IpldBlockStore } from './blockstore.js'
 import { EntityInputWithHeaders } from '../entity.js'
 import { SaveBatchOpts } from '../repo'
 import { createEntityId, createRevisionId } from '../util/id.js'

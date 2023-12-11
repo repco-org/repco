@@ -39,6 +39,7 @@ export class RssDataSourcePlugin implements DataSourcePlugin {
 
 const configSchema = zod.object({
   endpoint: zod.string().url(),
+  repo: zod.string(),
 })
 type ConfigSchema = zod.infer<typeof configSchema>
 
@@ -96,12 +97,14 @@ export class RssDataSource extends BaseDataSource implements DataSource {
   endpoint: URL
   baseUri: string
   parser: RssParser = new RssParser()
+  repo: string
   constructor(config: ConfigSchema) {
     super()
     const endpoint = new URL(config.endpoint)
     endpoint.hash = ''
     this.endpoint = endpoint
     this.baseUri = removeProtocol(this.endpoint)
+    this.repo = config.repo
   }
 
   get config() {
@@ -109,7 +112,7 @@ export class RssDataSource extends BaseDataSource implements DataSource {
   }
 
   get definition(): DataSourceDefinition {
-    const uid = this.baseUri
+    const uid = this.repo + ':' + this.baseUri
     return {
       name: 'RSS data source',
       uid,
@@ -214,26 +217,26 @@ export class RssDataSource extends BaseDataSource implements DataSource {
   }
 
   // TODO: Implement
-  async _crawlBackwardsFrom(cursor: Cursor) {
-    // const lastLeastRecentPubDate = cursor.newest.leastRecentPubDate || new Date()
-    // const maxPageNumber = cursor.newest.maxPageNumber || 0
-    // // TODO: Make configurable
-    // const pagination = {
-    //   offsetParam: 'start',
-    //   limitParam: 'anzahl',
-    //   limit: 5,
-    // }
-    // const url = new URL(this.endpoint)
-    // const page = maxPageNumber + 1
-    // url.searchParams.set(pagination.limitParam, pagination.limit.toString())
-    // url.searchParams.set(
-    //   pagination.offsetParam,
-    //   (page * pagination.limit).toString(),
-    // )
-    // const { feed, entities } = await this.fetchPage(url)
-    // const [newestPubDate, oldestPubDate] = getDateRangeFromFeed(feed)
-    // const nextCursor = { ...cursor }
-  }
+  // async _crawlBackwardsFrom(cursor: Cursor) {
+  // const lastLeastRecentPubDate = cursor.newest.leastRecentPubDate || new Date()
+  // const maxPageNumber = cursor.newest.maxPageNumber || 0
+  // // TODO: Make configurable
+  // const pagination = {
+  //   offsetParam: 'start',
+  //   limitParam: 'anzahl',
+  //   limit: 5,
+  // }
+  // const url = new URL(this.endpoint)
+  // const page = maxPageNumber + 1
+  // url.searchParams.set(pagination.limitParam, pagination.limit.toString())
+  // url.searchParams.set(
+  //   pagination.offsetParam,
+  //   (page * pagination.limit).toString(),
+  // )
+  // const { feed, entities } = await this.fetchPage(url)
+  // const [newestPubDate, oldestPubDate] = getDateRangeFromFeed(feed)
+  // const nextCursor = { ...cursor }
+  // }
 
   async fetchPage(url: URL): Promise<string> {
     // console.log('FETCH', url.toString())

@@ -1,13 +1,6 @@
 import { CarBlockIterator } from '@ipld/car'
 import { Block } from '@ipld/car/api.js'
 import { CID } from 'multiformats/cid.js'
-import { verifyRoot } from './auth.js'
-import {
-  BlockT,
-  parseBytesWith,
-  parseToIpld,
-  validateCID,
-} from './blockstore.js'
 import {
   CommitBundle,
   CommitIpld,
@@ -17,6 +10,13 @@ import {
   RootIpld,
   rootIpld,
 } from 'repco-common/schema'
+import { verifyRoot } from './auth.js'
+import {
+  BlockT,
+  parseBytesWith,
+  parseToIpld,
+  validateCID,
+} from './blockstore.js'
 import { Repo } from '../repo.js'
 
 export type OnProgressCallback = (progress: ImportProgress) => void

@@ -6,7 +6,7 @@
  */
 
 import z from 'zod'
-import { RevisionHeaders, revisionHeaders } from 'repco-common/schema'
+import { revisionHeaders } from 'repco-common/schema'
 import { repco } from 'repco-prisma'
 import {
   ConceptKind,

@@ -18,7 +18,7 @@ A cursor may be any string; it's format is left to the datasource itself. Oftenl
 
 To implement a datasource, a DatasourcePlugin must be created which implements the DataSourcePlugins interface. A DatasourcePlugin returns a `name` and a `uid`. Repco prefers urns as uid.
 
-` {uid: 'urn:repco:datasource:cba', name: 'CBA',}`
+` {uid: 'repco:datasource:cba', name: 'CBA',}`
 
 Furthermore the actual datasource is created which is responsible for the mapping of the data to the repco data model. For this the interface DataSource is implemented.
 

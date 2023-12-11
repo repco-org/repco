@@ -2,11 +2,11 @@
 
 export interface CbaPost {
   id: number
-  date: Date
-  date_gmt: Date
+  date: string
+  date_gmt: string
   guid: GUID
-  modified: Date
-  modified_gmt: Date
+  modified: string
+  modified_gmt: string
   slug: string
   status: string
   type: string
@@ -30,7 +30,7 @@ export interface CbaPost {
   acf: any[]
   post_parent: number
   featured_image: number
-  production_date: Date
+  production_date: string
   _links: Links
   _fetchedAttachements: any[]
   translations: any[]
@@ -77,11 +77,11 @@ export interface Meta {
 
 export interface CbaSeries {
   id: number
-  date: Date
-  date_gmt: Date
+  date: string
+  date_gmt: string
   guid: GUID
-  modified: Date
-  modified_gmt: Date
+  modified: string
+  modified_gmt: string
   slug: string
   status: string
   type: string
@@ -205,11 +205,11 @@ export interface EmbeddedLink {
 
 export interface CbaStation {
   id: number
-  date: Date
-  date_gmt: Date
+  date: string
+  date_gmt: string
   guid: number
-  modified: Date
-  modified_gmt: Date
+  modified: string
+  modified_gmt: string
   slug: string
   status: string
   type: string
@@ -229,11 +229,11 @@ export interface CbaStation {
 
 export interface CbaAudio {
   id: number
-  date: Date
-  date_gmt: Date
+  date: string
+  date_gmt: string
   guid: string
-  modified: Date
-  modified_gmt: Date
+  modified: string
+  modified_gmt: string
   slug: string
   status: string
   type: string
@@ -294,11 +294,11 @@ export interface CbaAudio {
 
 export interface CbaImage {
   id: number
-  date: Date
-  date_gmt: Date
+  date: string
+  date_gmt: string
   guid: string
-  modified: Date
-  modified_gmt: Date
+  modified: string
+  modified_gmt: string
   slug: string
   status: string
   type: string

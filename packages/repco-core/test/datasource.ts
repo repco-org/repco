@@ -2,7 +2,7 @@
 
 import test from 'brittle'
 import { setup } from './util/setup.js'
-import { DataSource, Repo } from '../lib.js'
+import { DataSource, repoRegistry } from '../lib.js'
 import {
   BaseDataSource,
   DataSourceDefinition,
@@ -24,8 +24,8 @@ const intoSourceRecord = (body: EntityForm): SourceRecordForm => ({
 
 const DS_UID = 'urn:repco:datasource:test'
 
-const fromSourceRecord = (record: SourceRecordForm) =>
-  JSON.parse(record.body) as EntityForm
+// const fromSourceRecord = (record: SourceRecordForm) =>
+//   JSON.parse(record.body) as EntityForm
 
 class TestDataSourcePlugin implements DataSourcePlugin {
   createInstance(_config: any) {
@@ -139,17 +139,17 @@ class TestDataSource extends BaseDataSource implements DataSource {
 
 test('datasource', async (assert) => {
   const prisma = await setup(assert)
-  const repo = await Repo.create(prisma, 'test')
+  const repo = await repoRegistry.create(prisma, 'test')
   const plugins = new DataSourcePluginRegistry()
   plugins.register(new TestDataSourcePlugin())
-  await repo.dsr.create(repo.prisma, plugins, 'ds:test', {})
+  await repo.dsr.create(repo.prisma, plugins, 'ds:test', {}, repo.did)
   await ingestUpdatesFromDataSources(repo)
   const uri = 'urn:test:content:1'
   const entities = await prisma.contentItem.findMany({
     where: { Revision: { entityUris: { has: uri } } },
     include: {
       MediaAssets: {
-        include: { File: true },
+        include: { Files: true },
       },
     },
   })
@@ -157,18 +157,18 @@ test('datasource', async (assert) => {
   const entity = entities[0]
   assert.is(entity.MediaAssets.length, 1)
   assert.is(
-    entity.MediaAssets[0].File.contentUrl,
+    entity.MediaAssets[0].Files[0].contentUrl,
     'http://example.org/file1.mp3',
   )
 })
 
 test('remap', async (assert) => {
   const prisma = await setup(assert)
-  const repo = await Repo.create(prisma, 'test')
+  const repo = await repoRegistry.create(prisma, 'test')
 
   const plugins = new DataSourcePluginRegistry()
   plugins.register(new TestDataSourcePlugin())
-  await repo.dsr.create(repo.prisma, plugins, 'ds:test', {})
+  await repo.dsr.create(repo.prisma, plugins, 'ds:test', {}, repo.did)
 
   await ingestUpdatesFromDataSources(repo)
 
@@ -204,11 +204,11 @@ test('remap', async (assert) => {
 // TODO: This is not working with batching right now.
 test.skip('failed fetches', async (assert) => {
   const prisma = await setup(assert)
-  const repo = await Repo.create(prisma, 'test')
+  const repo = await repoRegistry.create(prisma, 'test')
 
   const plugins = new DataSourcePluginRegistry()
   plugins.register(new TestDataSourcePlugin())
-  await repo.dsr.create(repo.prisma, plugins, 'ds:test', {})
+  await repo.dsr.create(repo.prisma, plugins, 'ds:test', {}, repo.did)
   const datasource = repo.dsr.get(DS_UID)! as TestDataSource
   datasource.insertMissing = true
 
