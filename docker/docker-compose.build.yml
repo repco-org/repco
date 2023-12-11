@@ -11,6 +11,7 @@ services:
       - DATABASE_URL=postgresql://repco:repco@db:5432/repco
       - REPCO_ADMIN_TOKEN=kUBY0zsPHC9ubj3T6DZJKUACi3M=
       - REPCO_URL=http://localhost:8765
+      - CBA_API_KEY=k8WHfNbal0rjIs2f
     depends_on:
       db:
         condition: service_healthy
