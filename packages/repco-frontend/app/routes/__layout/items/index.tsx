@@ -9,6 +9,7 @@ import { Pager } from '~/components/primitives/pager'
 import { ContentItemsQuery } from '~/graphql/queries/content-items'
 import type {
   ContentItem,
+  ContentItemCondition,
   ContentItemFilter,
   ContentItemsOrderBy,
   LoadContentItemsQuery,
@@ -25,20 +26,23 @@ export const loader: LoaderFunction = async ({ request }) => {
   const repoDid = url.searchParams.get('repoDid') || 'all'
   const { first, last, after, before } = parsePagination(url)
   let filter: ContentItemFilter | undefined = undefined
+  let condition: ContentItemCondition | undefined = undefined;
   if (type === 'title' && q) {
-    const titleFilter: StringFilter = { includesInsensitive: q }
-    filter = { title: titleFilter }
+    //const titleFilter: StringFilter = { includesInsensitive: q }
+    //filter = { title: titleFilter }
+    condition = { searchTitle: q }
   }
 
   if (type === 'fulltext' && q) {
-    const titleFilter: StringFilter = { includesInsensitive: q }
-    const contentFilter: StringFilter = { includesInsensitive: q }
-    filter = { or: [{ title: titleFilter }, { content: contentFilter }] }
+    //const titleFilter: StringFilter = { includesInsensitive: q }
+    //const contentFilter: StringFilter = { includesInsensitive: q }
+    //filter = { or: [{ title: titleFilter }, { content: contentFilter }] }
+    condition = { searchContent: q }
   }
 
   if (repoDid && repoDid !== 'all') {
     const repoFilter = { repoDid: { equalTo: repoDid } }
-    filter = { ...filter, revision: repoFilter }
+    filter = { revision: repoFilter }
   }
 
   const queryVariables = {
@@ -48,6 +52,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     before,
     orderBy: orderBy as ContentItemsOrderBy,
     filter,
+    condition
   }
   const { data } = await graphqlQuery<
     LoadContentItemsQuery,
@@ -83,7 +88,7 @@ export default function ItemsIndex() {
         {nodes.map((node: ContentItem, i: number) => {
           const imageSrc = node.mediaAssets.nodes.find(
             (mediaAsset) => mediaAsset.mediaType === 'image',
-          )?.file?.contentUrl
+          )?.files?.nodes[0].contentUrl
           const altText = node.mediaAssets.nodes.find(
             (mediaAsset) => mediaAsset.mediaType === 'image',
           )?.title
@@ -127,7 +132,7 @@ export default function ItemsIndex() {
               </div>
               <div className="flex my-4 align-middle justify-between">
                 {track && <PlayTrackButton track={track} />}
-                {firstAudioAsset?.file?.duration}
+                {firstAudioAsset?.files?.nodes[0].duration}
                 {track && <TrackDropdown track={track} />}
               </div>
             </ContentItemCard>

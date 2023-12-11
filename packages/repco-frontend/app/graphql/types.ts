@@ -1731,6 +1731,10 @@ export type ContentItemCondition = {
   revisionId?: InputMaybe<Scalars['String']>
   /** Filters the list to ContentItems that have a specific keyword in title. */
   search?: InputMaybe<Scalars['String']>
+  /** Filters the list to ContentItems that have a specific keyword in title. */
+  searchContent?: InputMaybe<Scalars['String']>
+  /** Filters the list to ContentItems that have a specific keyword in title. */
+  searchTitle?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `subtitle` field. */
   subtitle?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `summary` field. */
@@ -7920,6 +7924,7 @@ export type LoadContentItemsQueryVariables = Exact<{
   before: InputMaybe<Scalars['Cursor']>
   orderBy: InputMaybe<Array<ContentItemsOrderBy> | ContentItemsOrderBy>
   filter: InputMaybe<ContentItemFilter>
+  condition: InputMaybe<ContentItemCondition>
 }>
 
 export type LoadContentItemsQuery = {

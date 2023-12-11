@@ -25,6 +25,7 @@ export function graphqlQuery<
   variables: Variables,
   context?: Partial<OperationContext>,
 ): Promise<OperationResult<Data, Variables>> {
+  console.log(query, variables)
   return graphqlClient.query(query, variables, context).toPromise()
 }
 
