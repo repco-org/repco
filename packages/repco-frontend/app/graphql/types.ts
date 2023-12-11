@@ -1728,7 +1728,7 @@ export type ContentItemCondition = {
   /** Checks for equality with the object’s `revisionId` field. */
   revisionId?: InputMaybe<Scalars['String']>
   /** Filters the list to ContentItems that have a specific keyword in title. */
-  searchTitle?: InputMaybe<Scalars['String']>
+  search?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `subtitle` field. */
   subtitle?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `summary` field. */
