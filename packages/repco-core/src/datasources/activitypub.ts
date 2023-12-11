@@ -476,9 +476,13 @@ export class ActivityPubDataSource
   }
 
   private _mapTagToConceptEntity(tag: ActivityHashTagObject): EntityForm {
+    var nameJson: { [k: string]: any } = {}
+    nameJson['de'] = { value: tag.name }
     const concept: ConceptInput = {
       kind: ConceptKind.TAG,
-      name: tag.name,
+      name: nameJson,
+      description: {},
+      summary: {},
     }
     const uri = this._uri('tags', tag.name)
     const ConceptEntity: EntityForm = {
@@ -492,9 +496,13 @@ export class ActivityPubDataSource
   private _mapCategoryToConceptEntity(
     category: ActivityIdentifierObject,
   ): EntityForm[] {
+    var nameJson: { [k: string]: any } = {}
+    nameJson['de'] = { value: category.name }
     const concept: form.ConceptInput = {
       kind: ConceptKind.CATEGORY,
-      name: category.name,
+      name: nameJson,
+      description: {},
+      summary: {},
       // TODO: find originNamespace of AP categories
     }
     const uri = this._uri('category', 'peertube:' + category.name)
@@ -654,6 +662,7 @@ export class ActivityPubDataSource
         //License
         MediaAssets: mediaAssetUris,
         PrimaryGrouping: this._uriLink('account', this.account),
+        summary: {},
       }
       const revisionUri = this._revisionUri(
         'videoContent',
@@ -687,6 +696,8 @@ export class ActivityPubDataSource
         title: channelInfo.account,
         variant: ContentGroupingVariant.EPISODIC, // @Frando is this used as intended?
         groupingType: 'activityPubChannel',
+        description: {},
+        summary: {},
       }
       const contentGroupingUri = this._uri('account', channelInfo.account)
       const headers = {

@@ -1,9 +1,9 @@
 import { makeAddPgTableConditionPlugin } from 'graphile-utils'
 
-const JsonFilterPlugin = makeAddPgTableConditionPlugin(
+const ContentItemFilterPlugin = makeAddPgTableConditionPlugin(
   'public',
   'ContentItem',
-  'searchTitle',
+  'search',
   (build) => ({
     description:
       'Filters the list to ContentItems that have a specific keyword in title.',
@@ -12,8 +12,10 @@ const JsonFilterPlugin = makeAddPgTableConditionPlugin(
   }),
   (value, helpers, build) => {
     const { sql, sqlTableAlias } = helpers
-    return sql.raw(`title::text LIKE '%${value}%'`)
+    return sql.raw(
+      `LOWER(title::text) LIKE LOWER('%${value}%') OR LOWER(summary::text) LIKE LOWER('%${value}%') OR LOWER(content::text) LIKE LOWER('%${value}%')`,
+    )
   },
 )
 
-export default JsonFilterPlugin
+export default ContentItemFilterPlugin

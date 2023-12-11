@@ -530,7 +530,7 @@ export class XrcbDataSource extends BaseDataSource implements DataSource {
         const imageContent: form.MediaAssetInput = {
           title: post.acf?.img_podcast?.title ?? '',
           mediaType: 'image',
-          File: { uri: fileId },
+          Files: [{ uri: fileId }],
           description: '{}',
         }
 

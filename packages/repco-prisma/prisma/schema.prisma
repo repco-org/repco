@@ -199,6 +199,7 @@ model Revision {
   Contribution       Contribution?
   Metadata           Metadata?
   Transcript         Transcript?
+  Subtitles          Subtitles?
 }
 
 model SourceRecord {
@@ -307,6 +308,7 @@ model MediaAsset {
   Contributions Contribution[]
   Concepts      Concept[]
   // Translation   Translation[]
+  Subtitles     Subtitles[]
 }
 
 /// @repco(Entity)
@@ -495,23 +497,24 @@ model Subtitles {
 }
 
 model ApLocalActor {
-  name String @unique
+  name    String @unique
   keypair Json
 }
 
 model ApFollows {
   localName String
-  remoteId String
+  remoteId  String
+
   @@unique([localName, remoteId])
 }
 
 model ApActivities {
-  id String @unique
-  actorId String
-  type String
-  objectId String
+  id         String   @unique
+  actorId    String
+  type       String
+  objectId   String
   receivedAt DateTime
-  details Json
+  details    Json
 
   attributedTo String[]
 }
