@@ -18,7 +18,7 @@ To make federation work, add this line to `/etc/hosts`:
 Afterwards open http://host.docker.internal:9000 in a browser and login with username `root` and password `peertube`
 
 
-And make sure that you have these two variables set in repco's `.env` file.
+And make sure that you have this variables set in repco's `.env` file.
 
 ```
 AP_BASE_URL=http://host.docker.internal:8765/ap
