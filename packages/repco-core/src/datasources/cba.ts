@@ -329,7 +329,7 @@ export class CbaDataSource implements DataSource {
       const { posts: postsCursor = '1970-01-01T01:00:00' } = cursor
       const perPage = this.config.pageLimit
       const url = this._url(
-        `/posts?multilingual&page=1&per_page=${perPage}&_embed&orderby=modified&order=asc&modified_after=${postsCursor}`,
+        `/posts?multilingual&page=1&per_page=${perPage}&_embed&orderby=modified&order=desc&modified_after=${postsCursor}`,
       )
       const posts = await this._fetch<CbaPost[]>(url)
 
