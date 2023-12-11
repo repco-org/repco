@@ -100,6 +100,8 @@ export function usePlaylists() {
         console.error(error)
       }
       setTracks(store.get(name)?.tracks || [])
+      // check if one can remove dependence array
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [state])
 
     return { addTrack, removeTrack, tracks } as const

@@ -1,10 +1,10 @@
 import * as Block from 'multiformats/block'
 import * as uint8arrays from 'uint8arrays'
 import * as codec from './codec.js'
-import { blake3 as hasher } from './hash.js'
 import { Level } from 'level'
 import { CID } from 'multiformats/cid'
 import { Prisma } from 'repco-prisma'
+import { blake3 as hasher } from './hash.js'
 
 export async function createCID(value: Uint8Array): Promise<CID> {
   const block = await Block.encode({ value, hasher, codec })

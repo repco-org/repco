@@ -13,9 +13,11 @@ export const ContentItemQuery = gql`
           mediaType
           title
           duration
-          file {
-            uid
-            contentUrl
+          files {
+            nodes {
+              contentUrl
+              mimeType
+            }
           }
         }
       }

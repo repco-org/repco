@@ -55,9 +55,9 @@ In _repco_, each entity has a primary, canonical identifier. These identifiers a
 
 If an entity has a matching, externally defined and specified URN, this URN MAY be used as the entity's uid.
 
-If an entity does not already have a defined URN, implementations SHOULD assign a URN in the `urn:repco` namespace. The `repco` namespace is defined as followed:
+If an entity does not already have a defined URN, implementations SHOULD assign a URN in the `repco` namespace. The `repco` namespace is defined as followed:
 
-`urn:repco:<DOMAIN_OF_REPO>:<DOMAIN_ID>`
+`repco:<DOMAIN_OF_REPO>:<DOMAIN_ID>`
 
 `DOMAIN_OF_REPO` MUST be a valid DNS hostname owned by the publisher of the entity.
 
@@ -65,7 +65,7 @@ If an entity does not already have a defined URN, implementations SHOULD assign 
 
 Examples:
 
-`urn:repco:cba.media:episode:556557`
+`repco:cba.media:episode:556557`
 
 ### Rationale / Alternatives
 

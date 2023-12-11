@@ -1,10 +1,10 @@
 import test from 'brittle'
 import { setup } from './util/setup.js'
-import { EntityForm, Repo } from '../lib.js'
+import { EntityForm, repoRegistry } from '../lib.js'
 
 test('smoke', async (assert) => {
   const prisma = await setup(assert)
-  const repo = await Repo.create(prisma, 'default')
+  const repo = await repoRegistry.create(prisma, 'default')
   const input = {
     type: 'ContentItem',
     content: {
@@ -25,7 +25,7 @@ test('smoke', async (assert) => {
 
 test('update', async (assert) => {
   const prisma = await setup(assert)
-  const repo = await Repo.create(prisma, 'default')
+  const repo = await repoRegistry.create(prisma, 'default')
   const input: EntityForm = {
     type: 'ContentItem',
     headers: { EntityUris: ['first'] },

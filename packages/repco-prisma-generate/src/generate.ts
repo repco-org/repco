@@ -176,7 +176,7 @@ function generateUpsertFunction(models: DMMF.Model[], file: SourceFile) {
         let valueExpr, uidPath
         if (field.isList) {
           valueExpr = `${path}.filter(link => link.uid).map(link => ({ uid: link.uid }))`
-          uidPath = `(${path}?.length && ${path}[0].uid)`
+          uidPath = `(${path}?.filter(link => link.uid).length)`
         } else {
           valueExpr = `{ uid: ${path}.uid }`
           uidPath = `${path}?.uid`

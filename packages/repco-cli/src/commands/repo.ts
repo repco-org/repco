@@ -8,9 +8,10 @@ import speedometer from 'speedometer'
 import { Presets, SingleBar } from 'cli-progress'
 import { createReadStream } from 'fs'
 import { CID } from 'multiformats/cid'
-import { ExportProgress, ImportProgress, Repo } from 'repco-core'
+import { ExportProgress, ImportProgress, repoRegistry } from 'repco-core'
 import { PrismaClient } from 'repco-prisma'
 import { pipeline } from 'stream/promises'
+import { request } from '../client.js'
 import { createCommand, createCommandGroup } from '../parse.js'
 
 // helpers
@@ -26,11 +27,17 @@ export const create = createCommand({
     { name: 'name', required: true, help: 'Local name for repo' },
   ] as const,
   async run(_opts, args) {
-    const prisma = new PrismaClient()
-    const repo = await Repo.create(prisma, args.name)
-    print(`Created new repo "${repo.name}" and DID`)
-    print(`   ${pc.yellow(repo.did)}`)
-    print('The secret key for this repo is stored in the database.')
+    try {
+      const res = (await request('/repo', {
+        method: 'POST',
+        body: { name: args.name },
+      })) as any
+      print(`Created new repo "${args.name}" and DID`)
+      print(`   ${pc.yellow(res.repo_did)}`)
+      print('The secret key for this repo is stored in the database.')
+    } catch (err) {
+      console.error('got error', err)
+    }
   },
 })
 
@@ -51,7 +58,7 @@ export const join = createCommand({
   ] as const,
   async run(opts, args) {
     const prisma = new PrismaClient()
-    const repo = await Repo.create(prisma, args.name, args.did)
+    const repo = await repoRegistry.create(prisma, args.name, args.did)
     if (opts.gateway) await repo.setGateways(opts.gateway)
     print(`Created mirror repo ${repo.name} and DID`)
     print(`  ${pc.yellow(repo.did)}`)
@@ -73,7 +80,7 @@ export const carExport = createCommand({
     { name: 'file', required: true, help: 'File path to export the repo to' },
   ] as const,
   async run(opts, args) {
-    const repo = await Repo.openWithDefaults(args.repo)
+    const repo = await repoRegistry.openWithDefaults(args.repo)
     let from
     if (opts.from) from = CID.parse(opts.from)
     const format =
@@ -140,7 +147,7 @@ export const carImport = createCommand({
     { name: 'file', required: true, help: 'File path to export the repo to' },
   ] as const,
   async run(_opts, args) {
-    const repo = await Repo.openWithDefaults(args.repo)
+    const repo = await repoRegistry.openWithDefaults(args.repo)
     print(`Import from: ${args.file === '-' ? 'STDIN' : args.file}`)
     print(`Import to:   Repo "${repo.name}" (${repo.did})`)
     let input: AsyncIterable<Uint8Array>
@@ -203,18 +210,19 @@ export const list = createCommand({
   name: 'list',
   help: 'List repos',
   async run() {
-    const prisma = new PrismaClient()
-    const repos = await Repo.list(prisma)
-    const table = new Table({
-      head: ['DID', 'Name', 'Revisions'],
-    })
-    for (const repo of repos) {
-      const count = await prisma.revision.count({
-        where: { repoDid: repo.did },
+    try {
+      const res = (await request('/repo', { method: 'GET' })) as any
+      const table = new Table({
+        head: ['DID', 'Name', 'Revisions'],
       })
-      table.push([repo.did, repo.name || '', String(count)])
+      const repoList = res.repoList
+      for (const repoInfo of repoList) {
+        table.push([repoInfo.did, repoInfo.name, repoInfo.count])
+      }
+      console.log(table.toString())
+    } catch (err) {
+      console.error('Error listing all repos', err)
     }
-    print(table.toString())
   },
 })
 
@@ -223,22 +231,22 @@ export const info = createCommand({
   help: 'Info on a repo',
   arguments: [{ name: 'repo', required: true, help: 'DID or name of repo' }],
   async run(_opts, args) {
-    const repo = await Repo.openWithDefaults(args.repo)
-    const table = new Table()
-    const revisionCount = await repo.prisma.revision.count({
-      where: { repoDid: repo.did },
-    })
-    const commitCount = await repo.prisma.commit.count({
-      where: { repoDid: repo.did },
-    })
-    table.push(['DID', repo.did])
-    table.push(['Name', repo.name || ''])
-    table.push(['Writable', JSON.stringify(repo.writeable)])
-    table.push(['Head (commit)', ((await repo.getHead()) || '-').toString()])
-    table.push(['Head (revision)', (await repo.getCursor()) || '-'])
-    table.push(['Revisions', String(revisionCount)])
-    table.push(['Commits', String(commitCount)])
-    print(table.toString())
+    try {
+      const res = (await request(`/repo/${args.repo}`, {
+        method: 'GET',
+      })) as any
+      const table = new Table()
+      table.push(['Did', res.info.did])
+      table.push(['Name', res.info.name])
+      table.push(['Writeable', JSON.stringify(res.info.writeable)])
+      table.push(['Head (commit)', res.info.headCommit])
+      table.push(['Head (revisions)', res.info.headRevisions])
+      table.push(['Revisions', String(res.info.revisions)])
+      table.push(['Commits', String(res.info.commits)])
+      print(table.toString())
+    } catch (err) {
+      console.error('got error', err)
+    }
   },
 })
 
@@ -250,7 +258,7 @@ export const logRevisions = createCommand({
   },
   arguments: [{ name: 'repo', required: true, help: 'DID or name of repo' }],
   async run(opts, args) {
-    const repo = await Repo.openWithDefaults(args.repo)
+    const repo = await repoRegistry.openWithDefaults(args.repo)
     let stream
     if (opts.content) {
       stream = repo.createContentStream()
@@ -265,12 +273,12 @@ export const logRevisions = createCommand({
 
 export const syncCommand = createCommand({
   name: 'sync',
-  help: 'Sync (pull) a mirrored repos',
+  help: 'Sync (pull) a mirrored repo',
   arguments: [
     { name: 'repo', required: true, help: 'DID or name of repo' },
   ] as const,
   async run(_opts, args) {
-    const repo = await Repo.openWithDefaults(args.repo)
+    const repo = await repoRegistry.openWithDefaults(args.repo)
     await repo.pullFromGateways()
   },
 })

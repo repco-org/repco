@@ -49,7 +49,7 @@ export class Ingester {
 
   async init() {
     if (this.hydrated) return
-    await this.repo.dsr.hydrate(this.repo.prisma, this.plugins)
+    await this.repo.dsr.hydrate(this.repo.prisma, this.plugins, this.repo.did)
     this.hydrated = true
   }
 
@@ -89,6 +89,17 @@ export class Ingester {
     const pending = new Map(
       this.datasources.ids().map((uid) => [uid, this.ingest(uid)]),
     )
+
+    const onDsCreate = (uid: string) => {
+      if (this.stopped) {
+        this.repo.dsr.events.removeListener('create', onDsCreate)
+        return
+      }
+      console.log('added datasource to ingest', this.repo.did, uid)
+      pending.set(uid, this.ingest(uid))
+    }
+    this.repo.dsr.events.on('create', onDsCreate)
+
     while (pending.size) {
       const res = await Promise.race(pending.values())
       yield res

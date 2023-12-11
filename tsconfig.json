@@ -40,6 +40,9 @@
   ],
   "references": [
     {
+      "path": "./packages/repco-activitypub"
+    },
+    {
       "path": "./packages/repco-cli"
     },
     {

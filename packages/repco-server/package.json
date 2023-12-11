@@ -26,6 +26,7 @@
     "multiformats": "^11.0.2",
     "pino-http": "^8.3.3",
     "repco-common": "0.1.0",
+    "repco-activitypub": "0.1.0",
     "repco-core": "0.1.0",
     "repco-frontend": "0.1.0",
     "repco-graphql": "0.1.0"

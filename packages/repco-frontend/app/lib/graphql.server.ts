@@ -10,7 +10,7 @@ import type { LoadContentItemsQueryVariables } from '~/graphql/types.js'
 
 export const graphqlClient = createClient({
   url: process.env.REPCO_URL || 'http://localhost:8765/graphql',
-  requestPolicy: 'network-only'
+  requestPolicy: 'network-only',
 })
 
 export function graphqlQuery<

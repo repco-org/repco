@@ -1,0 +1,31 @@
+{
+  "name": "repco-activitypub",
+  "version": "0.1.0",
+  "license": "MIT OR Apache-2.0",
+  "maintainers": [
+    "repco contributors"
+  ],
+  "main": "./dist/src/server.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc --build",
+    "watch": "tsc --build -w",
+    "dev": "run-p watch start:watch",
+    "docs": "typedoc src/server.ts --out ./docs",
+    "start": "node dist/bin.js",
+    "test": "brittle dist/test/*.js"
+  },
+  "dependencies": {
+    "@digitalbazaar/http-digest-header": "^2.0.0",
+    "body-parser": "^1.18.3",
+    "express": "^4.18.1",
+    "express-async-errors": "^3.1.1",
+    "pino-http": "^8.3.3",
+    "repco-common": "*",
+    "repco-prisma": "*",
+    "source-map-support": "^0.5.21",
+    "undici": "^5.10.0",
+    "zod": "^3.19",
+    "zod-error": "^1.5.0"
+  }
+}

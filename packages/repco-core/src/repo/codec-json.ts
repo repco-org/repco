@@ -61,7 +61,8 @@ function preEncode(value: any): Ipld {
 
     if (value instanceof Date) return value.toISOString()
     if (value instanceof CID) return { '/': value.toString() }
-    if (value instanceof Uint8Array || value instanceof Buffer) return { '/': { bytes: uint8arrays.toString(value, 'base64') }}
+    if (value instanceof Uint8Array || value instanceof Buffer)
+      return { '/': { bytes: uint8arrays.toString(value, 'base64') } }
     if (value === undefined || value === null) return null
 
     if (value instanceof Set) value = Array.from(value).sort()
@@ -90,10 +91,20 @@ function postDecode(value: any): any {
       }
       return value
     }
-    if (typeof value === 'object' && Object.keys(value).length === 1 && typeof value['/'] === 'string') {
+    if (
+      typeof value === 'object' &&
+      Object.keys(value).length === 1 &&
+      typeof value['/'] === 'string'
+    ) {
       return CID.parse(value['/'])
     }
-    if (typeof value === 'object' && Object.keys(value).length === 1 && typeof value['/'] === 'object' && Object.keys(value['/']).length === 1 && typeof value['/']['bytes'] === 'string') {
+    if (
+      typeof value === 'object' &&
+      Object.keys(value).length === 1 &&
+      typeof value['/'] === 'object' &&
+      Object.keys(value['/']).length === 1 &&
+      typeof value['/']['bytes'] === 'string'
+    ) {
       return uint8arrays.fromString(value['/']['bytes'], 'base64')
     }
     if (value instanceof CID) return value

@@ -18,7 +18,12 @@ async function main() {
     watch: watch && { onRebuild },
     sourcemap: true,
     platform: 'node',
-    external: ['@prisma/client', 'classic-level', 'repco-server'],
+    external: [
+      '@prisma/client',
+      'classic-level',
+      'pg-native',
+      'graphile-build-pg',
+    ],
     banner: {
       js: 'import {createRequire as __createRequire } from "module";const require=__createRequire(import.meta.url);',
     },

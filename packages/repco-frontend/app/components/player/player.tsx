@@ -380,7 +380,7 @@ function Timeslider({
         max={100}
         type="range"
         aria-label="progress"
-        value={pos * 100}
+        value={value}
         onDragStart={onChangeStart}
         onDragEnd={(e) => onChangeEnd(Number(e.currentTarget.value))}
         onChange={(e) => {

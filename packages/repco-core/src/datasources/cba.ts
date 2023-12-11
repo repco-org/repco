@@ -56,6 +56,7 @@ const configSchema = zod.object({
   endpoint: zod.string().url().optional(),
   apiKey: zod.string().or(zod.null()).optional(),
   pageLimit: zod.number().int().optional(),
+  repo: zod.string(),
 })
 
 type ConfigSchema = zod.infer<typeof configSchema>
@@ -65,6 +66,7 @@ const DEFAULT_CONFIG: FullConfigSchema = {
   endpoint: 'https://cba.fro.at/wp-json/wp/v2',
   pageLimit: 30,
   apiKey: process.env.CBA_API_KEY,
+  repo: 'default',
 }
 
 /**
@@ -87,7 +89,7 @@ export class CbaDataSourcePlugin implements DataSourcePlugin {
    */
   get definition() {
     return {
-      uid: 'urn:repco:datasource:cba',
+      uid: 'repco:datasource:cba',
       name: 'CBA',
     }
   }
@@ -97,11 +99,13 @@ export class CbaDataSource implements DataSource {
   config: FullConfigSchema
   endpointOrigin: string
   uriPrefix: string
+  repo: string
   constructor(config: Partial<ConfigSchema>) {
     this.config = { ...DEFAULT_CONFIG, ...config }
     const endpointUrl = new URL(this.endpoint)
     this.endpointOrigin = endpointUrl.hostname
     this.uriPrefix = `repco:cba:${this.endpointOrigin}`
+    this.repo = this.config.repo
   }
 
   get endpoint() {
@@ -111,8 +115,8 @@ export class CbaDataSource implements DataSource {
   get definition(): DataSourceDefinition {
     return {
       name: 'Cultural Broacasting Archive',
-      uid: 'urn:datasource:cba:' + this.endpoint,
-      pluginUid: 'urn:repco:datasource:cba',
+      uid: `repco:${this.repo}:datasource:cba:` + this.endpoint,
+      pluginUid: 'repco:datasource:cba',
     }
   }
 
@@ -456,7 +460,7 @@ export class CbaDataSource implements DataSource {
       Concepts: media.media_tag.map((cbaId) => ({
         uri: this._uri('tags', cbaId),
       })),
-      File: { uri: fileId },
+      Files: [{ uri: fileId }],
     }
 
     const fileEntity: EntityForm = {
@@ -507,7 +511,7 @@ export class CbaDataSource implements DataSource {
       Concepts: media.media_tag.map((cbaId) => ({
         uri: this._uri('tags', cbaId),
       })),
-      File: { uri: fileId },
+      Files: [{ uri: fileId }],
     }
 
     const fileEntity: EntityForm = {
@@ -586,7 +590,7 @@ export class CbaDataSource implements DataSource {
     const revisionId = this._revisionUri(
       'station',
       station.id,
-      new Date(station.modified).getTime(),
+      parseAsUTC(station.modified).getTime(),
     )
 
     const uri = this._uri('station', station.id)
@@ -618,7 +622,7 @@ export class CbaDataSource implements DataSource {
     const revisionId = this._revisionUri(
       'series',
       series.id,
-      new Date(series.modified).getTime(),
+      parseAsUTC(series.modified).getTime(),
     )
     const uri = this._uri('series', series.id)
     const headers = {
@@ -663,7 +667,7 @@ export class CbaDataSource implements DataSource {
       const conceptLinks = [...categories, ...tags]
 
       const content: form.ContentItemInput = {
-        pubDate: new Date(post.date),
+        pubDate: parseAsUTC(post.date),
         content: post.content.rendered,
         contentFormat: 'text/html',
         title: post.title.rendered,
@@ -683,7 +687,7 @@ export class CbaDataSource implements DataSource {
       const revisionId = this._revisionUri(
         'post',
         post.id,
-        new Date(post.modified).getTime(),
+        parseAsUTC(post.modified).getTime(),
       )
       const entityUri = this._uri('post', post.id)
 
@@ -735,4 +739,13 @@ export class CbaDataSource implements DataSource {
       throw err
     }
   }
+}
+
+/**
+ * Parse a datetime string without timezone information as a UTC date
+ *
+ * @param dateString Datetime string in format 1998-10-17T00:00:00
+ */
+function parseAsUTC(dateString: string): Date {
+  return new Date(dateString + '.000Z')
 }
