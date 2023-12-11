@@ -163,6 +163,8 @@ model Revision {
   entityUris   String[]
   revisionUris String[]
 
+  languages String @default("")
+
   // core derived fields
   contentCid  String // cid of content block
   revisionCid String @unique // cid of revision block
@@ -196,7 +198,7 @@ model Revision {
   Chapter            Chapter?
   Contribution       Contribution?
   Metadata           Metadata?
-  Subtitles          Subtitles?
+  Transcript         Transcript?
 }
 
 model SourceRecord {
@@ -228,13 +230,13 @@ model ContentGrouping {
   revisionId String @unique
 
   broadcastSchedule String? // TODO: JSON (channel, rrule)
-  description       String?
+  description       Json?
   groupingType      String // TODO: enum?
   startingDate      DateTime?
   subtitle          String?
-  summary           String?
+  summary           Json?
   terminationDate   DateTime?
-  title             String
+  title             Json                   @default("{}")
   variant           ContentGroupingVariant
 
   licenseUid String?
@@ -249,11 +251,11 @@ model ContentGrouping {
 model ContentItem {
   uid           String    @id @unique /// @zod.refine(imports.isValidUID)
   revisionId    String    @unique
-  title         String
+  title         Json      @default("{}")
   subtitle      String?
   pubDate       DateTime? // TODO: Review this
-  summary       String?
-  content       String
+  summary       Json?
+  content       Json      @default("{}")
   contentFormat String
 
   primaryGroupingUid    String?
@@ -285,10 +287,10 @@ model License {
 
 /// @repco(Entity)
 model MediaAsset {
-  uid         String  @id @unique
-  revisionId  String  @unique
-  title       String
-  description String?
+  uid         String @id @unique
+  revisionId  String @unique
+  title       Json   @default("{}")
+  description Json?
   duration    Float?
   mediaType   String // TODO: Enum?
 
@@ -304,8 +306,7 @@ model MediaAsset {
   License       License?       @relation(fields: [licenseUid], references: [uid])
   Contributions Contribution[]
   Concepts      Concept[]
-  Translation   Translation[]
-  Subtitles     Subtitles[]
+  // Translation   Translation[]
 }
 
 /// @repco(Entity)
@@ -343,7 +344,7 @@ model Chapter {
 
   start    Float
   duration Float
-  title    String
+  title    Json
   type     String // TODO: enum?
 
   mediaAssetUid String
@@ -373,7 +374,7 @@ model PublicationService {
   uid        String @id @unique
   revisionId String @unique
 
-  name      String
+  name      Json
   publisher Contributor? @relation(fields: [publisherUid], references: [uid])
   medium    String? // FM, Web, ...
   address   String
@@ -387,27 +388,34 @@ model PublicationService {
 
 /// @repco(Entity)
 model Transcript {
-  uid      String @id @unique
-  language String
-  text     String
-  engine   String
+  uid         String @id @unique
+  revisionId  String @unique
+  language    String
+  text        String
+  engine      String
+  subtitleUrl String // url to webvtt file (string)
+  author      String // field for author (string)
+  license     String // license field (string)
 
   mediaAssetUid String
 
+  //TODO: Contributor relation
   MediaAsset MediaAsset @relation(fields: [mediaAssetUid], references: [uid])
+  Revision   Revision   @relation(fields: [revisionId], references: [id])
 }
 
+// might not be needed?
 /// @repco(Entity)
-model Translation {
-  uid      String @id @unique
-  language String
-  text     String
-  engine   String
+// model Translation {
+//   uid      String @id @unique
+//   language String
+//   text     String
+//   engine   String
 
-  mediaAssetUid String
+//   mediaAssetUid String
 
-  MediaAsset MediaAsset @relation(fields: [mediaAssetUid], references: [uid])
-}
+//   MediaAsset MediaAsset @relation(fields: [mediaAssetUid], references: [uid])
+// }
 
 /// @repco(Entity)
 model File {
@@ -443,9 +451,9 @@ model Concept {
 
   originNamespace    String?
   kind               ConceptKind
-  name               String
-  summary            String?
-  description        String?
+  name               Json        @default("{}")
+  summary            Json?
+  description        Json?
   wikidataIdentifier String?
   sameAsUid          String?     @unique
   parentUid          String?

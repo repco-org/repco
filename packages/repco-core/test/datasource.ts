@@ -70,6 +70,7 @@ class TestDataSource extends BaseDataSource implements DataSource {
         MediaAssets: [{ uri: 'urn:test:media:1' }],
         content: 'helloworld',
         contentFormat: 'text/plain',
+        summary: '{}',
       },
       headers: { EntityUris: ['urn:test:content:1'] },
     }
@@ -101,7 +102,8 @@ class TestDataSource extends BaseDataSource implements DataSource {
           content: {
             title: 'Media1',
             mediaType: 'audio/mp3',
-            Files: [{ uri: 'urn:test:file:1' }],
+            File: { uri: 'urn:test:file:1' },
+            description: '{}',
           },
           headers: { EntityUris: ['urn:test:media:1'] },
         }),
@@ -114,7 +116,8 @@ class TestDataSource extends BaseDataSource implements DataSource {
           content: {
             title: 'MediaMissingResolved',
             mediaType: 'audio/mp3',
-            Files: [{ uri: 'urn:test:file:1' }],
+            File: { uri: 'urn:test:file:1' },
+            description: '{}',
           },
           headers: { EntityUris: ['urn:test:media:fail'] },
         }),
@@ -127,7 +130,7 @@ class TestDataSource extends BaseDataSource implements DataSource {
     const form = JSON.parse(record.body) as EntityForm
     if (this.mapUppercase) {
       if (form.type === 'ContentItem') {
-        form.content.title = form.content.title.toUpperCase()
+        form.content.title = form.content.title //.toUpperCase()
       }
     }
     return [form]

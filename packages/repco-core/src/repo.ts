@@ -861,5 +861,6 @@ export function revisionIpldToDb(
     contentCid: headers.BodyCid.toString(),
     revisionCid: headers.Cid.toString(),
     derivedFromUid: headers.DerivedFrom || null,
+    languages: '',
   }
 }
