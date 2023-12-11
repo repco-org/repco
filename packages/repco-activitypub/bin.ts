@@ -9,13 +9,12 @@ Dotenv.config({ path: '../../.env' })
 
 const app = express()
 
-if (!process.env.REPCO_URL) {
-  throw new Error('Missing REPCO_URL environment variable')
-}
-const baseUrl = process.env.REPCO_URL + '/ap'
+const port = process.env.PORT || 8765
+const baseUrl = process.env.REPCO_URL || `http://localhost:${port}`
+const apUrl = baseUrl + '/ap'
 
 const db = new PrismaClient()
-const ap = new ActivityPub(db, baseUrl)
+const ap = new ActivityPub(db, apUrl)
 
 mountActivityPub(app, ap, {
   prefix: '/ap',
@@ -28,7 +27,6 @@ mountActivityPub(app, ap, {
   },
 })
 
-const port = process.env.PORT || 8765
 app.listen(port, () => {
   console.log('listening on http://localhost:' + port)
 })

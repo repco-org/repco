@@ -1,1 +1,0 @@
-{"subject":"acct:cryptix_channel@peertube.1312.media","aliases":["https://peertube.1312.media/video-channels/cryptix_channel"],"links":[{"rel":"self","type":"application/activity+json","href":"https://peertube.1312.media/video-channels/cryptix_channel"},{"rel":"http://ostatus.org/schema/1.0/subscribe","template":"https://peertube.1312.media/remote-interaction?uri={uri}"}]}
