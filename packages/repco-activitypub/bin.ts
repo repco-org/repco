@@ -9,10 +9,10 @@ Dotenv.config({ path: '../../.env' })
 
 const app = express()
 
-const baseUrl = process.env.AP_BASE_URL
-if (!baseUrl) {
-  throw new Error('Missing AP_BASE_URL environment variable')
+if (!process.env.REPCO_URL) {
+  throw new Error('Missing REPCO_URL environment variable')
 }
+const baseUrl = process.env.REPCO_URL + '/ap'
 
 const db = new PrismaClient()
 const ap = new ActivityPub(db, baseUrl)

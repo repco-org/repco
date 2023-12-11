@@ -62,12 +62,12 @@ export function runServer(prisma: PrismaClient, port: number) {
     next()
   })
 
-  if (!process.env.AP_BASE_URL) {
+  if (!process.env.REPCO_URL) {
     logger.warn(
-      'Missing AP_BASE_URL environment variable, activitypub is disabled',
+      'Missing REPCO_URL environment variable, activitypub is disabled',
     )
   } else {
-    const ap = new ActivityPub(prisma, process.env.AP_BASE_URL)
+    const ap = new ActivityPub(prisma, process.env.REPCO_URL + '/ap')
     mountActivityPub(app, ap, {
       prefix: '/ap',
       api: {
