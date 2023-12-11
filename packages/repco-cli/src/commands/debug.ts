@@ -82,6 +82,7 @@ function createItem() {
       contentFormat: 'text/plain',
       title: casual.catch_phrase,
       content: casual.sentences(3),
+      summary: '{}',
     },
   }
   return item

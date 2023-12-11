@@ -480,7 +480,7 @@ export type Chapter = {
   revision?: Maybe<Revision>
   revisionId: Scalars['String']
   start: Scalars['Float']
-  title: Scalars['String']
+  title: Scalars['JSON']
   type: Scalars['String']
   uid: Scalars['String']
 }
@@ -496,7 +496,7 @@ export type ChapterCondition = {
   /** Checks for equality with the object’s `start` field. */
   start?: InputMaybe<Scalars['Float']>
   /** Checks for equality with the object’s `title` field. */
-  title?: InputMaybe<Scalars['String']>
+  title?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `type` field. */
   type?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `uid` field. */
@@ -524,7 +524,7 @@ export type ChapterFilter = {
   /** Filter by the object’s `start` field. */
   start?: InputMaybe<FloatFilter>
   /** Filter by the object’s `title` field. */
-  title?: InputMaybe<StringFilter>
+  title?: InputMaybe<JsonFilter>
   /** Filter by the object’s `type` field. */
   type?: InputMaybe<StringFilter>
   /** Filter by the object’s `uid` field. */
@@ -831,11 +831,11 @@ export type Concept = {
   conceptsBySameAs: ConceptsConnection
   /** Reads and enables pagination through a set of `ContentItem`. */
   contentItems: ConceptContentItemsByConceptToContentItemAAndBManyToManyConnection
-  description?: Maybe<Scalars['String']>
+  description?: Maybe<Scalars['JSON']>
   kind: ConceptKind
   /** Reads and enables pagination through a set of `MediaAsset`. */
   mediaAssets: ConceptMediaAssetsByConceptToMediaAssetAAndBManyToManyConnection
-  name: Scalars['String']
+  name: Scalars['JSON']
   originNamespace?: Maybe<Scalars['String']>
   /** Reads a single `Concept` that is related to this `Concept`. */
   parent?: Maybe<Concept>
@@ -846,7 +846,7 @@ export type Concept = {
   /** Reads a single `Concept` that is related to this `Concept`. */
   sameAs?: Maybe<Concept>
   sameAsUid?: Maybe<Scalars['String']>
-  summary?: Maybe<Scalars['String']>
+  summary?: Maybe<Scalars['JSON']>
   uid: Scalars['String']
   wikidataIdentifier?: Maybe<Scalars['String']>
 }
@@ -992,11 +992,11 @@ export type ConceptConceptsByConceptSameAsUidAndParentUidManyToManyEdgeChildConc
 /** A condition to be used against `Concept` object types. All fields are tested for equality and combined with a logical ‘and.’ */
 export type ConceptCondition = {
   /** Checks for equality with the object’s `description` field. */
-  description?: InputMaybe<Scalars['String']>
+  description?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `kind` field. */
   kind?: InputMaybe<ConceptKind>
   /** Checks for equality with the object’s `name` field. */
-  name?: InputMaybe<Scalars['String']>
+  name?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `originNamespace` field. */
   originNamespace?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `parentUid` field. */
@@ -1006,7 +1006,7 @@ export type ConceptCondition = {
   /** Checks for equality with the object’s `sameAsUid` field. */
   sameAsUid?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `summary` field. */
-  summary?: InputMaybe<Scalars['String']>
+  summary?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `uid` field. */
   uid?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `wikidataIdentifier` field. */
@@ -1062,11 +1062,11 @@ export type ConceptFilter = {
   /** Some related `conceptsBySameAs` exist. */
   conceptsBySameAsExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `description` field. */
-  description?: InputMaybe<StringFilter>
+  description?: InputMaybe<JsonFilter>
   /** Filter by the object’s `kind` field. */
   kind?: InputMaybe<ConceptKindFilter>
   /** Filter by the object’s `name` field. */
-  name?: InputMaybe<StringFilter>
+  name?: InputMaybe<JsonFilter>
   /** Negates the expression. */
   not?: InputMaybe<ConceptFilter>
   /** Checks for any expressions in this list. */
@@ -1090,7 +1090,7 @@ export type ConceptFilter = {
   /** Filter by the object’s `sameAsUid` field. */
   sameAsUid?: InputMaybe<StringFilter>
   /** Filter by the object’s `summary` field. */
-  summary?: InputMaybe<StringFilter>
+  summary?: InputMaybe<JsonFilter>
   /** Filter by the object’s `uid` field. */
   uid?: InputMaybe<StringFilter>
   /** Filter by the object’s `wikidataIdentifier` field. */
@@ -1226,7 +1226,7 @@ export type ContentGrouping = {
   contentItems: ContentGroupingContentItemsByContentGroupingToContentItemAAndBManyToManyConnection
   /** Reads and enables pagination through a set of `ContentItem`. */
   contentItemsByPrimaryGrouping: ContentItemsConnection
-  description?: Maybe<Scalars['String']>
+  description?: Maybe<Scalars['JSON']>
   groupingType: Scalars['String']
   /** Reads a single `License` that is related to this `ContentGrouping`. */
   license?: Maybe<License>
@@ -1240,9 +1240,9 @@ export type ContentGrouping = {
   revisionId: Scalars['String']
   startingDate?: Maybe<Scalars['Datetime']>
   subtitle?: Maybe<Scalars['String']>
-  summary?: Maybe<Scalars['String']>
+  summary?: Maybe<Scalars['JSON']>
   terminationDate?: Maybe<Scalars['Datetime']>
-  title: Scalars['String']
+  title: Scalars['JSON']
   uid: Scalars['String']
   variant: ContentGroupingVariant
 }
@@ -1301,7 +1301,7 @@ export type ContentGroupingCondition = {
   /** Checks for equality with the object’s `broadcastSchedule` field. */
   broadcastSchedule?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `description` field. */
-  description?: InputMaybe<Scalars['String']>
+  description?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `groupingType` field. */
   groupingType?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `licenseUid` field. */
@@ -1313,11 +1313,11 @@ export type ContentGroupingCondition = {
   /** Checks for equality with the object’s `subtitle` field. */
   subtitle?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `summary` field. */
-  summary?: InputMaybe<Scalars['String']>
+  summary?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `terminationDate` field. */
   terminationDate?: InputMaybe<Scalars['Datetime']>
   /** Checks for equality with the object’s `title` field. */
-  title?: InputMaybe<Scalars['String']>
+  title?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `uid` field. */
   uid?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `variant` field. */
@@ -1372,7 +1372,7 @@ export type ContentGroupingFilter = {
   /** Some related `contentItemsByPrimaryGrouping` exist. */
   contentItemsByPrimaryGroupingExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `description` field. */
-  description?: InputMaybe<StringFilter>
+  description?: InputMaybe<JsonFilter>
   /** Filter by the object’s `groupingType` field. */
   groupingType?: InputMaybe<StringFilter>
   /** Filter by the object’s `license` relation. */
@@ -1394,11 +1394,11 @@ export type ContentGroupingFilter = {
   /** Filter by the object’s `subtitle` field. */
   subtitle?: InputMaybe<StringFilter>
   /** Filter by the object’s `summary` field. */
-  summary?: InputMaybe<StringFilter>
+  summary?: InputMaybe<JsonFilter>
   /** Filter by the object’s `terminationDate` field. */
   terminationDate?: InputMaybe<DatetimeFilter>
   /** Filter by the object’s `title` field. */
-  title?: InputMaybe<StringFilter>
+  title?: InputMaybe<JsonFilter>
   /** Filter by the object’s `uid` field. */
   uid?: InputMaybe<StringFilter>
   /** Filter by the object’s `variant` field. */
@@ -1576,7 +1576,7 @@ export type ContentItem = {
   broadcastEvents: BroadcastEventsConnection
   /** Reads and enables pagination through a set of `Concept`. */
   concepts: ContentItemConceptsByConceptToContentItemBAndAManyToManyConnection
-  content: Scalars['String']
+  content: Scalars['JSON']
   contentFormat: Scalars['String']
   /** Reads and enables pagination through a set of `ContentGrouping`. */
   contentGroupings: ContentItemContentGroupingsByContentGroupingToContentItemBAndAManyToManyConnection
@@ -1600,8 +1600,8 @@ export type ContentItem = {
   revision?: Maybe<Revision>
   revisionId: Scalars['String']
   subtitle?: Maybe<Scalars['String']>
-  summary?: Maybe<Scalars['String']>
-  title: Scalars['String']
+  summary?: Maybe<Scalars['JSON']>
+  title: Scalars['JSON']
   uid: Scalars['String']
 }
 
@@ -1714,7 +1714,7 @@ export type ContentItemConceptsByConceptToContentItemBAndAManyToManyEdge_Concept
  */
 export type ContentItemCondition = {
   /** Checks for equality with the object’s `content` field. */
-  content?: InputMaybe<Scalars['String']>
+  content?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `contentFormat` field. */
   contentFormat?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `licenseUid` field. */
@@ -1730,9 +1730,9 @@ export type ContentItemCondition = {
   /** Checks for equality with the object’s `subtitle` field. */
   subtitle?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `summary` field. */
-  summary?: InputMaybe<Scalars['String']>
+  summary?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `title` field. */
-  title?: InputMaybe<Scalars['String']>
+  title?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `uid` field. */
   uid?: InputMaybe<Scalars['String']>
 }
@@ -1820,7 +1820,7 @@ export type ContentItemFilter = {
   /** Some related `broadcastEvents` exist. */
   broadcastEventsExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `content` field. */
-  content?: InputMaybe<StringFilter>
+  content?: InputMaybe<JsonFilter>
   /** Filter by the object’s `contentFormat` field. */
   contentFormat?: InputMaybe<StringFilter>
   /** Filter by the object’s `license` relation. */
@@ -1854,9 +1854,9 @@ export type ContentItemFilter = {
   /** Filter by the object’s `subtitle` field. */
   subtitle?: InputMaybe<StringFilter>
   /** Filter by the object’s `summary` field. */
-  summary?: InputMaybe<StringFilter>
+  summary?: InputMaybe<JsonFilter>
   /** Filter by the object’s `title` field. */
-  title?: InputMaybe<StringFilter>
+  title?: InputMaybe<JsonFilter>
   /** Filter by the object’s `uid` field. */
   uid?: InputMaybe<StringFilter>
 }
@@ -2536,6 +2536,1695 @@ export type DatetimeFilter = {
   notIn?: InputMaybe<Array<Scalars['Datetime']>>
 }
 
+export type ElasticApi_Default = {
+  /** Perform a [bulk](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-bulk.html) request */
+  bulk?: Maybe<Scalars['JSON']>
+  cat?: Maybe<ElasticApi_Default_Cat>
+  /** Perform a [clearScroll](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-request-body.html#_clear_scroll_api) request */
+  clearScroll?: Maybe<Scalars['JSON']>
+  cluster?: Maybe<ElasticApi_Default_Cluster>
+  /** Perform a [count](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-count.html) request */
+  count?: Maybe<Scalars['JSON']>
+  /** Perform a [create](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-index_.html) request */
+  create?: Maybe<Scalars['JSON']>
+  /** Perform a [delete](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-delete.html) request */
+  delete?: Maybe<Scalars['JSON']>
+  /** Perform a [deleteByQuery](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-delete-by-query.html) request */
+  deleteByQuery?: Maybe<Scalars['JSON']>
+  /** Perform a [deleteByQueryRethrottle](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-delete-by-query.html) request */
+  deleteByQueryRethrottle?: Maybe<Scalars['JSON']>
+  /** Perform a [deleteScript](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/modules-scripting.html) request */
+  deleteScript?: Maybe<Scalars['JSON']>
+  /** Perform a [exists](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-get.html) request */
+  exists?: Maybe<Scalars['JSON']>
+  /** Perform a [existsSource](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-get.html) request */
+  existsSource?: Maybe<Scalars['JSON']>
+  /** Perform a [explain](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-explain.html) request */
+  explain?: Maybe<Scalars['JSON']>
+  /** Perform a [fieldCaps](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-field-caps.html) request */
+  fieldCaps?: Maybe<Scalars['JSON']>
+  /** Perform a [get](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-get.html) request */
+  get?: Maybe<Scalars['JSON']>
+  /** Perform a [getScript](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/modules-scripting.html) request */
+  getScript?: Maybe<Scalars['JSON']>
+  /** Perform a [getSource](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-get.html) request */
+  getSource?: Maybe<Scalars['JSON']>
+  /** Perform a [index](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-index_.html) request */
+  index?: Maybe<Scalars['JSON']>
+  indices?: Maybe<ElasticApi_Default_Indices>
+  /** Perform a [info](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/index.html) request */
+  info?: Maybe<Scalars['JSON']>
+  ingest?: Maybe<ElasticApi_Default_Ingest>
+  /** Perform a [mget](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-multi-get.html) request */
+  mget?: Maybe<Scalars['JSON']>
+  /** Perform a [msearch](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-multi-search.html) request */
+  msearch?: Maybe<Scalars['JSON']>
+  /** Perform a [msearchTemplate](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-multi-search.html) request */
+  msearchTemplate?: Maybe<Scalars['JSON']>
+  /** Perform a [mtermvectors](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-multi-termvectors.html) request */
+  mtermvectors?: Maybe<Scalars['JSON']>
+  nodes?: Maybe<ElasticApi_Default_Nodes>
+  /** Perform a [ping](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/index.html) request */
+  ping?: Maybe<Scalars['JSON']>
+  /** Perform a [putScript](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/modules-scripting.html) request */
+  putScript?: Maybe<Scalars['JSON']>
+  /** Perform a [rankEval](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-rank-eval.html) request */
+  rankEval?: Maybe<Scalars['JSON']>
+  /** Perform a [reindex](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-reindex.html) request */
+  reindex?: Maybe<Scalars['JSON']>
+  /** Perform a [reindexRethrottle](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-reindex.html) request */
+  reindexRethrottle?: Maybe<Scalars['JSON']>
+  /** Perform a [renderSearchTemplate](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-template.html#_validating_templates) request */
+  renderSearchTemplate?: Maybe<Scalars['JSON']>
+  /** Perform a [scriptsPainlessExecute](https://www.elastic.co/guide/en/elasticsearch/painless/7.6/painless-execute-api.html) request */
+  scriptsPainlessExecute?: Maybe<Scalars['JSON']>
+  /** Perform a [scroll](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-request-body.html#request-body-search-scroll) request */
+  scroll?: Maybe<Scalars['JSON']>
+  /** Perform a [search](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-search.html) request */
+  search?: Maybe<Scalars['JSON']>
+  /** Perform a [searchShards](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-shards.html) request */
+  searchShards?: Maybe<Scalars['JSON']>
+  /** Perform a [searchTemplate](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-template.html) request */
+  searchTemplate?: Maybe<Scalars['JSON']>
+  snapshot?: Maybe<ElasticApi_Default_Snapshot>
+  tasks?: Maybe<ElasticApi_Default_Tasks>
+  /** Perform a [termvectors](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-termvectors.html) request */
+  termvectors?: Maybe<Scalars['JSON']>
+  /** Perform a [update](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-update.html) request */
+  update?: Maybe<Scalars['JSON']>
+  /** Perform a [updateByQuery](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-update-by-query.html) request */
+  updateByQuery?: Maybe<Scalars['JSON']>
+  /** Perform a [updateByQueryRethrottle](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/docs-update-by-query.html) request */
+  updateByQueryRethrottle?: Maybe<Scalars['JSON']>
+}
+
+export type ElasticApi_DefaultBulkArgs = {
+  _source: InputMaybe<Scalars['JSON']>
+  _sourceExcludes: InputMaybe<Scalars['JSON']>
+  _sourceIncludes: InputMaybe<Scalars['JSON']>
+  body: Scalars['JSON']
+  index: InputMaybe<Scalars['String']>
+  pipeline: InputMaybe<Scalars['String']>
+  refresh: InputMaybe<ElasticApi_DefaultEnum_Refresh>
+  routing: InputMaybe<Scalars['String']>
+  timeout: InputMaybe<Scalars['String']>
+  type: InputMaybe<Scalars['String']>
+  waitForActiveShards: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_DefaultCountArgs = {
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  analyzeWildcard: InputMaybe<Scalars['Boolean']>
+  analyzer: InputMaybe<Scalars['String']>
+  body: InputMaybe<Scalars['JSON']>
+  defaultOperator?: InputMaybe<ElasticApi_DefaultEnum_DefaultOperator>
+  df: InputMaybe<Scalars['String']>
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  ignoreThrottled: InputMaybe<Scalars['Boolean']>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  lenient: InputMaybe<Scalars['Boolean']>
+  minScore: InputMaybe<Scalars['Float']>
+  preference: InputMaybe<Scalars['String']>
+  q: InputMaybe<Scalars['String']>
+  routing: InputMaybe<Scalars['JSON']>
+  terminateAfter: InputMaybe<Scalars['Float']>
+}
+
+export type ElasticApi_DefaultCreateArgs = {
+  body: Scalars['JSON']
+  id: InputMaybe<Scalars['String']>
+  index: InputMaybe<Scalars['String']>
+  pipeline: InputMaybe<Scalars['String']>
+  refresh: InputMaybe<ElasticApi_DefaultEnum_Refresh>
+  routing: InputMaybe<Scalars['String']>
+  timeout: InputMaybe<Scalars['String']>
+  version: InputMaybe<Scalars['Float']>
+  versionType: InputMaybe<ElasticApi_DefaultEnum_VersionType>
+  waitForActiveShards: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_DefaultDeleteArgs = {
+  id: InputMaybe<Scalars['String']>
+  ifPrimaryTerm: InputMaybe<Scalars['Float']>
+  ifSeqNo: InputMaybe<Scalars['Float']>
+  index: InputMaybe<Scalars['String']>
+  refresh: InputMaybe<ElasticApi_DefaultEnum_Refresh>
+  routing: InputMaybe<Scalars['String']>
+  timeout: InputMaybe<Scalars['String']>
+  version: InputMaybe<Scalars['Float']>
+  versionType: InputMaybe<ElasticApi_DefaultEnum_VersionType>
+  waitForActiveShards: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_DefaultDeleteByQueryArgs = {
+  _source: InputMaybe<Scalars['JSON']>
+  _sourceExcludes: InputMaybe<Scalars['JSON']>
+  _sourceIncludes: InputMaybe<Scalars['JSON']>
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  analyzeWildcard: InputMaybe<Scalars['Boolean']>
+  analyzer: InputMaybe<Scalars['String']>
+  body: Scalars['JSON']
+  conflicts?: InputMaybe<ElasticApi_DefaultEnum_Conflicts>
+  defaultOperator?: InputMaybe<ElasticApi_DefaultEnum_DefaultOperator>
+  df: InputMaybe<Scalars['String']>
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  from: InputMaybe<Scalars['Float']>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  lenient: InputMaybe<Scalars['Boolean']>
+  maxDocs: InputMaybe<Scalars['Float']>
+  preference: InputMaybe<Scalars['String']>
+  q: InputMaybe<Scalars['String']>
+  refresh: InputMaybe<Scalars['Boolean']>
+  requestCache: InputMaybe<Scalars['Boolean']>
+  requestsPerSecond: InputMaybe<Scalars['Float']>
+  routing: InputMaybe<Scalars['JSON']>
+  scroll: InputMaybe<Scalars['String']>
+  scrollSize: InputMaybe<Scalars['Float']>
+  searchTimeout: InputMaybe<Scalars['String']>
+  searchType: InputMaybe<ElasticApi_DefaultEnum_SearchType>
+  size: InputMaybe<Scalars['Float']>
+  slices?: InputMaybe<Scalars['Float']>
+  sort: InputMaybe<Scalars['JSON']>
+  stats: InputMaybe<Scalars['JSON']>
+  terminateAfter: InputMaybe<Scalars['Float']>
+  timeout?: InputMaybe<Scalars['String']>
+  version: InputMaybe<Scalars['Boolean']>
+  waitForActiveShards: InputMaybe<Scalars['String']>
+  waitForCompletion?: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_DefaultDeleteByQueryRethrottleArgs = {
+  body: InputMaybe<Scalars['JSON']>
+  requestsPerSecond: InputMaybe<Scalars['Float']>
+  taskId: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_DefaultDeleteScriptArgs = {
+  id: InputMaybe<Scalars['String']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  timeout: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_DefaultExistsArgs = {
+  _source: InputMaybe<Scalars['JSON']>
+  _sourceExcludes: InputMaybe<Scalars['JSON']>
+  _sourceIncludes: InputMaybe<Scalars['JSON']>
+  id: InputMaybe<Scalars['String']>
+  index: InputMaybe<Scalars['String']>
+  preference: InputMaybe<Scalars['String']>
+  realtime: InputMaybe<Scalars['Boolean']>
+  refresh: InputMaybe<Scalars['Boolean']>
+  routing: InputMaybe<Scalars['String']>
+  storedFields: InputMaybe<Scalars['JSON']>
+  version: InputMaybe<Scalars['Float']>
+  versionType: InputMaybe<ElasticApi_DefaultEnum_VersionType>
+}
+
+export type ElasticApi_DefaultExistsSourceArgs = {
+  _source: InputMaybe<Scalars['JSON']>
+  _sourceExcludes: InputMaybe<Scalars['JSON']>
+  _sourceIncludes: InputMaybe<Scalars['JSON']>
+  id: InputMaybe<Scalars['String']>
+  index: InputMaybe<Scalars['String']>
+  preference: InputMaybe<Scalars['String']>
+  realtime: InputMaybe<Scalars['Boolean']>
+  refresh: InputMaybe<Scalars['Boolean']>
+  routing: InputMaybe<Scalars['String']>
+  version: InputMaybe<Scalars['Float']>
+  versionType: InputMaybe<ElasticApi_DefaultEnum_VersionType>
+}
+
+export type ElasticApi_DefaultExplainArgs = {
+  _source: InputMaybe<Scalars['JSON']>
+  _sourceExcludes: InputMaybe<Scalars['JSON']>
+  _sourceIncludes: InputMaybe<Scalars['JSON']>
+  analyzeWildcard: InputMaybe<Scalars['Boolean']>
+  analyzer: InputMaybe<Scalars['String']>
+  body: InputMaybe<Scalars['JSON']>
+  defaultOperator?: InputMaybe<ElasticApi_DefaultEnum_DefaultOperator>
+  df: InputMaybe<Scalars['String']>
+  id: InputMaybe<Scalars['String']>
+  index: InputMaybe<Scalars['String']>
+  lenient: InputMaybe<Scalars['Boolean']>
+  preference: InputMaybe<Scalars['String']>
+  q: InputMaybe<Scalars['String']>
+  routing: InputMaybe<Scalars['String']>
+  storedFields: InputMaybe<Scalars['JSON']>
+}
+
+export type ElasticApi_DefaultFieldCapsArgs = {
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  body: InputMaybe<Scalars['JSON']>
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  fields: InputMaybe<Scalars['JSON']>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  includeUnmapped: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+}
+
+export type ElasticApi_DefaultGetArgs = {
+  _source: InputMaybe<Scalars['JSON']>
+  _sourceExcludes: InputMaybe<Scalars['JSON']>
+  _sourceIncludes: InputMaybe<Scalars['JSON']>
+  id: InputMaybe<Scalars['String']>
+  index: InputMaybe<Scalars['String']>
+  preference: InputMaybe<Scalars['String']>
+  realtime: InputMaybe<Scalars['Boolean']>
+  refresh: InputMaybe<Scalars['Boolean']>
+  routing: InputMaybe<Scalars['String']>
+  storedFields: InputMaybe<Scalars['JSON']>
+  version: InputMaybe<Scalars['Float']>
+  versionType: InputMaybe<ElasticApi_DefaultEnum_VersionType>
+}
+
+export type ElasticApi_DefaultGetScriptArgs = {
+  id: InputMaybe<Scalars['String']>
+  masterTimeout: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_DefaultGetSourceArgs = {
+  _source: InputMaybe<Scalars['JSON']>
+  _sourceExcludes: InputMaybe<Scalars['JSON']>
+  _sourceIncludes: InputMaybe<Scalars['JSON']>
+  id: InputMaybe<Scalars['String']>
+  index: InputMaybe<Scalars['String']>
+  preference: InputMaybe<Scalars['String']>
+  realtime: InputMaybe<Scalars['Boolean']>
+  refresh: InputMaybe<Scalars['Boolean']>
+  routing: InputMaybe<Scalars['String']>
+  version: InputMaybe<Scalars['Float']>
+  versionType: InputMaybe<ElasticApi_DefaultEnum_VersionType>
+}
+
+export type ElasticApi_DefaultIndexArgs = {
+  body: Scalars['JSON']
+  id: InputMaybe<Scalars['String']>
+  ifPrimaryTerm: InputMaybe<Scalars['Float']>
+  ifSeqNo: InputMaybe<Scalars['Float']>
+  index: InputMaybe<Scalars['String']>
+  opType?: InputMaybe<ElasticApi_DefaultEnum_OpType>
+  pipeline: InputMaybe<Scalars['String']>
+  refresh: InputMaybe<ElasticApi_DefaultEnum_Refresh>
+  routing: InputMaybe<Scalars['String']>
+  timeout: InputMaybe<Scalars['String']>
+  version: InputMaybe<Scalars['Float']>
+  versionType: InputMaybe<ElasticApi_DefaultEnum_VersionType>
+  waitForActiveShards: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_DefaultMgetArgs = {
+  _source: InputMaybe<Scalars['JSON']>
+  _sourceExcludes: InputMaybe<Scalars['JSON']>
+  _sourceIncludes: InputMaybe<Scalars['JSON']>
+  body: Scalars['JSON']
+  index: InputMaybe<Scalars['String']>
+  preference: InputMaybe<Scalars['String']>
+  realtime: InputMaybe<Scalars['Boolean']>
+  refresh: InputMaybe<Scalars['Boolean']>
+  routing: InputMaybe<Scalars['String']>
+  storedFields: InputMaybe<Scalars['JSON']>
+}
+
+export type ElasticApi_DefaultMsearchArgs = {
+  body: Scalars['JSON']
+  ccsMinimizeRoundtrips?: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  maxConcurrentSearches: InputMaybe<Scalars['Float']>
+  maxConcurrentShardRequests?: InputMaybe<Scalars['Float']>
+  preFilterShardSize?: InputMaybe<Scalars['Float']>
+  restTotalHitsAsInt: InputMaybe<Scalars['Boolean']>
+  searchType: InputMaybe<ElasticApi_DefaultEnum_SearchType_1>
+  typedKeys: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_DefaultMsearchTemplateArgs = {
+  body: Scalars['JSON']
+  ccsMinimizeRoundtrips?: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  maxConcurrentSearches: InputMaybe<Scalars['Float']>
+  restTotalHitsAsInt: InputMaybe<Scalars['Boolean']>
+  searchType: InputMaybe<ElasticApi_DefaultEnum_SearchType_1>
+  typedKeys: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_DefaultMtermvectorsArgs = {
+  body: InputMaybe<Scalars['JSON']>
+  fieldStatistics?: InputMaybe<Scalars['Boolean']>
+  fields: InputMaybe<Scalars['JSON']>
+  ids: InputMaybe<Scalars['JSON']>
+  index: InputMaybe<Scalars['String']>
+  offsets?: InputMaybe<Scalars['Boolean']>
+  payloads?: InputMaybe<Scalars['Boolean']>
+  positions?: InputMaybe<Scalars['Boolean']>
+  preference: InputMaybe<Scalars['String']>
+  realtime: InputMaybe<Scalars['Boolean']>
+  routing: InputMaybe<Scalars['String']>
+  termStatistics: InputMaybe<Scalars['Boolean']>
+  version: InputMaybe<Scalars['Float']>
+  versionType: InputMaybe<ElasticApi_DefaultEnum_VersionType>
+}
+
+export type ElasticApi_DefaultPutScriptArgs = {
+  body: Scalars['JSON']
+  context: InputMaybe<Scalars['String']>
+  id: InputMaybe<Scalars['String']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  timeout: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_DefaultRankEvalArgs = {
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  body: Scalars['JSON']
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+}
+
+export type ElasticApi_DefaultReindexArgs = {
+  body: Scalars['JSON']
+  maxDocs: InputMaybe<Scalars['Float']>
+  refresh: InputMaybe<Scalars['Boolean']>
+  requestsPerSecond: InputMaybe<Scalars['Float']>
+  scroll?: InputMaybe<Scalars['String']>
+  slices?: InputMaybe<Scalars['Float']>
+  timeout?: InputMaybe<Scalars['String']>
+  waitForActiveShards: InputMaybe<Scalars['String']>
+  waitForCompletion?: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_DefaultReindexRethrottleArgs = {
+  body: InputMaybe<Scalars['JSON']>
+  requestsPerSecond: InputMaybe<Scalars['Float']>
+  taskId: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_DefaultRenderSearchTemplateArgs = {
+  body: InputMaybe<Scalars['JSON']>
+  id: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_DefaultScriptsPainlessExecuteArgs = {
+  body: InputMaybe<Scalars['JSON']>
+}
+
+export type ElasticApi_DefaultScrollArgs = {
+  body: InputMaybe<Scalars['JSON']>
+  restTotalHitsAsInt: InputMaybe<Scalars['Boolean']>
+  scroll: InputMaybe<Scalars['String']>
+  scrollId: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_DefaultSearchArgs = {
+  _source: InputMaybe<Scalars['JSON']>
+  _sourceExcludes: InputMaybe<Scalars['JSON']>
+  _sourceIncludes: InputMaybe<Scalars['JSON']>
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  allowPartialSearchResults?: InputMaybe<Scalars['Boolean']>
+  analyzeWildcard: InputMaybe<Scalars['Boolean']>
+  analyzer: InputMaybe<Scalars['String']>
+  batchedReduceSize?: InputMaybe<Scalars['Float']>
+  body: InputMaybe<Scalars['JSON']>
+  ccsMinimizeRoundtrips?: InputMaybe<Scalars['Boolean']>
+  defaultOperator?: InputMaybe<ElasticApi_DefaultEnum_DefaultOperator>
+  df: InputMaybe<Scalars['String']>
+  docvalueFields: InputMaybe<Scalars['JSON']>
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  explain: InputMaybe<Scalars['Boolean']>
+  from: InputMaybe<Scalars['Float']>
+  ignoreThrottled: InputMaybe<Scalars['Boolean']>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  lenient: InputMaybe<Scalars['Boolean']>
+  maxConcurrentShardRequests?: InputMaybe<Scalars['Float']>
+  preFilterShardSize?: InputMaybe<Scalars['Float']>
+  preference: InputMaybe<Scalars['String']>
+  q: InputMaybe<Scalars['String']>
+  requestCache: InputMaybe<Scalars['Boolean']>
+  restTotalHitsAsInt: InputMaybe<Scalars['Boolean']>
+  routing: InputMaybe<Scalars['JSON']>
+  scroll: InputMaybe<Scalars['String']>
+  searchType: InputMaybe<ElasticApi_DefaultEnum_SearchType>
+  seqNoPrimaryTerm: InputMaybe<Scalars['Boolean']>
+  size: InputMaybe<Scalars['Float']>
+  sort: InputMaybe<Scalars['JSON']>
+  stats: InputMaybe<Scalars['JSON']>
+  storedFields: InputMaybe<Scalars['JSON']>
+  suggestField: InputMaybe<Scalars['String']>
+  suggestMode?: InputMaybe<ElasticApi_DefaultEnum_SuggestMode>
+  suggestSize: InputMaybe<Scalars['Float']>
+  suggestText: InputMaybe<Scalars['String']>
+  terminateAfter: InputMaybe<Scalars['Float']>
+  timeout: InputMaybe<Scalars['String']>
+  trackScores: InputMaybe<Scalars['Boolean']>
+  trackTotalHits: InputMaybe<Scalars['Boolean']>
+  typedKeys: InputMaybe<Scalars['Boolean']>
+  version: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_DefaultSearchShardsArgs = {
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  body: InputMaybe<Scalars['JSON']>
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  local: InputMaybe<Scalars['Boolean']>
+  preference: InputMaybe<Scalars['String']>
+  routing: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_DefaultSearchTemplateArgs = {
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  body: Scalars['JSON']
+  ccsMinimizeRoundtrips?: InputMaybe<Scalars['Boolean']>
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  explain: InputMaybe<Scalars['Boolean']>
+  ignoreThrottled: InputMaybe<Scalars['Boolean']>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  preference: InputMaybe<Scalars['String']>
+  profile: InputMaybe<Scalars['Boolean']>
+  restTotalHitsAsInt: InputMaybe<Scalars['Boolean']>
+  routing: InputMaybe<Scalars['JSON']>
+  scroll: InputMaybe<Scalars['String']>
+  searchType: InputMaybe<ElasticApi_DefaultEnum_SearchType_1>
+  typedKeys: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_DefaultTermvectorsArgs = {
+  body: InputMaybe<Scalars['JSON']>
+  fieldStatistics?: InputMaybe<Scalars['Boolean']>
+  fields: InputMaybe<Scalars['JSON']>
+  id: InputMaybe<Scalars['String']>
+  index: InputMaybe<Scalars['String']>
+  offsets?: InputMaybe<Scalars['Boolean']>
+  payloads?: InputMaybe<Scalars['Boolean']>
+  positions?: InputMaybe<Scalars['Boolean']>
+  preference: InputMaybe<Scalars['String']>
+  realtime: InputMaybe<Scalars['Boolean']>
+  routing: InputMaybe<Scalars['String']>
+  termStatistics: InputMaybe<Scalars['Boolean']>
+  version: InputMaybe<Scalars['Float']>
+  versionType: InputMaybe<ElasticApi_DefaultEnum_VersionType>
+}
+
+export type ElasticApi_DefaultUpdateArgs = {
+  _source: InputMaybe<Scalars['JSON']>
+  _sourceExcludes: InputMaybe<Scalars['JSON']>
+  _sourceIncludes: InputMaybe<Scalars['JSON']>
+  body: Scalars['JSON']
+  id: InputMaybe<Scalars['String']>
+  ifPrimaryTerm: InputMaybe<Scalars['Float']>
+  ifSeqNo: InputMaybe<Scalars['Float']>
+  index: InputMaybe<Scalars['String']>
+  lang: InputMaybe<Scalars['String']>
+  refresh: InputMaybe<ElasticApi_DefaultEnum_Refresh>
+  retryOnConflict: InputMaybe<Scalars['Float']>
+  routing: InputMaybe<Scalars['String']>
+  timeout: InputMaybe<Scalars['String']>
+  waitForActiveShards: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_DefaultUpdateByQueryArgs = {
+  _source: InputMaybe<Scalars['JSON']>
+  _sourceExcludes: InputMaybe<Scalars['JSON']>
+  _sourceIncludes: InputMaybe<Scalars['JSON']>
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  analyzeWildcard: InputMaybe<Scalars['Boolean']>
+  analyzer: InputMaybe<Scalars['String']>
+  body: InputMaybe<Scalars['JSON']>
+  conflicts?: InputMaybe<ElasticApi_DefaultEnum_Conflicts>
+  defaultOperator?: InputMaybe<ElasticApi_DefaultEnum_DefaultOperator>
+  df: InputMaybe<Scalars['String']>
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  from: InputMaybe<Scalars['Float']>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  lenient: InputMaybe<Scalars['Boolean']>
+  maxDocs: InputMaybe<Scalars['Float']>
+  pipeline: InputMaybe<Scalars['String']>
+  preference: InputMaybe<Scalars['String']>
+  q: InputMaybe<Scalars['String']>
+  refresh: InputMaybe<Scalars['Boolean']>
+  requestCache: InputMaybe<Scalars['Boolean']>
+  requestsPerSecond: InputMaybe<Scalars['Float']>
+  routing: InputMaybe<Scalars['JSON']>
+  scroll: InputMaybe<Scalars['String']>
+  scrollSize: InputMaybe<Scalars['Float']>
+  searchTimeout: InputMaybe<Scalars['String']>
+  searchType: InputMaybe<ElasticApi_DefaultEnum_SearchType>
+  size: InputMaybe<Scalars['Float']>
+  slices?: InputMaybe<Scalars['Float']>
+  sort: InputMaybe<Scalars['JSON']>
+  stats: InputMaybe<Scalars['JSON']>
+  terminateAfter: InputMaybe<Scalars['Float']>
+  timeout?: InputMaybe<Scalars['String']>
+  version: InputMaybe<Scalars['Boolean']>
+  versionType: InputMaybe<Scalars['Boolean']>
+  waitForActiveShards: InputMaybe<Scalars['String']>
+  waitForCompletion?: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_DefaultUpdateByQueryRethrottleArgs = {
+  body: InputMaybe<Scalars['JSON']>
+  requestsPerSecond: InputMaybe<Scalars['Float']>
+  taskId: InputMaybe<Scalars['String']>
+}
+
+export enum ElasticApi_DefaultEnum_Bytes {
+  B = 'b',
+  G = 'g',
+  Gb = 'gb',
+  K = 'k',
+  Kb = 'kb',
+  M = 'm',
+  Mb = 'mb',
+  P = 'p',
+  Pb = 'pb',
+  T = 't',
+  Tb = 'tb',
+}
+
+export enum ElasticApi_DefaultEnum_Bytes_1 {
+  B = 'b',
+  G = 'g',
+  K = 'k',
+  M = 'm',
+}
+
+export enum ElasticApi_DefaultEnum_Conflicts {
+  Abort = 'abort',
+  Proceed = 'proceed',
+}
+
+export enum ElasticApi_DefaultEnum_DefaultOperator {
+  And = 'AND',
+  Or = 'OR',
+}
+
+export enum ElasticApi_DefaultEnum_ExpandWildcards {
+  All = 'all',
+  Closed = 'closed',
+  None = 'none',
+  Open = 'open',
+}
+
+export enum ElasticApi_DefaultEnum_GroupBy {
+  Nodes = 'nodes',
+  None = 'none',
+  Parents = 'parents',
+}
+
+export enum ElasticApi_DefaultEnum_Health {
+  Green = 'green',
+  Red = 'red',
+  Yellow = 'yellow',
+}
+
+export enum ElasticApi_DefaultEnum_Level {
+  Cluster = 'cluster',
+  Indices = 'indices',
+  Shards = 'shards',
+}
+
+export enum ElasticApi_DefaultEnum_Level_1 {
+  Indices = 'indices',
+  Node = 'node',
+  Shards = 'shards',
+}
+
+export enum ElasticApi_DefaultEnum_OpType {
+  Create = 'create',
+  Index = 'index',
+}
+
+export enum ElasticApi_DefaultEnum_Refresh {
+  EmptyString = 'empty_string',
+  FalseString = 'false_string',
+  TrueString = 'true_string',
+  WaitFor = 'wait_for',
+}
+
+export enum ElasticApi_DefaultEnum_SearchType {
+  DfsQueryThenFetch = 'dfs_query_then_fetch',
+  QueryThenFetch = 'query_then_fetch',
+}
+
+export enum ElasticApi_DefaultEnum_SearchType_1 {
+  DfsQueryAndFetch = 'dfs_query_and_fetch',
+  DfsQueryThenFetch = 'dfs_query_then_fetch',
+  QueryAndFetch = 'query_and_fetch',
+  QueryThenFetch = 'query_then_fetch',
+}
+
+export enum ElasticApi_DefaultEnum_Size {
+  EmptyString = 'empty_string',
+  G = 'g',
+  K = 'k',
+  M = 'm',
+  P = 'p',
+  T = 't',
+}
+
+export enum ElasticApi_DefaultEnum_SuggestMode {
+  Always = 'always',
+  Missing = 'missing',
+  Popular = 'popular',
+}
+
+export enum ElasticApi_DefaultEnum_Type {
+  Block = 'block',
+  Cpu = 'cpu',
+  Wait = 'wait',
+}
+
+export enum ElasticApi_DefaultEnum_VersionType {
+  External = 'external',
+  ExternalGte = 'external_gte',
+  Force = 'force',
+  Internal = 'internal',
+}
+
+export enum ElasticApi_DefaultEnum_WaitForEvents {
+  High = 'high',
+  Immediate = 'immediate',
+  Languid = 'languid',
+  Low = 'low',
+  Normal = 'normal',
+  Urgent = 'urgent',
+}
+
+export enum ElasticApi_DefaultEnum_WaitForStatus {
+  Green = 'green',
+  Red = 'red',
+  Yellow = 'yellow',
+}
+
+export type ElasticApi_Default_Cat = {
+  /** Perform a [cat.aliases](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat.html) request */
+  aliases?: Maybe<Scalars['JSON']>
+  /** Perform a [cat.allocation](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-allocation.html) request */
+  allocation?: Maybe<Scalars['JSON']>
+  /** Perform a [cat.count](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-count.html) request */
+  count?: Maybe<Scalars['JSON']>
+  /** Perform a [cat.fielddata](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-fielddata.html) request */
+  fielddata?: Maybe<Scalars['JSON']>
+  /** Perform a [cat.health](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-health.html) request */
+  health?: Maybe<Scalars['JSON']>
+  /** Perform a [cat.help](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat.html) request */
+  help?: Maybe<Scalars['JSON']>
+  /** Perform a [cat.indices](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-indices.html) request */
+  indices?: Maybe<Scalars['JSON']>
+  /** Perform a [cat.master](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-master.html) request */
+  master?: Maybe<Scalars['JSON']>
+  /** Perform a [cat.nodeattrs](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-nodeattrs.html) request */
+  nodeattrs?: Maybe<Scalars['JSON']>
+  /** Perform a [cat.nodes](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-nodes.html) request */
+  nodes?: Maybe<Scalars['JSON']>
+  /** Perform a [cat.pendingTasks](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-pending-tasks.html) request */
+  pendingTasks?: Maybe<Scalars['JSON']>
+  /** Perform a [cat.plugins](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-plugins.html) request */
+  plugins?: Maybe<Scalars['JSON']>
+  /** Perform a [cat.recovery](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-recovery.html) request */
+  recovery?: Maybe<Scalars['JSON']>
+  /** Perform a [cat.repositories](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-repositories.html) request */
+  repositories?: Maybe<Scalars['JSON']>
+  /** Perform a [cat.segments](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-segments.html) request */
+  segments?: Maybe<Scalars['JSON']>
+  /** Perform a [cat.shards](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-shards.html) request */
+  shards?: Maybe<Scalars['JSON']>
+  /** Perform a [cat.snapshots](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-snapshots.html) request */
+  snapshots?: Maybe<Scalars['JSON']>
+  /** Perform a [cat.tasks](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/tasks.html) request */
+  tasks?: Maybe<Scalars['JSON']>
+  /** Perform a [cat.templates](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-templates.html) request */
+  templates?: Maybe<Scalars['JSON']>
+  /** Perform a [cat.threadPool](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cat-thread-pool.html) request */
+  threadPool?: Maybe<Scalars['JSON']>
+}
+
+export type ElasticApi_Default_CatAliasesArgs = {
+  format?: InputMaybe<Scalars['String']>
+  h: InputMaybe<Scalars['JSON']>
+  help: InputMaybe<Scalars['Boolean']>
+  local: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  name: InputMaybe<Scalars['JSON']>
+  s: InputMaybe<Scalars['JSON']>
+  v: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_CatAllocationArgs = {
+  bytes: InputMaybe<ElasticApi_DefaultEnum_Bytes>
+  format?: InputMaybe<Scalars['String']>
+  h: InputMaybe<Scalars['JSON']>
+  help: InputMaybe<Scalars['Boolean']>
+  local: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  nodeId: InputMaybe<Scalars['JSON']>
+  s: InputMaybe<Scalars['JSON']>
+  v: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_CatCountArgs = {
+  format?: InputMaybe<Scalars['String']>
+  h: InputMaybe<Scalars['JSON']>
+  help: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  local: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  s: InputMaybe<Scalars['JSON']>
+  v: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_CatFielddataArgs = {
+  bytes: InputMaybe<ElasticApi_DefaultEnum_Bytes>
+  fields: InputMaybe<Scalars['JSON']>
+  format?: InputMaybe<Scalars['String']>
+  h: InputMaybe<Scalars['JSON']>
+  help: InputMaybe<Scalars['Boolean']>
+  local: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  s: InputMaybe<Scalars['JSON']>
+  v: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_CatHealthArgs = {
+  format?: InputMaybe<Scalars['String']>
+  h: InputMaybe<Scalars['JSON']>
+  help: InputMaybe<Scalars['Boolean']>
+  local: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  s: InputMaybe<Scalars['JSON']>
+  ts?: InputMaybe<Scalars['Boolean']>
+  v: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_CatHelpArgs = {
+  help: InputMaybe<Scalars['Boolean']>
+  s: InputMaybe<Scalars['JSON']>
+}
+
+export type ElasticApi_Default_CatIndicesArgs = {
+  bytes: InputMaybe<ElasticApi_DefaultEnum_Bytes_1>
+  format?: InputMaybe<Scalars['String']>
+  h: InputMaybe<Scalars['JSON']>
+  health: InputMaybe<ElasticApi_DefaultEnum_Health>
+  help: InputMaybe<Scalars['Boolean']>
+  includeUnloadedSegments: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  local: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  pri: InputMaybe<Scalars['Boolean']>
+  s: InputMaybe<Scalars['JSON']>
+  v: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_CatMasterArgs = {
+  format?: InputMaybe<Scalars['String']>
+  h: InputMaybe<Scalars['JSON']>
+  help: InputMaybe<Scalars['Boolean']>
+  local: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  s: InputMaybe<Scalars['JSON']>
+  v: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_CatNodeattrsArgs = {
+  format?: InputMaybe<Scalars['String']>
+  h: InputMaybe<Scalars['JSON']>
+  help: InputMaybe<Scalars['Boolean']>
+  local: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  s: InputMaybe<Scalars['JSON']>
+  v: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_CatNodesArgs = {
+  format?: InputMaybe<Scalars['String']>
+  fullId: InputMaybe<Scalars['Boolean']>
+  h: InputMaybe<Scalars['JSON']>
+  help: InputMaybe<Scalars['Boolean']>
+  local: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  s: InputMaybe<Scalars['JSON']>
+  v: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_CatPendingTasksArgs = {
+  format?: InputMaybe<Scalars['String']>
+  h: InputMaybe<Scalars['JSON']>
+  help: InputMaybe<Scalars['Boolean']>
+  local: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  s: InputMaybe<Scalars['JSON']>
+  v: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_CatPluginsArgs = {
+  format?: InputMaybe<Scalars['String']>
+  h: InputMaybe<Scalars['JSON']>
+  help: InputMaybe<Scalars['Boolean']>
+  local: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  s: InputMaybe<Scalars['JSON']>
+  v: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_CatRecoveryArgs = {
+  bytes: InputMaybe<ElasticApi_DefaultEnum_Bytes>
+  format?: InputMaybe<Scalars['String']>
+  h: InputMaybe<Scalars['JSON']>
+  help: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  s: InputMaybe<Scalars['JSON']>
+  v: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_CatRepositoriesArgs = {
+  format?: InputMaybe<Scalars['String']>
+  h: InputMaybe<Scalars['JSON']>
+  help: InputMaybe<Scalars['Boolean']>
+  local: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  s: InputMaybe<Scalars['JSON']>
+  v: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_CatSegmentsArgs = {
+  bytes: InputMaybe<ElasticApi_DefaultEnum_Bytes>
+  format?: InputMaybe<Scalars['String']>
+  h: InputMaybe<Scalars['JSON']>
+  help: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  s: InputMaybe<Scalars['JSON']>
+  v: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_CatShardsArgs = {
+  bytes: InputMaybe<ElasticApi_DefaultEnum_Bytes>
+  format?: InputMaybe<Scalars['String']>
+  h: InputMaybe<Scalars['JSON']>
+  help: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  local: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  s: InputMaybe<Scalars['JSON']>
+  v: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_CatSnapshotsArgs = {
+  format?: InputMaybe<Scalars['String']>
+  h: InputMaybe<Scalars['JSON']>
+  help: InputMaybe<Scalars['Boolean']>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  repository: InputMaybe<Scalars['JSON']>
+  s: InputMaybe<Scalars['JSON']>
+  v: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_CatTasksArgs = {
+  actions: InputMaybe<Scalars['JSON']>
+  detailed: InputMaybe<Scalars['Boolean']>
+  format?: InputMaybe<Scalars['String']>
+  h: InputMaybe<Scalars['JSON']>
+  help: InputMaybe<Scalars['Boolean']>
+  nodeId: InputMaybe<Scalars['JSON']>
+  parentTask: InputMaybe<Scalars['Float']>
+  s: InputMaybe<Scalars['JSON']>
+  v: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_CatTemplatesArgs = {
+  format?: InputMaybe<Scalars['String']>
+  h: InputMaybe<Scalars['JSON']>
+  help: InputMaybe<Scalars['Boolean']>
+  local: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  name: InputMaybe<Scalars['String']>
+  s: InputMaybe<Scalars['JSON']>
+  v: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_CatThreadPoolArgs = {
+  format?: InputMaybe<Scalars['String']>
+  h: InputMaybe<Scalars['JSON']>
+  help: InputMaybe<Scalars['Boolean']>
+  local: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  s: InputMaybe<Scalars['JSON']>
+  size: InputMaybe<ElasticApi_DefaultEnum_Size>
+  threadPoolPatterns: InputMaybe<Scalars['JSON']>
+  v: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_Cluster = {
+  /** Perform a [cluster.allocationExplain](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cluster-allocation-explain.html) request */
+  allocationExplain?: Maybe<Scalars['JSON']>
+  /** Perform a [cluster.getSettings](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cluster-update-settings.html) request */
+  getSettings?: Maybe<Scalars['JSON']>
+  /** Perform a [cluster.health](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cluster-health.html) request */
+  health?: Maybe<Scalars['JSON']>
+  /** Perform a [cluster.pendingTasks](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cluster-pending.html) request */
+  pendingTasks?: Maybe<Scalars['JSON']>
+  /** Perform a [cluster.putSettings](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cluster-update-settings.html) request */
+  putSettings?: Maybe<Scalars['JSON']>
+  /** Perform a [cluster.remoteInfo](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cluster-remote-info.html) request */
+  remoteInfo?: Maybe<Scalars['JSON']>
+  /** Perform a [cluster.reroute](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cluster-reroute.html) request */
+  reroute?: Maybe<Scalars['JSON']>
+  /** Perform a [cluster.state](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cluster-state.html) request */
+  state?: Maybe<Scalars['JSON']>
+  /** Perform a [cluster.stats](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cluster-stats.html) request */
+  stats?: Maybe<Scalars['JSON']>
+}
+
+export type ElasticApi_Default_ClusterAllocationExplainArgs = {
+  body: InputMaybe<Scalars['JSON']>
+  includeDiskInfo: InputMaybe<Scalars['Boolean']>
+  includeYesDecisions: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_ClusterGetSettingsArgs = {
+  flatSettings: InputMaybe<Scalars['Boolean']>
+  includeDefaults: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  timeout: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_ClusterHealthArgs = {
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  index: InputMaybe<Scalars['JSON']>
+  level?: InputMaybe<ElasticApi_DefaultEnum_Level>
+  local: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  timeout: InputMaybe<Scalars['String']>
+  waitForActiveShards: InputMaybe<Scalars['String']>
+  waitForEvents: InputMaybe<ElasticApi_DefaultEnum_WaitForEvents>
+  waitForNoInitializingShards: InputMaybe<Scalars['Boolean']>
+  waitForNoRelocatingShards: InputMaybe<Scalars['Boolean']>
+  waitForNodes: InputMaybe<Scalars['String']>
+  waitForStatus: InputMaybe<ElasticApi_DefaultEnum_WaitForStatus>
+}
+
+export type ElasticApi_Default_ClusterPendingTasksArgs = {
+  local: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_ClusterPutSettingsArgs = {
+  body: Scalars['JSON']
+  flatSettings: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  timeout: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_ClusterRerouteArgs = {
+  body: InputMaybe<Scalars['JSON']>
+  dryRun: InputMaybe<Scalars['Boolean']>
+  explain: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  metric: InputMaybe<Scalars['JSON']>
+  retryFailed: InputMaybe<Scalars['Boolean']>
+  timeout: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_ClusterStateArgs = {
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  flatSettings: InputMaybe<Scalars['Boolean']>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  local: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  metric: InputMaybe<Scalars['JSON']>
+  waitForMetadataVersion: InputMaybe<Scalars['Float']>
+  waitForTimeout: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_ClusterStatsArgs = {
+  flatSettings: InputMaybe<Scalars['Boolean']>
+  nodeId: InputMaybe<Scalars['JSON']>
+  timeout: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_Indices = {
+  /** Perform a [indices.analyze](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-analyze.html) request */
+  analyze?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.clearCache](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-clearcache.html) request */
+  clearCache?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.clone](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-clone-index.html) request */
+  clone?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.close](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-open-close.html) request */
+  close?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.create](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-create-index.html) request */
+  create?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.delete](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-delete-index.html) request */
+  delete?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.deleteAlias](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-aliases.html) request */
+  deleteAlias?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.deleteTemplate](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-templates.html) request */
+  deleteTemplate?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.exists](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-exists.html) request */
+  exists?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.existsAlias](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-aliases.html) request */
+  existsAlias?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.existsTemplate](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-templates.html) request */
+  existsTemplate?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.existsType](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-types-exists.html) request */
+  existsType?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.flush](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-flush.html) request */
+  flush?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.flushSynced](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-synced-flush-api.html) request */
+  flushSynced?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.forcemerge](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-forcemerge.html) request */
+  forcemerge?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.get](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-get-index.html) request */
+  get?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.getAlias](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-aliases.html) request */
+  getAlias?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.getFieldMapping](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-get-field-mapping.html) request */
+  getFieldMapping?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.getMapping](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-get-mapping.html) request */
+  getMapping?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.getSettings](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-get-settings.html) request */
+  getSettings?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.getTemplate](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-templates.html) request */
+  getTemplate?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.getUpgrade](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-upgrade.html) request */
+  getUpgrade?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.open](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-open-close.html) request */
+  open?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.putAlias](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-aliases.html) request */
+  putAlias?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.putMapping](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-put-mapping.html) request */
+  putMapping?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.putSettings](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-update-settings.html) request */
+  putSettings?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.putTemplate](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-templates.html) request */
+  putTemplate?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.recovery](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-recovery.html) request */
+  recovery?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.refresh](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-refresh.html) request */
+  refresh?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.rollover](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-rollover-index.html) request */
+  rollover?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.segments](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-segments.html) request */
+  segments?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.shardStores](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-shards-stores.html) request */
+  shardStores?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.shrink](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-shrink-index.html) request */
+  shrink?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.split](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-split-index.html) request */
+  split?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.stats](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-stats.html) request */
+  stats?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.updateAliases](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-aliases.html) request */
+  updateAliases?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.upgrade](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/indices-upgrade.html) request */
+  upgrade?: Maybe<Scalars['JSON']>
+  /** Perform a [indices.validateQuery](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/search-validate.html) request */
+  validateQuery?: Maybe<Scalars['JSON']>
+}
+
+export type ElasticApi_Default_IndicesAnalyzeArgs = {
+  body: InputMaybe<Scalars['JSON']>
+  index: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_IndicesClearCacheArgs = {
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  body: InputMaybe<Scalars['JSON']>
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  fielddata: InputMaybe<Scalars['Boolean']>
+  fields: InputMaybe<Scalars['JSON']>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  query: InputMaybe<Scalars['Boolean']>
+  request: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_IndicesCloneArgs = {
+  body: InputMaybe<Scalars['JSON']>
+  index: InputMaybe<Scalars['String']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  target: InputMaybe<Scalars['String']>
+  timeout: InputMaybe<Scalars['String']>
+  waitForActiveShards: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_IndicesCloseArgs = {
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  body: InputMaybe<Scalars['JSON']>
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  timeout: InputMaybe<Scalars['String']>
+  waitForActiveShards: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_IndicesCreateArgs = {
+  body: InputMaybe<Scalars['JSON']>
+  includeTypeName: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['String']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  timeout: InputMaybe<Scalars['String']>
+  waitForActiveShards: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_IndicesDeleteArgs = {
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  timeout: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_IndicesDeleteAliasArgs = {
+  index: InputMaybe<Scalars['JSON']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  name: InputMaybe<Scalars['JSON']>
+  timeout: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_IndicesDeleteTemplateArgs = {
+  masterTimeout: InputMaybe<Scalars['String']>
+  name: InputMaybe<Scalars['String']>
+  timeout: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_IndicesExistsArgs = {
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  flatSettings: InputMaybe<Scalars['Boolean']>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  includeDefaults: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  local: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_IndicesExistsAliasArgs = {
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  local: InputMaybe<Scalars['Boolean']>
+  name: InputMaybe<Scalars['JSON']>
+}
+
+export type ElasticApi_Default_IndicesExistsTemplateArgs = {
+  flatSettings: InputMaybe<Scalars['Boolean']>
+  local: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  name: InputMaybe<Scalars['JSON']>
+}
+
+export type ElasticApi_Default_IndicesExistsTypeArgs = {
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  local: InputMaybe<Scalars['Boolean']>
+  type: InputMaybe<Scalars['JSON']>
+}
+
+export type ElasticApi_Default_IndicesFlushArgs = {
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  body: InputMaybe<Scalars['JSON']>
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  force: InputMaybe<Scalars['Boolean']>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  waitIfOngoing: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_IndicesFlushSyncedArgs = {
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  body: InputMaybe<Scalars['JSON']>
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+}
+
+export type ElasticApi_Default_IndicesForcemergeArgs = {
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  body: InputMaybe<Scalars['JSON']>
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  flush: InputMaybe<Scalars['Boolean']>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  maxNumSegments: InputMaybe<Scalars['Float']>
+  onlyExpungeDeletes: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_IndicesGetArgs = {
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  flatSettings: InputMaybe<Scalars['Boolean']>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  includeDefaults: InputMaybe<Scalars['Boolean']>
+  includeTypeName: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  local: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_IndicesGetAliasArgs = {
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  local: InputMaybe<Scalars['Boolean']>
+  name: InputMaybe<Scalars['JSON']>
+}
+
+export type ElasticApi_Default_IndicesGetFieldMappingArgs = {
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  fields: InputMaybe<Scalars['JSON']>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  includeDefaults: InputMaybe<Scalars['Boolean']>
+  includeTypeName: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  local: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_IndicesGetMappingArgs = {
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  includeTypeName: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  local: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_IndicesGetSettingsArgs = {
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  expandWildcards?: InputMaybe<
+    Array<InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>>
+  >
+  flatSettings: InputMaybe<Scalars['Boolean']>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  includeDefaults: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  local: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  name: InputMaybe<Scalars['JSON']>
+}
+
+export type ElasticApi_Default_IndicesGetTemplateArgs = {
+  flatSettings: InputMaybe<Scalars['Boolean']>
+  includeTypeName: InputMaybe<Scalars['Boolean']>
+  local: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  name: InputMaybe<Scalars['JSON']>
+}
+
+export type ElasticApi_Default_IndicesGetUpgradeArgs = {
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+}
+
+export type ElasticApi_Default_IndicesOpenArgs = {
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  body: InputMaybe<Scalars['JSON']>
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  timeout: InputMaybe<Scalars['String']>
+  waitForActiveShards: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_IndicesPutAliasArgs = {
+  body: InputMaybe<Scalars['JSON']>
+  index: InputMaybe<Scalars['JSON']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  name: InputMaybe<Scalars['String']>
+  timeout: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_IndicesPutMappingArgs = {
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  body: Scalars['JSON']
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  includeTypeName: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  timeout: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_IndicesPutSettingsArgs = {
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  body: Scalars['JSON']
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  flatSettings: InputMaybe<Scalars['Boolean']>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  preserveExisting: InputMaybe<Scalars['Boolean']>
+  timeout: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_IndicesPutTemplateArgs = {
+  body: Scalars['JSON']
+  create: InputMaybe<Scalars['Boolean']>
+  flatSettings: InputMaybe<Scalars['Boolean']>
+  includeTypeName: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  name: InputMaybe<Scalars['String']>
+  order: InputMaybe<Scalars['Float']>
+  timeout: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_IndicesRecoveryArgs = {
+  activeOnly: InputMaybe<Scalars['Boolean']>
+  detailed: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+}
+
+export type ElasticApi_Default_IndicesRefreshArgs = {
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  body: InputMaybe<Scalars['JSON']>
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+}
+
+export type ElasticApi_Default_IndicesRolloverArgs = {
+  alias: InputMaybe<Scalars['String']>
+  body: InputMaybe<Scalars['JSON']>
+  dryRun: InputMaybe<Scalars['Boolean']>
+  includeTypeName: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  newIndex: InputMaybe<Scalars['String']>
+  timeout: InputMaybe<Scalars['String']>
+  waitForActiveShards: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_IndicesSegmentsArgs = {
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  verbose: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_IndicesShardStoresArgs = {
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  status: InputMaybe<Scalars['JSON']>
+}
+
+export type ElasticApi_Default_IndicesShrinkArgs = {
+  body: InputMaybe<Scalars['JSON']>
+  copySettings: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['String']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  target: InputMaybe<Scalars['String']>
+  timeout: InputMaybe<Scalars['String']>
+  waitForActiveShards: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_IndicesSplitArgs = {
+  body: InputMaybe<Scalars['JSON']>
+  copySettings: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['String']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  target: InputMaybe<Scalars['String']>
+  timeout: InputMaybe<Scalars['String']>
+  waitForActiveShards: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_IndicesStatsArgs = {
+  completionFields: InputMaybe<Scalars['JSON']>
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  fielddataFields: InputMaybe<Scalars['JSON']>
+  fields: InputMaybe<Scalars['JSON']>
+  forbidClosedIndices?: InputMaybe<Scalars['Boolean']>
+  groups: InputMaybe<Scalars['JSON']>
+  includeSegmentFileSizes: InputMaybe<Scalars['Boolean']>
+  includeUnloadedSegments: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  level?: InputMaybe<ElasticApi_DefaultEnum_Level>
+  metric: InputMaybe<Scalars['JSON']>
+  types: InputMaybe<Scalars['JSON']>
+}
+
+export type ElasticApi_Default_IndicesUpdateAliasesArgs = {
+  body: Scalars['JSON']
+  masterTimeout: InputMaybe<Scalars['String']>
+  timeout: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_IndicesUpgradeArgs = {
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  body: InputMaybe<Scalars['JSON']>
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  onlyAncientSegments: InputMaybe<Scalars['Boolean']>
+  waitForCompletion: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_IndicesValidateQueryArgs = {
+  allShards: InputMaybe<Scalars['Boolean']>
+  allowNoIndices: InputMaybe<Scalars['Boolean']>
+  analyzeWildcard: InputMaybe<Scalars['Boolean']>
+  analyzer: InputMaybe<Scalars['String']>
+  body: InputMaybe<Scalars['JSON']>
+  defaultOperator?: InputMaybe<ElasticApi_DefaultEnum_DefaultOperator>
+  df: InputMaybe<Scalars['String']>
+  expandWildcards?: InputMaybe<ElasticApi_DefaultEnum_ExpandWildcards>
+  explain: InputMaybe<Scalars['Boolean']>
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  index: InputMaybe<Scalars['JSON']>
+  lenient: InputMaybe<Scalars['Boolean']>
+  q: InputMaybe<Scalars['String']>
+  rewrite: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_Ingest = {
+  /** Perform a [ingest.deletePipeline](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/delete-pipeline-api.html) request */
+  deletePipeline?: Maybe<Scalars['JSON']>
+  /** Perform a [ingest.getPipeline](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/get-pipeline-api.html) request */
+  getPipeline?: Maybe<Scalars['JSON']>
+  /** Perform a [ingest.processorGrok](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/grok-processor.html#grok-processor-rest-get) request */
+  processorGrok?: Maybe<Scalars['JSON']>
+  /** Perform a [ingest.putPipeline](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/put-pipeline-api.html) request */
+  putPipeline?: Maybe<Scalars['JSON']>
+  /** Perform a [ingest.simulate](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/simulate-pipeline-api.html) request */
+  simulate?: Maybe<Scalars['JSON']>
+}
+
+export type ElasticApi_Default_IngestDeletePipelineArgs = {
+  id: InputMaybe<Scalars['String']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  timeout: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_IngestGetPipelineArgs = {
+  id: InputMaybe<Scalars['String']>
+  masterTimeout: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_IngestPutPipelineArgs = {
+  body: Scalars['JSON']
+  id: InputMaybe<Scalars['String']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  timeout: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_IngestSimulateArgs = {
+  body: Scalars['JSON']
+  id: InputMaybe<Scalars['String']>
+  verbose: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_Nodes = {
+  /** Perform a [nodes.hotThreads](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cluster-nodes-hot-threads.html) request */
+  hotThreads?: Maybe<Scalars['JSON']>
+  /** Perform a [nodes.info](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cluster-nodes-info.html) request */
+  info?: Maybe<Scalars['JSON']>
+  /** Perform a [nodes.reloadSecureSettings](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/secure-settings.html#reloadable-secure-settings) request */
+  reloadSecureSettings?: Maybe<Scalars['JSON']>
+  /** Perform a [nodes.stats](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cluster-nodes-stats.html) request */
+  stats?: Maybe<Scalars['JSON']>
+  /** Perform a [nodes.usage](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/cluster-nodes-usage.html) request */
+  usage?: Maybe<Scalars['JSON']>
+}
+
+export type ElasticApi_Default_NodesHotThreadsArgs = {
+  ignoreIdleThreads: InputMaybe<Scalars['Boolean']>
+  interval: InputMaybe<Scalars['String']>
+  snapshots: InputMaybe<Scalars['Float']>
+  threads: InputMaybe<Scalars['Float']>
+  timeout: InputMaybe<Scalars['String']>
+  type: InputMaybe<ElasticApi_DefaultEnum_Type>
+}
+
+export type ElasticApi_Default_NodesInfoArgs = {
+  flatSettings: InputMaybe<Scalars['Boolean']>
+  metric: InputMaybe<Scalars['JSON']>
+  nodeId: InputMaybe<Scalars['JSON']>
+  timeout: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_NodesReloadSecureSettingsArgs = {
+  body: InputMaybe<Scalars['JSON']>
+  nodeId: InputMaybe<Scalars['JSON']>
+  timeout: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_NodesStatsArgs = {
+  completionFields: InputMaybe<Scalars['JSON']>
+  fielddataFields: InputMaybe<Scalars['JSON']>
+  fields: InputMaybe<Scalars['JSON']>
+  groups: InputMaybe<Scalars['Boolean']>
+  includeSegmentFileSizes: InputMaybe<Scalars['Boolean']>
+  indexMetric: InputMaybe<Scalars['JSON']>
+  level?: InputMaybe<ElasticApi_DefaultEnum_Level_1>
+  metric: InputMaybe<Scalars['JSON']>
+  nodeId: InputMaybe<Scalars['JSON']>
+  timeout: InputMaybe<Scalars['String']>
+  types: InputMaybe<Scalars['JSON']>
+}
+
+export type ElasticApi_Default_NodesUsageArgs = {
+  metric: InputMaybe<Scalars['JSON']>
+  nodeId: InputMaybe<Scalars['JSON']>
+  timeout: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_Snapshot = {
+  /** Perform a [snapshot.create](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/modules-snapshots.html) request */
+  create?: Maybe<Scalars['JSON']>
+  /** Perform a [snapshot.createRepository](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/modules-snapshots.html) request */
+  createRepository?: Maybe<Scalars['JSON']>
+  /** Perform a [snapshot.delete](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/modules-snapshots.html) request */
+  delete?: Maybe<Scalars['JSON']>
+  /** Perform a [snapshot.deleteRepository](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/modules-snapshots.html) request */
+  deleteRepository?: Maybe<Scalars['JSON']>
+  /** Perform a [snapshot.get](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/modules-snapshots.html) request */
+  get?: Maybe<Scalars['JSON']>
+  /** Perform a [snapshot.getRepository](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/modules-snapshots.html) request */
+  getRepository?: Maybe<Scalars['JSON']>
+  /** Perform a [snapshot.restore](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/modules-snapshots.html) request */
+  restore?: Maybe<Scalars['JSON']>
+  /** Perform a [snapshot.status](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/modules-snapshots.html) request */
+  status?: Maybe<Scalars['JSON']>
+  /** Perform a [snapshot.verifyRepository](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/modules-snapshots.html) request */
+  verifyRepository?: Maybe<Scalars['JSON']>
+}
+
+export type ElasticApi_Default_SnapshotCreateArgs = {
+  body: InputMaybe<Scalars['JSON']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  repository: InputMaybe<Scalars['String']>
+  snapshot: InputMaybe<Scalars['String']>
+  waitForCompletion: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_SnapshotCreateRepositoryArgs = {
+  body: Scalars['JSON']
+  masterTimeout: InputMaybe<Scalars['String']>
+  repository: InputMaybe<Scalars['String']>
+  timeout: InputMaybe<Scalars['String']>
+  verify: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_SnapshotDeleteArgs = {
+  masterTimeout: InputMaybe<Scalars['String']>
+  repository: InputMaybe<Scalars['String']>
+  snapshot: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_SnapshotDeleteRepositoryArgs = {
+  masterTimeout: InputMaybe<Scalars['String']>
+  repository: InputMaybe<Scalars['JSON']>
+  timeout: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_SnapshotGetArgs = {
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  repository: InputMaybe<Scalars['String']>
+  snapshot: InputMaybe<Scalars['JSON']>
+  verbose: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_SnapshotGetRepositoryArgs = {
+  local: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  repository: InputMaybe<Scalars['JSON']>
+}
+
+export type ElasticApi_Default_SnapshotRestoreArgs = {
+  body: InputMaybe<Scalars['JSON']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  repository: InputMaybe<Scalars['String']>
+  snapshot: InputMaybe<Scalars['String']>
+  waitForCompletion: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_SnapshotStatusArgs = {
+  ignoreUnavailable: InputMaybe<Scalars['Boolean']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  repository: InputMaybe<Scalars['String']>
+  snapshot: InputMaybe<Scalars['JSON']>
+}
+
+export type ElasticApi_Default_SnapshotVerifyRepositoryArgs = {
+  body: InputMaybe<Scalars['JSON']>
+  masterTimeout: InputMaybe<Scalars['String']>
+  repository: InputMaybe<Scalars['String']>
+  timeout: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_Tasks = {
+  /** Perform a [tasks.cancel](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/tasks.html) request */
+  cancel?: Maybe<Scalars['JSON']>
+  /** Perform a [tasks.get](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/tasks.html) request */
+  get?: Maybe<Scalars['JSON']>
+  /** Perform a [tasks.list](https://www.elastic.co/guide/en/elasticsearch/reference/7.6/tasks.html) request */
+  list?: Maybe<Scalars['JSON']>
+}
+
+export type ElasticApi_Default_TasksCancelArgs = {
+  actions: InputMaybe<Scalars['JSON']>
+  body: InputMaybe<Scalars['JSON']>
+  nodes: InputMaybe<Scalars['JSON']>
+  parentTaskId: InputMaybe<Scalars['String']>
+  taskId: InputMaybe<Scalars['String']>
+}
+
+export type ElasticApi_Default_TasksGetArgs = {
+  taskId: InputMaybe<Scalars['String']>
+  timeout: InputMaybe<Scalars['String']>
+  waitForCompletion: InputMaybe<Scalars['Boolean']>
+}
+
+export type ElasticApi_Default_TasksListArgs = {
+  actions: InputMaybe<Scalars['JSON']>
+  detailed: InputMaybe<Scalars['Boolean']>
+  groupBy?: InputMaybe<ElasticApi_DefaultEnum_GroupBy>
+  nodes: InputMaybe<Scalars['JSON']>
+  parentTaskId: InputMaybe<Scalars['String']>
+  timeout: InputMaybe<Scalars['String']>
+  waitForCompletion: InputMaybe<Scalars['Boolean']>
+}
+
 /** A connection to a list of `Entity` values. */
 export type EntitiesConnection = {
   /** A list of edges which contains the `Entity` and cursor to aid in pagination. */
@@ -3065,6 +4754,216 @@ export type FloatFilter = {
   notIn?: InputMaybe<Array<Scalars['Float']>>
 }
 
+/** All input for the `getChapterByLanguage` mutation. */
+export type GetChapterByLanguageInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']>
+  languageCode?: InputMaybe<Scalars['String']>
+}
+
+/** The output of our `getChapterByLanguage` mutation. */
+export type GetChapterByLanguagePayload = {
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId?: Maybe<Scalars['String']>
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query?: Maybe<Query>
+  results?: Maybe<Array<Maybe<GetChapterByLanguageRecord>>>
+}
+
+/** The return type of our `getChapterByLanguage` mutation. */
+export type GetChapterByLanguageRecord = {
+  duration?: Maybe<Scalars['Float']>
+  revisionid?: Maybe<Scalars['String']>
+  start?: Maybe<Scalars['Float']>
+  title?: Maybe<Scalars['String']>
+  type?: Maybe<Scalars['String']>
+  uid?: Maybe<Scalars['String']>
+}
+
+/** All input for the `getConceptByLanguage` mutation. */
+export type GetConceptByLanguageInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']>
+  languageCode?: InputMaybe<Scalars['String']>
+}
+
+/** The output of our `getConceptByLanguage` mutation. */
+export type GetConceptByLanguagePayload = {
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId?: Maybe<Scalars['String']>
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query?: Maybe<Query>
+  results?: Maybe<Array<Maybe<GetConceptByLanguageRecord>>>
+}
+
+/** The return type of our `getConceptByLanguage` mutation. */
+export type GetConceptByLanguageRecord = {
+  description?: Maybe<Scalars['String']>
+  kind?: Maybe<ConceptKind>
+  name?: Maybe<Scalars['String']>
+  originnamespace?: Maybe<Scalars['String']>
+  parentuid?: Maybe<Scalars['String']>
+  revisionid?: Maybe<Scalars['String']>
+  sameasuid?: Maybe<Scalars['String']>
+  summary?: Maybe<Scalars['String']>
+  uid?: Maybe<Scalars['String']>
+  wikidataidentifier?: Maybe<Scalars['String']>
+}
+
+/** All input for the `getContentGroupingsByLanguage` mutation. */
+export type GetContentGroupingsByLanguageInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']>
+  languageCode?: InputMaybe<Scalars['String']>
+}
+
+/** The output of our `getContentGroupingsByLanguage` mutation. */
+export type GetContentGroupingsByLanguagePayload = {
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId?: Maybe<Scalars['String']>
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query?: Maybe<Query>
+  results?: Maybe<Array<Maybe<GetContentGroupingsByLanguageRecord>>>
+}
+
+/** The return type of our `getContentGroupingsByLanguage` mutation. */
+export type GetContentGroupingsByLanguageRecord = {
+  broadcastschedule?: Maybe<Scalars['String']>
+  description?: Maybe<Scalars['String']>
+  groupingtype?: Maybe<Scalars['String']>
+  licenseuid?: Maybe<Scalars['String']>
+  revisionid?: Maybe<Scalars['String']>
+  startingdate?: Maybe<Scalars['Datetime']>
+  subtitle?: Maybe<Scalars['String']>
+  summary?: Maybe<Scalars['String']>
+  terminationdate?: Maybe<Scalars['Datetime']>
+  title?: Maybe<Scalars['String']>
+  uid?: Maybe<Scalars['String']>
+  variant?: Maybe<ContentGroupingVariant>
+}
+
+/** All input for the `getContentItemsByLanguage` mutation. */
+export type GetContentItemsByLanguageInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']>
+  languageCode?: InputMaybe<Scalars['String']>
+}
+
+/** The output of our `getContentItemsByLanguage` mutation. */
+export type GetContentItemsByLanguagePayload = {
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId?: Maybe<Scalars['String']>
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query?: Maybe<Query>
+  results?: Maybe<Array<Maybe<GetContentItemsByLanguageRecord>>>
+}
+
+/** The return type of our `getContentItemsByLanguage` mutation. */
+export type GetContentItemsByLanguageRecord = {
+  content?: Maybe<Scalars['String']>
+  contentformat?: Maybe<Scalars['String']>
+  licenseuid?: Maybe<Scalars['String']>
+  primarygroupinguid?: Maybe<Scalars['String']>
+  pubdate?: Maybe<Scalars['Datetime']>
+  publicationserviceuid?: Maybe<Scalars['String']>
+  revisionid?: Maybe<Scalars['String']>
+  subtitle?: Maybe<Scalars['String']>
+  summary?: Maybe<Scalars['String']>
+  title?: Maybe<Scalars['String']>
+  uid?: Maybe<Scalars['String']>
+}
+
+/** All input for the `getMediaAssetByLanguage` mutation. */
+export type GetMediaAssetByLanguageInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']>
+  languageCode?: InputMaybe<Scalars['String']>
+}
+
+/** The output of our `getMediaAssetByLanguage` mutation. */
+export type GetMediaAssetByLanguagePayload = {
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId?: Maybe<Scalars['String']>
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query?: Maybe<Query>
+  results?: Maybe<Array<Maybe<GetMediaAssetByLanguageRecord>>>
+}
+
+/** The return type of our `getMediaAssetByLanguage` mutation. */
+export type GetMediaAssetByLanguageRecord = {
+  description?: Maybe<Scalars['String']>
+  duration?: Maybe<Scalars['Float']>
+  fileuid?: Maybe<Scalars['String']>
+  licenseuid?: Maybe<Scalars['String']>
+  mediatype?: Maybe<Scalars['String']>
+  revisionid?: Maybe<Scalars['String']>
+  teaserimageuid?: Maybe<Scalars['String']>
+  title?: Maybe<Scalars['String']>
+  uid?: Maybe<Scalars['String']>
+}
+
+/** All input for the `getPublicationServiceByLanguage` mutation. */
+export type GetPublicationServiceByLanguageInput = {
+  /**
+   * An arbitrary string value with no semantic meaning. Will be included in the
+   * payload verbatim. May be used to track mutations by the client.
+   */
+  clientMutationId?: InputMaybe<Scalars['String']>
+  languageCode?: InputMaybe<Scalars['String']>
+}
+
+/** The output of our `getPublicationServiceByLanguage` mutation. */
+export type GetPublicationServiceByLanguagePayload = {
+  /**
+   * The exact same `clientMutationId` that was provided in the mutation input,
+   * unchanged and unused. May be used by a client to track mutations.
+   */
+  clientMutationId?: Maybe<Scalars['String']>
+  /** Our root query field type. Allows us to run any query from our mutation payload. */
+  query?: Maybe<Query>
+  results?: Maybe<Array<Maybe<GetPublicationServiceByLanguageRecord>>>
+}
+
+/** The return type of our `getPublicationServiceByLanguage` mutation. */
+export type GetPublicationServiceByLanguageRecord = {
+  address?: Maybe<Scalars['String']>
+  medium?: Maybe<Scalars['String']>
+  publisheruid?: Maybe<Scalars['String']>
+  revisionid?: Maybe<Scalars['String']>
+  title?: Maybe<Scalars['String']>
+  uid?: Maybe<Scalars['String']>
+}
+
 /** A filter to be used against Int fields. All fields are combined with a logical ‘and.’ */
 export type IntFilter = {
   /** Not equal to the specified value, treating null like an ordinary value. */
@@ -3438,7 +5337,7 @@ export type MediaAsset = {
   contentItems: MediaAssetContentItemsByContentItemToMediaAssetBAndAManyToManyConnection
   /** Reads and enables pagination through a set of `Contribution`. */
   contributions: MediaAssetContributionsByContributionToMediaAssetBAndAManyToManyConnection
-  description?: Maybe<Scalars['String']>
+  description?: Maybe<Scalars['JSON']>
   duration?: Maybe<Scalars['Float']>
   /** Reads and enables pagination through a set of `File`. */
   files: MediaAssetFilesByFileToMediaAssetBAndAManyToManyConnection
@@ -3454,11 +5353,9 @@ export type MediaAsset = {
   /** Reads a single `File` that is related to this `MediaAsset`. */
   teaserImage?: Maybe<File>
   teaserImageUid?: Maybe<Scalars['String']>
-  title: Scalars['String']
+  title: Scalars['JSON']
   /** Reads and enables pagination through a set of `Transcript`. */
   transcripts: TranscriptsConnection
-  /** Reads and enables pagination through a set of `Translation`. */
-  translations: TranslationsConnection
   uid: Scalars['String']
 }
 
@@ -3539,17 +5436,6 @@ export type MediaAssetTranscriptsArgs = {
   orderBy?: InputMaybe<Array<TranscriptsOrderBy>>
 }
 
-export type MediaAssetTranslationsArgs = {
-  after: InputMaybe<Scalars['Cursor']>
-  before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<TranslationCondition>
-  filter: InputMaybe<TranslationFilter>
-  first: InputMaybe<Scalars['Int']>
-  last: InputMaybe<Scalars['Int']>
-  offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<TranslationsOrderBy>>
-}
-
 /** A connection to a list of `Concept` values, with data from `_ConceptToMediaAsset`. */
 export type MediaAssetConceptsByConceptToMediaAssetBAndAManyToManyConnection = {
   /** A list of edges which contains the `Concept`, info from the `_ConceptToMediaAsset`, and the cursor to aid in pagination. */
@@ -3591,7 +5477,7 @@ export type MediaAssetConceptsByConceptToMediaAssetBAndAManyToManyEdge_ConceptTo
  */
 export type MediaAssetCondition = {
   /** Checks for equality with the object’s `description` field. */
-  description?: InputMaybe<Scalars['String']>
+  description?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `duration` field. */
   duration?: InputMaybe<Scalars['Float']>
   /** Checks for equality with the object’s `licenseUid` field. */
@@ -3603,7 +5489,7 @@ export type MediaAssetCondition = {
   /** Checks for equality with the object’s `teaserImageUid` field. */
   teaserImageUid?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `title` field. */
-  title?: InputMaybe<Scalars['String']>
+  title?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `uid` field. */
   uid?: InputMaybe<Scalars['String']>
 }
@@ -3726,7 +5612,7 @@ export type MediaAssetFilter = {
   /** Some related `chapters` exist. */
   chaptersExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `description` field. */
-  description?: InputMaybe<StringFilter>
+  description?: InputMaybe<JsonFilter>
   /** Filter by the object’s `duration` field. */
   duration?: InputMaybe<FloatFilter>
   /** Filter by the object’s `license` relation. */
@@ -3756,15 +5642,11 @@ export type MediaAssetFilter = {
   /** Filter by the object’s `teaserImageUid` field. */
   teaserImageUid?: InputMaybe<StringFilter>
   /** Filter by the object’s `title` field. */
-  title?: InputMaybe<StringFilter>
+  title?: InputMaybe<JsonFilter>
   /** Filter by the object’s `transcripts` relation. */
   transcripts?: InputMaybe<MediaAssetToManyTranscriptFilter>
   /** Some related `transcripts` exist. */
   transcriptsExist?: InputMaybe<Scalars['Boolean']>
-  /** Filter by the object’s `translations` relation. */
-  translations?: InputMaybe<MediaAssetToManyTranslationFilter>
-  /** Some related `translations` exist. */
-  translationsExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `uid` field. */
   uid?: InputMaybe<StringFilter>
 }
@@ -3797,16 +5679,6 @@ export type MediaAssetToManyTranscriptFilter = {
   none?: InputMaybe<TranscriptFilter>
   /** Some related `Transcript` matches the filter criteria. All fields are combined with a logical ‘and.’ */
   some?: InputMaybe<TranscriptFilter>
-}
-
-/** A filter to be used against many `Translation` object types. All fields are combined with a logical ‘and.’ */
-export type MediaAssetToManyTranslationFilter = {
-  /** Every related `Translation` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  every?: InputMaybe<TranslationFilter>
-  /** No related `Translation` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  none?: InputMaybe<TranslationFilter>
-  /** Some related `Translation` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  some?: InputMaybe<TranslationFilter>
 }
 
 /** A connection to a list of `MediaAsset` values. */
@@ -3940,6 +5812,46 @@ export type MetadatumFilter = {
   uid?: InputMaybe<StringFilter>
 }
 
+/** The root mutation type which contains root level fields which mutate data. */
+export type Mutation = {
+  getChapterByLanguage?: Maybe<GetChapterByLanguagePayload>
+  getConceptByLanguage?: Maybe<GetConceptByLanguagePayload>
+  getContentGroupingsByLanguage?: Maybe<GetContentGroupingsByLanguagePayload>
+  getContentItemsByLanguage?: Maybe<GetContentItemsByLanguagePayload>
+  getMediaAssetByLanguage?: Maybe<GetMediaAssetByLanguagePayload>
+  getPublicationServiceByLanguage?: Maybe<GetPublicationServiceByLanguagePayload>
+}
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationGetChapterByLanguageArgs = {
+  input: GetChapterByLanguageInput
+}
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationGetConceptByLanguageArgs = {
+  input: GetConceptByLanguageInput
+}
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationGetContentGroupingsByLanguageArgs = {
+  input: GetContentGroupingsByLanguageInput
+}
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationGetContentItemsByLanguageArgs = {
+  input: GetContentItemsByLanguageInput
+}
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationGetMediaAssetByLanguageArgs = {
+  input: GetMediaAssetByLanguageInput
+}
+
+/** The root mutation type which contains root level fields which mutate data. */
+export type MutationGetPublicationServiceByLanguageArgs = {
+  input: GetPublicationServiceByLanguageInput
+}
+
 /** Information about pagination in a connection. */
 export type PageInfo = {
   /** When paginating forwards, the cursor to continue. */
@@ -3965,7 +5877,7 @@ export type PublicationService = {
   /** Reads and enables pagination through a set of `License`. */
   licensesByContentItemPublicationServiceUidAndLicenseUid: PublicationServiceLicensesByContentItemPublicationServiceUidAndLicenseUidManyToManyConnection
   medium?: Maybe<Scalars['String']>
-  name: Scalars['String']
+  name: Scalars['JSON']
   /** Reads a single `Contributor` that is related to this `PublicationService`. */
   publisher?: Maybe<Contributor>
   publisherUid?: Maybe<Scalars['String']>
@@ -4043,7 +5955,7 @@ export type PublicationServiceCondition = {
   /** Checks for equality with the object’s `medium` field. */
   medium?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `name` field. */
-  name?: InputMaybe<Scalars['String']>
+  name?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `publisherUid` field. */
   publisherUid?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `revisionId` field. */
@@ -4143,7 +6055,7 @@ export type PublicationServiceFilter = {
   /** Filter by the object’s `medium` field. */
   medium?: InputMaybe<StringFilter>
   /** Filter by the object’s `name` field. */
-  name?: InputMaybe<StringFilter>
+  name?: InputMaybe<JsonFilter>
   /** Negates the expression. */
   not?: InputMaybe<PublicationServiceFilter>
   /** Checks for any expressions in this list. */
@@ -4293,6 +6205,8 @@ export type Query = {
   dataSource?: Maybe<DataSource>
   /** Reads and enables pagination through a set of `DataSource`. */
   dataSources?: Maybe<DataSourcesConnection>
+  /** Elastic API v_default */
+  elastic?: Maybe<ElasticApi_Default>
   /** Reads and enables pagination through a set of `Entity`. */
   entities?: Maybe<EntitiesConnection>
   entity?: Maybe<Entity>
@@ -4333,9 +6247,6 @@ export type Query = {
   transcript?: Maybe<Transcript>
   /** Reads and enables pagination through a set of `Transcript`. */
   transcripts?: Maybe<TranscriptsConnection>
-  translation?: Maybe<Translation>
-  /** Reads and enables pagination through a set of `Translation`. */
-  translations?: Maybe<TranslationsConnection>
   ucan?: Maybe<Ucan>
   /** Reads and enables pagination through a set of `Ucan`. */
   ucans?: Maybe<UcansConnection>
@@ -4529,6 +6440,11 @@ export type QueryDataSourcesArgs = {
   last: InputMaybe<Scalars['Int']>
   offset: InputMaybe<Scalars['Int']>
   orderBy?: InputMaybe<Array<DataSourcesOrderBy>>
+}
+
+/** The root query type which gives access points into the data universe. */
+export type QueryElasticArgs = {
+  host?: InputMaybe<Scalars['String']>
 }
 
 /** The root query type which gives access points into the data universe. */
@@ -4729,23 +6645,6 @@ export type QueryTranscriptsArgs = {
   last: InputMaybe<Scalars['Int']>
   offset: InputMaybe<Scalars['Int']>
   orderBy?: InputMaybe<Array<TranscriptsOrderBy>>
-}
-
-/** The root query type which gives access points into the data universe. */
-export type QueryTranslationArgs = {
-  uid: Scalars['String']
-}
-
-/** The root query type which gives access points into the data universe. */
-export type QueryTranslationsArgs = {
-  after: InputMaybe<Scalars['Cursor']>
-  before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<TranslationCondition>
-  filter: InputMaybe<TranslationFilter>
-  first: InputMaybe<Scalars['Int']>
-  last: InputMaybe<Scalars['Int']>
-  offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<TranslationsOrderBy>>
 }
 
 /** The root query type which gives access points into the data universe. */
@@ -5091,6 +6990,7 @@ export type Revision = {
   filesByMediaAssetRevisionIdAndTeaserImageUid: RevisionFilesByMediaAssetRevisionIdAndTeaserImageUidManyToManyConnection
   id: Scalars['String']
   isDeleted: Scalars['Boolean']
+  languages: Scalars['String']
   /** Reads and enables pagination through a set of `License`. */
   licenses: LicensesConnection
   /** Reads and enables pagination through a set of `License`. */
@@ -5104,7 +7004,7 @@ export type Revision = {
   /** Reads and enables pagination through a set of `MediaAsset`. */
   mediaAssetsByChapterRevisionIdAndMediaAssetUid: RevisionMediaAssetsByChapterRevisionIdAndMediaAssetUidManyToManyConnection
   /** Reads and enables pagination through a set of `MediaAsset`. */
-  mediaAssetsBySubtitleRevisionIdAndMediaAssetUid: RevisionMediaAssetsBySubtitleRevisionIdAndMediaAssetUidManyToManyConnection
+  mediaAssetsByTranscriptRevisionIdAndMediaAssetUid: RevisionMediaAssetsByTranscriptRevisionIdAndMediaAssetUidManyToManyConnection
   /** Reads and enables pagination through a set of `Metadatum`. */
   metadata: MetadataConnection
   /** Reads a single `Revision` that is related to this `Revision`. */
@@ -5123,8 +7023,8 @@ export type Revision = {
   revisionUris?: Maybe<Array<Maybe<Scalars['String']>>>
   /** Reads and enables pagination through a set of `Revision`. */
   revisionsByPrevRevisionId: RevisionsConnection
-  /** Reads and enables pagination through a set of `Subtitle`. */
-  subtitles: SubtitlesConnection
+  /** Reads and enables pagination through a set of `Transcript`. */
+  transcripts: TranscriptsConnection
   uid: Scalars['String']
 }
 
@@ -5395,7 +7295,7 @@ export type RevisionMediaAssetsByChapterRevisionIdAndMediaAssetUidArgs = {
   orderBy?: InputMaybe<Array<MediaAssetsOrderBy>>
 }
 
-export type RevisionMediaAssetsBySubtitleRevisionIdAndMediaAssetUidArgs = {
+export type RevisionMediaAssetsByTranscriptRevisionIdAndMediaAssetUidArgs = {
   after: InputMaybe<Scalars['Cursor']>
   before: InputMaybe<Scalars['Cursor']>
   condition: InputMaybe<MediaAssetCondition>
@@ -5463,15 +7363,15 @@ export type RevisionRevisionsByPrevRevisionIdArgs = {
   orderBy?: InputMaybe<Array<RevisionsOrderBy>>
 }
 
-export type RevisionSubtitlesArgs = {
+export type RevisionTranscriptsArgs = {
   after: InputMaybe<Scalars['Cursor']>
   before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<SubtitleCondition>
-  filter: InputMaybe<SubtitleFilter>
+  condition: InputMaybe<TranscriptCondition>
+  filter: InputMaybe<TranscriptFilter>
   first: InputMaybe<Scalars['Int']>
   last: InputMaybe<Scalars['Int']>
   offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<SubtitlesOrderBy>>
+  orderBy?: InputMaybe<Array<TranscriptsOrderBy>>
 }
 
 /** A connection to a list of `Commit` values, with data from `_RevisionToCommit`. */
@@ -5604,6 +7504,8 @@ export type RevisionCondition = {
   id?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `isDeleted` field. */
   isDeleted?: InputMaybe<Scalars['Boolean']>
+  /** Checks for equality with the object’s `languages` field. */
+  languages?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `prevRevisionId` field. */
   prevRevisionId?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `repoDid` field. */
@@ -5897,6 +7799,8 @@ export type RevisionFilter = {
   id?: InputMaybe<StringFilter>
   /** Filter by the object’s `isDeleted` field. */
   isDeleted?: InputMaybe<BooleanFilter>
+  /** Filter by the object’s `languages` field. */
+  languages?: InputMaybe<StringFilter>
   /** Filter by the object’s `licenses` relation. */
   licenses?: InputMaybe<RevisionToManyLicenseFilter>
   /** Some related `licenses` exist. */
@@ -5935,10 +7839,10 @@ export type RevisionFilter = {
   revisionsByPrevRevisionId?: InputMaybe<RevisionToManyRevisionFilter>
   /** Some related `revisionsByPrevRevisionId` exist. */
   revisionsByPrevRevisionIdExist?: InputMaybe<Scalars['Boolean']>
-  /** Filter by the object’s `subtitles` relation. */
-  subtitles?: InputMaybe<RevisionToManySubtitleFilter>
-  /** Some related `subtitles` exist. */
-  subtitlesExist?: InputMaybe<Scalars['Boolean']>
+  /** Filter by the object’s `transcripts` relation. */
+  transcripts?: InputMaybe<RevisionToManyTranscriptFilter>
+  /** Some related `transcripts` exist. */
+  transcriptsExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `uid` field. */
   uid?: InputMaybe<StringFilter>
 }
@@ -6091,11 +7995,11 @@ export type RevisionMediaAssetsByChapterRevisionIdAndMediaAssetUidManyToManyEdge
     orderBy?: InputMaybe<Array<ChaptersOrderBy>>
   }
 
-/** A connection to a list of `MediaAsset` values, with data from `Subtitle`. */
-export type RevisionMediaAssetsBySubtitleRevisionIdAndMediaAssetUidManyToManyConnection =
+/** A connection to a list of `MediaAsset` values, with data from `Transcript`. */
+export type RevisionMediaAssetsByTranscriptRevisionIdAndMediaAssetUidManyToManyConnection =
   {
-    /** A list of edges which contains the `MediaAsset`, info from the `Subtitle`, and the cursor to aid in pagination. */
-    edges: Array<RevisionMediaAssetsBySubtitleRevisionIdAndMediaAssetUidManyToManyEdge>
+    /** A list of edges which contains the `MediaAsset`, info from the `Transcript`, and the cursor to aid in pagination. */
+    edges: Array<RevisionMediaAssetsByTranscriptRevisionIdAndMediaAssetUidManyToManyEdge>
     /** A list of `MediaAsset` objects. */
     nodes: Array<MediaAsset>
     /** Information to aid in pagination. */
@@ -6104,28 +8008,28 @@ export type RevisionMediaAssetsBySubtitleRevisionIdAndMediaAssetUidManyToManyCon
     totalCount: Scalars['Int']
   }
 
-/** A `MediaAsset` edge in the connection, with data from `Subtitle`. */
-export type RevisionMediaAssetsBySubtitleRevisionIdAndMediaAssetUidManyToManyEdge =
+/** A `MediaAsset` edge in the connection, with data from `Transcript`. */
+export type RevisionMediaAssetsByTranscriptRevisionIdAndMediaAssetUidManyToManyEdge =
   {
     /** A cursor for use in pagination. */
     cursor?: Maybe<Scalars['Cursor']>
     /** The `MediaAsset` at the end of the edge. */
     node: MediaAsset
-    /** Reads and enables pagination through a set of `Subtitle`. */
-    subtitles: SubtitlesConnection
+    /** Reads and enables pagination through a set of `Transcript`. */
+    transcripts: TranscriptsConnection
   }
 
-/** A `MediaAsset` edge in the connection, with data from `Subtitle`. */
-export type RevisionMediaAssetsBySubtitleRevisionIdAndMediaAssetUidManyToManyEdgeSubtitlesArgs =
+/** A `MediaAsset` edge in the connection, with data from `Transcript`. */
+export type RevisionMediaAssetsByTranscriptRevisionIdAndMediaAssetUidManyToManyEdgeTranscriptsArgs =
   {
     after: InputMaybe<Scalars['Cursor']>
     before: InputMaybe<Scalars['Cursor']>
-    condition: InputMaybe<SubtitleCondition>
-    filter: InputMaybe<SubtitleFilter>
+    condition: InputMaybe<TranscriptCondition>
+    filter: InputMaybe<TranscriptFilter>
     first: InputMaybe<Scalars['Int']>
     last: InputMaybe<Scalars['Int']>
     offset: InputMaybe<Scalars['Int']>
-    orderBy?: InputMaybe<Array<SubtitlesOrderBy>>
+    orderBy?: InputMaybe<Array<TranscriptsOrderBy>>
   }
 
 /** A connection to a list of `PublicationService` values, with data from `BroadcastEvent`. */
@@ -6342,14 +8246,14 @@ export type RevisionToManyRevisionFilter = {
   some?: InputMaybe<RevisionFilter>
 }
 
-/** A filter to be used against many `Subtitle` object types. All fields are combined with a logical ‘and.’ */
-export type RevisionToManySubtitleFilter = {
-  /** Every related `Subtitle` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  every?: InputMaybe<SubtitleFilter>
-  /** No related `Subtitle` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  none?: InputMaybe<SubtitleFilter>
-  /** Some related `Subtitle` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  some?: InputMaybe<SubtitleFilter>
+/** A filter to be used against many `Transcript` object types. All fields are combined with a logical ‘and.’ */
+export type RevisionToManyTranscriptFilter = {
+  /** Every related `Transcript` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  every?: InputMaybe<TranscriptFilter>
+  /** No related `Transcript` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  none?: InputMaybe<TranscriptFilter>
+  /** Some related `Transcript` matches the filter criteria. All fields are combined with a logical ‘and.’ */
+  some?: InputMaybe<TranscriptFilter>
 }
 
 /** A connection to a list of `Revision` values. */
@@ -6392,6 +8296,8 @@ export enum RevisionsOrderBy {
   IdDesc = 'ID_DESC',
   IsDeletedAsc = 'IS_DELETED_ASC',
   IsDeletedDesc = 'IS_DELETED_DESC',
+  LanguagesAsc = 'LANGUAGES_ASC',
+  LanguagesDesc = 'LANGUAGES_DESC',
   Natural = 'NATURAL',
   PrevRevisionIdAsc = 'PREV_REVISION_ID_ASC',
   PrevRevisionIdDesc = 'PREV_REVISION_ID_DESC',
@@ -6773,11 +8679,17 @@ export enum SubtitlesOrderBy {
 }
 
 export type Transcript = {
+  author: Scalars['String']
   engine: Scalars['String']
   language: Scalars['String']
+  license: Scalars['String']
   /** Reads a single `MediaAsset` that is related to this `Transcript`. */
   mediaAsset?: Maybe<MediaAsset>
   mediaAssetUid: Scalars['String']
+  /** Reads a single `Revision` that is related to this `Transcript`. */
+  revision?: Maybe<Revision>
+  revisionId: Scalars['String']
+  subtitleUrl: Scalars['String']
   text: Scalars['String']
   uid: Scalars['String']
 }
@@ -6787,12 +8699,20 @@ export type Transcript = {
  * for equality and combined with a logical ‘and.’
  */
 export type TranscriptCondition = {
+  /** Checks for equality with the object’s `author` field. */
+  author?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `engine` field. */
   engine?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `language` field. */
   language?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `license` field. */
+  license?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `mediaAssetUid` field. */
   mediaAssetUid?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `revisionId` field. */
+  revisionId?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `subtitleUrl` field. */
+  subtitleUrl?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `text` field. */
   text?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `uid` field. */
@@ -6803,10 +8723,14 @@ export type TranscriptCondition = {
 export type TranscriptFilter = {
   /** Checks for all expressions in this list. */
   and?: InputMaybe<Array<TranscriptFilter>>
+  /** Filter by the object’s `author` field. */
+  author?: InputMaybe<StringFilter>
   /** Filter by the object’s `engine` field. */
   engine?: InputMaybe<StringFilter>
   /** Filter by the object’s `language` field. */
   language?: InputMaybe<StringFilter>
+  /** Filter by the object’s `license` field. */
+  license?: InputMaybe<StringFilter>
   /** Filter by the object’s `mediaAsset` relation. */
   mediaAsset?: InputMaybe<MediaAssetFilter>
   /** Filter by the object’s `mediaAssetUid` field. */
@@ -6815,6 +8739,12 @@ export type TranscriptFilter = {
   not?: InputMaybe<TranscriptFilter>
   /** Checks for any expressions in this list. */
   or?: InputMaybe<Array<TranscriptFilter>>
+  /** Filter by the object’s `revision` relation. */
+  revision?: InputMaybe<RevisionFilter>
+  /** Filter by the object’s `revisionId` field. */
+  revisionId?: InputMaybe<StringFilter>
+  /** Filter by the object’s `subtitleUrl` field. */
+  subtitleUrl?: InputMaybe<StringFilter>
   /** Filter by the object’s `text` field. */
   text?: InputMaybe<StringFilter>
   /** Filter by the object’s `uid` field. */
@@ -6843,101 +8773,23 @@ export type TranscriptsEdge = {
 
 /** Methods to use when ordering `Transcript`. */
 export enum TranscriptsOrderBy {
+  AuthorAsc = 'AUTHOR_ASC',
+  AuthorDesc = 'AUTHOR_DESC',
   EngineAsc = 'ENGINE_ASC',
   EngineDesc = 'ENGINE_DESC',
   LanguageAsc = 'LANGUAGE_ASC',
   LanguageDesc = 'LANGUAGE_DESC',
+  LicenseAsc = 'LICENSE_ASC',
+  LicenseDesc = 'LICENSE_DESC',
   MediaAssetUidAsc = 'MEDIA_ASSET_UID_ASC',
   MediaAssetUidDesc = 'MEDIA_ASSET_UID_DESC',
   Natural = 'NATURAL',
   PrimaryKeyAsc = 'PRIMARY_KEY_ASC',
   PrimaryKeyDesc = 'PRIMARY_KEY_DESC',
-  TextAsc = 'TEXT_ASC',
-  TextDesc = 'TEXT_DESC',
-  UidAsc = 'UID_ASC',
-  UidDesc = 'UID_DESC',
-}
-
-export type Translation = {
-  engine: Scalars['String']
-  language: Scalars['String']
-  /** Reads a single `MediaAsset` that is related to this `Translation`. */
-  mediaAsset?: Maybe<MediaAsset>
-  mediaAssetUid: Scalars['String']
-  text: Scalars['String']
-  uid: Scalars['String']
-}
-
-/**
- * A condition to be used against `Translation` object types. All fields are tested
- * for equality and combined with a logical ‘and.’
- */
-export type TranslationCondition = {
-  /** Checks for equality with the object’s `engine` field. */
-  engine?: InputMaybe<Scalars['String']>
-  /** Checks for equality with the object’s `language` field. */
-  language?: InputMaybe<Scalars['String']>
-  /** Checks for equality with the object’s `mediaAssetUid` field. */
-  mediaAssetUid?: InputMaybe<Scalars['String']>
-  /** Checks for equality with the object’s `text` field. */
-  text?: InputMaybe<Scalars['String']>
-  /** Checks for equality with the object’s `uid` field. */
-  uid?: InputMaybe<Scalars['String']>
-}
-
-/** A filter to be used against `Translation` object types. All fields are combined with a logical ‘and.’ */
-export type TranslationFilter = {
-  /** Checks for all expressions in this list. */
-  and?: InputMaybe<Array<TranslationFilter>>
-  /** Filter by the object’s `engine` field. */
-  engine?: InputMaybe<StringFilter>
-  /** Filter by the object’s `language` field. */
-  language?: InputMaybe<StringFilter>
-  /** Filter by the object’s `mediaAsset` relation. */
-  mediaAsset?: InputMaybe<MediaAssetFilter>
-  /** Filter by the object’s `mediaAssetUid` field. */
-  mediaAssetUid?: InputMaybe<StringFilter>
-  /** Negates the expression. */
-  not?: InputMaybe<TranslationFilter>
-  /** Checks for any expressions in this list. */
-  or?: InputMaybe<Array<TranslationFilter>>
-  /** Filter by the object’s `text` field. */
-  text?: InputMaybe<StringFilter>
-  /** Filter by the object’s `uid` field. */
-  uid?: InputMaybe<StringFilter>
-}
-
-/** A connection to a list of `Translation` values. */
-export type TranslationsConnection = {
-  /** A list of edges which contains the `Translation` and cursor to aid in pagination. */
-  edges: Array<TranslationsEdge>
-  /** A list of `Translation` objects. */
-  nodes: Array<Translation>
-  /** Information to aid in pagination. */
-  pageInfo: PageInfo
-  /** The count of *all* `Translation` you could get from the connection. */
-  totalCount: Scalars['Int']
-}
-
-/** A `Translation` edge in the connection. */
-export type TranslationsEdge = {
-  /** A cursor for use in pagination. */
-  cursor?: Maybe<Scalars['Cursor']>
-  /** The `Translation` at the end of the edge. */
-  node: Translation
-}
-
-/** Methods to use when ordering `Translation`. */
-export enum TranslationsOrderBy {
-  EngineAsc = 'ENGINE_ASC',
-  EngineDesc = 'ENGINE_DESC',
-  LanguageAsc = 'LANGUAGE_ASC',
-  LanguageDesc = 'LANGUAGE_DESC',
-  MediaAssetUidAsc = 'MEDIA_ASSET_UID_ASC',
-  MediaAssetUidDesc = 'MEDIA_ASSET_UID_DESC',
-  Natural = 'NATURAL',
-  PrimaryKeyAsc = 'PRIMARY_KEY_ASC',
-  PrimaryKeyDesc = 'PRIMARY_KEY_DESC',
+  RevisionIdAsc = 'REVISION_ID_ASC',
+  RevisionIdDesc = 'REVISION_ID_DESC',
+  SubtitleUrlAsc = 'SUBTITLE_URL_ASC',
+  SubtitleUrlDesc = 'SUBTITLE_URL_DESC',
   TextAsc = 'TEXT_ASC',
   TextDesc = 'TEXT_DESC',
   UidAsc = 'UID_ASC',
@@ -7761,15 +9613,15 @@ export type LoadContentItemQueryVariables = Exact<{
 
 export type LoadContentItemQuery = {
   contentItem?: {
-    title: string
+    title: any
     uid: string
-    content: string
+    content: any
     revisionId: string
     mediaAssets: {
       nodes: Array<{
         uid: string
         mediaType: string
-        title: string
+        title: any
         duration?: number | null
         files: {
           nodes: Array<{ contentUrl: string; mimeType?: string | null }>
@@ -7799,23 +9651,23 @@ export type LoadContentItemsQuery = {
     }
     nodes: Array<{
       pubDate?: any | null
-      title: string
+      title: any
       uid: string
       subtitle?: string | null
-      summary?: string | null
+      summary?: any | null
       mediaAssets: {
         nodes: Array<{
           duration?: number | null
           licenseUid?: string | null
           mediaType: string
-          title: string
+          title: any
           uid: string
           files: {
             nodes: Array<{ contentUrl: string; mimeType?: string | null }>
           }
         }>
       }
-      publicationService?: { name: string } | null
+      publicationService?: { name: any } | null
     }>
   } | null
 }
@@ -7840,9 +9692,9 @@ export type LoadDashboardDataQuery = {
   concepts?: { totalCount: number } | null
   publicationServices?: {
     totalCount: number
-    nodes: Array<{ name: string; contentItems: { totalCount: number } }>
+    nodes: Array<{ name: any; contentItems: { totalCount: number } }>
   } | null
-  latestConetentItems?: { nodes: Array<{ title: string; uid: string }> } | null
+  latestConetentItems?: { nodes: Array<{ title: any; uid: string }> } | null
   totalPublicationServices?: { totalCount: number } | null
   totalContentItems?: { totalCount: number } | null
   contentGroupings?: { totalCount: number } | null

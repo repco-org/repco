@@ -25,6 +25,7 @@ export interface CbaPost {
   categories: number[]
   tags: number[]
   language: number[]
+  language_codes: string[]
   editor: number[]
   acf: any[]
   post_parent: number
@@ -32,6 +33,7 @@ export interface CbaPost {
   production_date: string
   _links: Links
   _fetchedAttachements: any[]
+  translations: any[]
 }
 
 export interface About {
@@ -90,6 +92,8 @@ export interface CbaSeries {
   comment_status: string
   ping_status: string
   template: string
+  language_codes: string[]
+  translations: any[]
   acf: any[]
   post_parent: number
   url: string
@@ -216,6 +220,8 @@ export interface CbaStation {
   comment_status: string
   ping_status: string
   template: string
+  language_codes: string[]
+  translations: any[]
   acf: any[]
   livestream_urls: any[]
   _links: StationLinks
@@ -241,8 +247,11 @@ export interface CbaAudio {
     station_id: number
   }
   media_tag: any[]
+  language_codes: string[]
+  translations: any[]
   acf: any[]
   originators: any[]
+  transcripts: any[]
   source_url: string
   license: {
     license_image: string
@@ -303,8 +312,11 @@ export interface CbaImage {
     station_id: number
   }
   media_tag: any[]
+  language_codes: string[]
+  translations: any[]
   acf: any[]
   originators: any[]
+  transcripts: any[]
   source_url: string
   license: {
     license_image: string
