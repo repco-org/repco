@@ -2887,6 +2887,16 @@ input ContentItemCondition {
   """
   search: String = ""
 
+  """
+  Filters the list to ContentItems that have a specific keyword in title.
+  """
+  searchContent: String = ""
+
+  """
+  Filters the list to ContentItems that have a specific keyword in title.
+  """
+  searchTitle: String = ""
+
   """Checks for equality with the object’s `subtitle` field."""
   subtitle: String
 

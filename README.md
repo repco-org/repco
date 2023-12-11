@@ -10,9 +10,9 @@ Note: These are priliminary docs for how to run Repco in a developer's setup. Do
 
 #### Requirements
 
-* Node.js v18+
-* yarn v1 (yarn classic)
-* Docker and Docker Compose
+- Node.js v18+
+- yarn v1 (yarn classic)
+- Docker and Docker Compose
 
 ### Development setup
 
@@ -59,11 +59,11 @@ docker compose -f "docker/docker-compose.build.yml" ps
 # build new docker image
 docker compose -f "docker/docker-compose.build.yml" build
 # deploy docker image
-docker compose -f "docker/docker-compose.build.yml" up
+docker compose -f "docker/docker-compose.build.yml" up -d
 # create default repo
 docker compose -f "docker/docker-compose.build.yml" exec app yarn repco repo create default
 # add cba datasource
-docker compose -f "docker/docker-compose.build.yml" exec app yarn repco ds add -r default urn:repco:datasource:cba https://cba.media/wp-json/wp/v2
+docker compose -f "docker/docker-compose.build.yml" exec app yarn repco ds add -r default repco:datasource:cba https://cba.media/wp-json/wp/v2
 # restart app container so it runs in a loop
 docker compose -f "docker/docker-compose.build.yml" restart app
 ```

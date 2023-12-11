@@ -12,7 +12,9 @@ import {
 } from 'graphql'
 import { elasticApiFieldConfig } from 'graphql-compose-elasticsearch'
 import { createPostGraphileSchema, postgraphile } from 'postgraphile'
+import ContentItemContentFilterPlugin from './plugins/content-item-content-filter.js'
 import ContentItemFilterPlugin from './plugins/content-item-filter.js'
+import ContentItemTitleFilterPlugin from './plugins/content-item-title-filter.js'
 import ExportSchemaPlugin from './plugins/export-schema.js'
 // Change some inflection rules to better match our schema.
 import CustomInflector from './plugins/inflector.js'
@@ -82,6 +84,8 @@ export function getPostGraphileOptions() {
       WrapResolversPlugin,
       ExportSchemaPlugin,
       ContentItemFilterPlugin,
+      ContentItemContentFilterPlugin,
+      ContentItemTitleFilterPlugin,
       // CustomFilterPlugin,
     ],
     dynamicJson: true,
