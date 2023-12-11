@@ -15,6 +15,7 @@ import { createPostGraphileSchema, postgraphile } from 'postgraphile'
 import ExportSchemaPlugin from './plugins/export-schema.js'
 // Change some inflection rules to better match our schema.
 import CustomInflector from './plugins/inflector.js'
+import JsonFilterPlugin from './plugins/json-filter.js'
 // Add custom tags to omit all queries for the relation tables
 import CustomTags from './plugins/tags.js'
 // Add a resolver wrapper to add default pagination args
@@ -80,6 +81,7 @@ export function getPostGraphileOptions() {
       CustomInflector,
       WrapResolversPlugin,
       ExportSchemaPlugin,
+      JsonFilterPlugin,
       // CustomFilterPlugin,
     ],
     dynamicJson: true,

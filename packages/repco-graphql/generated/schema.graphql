@@ -2882,6 +2882,11 @@ input ContentItemCondition {
   """Checks for equality with the object’s `revisionId` field."""
   revisionId: String
 
+  """
+  Filters the list to ContentItems that have a specific keyword in title.
+  """
+  searchTitle: String = ""
+
   """Checks for equality with the object’s `subtitle` field."""
   subtitle: String
 
