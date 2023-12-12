@@ -43,7 +43,6 @@ export class RelationFinder {
     // check if already in map: resolve now
     if (this.uriMap.has(value.uri)) {
       value.uid = this.uriMap.get(value.uri)
-      // BUG? NOTHING HAPPENS WITH value.uid
     } else {
       this.pendingUris.add(value.uri)
       if (relation) this.relsByUri.push(value.uri, relation)
@@ -51,11 +50,18 @@ export class RelationFinder {
   }
 
   pushEntity(entity: EntityInputWithHeaders) {
-    const uid = entity.uid
+    let uid = entity.uid
     if (this.entities.has(uid)) return
     this.entities.set(uid, entity)
     if (entity.headers.EntityUris) {
       for (const uri of entity.headers.EntityUris) {
+        const foundUid = this.uriMap.get(uri)
+        if (foundUid) {
+          // if entity with the same uri already exists delete it from entities
+          this.entities.delete(uid)
+          uid = foundUid
+          break
+        }
         this.discoveredUid(uri, uid)
       }
     }
