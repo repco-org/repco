@@ -13,7 +13,10 @@ const GRAPHQL_URL = process.env.REPCO_URL
   : 'http://localhost:8765/graphql'
 
 export const graphqlClient = createClient({
-  url: GRAPHQL_URL,
+  url:
+    process.env.REPCO_URL != undefined
+      ? `${process.env.REPCO_URL}/graphql`
+      : 'http://localhost:8765/graphql',
   requestPolicy: 'network-only',
 })
 
@@ -25,6 +28,7 @@ export function graphqlQuery<
   variables: Variables,
   context?: Partial<OperationContext>,
 ): Promise<OperationResult<Data, Variables>> {
+  console.log(process.env.REPCO_URL)
   return graphqlClient.query(query, variables, context).toPromise()
 }
 
