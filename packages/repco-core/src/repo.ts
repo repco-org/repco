@@ -819,6 +819,7 @@ function parseEntity(input: UnknownEntityInput): EntityFormWithHeaders {
     return { entity, headers }
   } catch (err) {
     if (err instanceof ZodError) {
+      console.log(input.content, input.headers, input.type)
       throw new ParseError(err, (input as any).type)
     } else {
       throw err
