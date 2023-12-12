@@ -768,11 +768,23 @@ export class CbaDataSource implements DataSource {
       var contentJson: { [k: string]: any } = {}
       contentJson[post.language_codes[0]] = { value: post.content.rendered }
 
-      Object.entries(post.translations).forEach((entry) => {
-        title[entry[1]['language']] = { value: entry[1]['post_title'] }
-        summary[entry[1]['language']] = { value: entry[1]['post_excerpt'] }
-        contentJson[entry[1]['language']] = { value: entry[1]['post_content'] }
-      })
+      if (Array.isArray(post.translations)) {
+        Object.entries(post.translations).forEach((entry) => {
+          title[entry[1]['language']] = { value: entry[1]['post_title'] }
+          summary[entry[1]['language']] = { value: entry[1]['post_excerpt'] }
+          contentJson[entry[1]['language']] = {
+            value: entry[1]['post_content'],
+          }
+        })
+      } else {
+        var temp = post.translations as any
+        Object.keys(post.translations).forEach((code) => {
+          title[code] = { value: temp[code]['title'] }
+          summary[code] = { value: temp[code]['excerpt'] }
+          contentJson[code] = { value: temp[code]['content'] }
+        })
+        //title[Object.keys(post.translations)[0]]
+      }
 
       const content: form.ContentItemInput = {
         pubDate: parseAsUTC(post.date),
