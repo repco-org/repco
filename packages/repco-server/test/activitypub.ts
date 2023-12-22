@@ -70,5 +70,13 @@ test('peertube datasource - basic1', async (assert) => {
       },
     },
   })
+  const concepts = await prisma.concept.findMany({
+    select: {
+      uid: true,
+      kind: true,
+      name: true,
+    },
+  })
+  assert.is(concepts.length, 3)
   await assertFixture(assert, fixturePath('entities.json'), entities)
 })
