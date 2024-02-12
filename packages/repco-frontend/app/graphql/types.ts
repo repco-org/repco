@@ -1729,7 +1729,7 @@ export type ContentItemCondition = {
   publicationServiceUid?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `revisionId` field. */
   revisionId?: InputMaybe<Scalars['String']>
-  /** Filters the list to ContentItems that have a specific keyword in title. */
+  /** Filters the list to ContentItems that have a specific keyword. */
   search?: InputMaybe<Scalars['String']>
   /** Filters the list to ContentItems that have a specific keyword in title. */
   searchContent?: InputMaybe<Scalars['String']>

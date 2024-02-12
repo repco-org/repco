@@ -3980,9 +3980,7 @@ input ContentItemCondition {
   """
   revisionId: String
 
-  """
-  Filters the list to ContentItems that have a specific keyword in title.
-  """
+  """Filters the list to ContentItems that have a specific keyword."""
   search: String = ""
 
   """

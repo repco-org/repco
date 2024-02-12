@@ -30,14 +30,14 @@ export const loader: LoaderFunction = async ({ request }) => {
   if (type === 'title' && q) {
     //const titleFilter: StringFilter = { includesInsensitive: q }
     //filter = { title: titleFilter }
-    condition = { searchTitle: q }
+    condition = { search: q }
   }
 
   if (type === 'fulltext' && q) {
     //const titleFilter: StringFilter = { includesInsensitive: q }
     //const contentFilter: StringFilter = { includesInsensitive: q }
     //filter = { or: [{ title: titleFilter }, { content: contentFilter }] }
-    condition = { searchContent: q }
+    condition = { search: q }
   }
 
   if (repoDid && repoDid !== 'all') {

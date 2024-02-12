@@ -1,16 +1,16 @@
-
 version: '3.1'
 
 services:
-
   db:
     image: postgres
+    container_name: repco-db
     # restart: always
     volumes:
-      - "./data/postgres:/var/lib/postgresql/data"
+      - './data/postgres:/var/lib/postgresql/data'
     ports:
       - 5432:5432
-    command: [ "postgres", "-c", "wal_level=logical", "-c", "max_replication_slots=4" ]
+    command:
+      ['postgres', '-c', 'wal_level=logical', '-c', 'max_replication_slots=4']
     environment:
       POSTGRES_PASSWORD: repco
       POSTGRES_USER: repco
@@ -18,7 +18,7 @@ services:
 
   meilisearch:
     image: getmeili/meilisearch:v1.0
-    ports: 
+    ports:
       - 7700:7700
     environment:
       - MEILI_MASTER_KEY=${MEILISEARCH_API_KEY}
@@ -27,6 +27,7 @@ services:
 
   es01:
     image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION}
+    container_name: repco-es
     labels:
       co.elastic.logs/module: elasticsearch
     volumes:
@@ -49,8 +50,8 @@ services:
     healthcheck:
       test:
         [
-          "CMD-SHELL",
-          "curl -s --user elastic:${ELASTIC_PASSWORD} -X GET http://localhost:9200/_cluster/health?pretty | grep status | grep -q '\\(green\\|yellow\\)'"
+          'CMD-SHELL',
+          "curl -s --user elastic:${ELASTIC_PASSWORD} -X GET http://localhost:9200/_cluster/health?pretty | grep status | grep -q '\\(green\\|yellow\\)'",
         ]
       interval: 10s
       timeout: 10s
@@ -58,8 +59,8 @@ services:
 
   redis:
     image: 'redis:alpine'
-    container_name: redis
-    command: [ "redis-server", "--requirepass", "${REDIS_PASSWORD}" ]
+    container_name: repco-redis
+    command: ['redis-server', '--requirepass', '${REDIS_PASSWORD}']
     volumes:
       - ./data/redis:/data
     ports:
@@ -68,6 +69,7 @@ services:
   pgsync:
     build:
       context: ./pgsync
+    container_name: repco-pgsync
     volumes:
       - ./data/pgsync:/data
     sysctls:
@@ -75,9 +77,9 @@ services:
       - net.ipv4.tcp_keepalive_intvl=200
       - net.ipv4.tcp_keepalive_probes=5
     labels:
-      org.label-schema.name: "pgsync"
-      org.label-schema.description: "Postgres to Elasticsearch sync"
-      com.label-schema.service-type: "daemon"
+      org.label-schema.name: 'pgsync'
+      org.label-schema.description: 'Postgres to Elasticsearch sync'
+      com.label-schema.service-type: 'daemon'
     depends_on:
       - db
       - es01
