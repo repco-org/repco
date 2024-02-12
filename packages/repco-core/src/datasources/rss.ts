@@ -321,12 +321,24 @@ export class RssDataSource extends BaseDataSource implements DataSource {
       const feed = await parseBodyCached(record, async (record) =>
         this.parser.parseString(record.body),
       )
+      var titleJson: { [k: string]: any } = {}
+      titleJson[feed.language || 'de'] = {
+        value: feed.title || feed.feedUrl || 'unknown',
+      }
+      var summaryJson: { [k: string]: any } = {}
+      summaryJson[feed.language || 'de'] = {
+        value: '{}',
+      }
+      var descriptionJson: { [k: string]: any } = {}
+      descriptionJson[feed.language || 'de'] = {
+        value: feed.description || '{}',
+      }
       const entity: ContentGroupingInput = {
         groupingType: 'feed',
-        title: feed.title || feed.feedUrl || 'unknown',
+        title: titleJson,
         variant: ContentGroupingVariant.EPISODIC,
-        description: feed.description || '{}',
-        summary: '{}',
+        description: descriptionJson,
+        summary: summaryJson,
       }
       return [
         {
@@ -359,14 +371,23 @@ export class RssDataSource extends BaseDataSource implements DataSource {
 
     const mediaUri = itemUri + '#media'
 
+    var titleJson: { [k: string]: any } = {}
+    titleJson[item.language || 'de'] = {
+      value: item.title || item.guid || 'missing',
+    }
+    var descriptionJson: { [k: string]: any } = {}
+    descriptionJson[item.language || 'de'] = {
+      value: '{}',
+    }
+
     entities.push({
       type: 'MediaAsset',
       content: {
-        title: item.title || item.guid || 'missing',
+        title: titleJson,
         duration: 0,
         mediaType: 'audio',
         Files: [{ uri: fileUri }],
-        description: '{}',
+        description: descriptionJson,
       },
       headers: { EntityUris: [mediaUri] },
     })
@@ -387,10 +408,24 @@ export class RssDataSource extends BaseDataSource implements DataSource {
       itemUri,
       item,
     )
+
+    var titleJson: { [k: string]: any } = {}
+    titleJson[item.language || 'de'] = {
+      value: item.title || item.guid || 'missing',
+    }
+    var summaryJson: { [k: string]: any } = {}
+    summaryJson[item.language || 'de'] = {
+      value: item.contentSnippet || '{}',
+    }
+    var contentJson: { [k: string]: any } = {}
+    contentJson[item.language || 'de'] = {
+      value: item.content || '',
+    }
+
     const content: ContentItemInput = {
-      title: item.title || item.guid || 'missing',
-      summary: item.contentSnippet || '{}',
-      content: item.content || '',
+      title: titleJson,
+      summary: summaryJson,
+      content: contentJson,
       contentFormat: 'text/plain',
       pubDate: item.pubDate ? new Date(item.pubDate) : null,
       PrimaryGrouping: { uri: this.endpoint.toString() },

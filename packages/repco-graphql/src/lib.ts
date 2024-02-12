@@ -2,15 +2,8 @@ import PgManyToManyPlugin from '@graphile-contrib/pg-many-to-many'
 import SimplifyInflectorPlugin from '@graphile-contrib/pg-simplify-inflector'
 import pg from 'pg'
 import ConnectionFilterPlugin from 'postgraphile-plugin-connection-filter'
-import { Client } from '@elastic/elasticsearch'
-import { mergeSchemas } from '@graphql-tools/schema'
 import { NodePlugin } from 'graphile-build'
-import {
-  GraphQLObjectType,
-  GraphQLSchema,
-  lexicographicSortSchema,
-} from 'graphql'
-import { elasticApiFieldConfig } from 'graphql-compose-elasticsearch'
+import { lexicographicSortSchema } from 'graphql'
 import { createPostGraphileSchema, postgraphile } from 'postgraphile'
 import ContentItemContentFilterPlugin from './plugins/content-item-content-filter.js'
 import ContentItemFilterPlugin from './plugins/content-item-filter.js'
@@ -42,26 +35,6 @@ export async function createGraphQlSchema(databaseUrl: string) {
     PG_SCHEMA,
     getPostGraphileOptions(),
   )
-  const schemaElastic = new GraphQLSchema({
-    query: new GraphQLObjectType({
-      name: 'Query',
-      fields: {
-        elastic: elasticApiFieldConfig(
-          new Client({
-            node: 'http://localhost:9200',
-            auth: {
-              username: 'elastic',
-              password: 'repco',
-            },
-          }),
-        ),
-      },
-    }),
-  })
-
-  const mergedSchema = mergeSchemas({
-    schemas: [schema, schemaElastic],
-  })
 
   const sorted = lexicographicSortSchema(schema)
   return sorted
@@ -86,6 +59,7 @@ export function getPostGraphileOptions() {
       ContentItemFilterPlugin,
       ContentItemContentFilterPlugin,
       ContentItemTitleFilterPlugin,
+      // ElasticTest,
       // CustomFilterPlugin,
     ],
     dynamicJson: true,

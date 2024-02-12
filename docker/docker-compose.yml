@@ -3,6 +3,7 @@ version: '3.1'
 services:
   app:
     image: arsoxyz/repco:latest
+    container_name: repco-app
     expose:
       - 8765
     ports:
@@ -15,8 +16,9 @@ services:
 
   db:
     image: postgres
+    container_name: repco-db
     volumes:
-        - ./data/repco-db:/var/lib/postgresql/data"
+      - ./data/repco-db:/var/lib/postgresql/data"
     expose:
       - 5432
     environment:
@@ -24,7 +26,92 @@ services:
       POSTGRES_USER: repco
       POSTGRES_DB: repco
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U repco"]
+      test: ['CMD-SHELL', 'pg_isready -U repco']
       interval: 5s
       timeout: 5s
       retries: 5
+
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION}
+    container_name: repco-es
+    labels:
+      co.elastic.logs/module: elasticsearch
+    volumes:
+      - ./data/elastic/es01:/usr/share/elasticsearch/data
+    ports:
+      - ${ELASTIC_PORT}:9200
+    environment:
+      - node.name=es01
+      - cluster.name=${ELASTIC_CLUSTER_NAME}
+      - discovery.type=single-node
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+      - xpack.license.self_generated.type=${ELASTIC_LICENSE}
+    mem_limit: ${ELASTIC_MEM_LIMIT}
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          "curl -s --user elastic:${ELASTIC_PASSWORD} -X GET http://localhost:9200/_cluster/health?pretty | grep status | grep -q '\\(green\\|yellow\\)'",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 120
+
+  redis:
+    image: 'redis:alpine'
+    container_name: repco-redis
+    command: ['redis-server', '--requirepass', '${REDIS_PASSWORD}']
+    volumes:
+      - ./data/redis:/data
+    ports:
+      - '6379:6379'
+
+  pgsync:
+    build:
+      context: ./pgsync
+    container_name: repco-pgsync
+    volumes:
+      - ./data/pgsync:/data
+    sysctls:
+      - net.ipv4.tcp_keepalive_time=200
+      - net.ipv4.tcp_keepalive_intvl=200
+      - net.ipv4.tcp_keepalive_probes=5
+    labels:
+      org.label-schema.name: 'pgsync'
+      org.label-schema.description: 'Postgres to Elasticsearch sync'
+      com.label-schema.service-type: 'daemon'
+    depends_on:
+      - db
+      - es01
+      - redis
+    environment:
+      - PG_USER=repco
+      - PG_HOST=db
+      - PG_PORT=5432
+      - PG_PASSWORD=repco
+      - PG_DATABASE=repco
+      - LOG_LEVEL=DEBUG
+      - ELASTICSEARCH_PORT=${ELASTIC_PORT}
+      - ELASTICSEARCH_SCHEME=http
+      - ELASTICSEARCH_HOST=es01
+      - ELASTICSEARCH_CHUNK_SIZE=100
+      - ELASTICSEARCH_MAX_CHUNK_BYTES=3242880
+      - ELASTICSEARCH_MAX_RETRIES=14
+      - ELASTICSEARCH_QUEUE_SIZE=1
+      - ELASTICSEARCH_STREAMING_BULK=True
+      - ELASTICSEARCH_THREAD_COUNT=1
+      - ELASTICSEARCH_TIMEOUT=320
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_AUTH=${REDIS_PASSWORD}
+      - REDIS_READ_CHUNK_SIZE=100
+      - ELASTICSEARCH=true
+      - OPENSEARCH=false
+      - SCHEMA=/data
+      - CHECKPOINT_PATH=/data
