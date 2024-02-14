@@ -8120,6 +8120,7 @@ type Query {
     """The method to use when ordering `Revision`."""
     orderBy: [RevisionsOrderBy!] = [PRIMARY_KEY_ASC]
   ): RevisionsConnection
+  searchContentItems(searchText: String!): [ContentItem!]
   sourceRecord(uid: String!): SourceRecord
 
   """Reads and enables pagination through a set of `SourceRecord`."""
