@@ -39,7 +39,7 @@ services:
     volumes:
       - ./data/elastic/es01:/usr/share/elasticsearch/data
     ports:
-      - ${ELASTIC_PORT}:9200
+      - ${ELASTIC_PORT}:9201
     environment:
       - node.name=es01
       - cluster.name=${ELASTIC_CLUSTER_NAME}
@@ -57,7 +57,7 @@ services:
       test:
         [
           'CMD-SHELL',
-          "curl -s --user elastic:${ELASTIC_PASSWORD} -X GET http://localhost:9200/_cluster/health?pretty | grep status | grep -q '\\(green\\|yellow\\)'",
+          "curl -s --user elastic:${ELASTIC_PASSWORD} -X GET http://localhost:9201/_cluster/health?pretty | grep status | grep -q '\\(green\\|yellow\\)'",
         ]
       interval: 10s
       timeout: 10s

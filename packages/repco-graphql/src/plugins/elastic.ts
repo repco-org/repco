@@ -23,7 +23,7 @@ const ElasticTest = makeExtendSchemaPlugin((build) => {
             _source: false,
           }
 
-          var url = 'http://localhost:9200/_search'
+          var url = 'http://localhost:9201/_search'
           const response = fetch(url, {
             method: 'POST',
             headers: {
