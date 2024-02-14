@@ -20,7 +20,7 @@ A working configuration file is located at [config/schema.json](config/schema.js
 To search for a phrase in the elastic search index you can use the `_search` endpoint using the following example request:
 
 ```
-curl --location --request GET 'localhost:9200/_search' \
+curl --location --request GET 'localhost:9201/_search' \
 --header 'Content-Type: application/json' \
 --data '{
   "query": {
