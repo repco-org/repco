@@ -11326,6 +11326,7 @@ type Query {
     """
     orderBy: [RevisionsOrderBy!] = [PRIMARY_KEY_ASC]
   ): RevisionsConnection
+  searchContentItems(searchText: String!): [ContentItem!]
   sourceRecord(uid: String!): SourceRecord
 
   """
