@@ -39,6 +39,7 @@ services:
 
   es01:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.10.4
+    container_name: repco-es
     labels:
       co.elastic.logs/module: elasticsearch
     volumes:
@@ -54,7 +55,9 @@ services:
       - xpack.security.enabled=false
       - xpack.license.self_generated.type=basic
       - ES_JAVA_OPTS=-Xms750m -Xmx750m
-    #mem_limit: 1073741824
+      - http.host=0.0.0.0
+      - transport.host=127.0.0.1
+      #mem_limit: 1073741824
     ulimits:
       memlock:
         soft: -1
@@ -71,6 +74,7 @@ services:
 
   redis:
     image: 'redis:alpine'
+    container_name: repco-redis
     command: ['redis-server', '--requirepass', 'repco']
     volumes:
       - ./data/redis:/data
@@ -80,6 +84,7 @@ services:
   pgsync:
     build:
       context: ../pgsync
+    container_name: repco-pgsync
     volumes:
       - ./data/pgsync:/data
     sysctls:
@@ -101,7 +106,7 @@ services:
       - PG_PASSWORD=repco
       - PG_DATABASE=repco
       - LOG_LEVEL=DEBUG
-      - ELASTICSEARCH_PORT=9201
+      - ELASTICSEARCH_PORT=9200
       - ELASTICSEARCH_SCHEME=http
       - ELASTICSEARCH_HOST=es01
       - ELASTICSEARCH_CHUNK_SIZE=100
