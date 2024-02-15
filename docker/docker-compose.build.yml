@@ -39,7 +39,6 @@ services:
 
   es01:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.10.4
-    container_name: repco-es
     labels:
       co.elastic.logs/module: elasticsearch
     volumes:
@@ -72,7 +71,6 @@ services:
 
   redis:
     image: 'redis:alpine'
-    container_name: repco-redis
     command: ['redis-server', '--requirepass', 'repco']
     volumes:
       - ./data/redis:/data
@@ -82,7 +80,6 @@ services:
   pgsync:
     build:
       context: ../pgsync
-    container_name: repco-pgsync
     volumes:
       - ./data/pgsync:/data
     sysctls:
@@ -106,7 +103,7 @@ services:
       - LOG_LEVEL=DEBUG
       - ELASTICSEARCH_PORT=9201
       - ELASTICSEARCH_SCHEME=http
-      - ELASTICSEARCH_HOST=repco-es
+      - ELASTICSEARCH_HOST=es01
       - ELASTICSEARCH_CHUNK_SIZE=100
       - ELASTICSEARCH_MAX_CHUNK_BYTES=3242880
       - ELASTICSEARCH_MAX_RETRIES=14
