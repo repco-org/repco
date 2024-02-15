@@ -21,10 +21,12 @@ services:
   db:
     image: postgres
     container_name: repco-db
-    # volumes:
-    #     - "/tmp/repco/postgres:/var/lib/postgresql/data"
+    volumes:
+      - './data/postgres:/var/lib/postgresql/data'
     expose:
       - 5432
+    command:
+      ['postgres', '-c', 'wal_level=logical', '-c', 'max_replication_slots=4']
     environment:
       POSTGRES_PASSWORD: repco
       POSTGRES_USER: repco
@@ -41,9 +43,9 @@ services:
     labels:
       co.elastic.logs/module: elasticsearch
     volumes:
-      - ./data/elastic/es01:/usr/share/elasticsearch/data
+      - ./data/elastic/es01:/var/lib/elasticsearch/data
     ports:
-      - 9201:9201
+      - 9201:9200
     environment:
       - node.name=es01
       - cluster.name=es-repco
@@ -52,7 +54,8 @@ services:
       - bootstrap.memory_lock=true
       - xpack.security.enabled=false
       - xpack.license.self_generated.type=basic
-    mem_limit: 1073741824
+      - ES_JAVA_OPTS=-Xms750m -Xmx750m
+    #mem_limit: 1073741824
     ulimits:
       memlock:
         soft: -1
@@ -61,7 +64,7 @@ services:
       test:
         [
           'CMD-SHELL',
-          "curl -s --user elastic:repco -X GET http://localhost:9201/_cluster/health?pretty | grep status | grep -q '\\(green\\|yellow\\)'",
+          "curl -s --user elastic:repco -X GET http://localhost:9200/_cluster/health?pretty | grep status | grep -q '\\(green\\|yellow\\)'",
         ]
       interval: 10s
       timeout: 10s
