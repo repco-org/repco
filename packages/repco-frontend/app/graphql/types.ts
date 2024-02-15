@@ -4553,6 +4553,7 @@ export type Query = {
   revision?: Maybe<Revision>
   /** Reads and enables pagination through a set of `Revision`. */
   revisions?: Maybe<RevisionsConnection>
+  searchContentItems?: Maybe<Array<ContentItem>>
   sourceRecord?: Maybe<SourceRecord>
   /** Reads and enables pagination through a set of `SourceRecord`. */
   sourceRecords?: Maybe<SourceRecordsConnection>
@@ -4904,6 +4905,11 @@ export type QueryRevisionsArgs = {
   last: InputMaybe<Scalars['Int']>
   offset: InputMaybe<Scalars['Int']>
   orderBy?: InputMaybe<Array<RevisionsOrderBy>>
+}
+
+/** The root query type which gives access points into the data universe. */
+export type QuerySearchContentItemsArgs = {
+  searchText: Scalars['String']
 }
 
 /** The root query type which gives access points into the data universe. */

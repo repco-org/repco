@@ -31,9 +31,9 @@ services:
     labels:
       co.elastic.logs/module: elasticsearch
     volumes:
-      - ./data/elastic/es01:/usr/share/elasticsearch/data
+      - ./data/elastic/es01:/var/lib/elasticsearch/data
     ports:
-      - ${ELASTIC_PORT}:9201
+      - ${ELASTIC_PORT}:9200
     environment:
       - node.name=es01
       - cluster.name=${ELASTIC_CLUSTER_NAME}
@@ -42,7 +42,10 @@ services:
       - bootstrap.memory_lock=true
       - xpack.security.enabled=false
       - xpack.license.self_generated.type=${ELASTIC_LICENSE}
-    mem_limit: ${ELASTIC_MEM_LIMIT}
+      - ES_JAVA_OPTS=-Xms750m -Xmx750m
+      - http.host=0.0.0.0
+      - transport.host=127.0.0.1
+    #mem_limit: 1073741824
     ulimits:
       memlock:
         soft: -1
@@ -51,7 +54,7 @@ services:
       test:
         [
           'CMD-SHELL',
-          "curl -s --user elastic:${ELASTIC_PASSWORD} -X GET http://localhost:9201/_cluster/health?pretty | grep status | grep -q '\\(green\\|yellow\\)'",
+          "curl -s --user elastic:${ELASTIC_PASSWORD} -X GET http://localhost:9200/_cluster/health?pretty | grep status | grep -q '\\(green\\|yellow\\)'",
         ]
       interval: 10s
       timeout: 10s
@@ -91,7 +94,7 @@ services:
       - PG_PASSWORD=repco
       - PG_DATABASE=repco
       - LOG_LEVEL=DEBUG
-      - ELASTICSEARCH_PORT=${ELASTIC_PORT}
+      - ELASTICSEARCH_PORT=9200
       - ELASTICSEARCH_SCHEME=http
       - ELASTICSEARCH_HOST=es01
       - ELASTICSEARCH_CHUNK_SIZE=100
