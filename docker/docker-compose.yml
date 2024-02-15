@@ -74,7 +74,7 @@ services:
 
   pgsync:
     build:
-      context: ./pgsync
+      context: ../pgsync
     container_name: repco-pgsync
     volumes:
       - ./data/pgsync:/data
