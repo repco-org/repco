@@ -42,7 +42,7 @@ services:
     labels:
       co.elastic.logs/module: elasticsearch
     volumes:
-      - ./data/elastic/es01:/usr/share/elasticsearch/data
+      - ./data/elastic/es01:/var/lib/elasticsearch/data
     ports:
       - 9201:9200
     environment:
