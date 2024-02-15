@@ -43,12 +43,12 @@ services:
     labels:
       co.elastic.logs/module: elasticsearch
     volumes:
-      - ./data/elastic/es01:/var/lib/elasticsearch/data
+      - ./data/elastic/es01:/usr/share/elasticsearch/data
     ports:
       - 9201:9200
     environment:
       - node.name=es01
-      - cluster.name=es-repco
+      - cluster.name=repco-es
       - discovery.type=single-node
       - ELASTIC_PASSWORD=repco
       - bootstrap.memory_lock=true
@@ -106,7 +106,7 @@ services:
       - LOG_LEVEL=DEBUG
       - ELASTICSEARCH_PORT=9201
       - ELASTICSEARCH_SCHEME=http
-      - ELASTICSEARCH_HOST=localhost
+      - ELASTICSEARCH_HOST=repco-es
       - ELASTICSEARCH_CHUNK_SIZE=100
       - ELASTICSEARCH_MAX_CHUNK_BYTES=3242880
       - ELASTICSEARCH_MAX_RETRIES=14
