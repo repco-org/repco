@@ -83,6 +83,7 @@ function createItem() {
       title: casual.catch_phrase,
       content: casual.sentences(3),
       summary: '{}',
+      contentUrl: '',
     },
   }
   return item

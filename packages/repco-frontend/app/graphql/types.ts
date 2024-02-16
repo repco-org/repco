@@ -1580,6 +1580,7 @@ export type ContentItem = {
   contentFormat: Scalars['String']
   /** Reads and enables pagination through a set of `ContentGrouping`. */
   contentGroupings: ContentItemContentGroupingsByContentGroupingToContentItemBAndAManyToManyConnection
+  contentUrl: Scalars['String']
   /** Reads and enables pagination through a set of `Contribution`. */
   contributions: ContentItemContributionsByContentItemToContributionAAndBManyToManyConnection
   /** Reads a single `License` that is related to this `ContentItem`. */
@@ -1717,6 +1718,8 @@ export type ContentItemCondition = {
   content?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `contentFormat` field. */
   contentFormat?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `contentUrl` field. */
+  contentUrl?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `licenseUid` field. */
   licenseUid?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `primaryGroupingUid` field. */
@@ -1829,6 +1832,8 @@ export type ContentItemFilter = {
   content?: InputMaybe<JsonFilter>
   /** Filter by the object’s `contentFormat` field. */
   contentFormat?: InputMaybe<StringFilter>
+  /** Filter by the object’s `contentUrl` field. */
+  contentUrl?: InputMaybe<StringFilter>
   /** Filter by the object’s `license` relation. */
   license?: InputMaybe<LicenseFilter>
   /** A related `license` exists. */
@@ -1977,6 +1982,8 @@ export enum ContentItemsOrderBy {
   ContentDesc = 'CONTENT_DESC',
   ContentFormatAsc = 'CONTENT_FORMAT_ASC',
   ContentFormatDesc = 'CONTENT_FORMAT_DESC',
+  ContentUrlAsc = 'CONTENT_URL_ASC',
+  ContentUrlDesc = 'CONTENT_URL_DESC',
   LicenseUidAsc = 'LICENSE_UID_ASC',
   LicenseUidDesc = 'LICENSE_UID_DESC',
   Natural = 'NATURAL',
@@ -4553,7 +4560,6 @@ export type Query = {
   revision?: Maybe<Revision>
   /** Reads and enables pagination through a set of `Revision`. */
   revisions?: Maybe<RevisionsConnection>
-  searchContentItems?: Maybe<Array<ContentItem>>
   sourceRecord?: Maybe<SourceRecord>
   /** Reads and enables pagination through a set of `SourceRecord`. */
   sourceRecords?: Maybe<SourceRecordsConnection>
@@ -4905,11 +4911,6 @@ export type QueryRevisionsArgs = {
   last: InputMaybe<Scalars['Int']>
   offset: InputMaybe<Scalars['Int']>
   orderBy?: InputMaybe<Array<RevisionsOrderBy>>
-}
-
-/** The root query type which gives access points into the data universe. */
-export type QuerySearchContentItemsArgs = {
-  searchText: Scalars['String']
 }
 
 /** The root query type which gives access points into the data universe. */

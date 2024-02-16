@@ -258,6 +258,7 @@ model ContentItem {
   summary       Json?
   content       Json      @default("{}")
   contentFormat String
+  contentUrl    String
 
   primaryGroupingUid    String?
   publicationServiceUid String?

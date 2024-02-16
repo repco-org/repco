@@ -2663,6 +2663,7 @@ type ContentItem {
     """The method to use when ordering `ContentGrouping`."""
     orderBy: [ContentGroupingsOrderBy!] = [PRIMARY_KEY_ASC]
   ): ContentItemContentGroupingsByContentGroupingToContentItemBAndAManyToManyConnection!
+  contentUrl: String!
 
   """Reads and enables pagination through a set of `Contribution`."""
   contributions(
@@ -2867,6 +2868,9 @@ input ContentItemCondition {
   """Checks for equality with the object’s `contentFormat` field."""
   contentFormat: String
 
+  """Checks for equality with the object’s `contentUrl` field."""
+  contentUrl: String
+
   """Checks for equality with the object’s `licenseUid` field."""
   licenseUid: String
 
@@ -3060,6 +3064,9 @@ input ContentItemFilter {
 
   """Filter by the object’s `contentFormat` field."""
   contentFormat: StringFilter
+
+  """Filter by the object’s `contentUrl` field."""
+  contentUrl: StringFilter
 
   """Filter by the object’s `license` relation."""
   license: LicenseFilter
@@ -3300,6 +3307,8 @@ enum ContentItemsOrderBy {
   CONTENT_DESC
   CONTENT_FORMAT_ASC
   CONTENT_FORMAT_DESC
+  CONTENT_URL_ASC
+  CONTENT_URL_DESC
   LICENSE_UID_ASC
   LICENSE_UID_DESC
   NATURAL
@@ -8120,7 +8129,6 @@ type Query {
     """The method to use when ordering `Revision`."""
     orderBy: [RevisionsOrderBy!] = [PRIMARY_KEY_ASC]
   ): RevisionsConnection
-  searchContentItems(searchText: String!): [ContentItem!]
   sourceRecord(uid: String!): SourceRecord
 
   """Reads and enables pagination through a set of `SourceRecord`."""
