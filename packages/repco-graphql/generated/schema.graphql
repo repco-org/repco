@@ -3685,6 +3685,7 @@ type ContentItem {
     """
     orderBy: [ContentGroupingsOrderBy!] = [PRIMARY_KEY_ASC]
   ): ContentItemContentGroupingsByContentGroupingToContentItemBAndAManyToManyConnection!
+  contentUrl: String!
 
   """
   Reads and enables pagination through a set of `Contribution`.
@@ -3956,6 +3957,11 @@ input ContentItemCondition {
   contentFormat: String
 
   """
+  Checks for equality with the object’s `contentUrl` field.
+  """
+  contentUrl: String
+
+  """
   Checks for equality with the object’s `licenseUid` field.
   """
   licenseUid: String
@@ -3980,7 +3986,9 @@ input ContentItemCondition {
   """
   revisionId: String
 
-  """Filters the list to ContentItems that have a specific keyword."""
+  """
+  Filters the list to ContentItems that have a specific keyword.
+  """
   search: String = ""
 
   """
@@ -4214,6 +4222,11 @@ input ContentItemFilter {
   Filter by the object’s `contentFormat` field.
   """
   contentFormat: StringFilter
+
+  """
+  Filter by the object’s `contentUrl` field.
+  """
+  contentUrl: StringFilter
 
   """
   Filter by the object’s `license` relation.
@@ -4546,6 +4559,8 @@ enum ContentItemsOrderBy {
   CONTENT_DESC
   CONTENT_FORMAT_ASC
   CONTENT_FORMAT_DESC
+  CONTENT_URL_ASC
+  CONTENT_URL_DESC
   LICENSE_UID_ASC
   LICENSE_UID_DESC
   NATURAL
@@ -11326,7 +11341,6 @@ type Query {
     """
     orderBy: [RevisionsOrderBy!] = [PRIMARY_KEY_ASC]
   ): RevisionsConnection
-  searchContentItems(searchText: String!): [ContentItem!]
   sourceRecord(uid: String!): SourceRecord
 
   """

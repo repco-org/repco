@@ -58,6 +58,7 @@ function createItem(i: number) {
       title: 'Item #' + i,
       content: 'foobar' + i,
       summary: '{}',
+      contentUrl: '',
     },
   }
   return item

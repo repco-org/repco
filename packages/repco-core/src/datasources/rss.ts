@@ -268,10 +268,10 @@ export class RssDataSource extends BaseDataSource implements DataSource {
     }
   }
 
-  async mapPage(feed: ParsedFeed) {
+  async mapPage(feed: any) {
     const entities = []
     for (const item of feed.items) {
-      entities.push(...(await this._mapItem(item)))
+      entities.push(...(await this._mapItem(item, feed.language)))
     }
     return entities
   }
@@ -354,6 +354,7 @@ export class RssDataSource extends BaseDataSource implements DataSource {
   async _extractMediaAssets(
     itemUri: string,
     item: RssParser.Item,
+    language: string,
   ): Promise<{ mediaAssets: Link[]; entities: EntityForm[] }> {
     const entities: EntityForm[] = []
     if (!item.enclosure) {
@@ -372,11 +373,11 @@ export class RssDataSource extends BaseDataSource implements DataSource {
     const mediaUri = itemUri + '#media'
 
     var titleJson: { [k: string]: any } = {}
-    titleJson['de'] = {
+    titleJson[language || 'de'] = {
       value: item.title || item.guid || 'missing',
     }
     var descriptionJson: { [k: string]: any } = {}
-    descriptionJson['de'] = {
+    descriptionJson[language || 'de'] = {
       value: '{}',
     }
 
@@ -402,23 +403,24 @@ export class RssDataSource extends BaseDataSource implements DataSource {
     return 'rss:uuid:' + createRandomId()
   }
 
-  async _mapItem(item: RssParser.Item): Promise<EntityForm[]> {
+  async _mapItem(item: any, language: string): Promise<EntityForm[]> {
     const itemUri = await this._deriveItemUri(item)
     const { entities, mediaAssets } = await this._extractMediaAssets(
       itemUri,
       item,
+      language,
     )
 
     var titleJson: { [k: string]: any } = {}
-    titleJson['de'] = {
+    titleJson[language || 'de'] = {
       value: item.title || item.guid || 'missing',
     }
     var summaryJson: { [k: string]: any } = {}
-    summaryJson['de'] = {
+    summaryJson[language || 'de'] = {
       value: item.contentSnippet || '{}',
     }
     var contentJson: { [k: string]: any } = {}
-    contentJson['de'] = {
+    contentJson[language || 'de'] = {
       value: item.content || '',
     }
 
@@ -430,6 +432,7 @@ export class RssDataSource extends BaseDataSource implements DataSource {
       pubDate: item.pubDate ? new Date(item.pubDate) : null,
       PrimaryGrouping: { uri: this.endpoint.toString() },
       MediaAssets: mediaAssets,
+      contentUrl: '',
     }
     const headers = {
       EntityUris: [itemUri],

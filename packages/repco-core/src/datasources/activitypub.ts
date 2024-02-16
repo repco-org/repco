@@ -663,6 +663,7 @@ export class ActivityPubDataSource
         MediaAssets: mediaAssetUris,
         PrimaryGrouping: this._uriLink('account', this.account),
         summary: {},
+        contentUrl: '',
       }
       const revisionUri = this._revisionUri(
         'videoContent',
