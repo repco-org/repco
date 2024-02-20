@@ -24,7 +24,7 @@ const ContentItemFilterPlugin = makeAddPgTableConditionPlugin(
       _source: false,
     }
 
-    var url = 'http://es01/_search'
+    var url = 'http://es01:9200/_search'
     const response = fetch(url, {
       method: 'POST',
       headers: {
