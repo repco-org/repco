@@ -8,6 +8,8 @@ services:
     container_name: repco-app
     ports:
       - 8766:8765
+    # links:
+    #   - 'es01:repco-es'
     environment:
       - DATABASE_URL=postgresql://repco:repco@db:5432/repco
       - REPCO_ADMIN_TOKEN=kUBY0zsPHC9ubj3T6DZJKUACi3M=
