@@ -107,7 +107,7 @@ services:
       - PG_PORT=5432
       - PG_PASSWORD=repco
       - PG_DATABASE=repco
-      - LOG_LEVEL=WARNING
+      - LOG_LEVEL=INFO
       - ELASTICSEARCH_PORT=9200
       - ELASTICSEARCH_SCHEME=http
       - ELASTICSEARCH_HOST=es01
