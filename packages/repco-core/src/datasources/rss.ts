@@ -327,11 +327,11 @@ export class RssDataSource extends BaseDataSource implements DataSource {
       }
       var summaryJson: { [k: string]: any } = {}
       summaryJson[feed.language || 'de'] = {
-        value: '{}',
+        value: '',
       }
       var descriptionJson: { [k: string]: any } = {}
       descriptionJson[feed.language || 'de'] = {
-        value: feed.description || '{}',
+        value: feed.description || '',
       }
       const entity: ContentGroupingInput = {
         groupingType: 'feed',
