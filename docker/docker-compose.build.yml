@@ -88,7 +88,7 @@ services:
       context: ../pgsync
     container_name: repco-pgsync
     volumes:
-      - ./data/pgsync:/data
+      - /var/www/repco.cba.media/repco/docker/data/pgsync:/data
     sysctls:
       - net.ipv4.tcp_keepalive_time=200
       - net.ipv4.tcp_keepalive_intvl=200
