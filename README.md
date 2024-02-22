@@ -32,15 +32,18 @@ yarn server
 # start the frontend [optional]
 yarn frontend
 # add new repo with name default
-yarn cli repo create default
+yarn repco repo create default
 # add datasource giving a config in json format
-yarn cli ds add -r <repo> <plugin-name> <config>
+yarn repco ds add -r <repo> <plugin-name> <config>
 # for example the cba plugin - need to define the api key for cba in .env file
-yarn cli ds add -r default urn:repco:datasource:cba https://cba.media/wp-json/wp/v2
+yarn repco ds add -r default repco:datasource:cba '{"endpoint": "https://cba.fro.at/wp-json/wp/v2"}'
+# or add a peertube channel
+yarn repco ds add -r default repco:datasource:activitypub '{"user":"root_channel","domain":"https://your-peertube-server.org"}'
+
 # ingest updates from all datasources
-yarn cli ds ingest
+yarn repco ds ingest
 # print all revisions in a repo
-yarn cli repo log-revisions <repo>
+yarn repco repo log-revisions <repo>
 # get revisions over HTTP
 curl http://localhost:8765/api/changes/<repo>
 # browse through contentItems via GUI

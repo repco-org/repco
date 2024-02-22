@@ -24,7 +24,7 @@
     "repco-common": "*",
     "repco-prisma": "*",
     "source-map-support": "^0.5.21",
-    "undici": "^5.10.0",
+    "undici": "^5.28.0",
     "zod": "^3.19",
     "zod-error": "^1.5.0"
   }
