@@ -599,9 +599,14 @@ export class ActivityPubDataSource
       subtitleEntities && entities.push(...subtitleEntities)
     }
 
+    var titleJson: { [k: string]: any } = {}
+    titleJson[video.language?.name || 'de'] = { value: video.name }
+    var descriptionJson: { [k: string]: any } = {}
+    descriptionJson[video.language?.name || 'de'] = { value: video.content }
+
     const asset: form.MediaAssetInput = {
-      title: video.name,
-      description: video.content,
+      title: titleJson,
+      description: descriptionJson,
       duration,
       mediaType: video.type, //"Video"
       Files: files,
@@ -650,11 +655,20 @@ export class ActivityPubDataSource
           .filter(notEmpty) ?? []
       conceptLinks.push(...tags)
 
+      // var summaryJson: { [k: string]: any } = {}
+      // summaryJson[''] = { value: '' }
+      var titleJson: { [k: string]: any } = {}
+      titleJson[video.language?.name || 'de'] = { value: video.name }
+      var contentJson: { [k: string]: any } = {}
+      contentJson[video.language?.name || 'de'] = {
+        value: video.content,
+      }
+
       const content: form.ContentItemInput = {
-        title: video.name,
+        title: titleJson,
         subtitle: 'missing',
         pubDate: new Date(video.published),
-        content: video.content || '',
+        content: contentJson,
         contentFormat: video.mediaType, // "text/markdown"
         // licenseUid TODO: plan to abolish License table and add license as string plus license_details
         Concepts: conceptLinks,
@@ -693,8 +707,10 @@ export class ActivityPubDataSource
     channelInfo: ChannelInfo,
   ): EntityForm[] {
     try {
+      var titleJson: { [k: string]: any } = {}
+      titleJson['de'] = { value: channelInfo.account }
       const contentGrouping: form.ContentGroupingInput = {
-        title: channelInfo.account,
+        title: titleJson,
         variant: ContentGroupingVariant.EPISODIC, // @Frando is this used as intended?
         groupingType: 'activityPubChannel',
         description: {},
