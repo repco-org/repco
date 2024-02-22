@@ -59,8 +59,8 @@
             "variant": "object",
             "type": "one_to_many",
             "foreign_key": {
-              "child": ["primaryGroupingUid"],
-              "parent": ["uid"]
+              "child": ["uid"],
+              "parent": ["primaryGroupingUid"]
             }
           }
         },
