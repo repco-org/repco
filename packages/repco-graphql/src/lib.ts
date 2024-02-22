@@ -13,8 +13,6 @@ import ExportSchemaPlugin from './plugins/export-schema.js'
 import CustomInflector from './plugins/inflector.js'
 // Add custom tags to omit all queries for the relation tables
 import CustomTags from './plugins/tags.js'
-// Add a resolver wrapper to add default pagination args
-import WrapResolversPlugin from './plugins/wrap-resolver.js'
 
 export { getSDL } from './plugins/export-schema.js'
 
@@ -54,7 +52,7 @@ export function getPostGraphileOptions() {
       PgManyToManyPlugin,
       SimplifyInflectorPlugin,
       CustomInflector,
-      WrapResolversPlugin,
+      //WrapResolversPlugin, //excluded because the pagination does not work with elasticsearch plugins
       ExportSchemaPlugin,
       ContentItemFilterPlugin,
       ContentItemContentFilterPlugin,

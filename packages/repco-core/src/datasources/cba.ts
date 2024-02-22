@@ -797,7 +797,7 @@ export class CbaDataSource implements DataSource {
         Concepts: conceptLinks,
         MediaAssets: mediaAssetLinks,
         PrimaryGrouping: this._uriLink('series', post.post_parent),
-        contentUrl: post._links.self[0].href,
+        contentUrl: post.link,
         //licenseUid
         //primaryGroupingUid
         //contributor

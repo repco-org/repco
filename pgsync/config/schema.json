@@ -31,8 +31,50 @@
                   "parent": ["uid"]
                 }
               }
+            },
+            {
+              "table": "Transcript",
+              "schema": "public",
+              "label": "Transcript",
+              "columns": ["language", "text"],
+              "primary_key": ["uid"],
+              "relationship": {
+                "variant": "object",
+                "type": "one_to_many",
+                "foreign_key": {
+                  "child": ["mediaAssetUid"],
+                  "parent": ["uid"]
+                }
+              }
             }
           ]
+        },
+        {
+          "table": "ContentGrouping",
+          "schema": "public",
+          "label": "ContentGrouping",
+          "columns": ["subtitle", "summary", "title"],
+          "primary_key": "uid",
+          "relationship": {
+            "variant": "object",
+            "type": "one_to_many",
+            "foreign_key": {
+              "child": ["primaryGroupingUid"],
+              "parent": ["uid"]
+            }
+          }
+        },
+        {
+          "table": "Concept",
+          "schema": "public",
+          "label": "Concept",
+          "columns": ["name", "summary", "description"],
+          "primary_key": ["uid"],
+          "relationship": {
+            "variant": "object",
+            "type": "one_to_many",
+            "through_tables": ["_ConceptToContentItem"]
+          }
         }
       ]
     },

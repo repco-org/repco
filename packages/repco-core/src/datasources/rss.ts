@@ -321,16 +321,18 @@ export class RssDataSource extends BaseDataSource implements DataSource {
       const feed = await parseBodyCached(record, async (record) =>
         this.parser.parseString(record.body),
       )
+      var lang = feed['frn:language'] || feed[''] || feed.language
+
       var titleJson: { [k: string]: any } = {}
-      titleJson[feed.language || 'de'] = {
+      titleJson[lang] = {
         value: feed.title || feed.feedUrl || 'unknown',
       }
       var summaryJson: { [k: string]: any } = {}
-      summaryJson[feed.language || 'de'] = {
+      summaryJson[lang] = {
         value: '',
       }
       var descriptionJson: { [k: string]: any } = {}
-      descriptionJson[feed.language || 'de'] = {
+      descriptionJson[lang] = {
         value: feed.description || '',
       }
       const entity: ContentGroupingInput = {
@@ -411,16 +413,18 @@ export class RssDataSource extends BaseDataSource implements DataSource {
       language,
     )
 
+    var lang = item['frn:language'] || item['xml:lang'] || language
+
     var titleJson: { [k: string]: any } = {}
-    titleJson[language || 'de'] = {
+    titleJson[lang] = {
       value: item.title || item.guid || 'missing',
     }
     var summaryJson: { [k: string]: any } = {}
-    summaryJson[language || 'de'] = {
+    summaryJson[lang] = {
       value: item.contentSnippet || '{}',
     }
     var contentJson: { [k: string]: any } = {}
-    contentJson[language || 'de'] = {
+    contentJson[lang] = {
       value: item.content || '',
     }
 
