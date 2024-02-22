@@ -3,6 +3,8 @@ import p from 'path'
 import { createHash } from 'crypto'
 import type { Duplex } from 'stream'
 import { Dispatcher } from 'undici'
+// @ts-ignore
+import { getStatusText } from 'undici/lib/mock/mock-utils.js'
 
 export type CachingDispatcherOpts = {
   forward: boolean
