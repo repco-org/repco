@@ -51,23 +51,6 @@ http://localhost:3000
 
 ## Development notes
 
-## Prod Deployment
-
-```sh
-# fetch changes
-git pull
-# check container status
-docker compose -f "docker/docker-compose.build.yml" ps
-# deploy docker image
-docker compose -f "docker/docker-compose.build.yml" up -d --build
-# create default repo
-docker compose -f "docker/docker-compose.build.yml" exec app yarn repco repo create default
-# add cba datasource
-docker compose -f "docker/docker-compose.build.yml" exec app yarn repco ds add -r default repco:datasource:cba '{"endpoint": "https://cba.media/wp-json/wp/v2"}'
-# restart app container so it runs in a loop
-docker restart repco-app
-```
-
 ### Logging
 
 To enable debug output, set `LOG_LEVEL=debug` environment variable.
