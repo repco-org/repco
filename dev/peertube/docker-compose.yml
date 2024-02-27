@@ -10,18 +10,19 @@ services:
     image: chocobozzz/peertube:production-bullseye
     env_file:
       - .env
-
     ports:
     #  - "1935:1935" # Comment if you don't want to use the live feature
-      - "9000:9000" # Uncomment if you use another webserver/proxy or test PeerTube in local, otherwise not suitable for production
+      - "${PT_PORT:-9000}:9000" # Uncomment if you use another webserver/proxy or test PeerTube in local, otherwise not suitable for production
     volumes:
-     # - ./docker-volume/assets:/app/client/dist
-      - ./docker-volume/data:/data
-      - ./docker-volume/config:/config
+     # - ${VOLUME_ROOT:-./docker-volume}/assets:/app/client/dist
+      - ${VOLUME_ROOT:-./docker-volume}/data:/data
+      - ${VOLUME_ROOT:-./docker-volume}/config:/config
     depends_on:
       - postgres
       - redis
       # - postfix
+    environment:
+      - PEERTUBE_WEBSERVER_PORT=${PT_PORT:-9000}
     restart: "always"
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -31,20 +32,20 @@ services:
     env_file:
       - .env
     volumes:
-      - ./docker-volume/db:/var/lib/postgresql/data
+      - ${VOLUME_ROOT:-./docker-volume}/db:/var/lib/postgresql/data
     restart: "always"
 
   redis:
     image: redis:6-alpine
     volumes:
-      - ./docker-volume/redis:/data
+      - ${VOLUME_ROOT:-./docker-volume}/redis:/data
     restart: "always"
 
-  # postfix:
-  #   image: mwader/postfix-relay
-  #   env_file:
-  #     - .env
-  #   volumes:
-  #     - ./docker-volume/opendkim/keys:/etc/opendkim/keys
-  #   restart: "always"
+  postfix:
+    image: mwader/postfix-relay
+    env_file:
+      - .env
+    volumes:
+      - ${VOLUME_ROOT:-./docker-volume}/opendkim/keys:/etc/opendkim/keys
+    restart: "always"
 

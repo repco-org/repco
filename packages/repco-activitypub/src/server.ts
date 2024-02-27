@@ -5,8 +5,10 @@ import express from 'express'
 import { createLogger } from 'repco-common'
 import { ActivityPub } from './ap.js'
 import { ApiError } from './error.js'
+import { PeertubeClient } from './util/peertube.js'
 
 export { ActivityPub } from './ap.js'
+export { PeertubeClient } from './util/peertube.js'
 
 export const logger = createLogger('ap')
 

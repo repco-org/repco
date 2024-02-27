@@ -2,6 +2,9 @@ import 'source-map-support/register.js'
 import getPort from 'get-port'
 import p from 'path'
 import split2 from 'split2'
+import fs from 'fs/promises'
+import { temporaryDirectory } from 'tempy'
+
 import { Test } from 'brittle'
 import {
   ChildProcess,
@@ -46,6 +49,58 @@ export async function setup(test: Test) {
 
 export async function setup2(test: Test) {
   return [await setup(test), await setup(test)]
+}
+
+export async function setupPeertube(log: LogFn = console.log) {
+  // create tempdir.
+  const volumeDir = temporaryDirectory({ prefix: 'repco-peertube-test' })
+  const port = await getPort()
+  const composeFile = p.join(REPCO_ROOT, 'dev/peertube/docker-compose.yml')
+  const projectName = p.basename(volumeDir)
+  const args = ['compose', '-p', projectName, '-f', composeFile, 'up', '--force-recreate']
+  const env = {
+    PT_PORT: `${port}`,
+    VOLUME_ROOT: volumeDir
+  }
+  // const container0 = spawn('docker', args, { log, env })
+  // // TODO: find out if there's a better way and/or file bug report in peertube...
+  // await new Promise(resolve => setTimeout(resolve, 2000))
+  // const args2 = ['compose', '-p', projectName, '-f', composeFile, 'exec', 'peertube', 'sed', '-i', "s/dnsCache: true,/dnsCache: false,/g", '/app/dist/server/helpers/requests.js']
+  // await spawn('docker', args2)
+  // const args3 = ['compose', '-p', projectName, '-f', composeFile, 'down']
+  // await spawn('docker', args3)
+  const args4 = ['compose', '-p', projectName, '-f', composeFile, 'up']
+  const container = spawn('docker', args4, { log, env })
+
+
+  // store the PID for cleanup on exit
+  if (container.child.pid) dockerPids.push(container.child.pid)
+  const ready = waitForLines(container.child.stdout!, [
+    /HTTP server listening on/,
+  ])
+
+  container.child.stdout!.pipe(split2()).on('data', line => log('peertube: ' + line))
+  
+  // wait until the container dies or is ready to accept connections
+  await Promise.race([container, ready])
+  // TODO: remove
+  await new Promise(resolve => setTimeout(resolve, 5000))
+
+
+  const peertubeUrl =`http://host.docker.internal:${port}`
+  const teardown = async () => {
+    container.child.kill()
+    log("waiting for peertube to shutdown...")
+    try {
+      await container
+      const args = ['compose', '-p', projectName, '-f', composeFile, 'rm', '-f', '-s']
+      await spawn('docker', args)
+    } catch (_err) {}
+    await fs.rmdir(volumeDir, { recursive: true })
+    
+    // await spawn('docker', ['stop', '-t', '0', name])
+  }
+  return { teardown, peertubeUrl }
 }
 
 // Run a postgres container and import migrations.
