@@ -633,7 +633,7 @@ export class ActivityPubDataSource
       const category =
         video.category &&
         video.category !== undefined &&
-        this._uriLink('category', video.category.identifier)
+        this._uriLink('category', 'peertube:' + video.category.name)
       category && conceptLinks.push(category)
 
       const tags =
