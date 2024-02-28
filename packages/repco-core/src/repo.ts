@@ -563,81 +563,92 @@ export class Repo extends EventEmitter {
     const { headers, body } = bundle
     await this.ensureAgent(headers.Author)
     assertFullClient(this.prisma)
-    return await this.prisma.$transaction(async (tx) => {
-      // 1. create revisions
-      const revisionsDb = body.map((revision) =>
-        revisionIpldToDb(revision, headers),
-      )
-      await tx.revision.createMany({
-        data: revisionsDb,
-      })
-
-      // 2. update Entity table
-      const deleteEntities = revisionsDb
-        .filter((r) => r.prevRevisionId)
-        .map((r) => r.uid)
-      await tx.entity.deleteMany({
-        where: { uid: { in: deleteEntities } },
-      })
-      const entityUpsert = revisionsDb.map((revision) => ({
-        uid: revision.uid,
-        revisionId: revision.id,
-        type: revision.entityType,
-      }))
-      await tx.entity.createMany({
-        data: entityUpsert,
-      })
-
-      // 3. upsert entity tables
-      const data = body.map(
-        (revisionBundle, i) => [revisionBundle, revisionsDb[i]] as const,
-      )
-      const ret = []
-      for (const [revisionBundle, revisionDb] of data) {
-        const input = repco.parseEntity(
-          revisionBundle.headers.EntityType,
-          revisionBundle.body,
+    return await this.prisma.$transaction(
+      async (tx) => {
+        // 1. create revisions
+        const revisionsDb = body.map((revision) =>
+          revisionIpldToDb(revision, headers),
         )
-        const data = {
-          ...input,
-          revision: revisionDb,
-          uid: revisionBundle.headers.EntityUid,
+        await tx.revision.createMany({
+          data: revisionsDb,
+        })
+
+        // 2. update Entity table
+        const deleteEntities = revisionsDb
+          .filter((r) => r.prevRevisionId)
+          .map((r) => r.uid)
+        await tx.entity.deleteMany({
+          where: { uid: { in: deleteEntities } },
+        })
+        const entityUpsert = revisionsDb.map((revision) => ({
+          uid: revision.uid,
+          revisionId: revision.id,
+          type: revision.entityType,
+        }))
+        await tx.entity.createMany({
+          data: entityUpsert,
+        })
+
+        // 3. upsert entity tables
+        const data = body.map(
+          (revisionBundle, i) => [revisionBundle, revisionsDb[i]] as const,
+        )
+        const ret = []
+        for (const [revisionBundle, revisionDb] of data) {
+          const input = repco.parseEntity(
+            revisionBundle.headers.EntityType,
+            revisionBundle.body,
+          )
+          const data = {
+            ...input,
+            revision: revisionDb,
+            uid: revisionBundle.headers.EntityUid,
+          }
+          await repco.upsertEntity(
+            tx,
+            data.revision.uid,
+            data.revision.id,
+            data,
+          )
+          ret.push(data)
         }
-        await repco.upsertEntity(tx, data.revision.uid, data.revision.id, data)
-        ret.push(data)
-      }
 
-      // 4. create commit
-      let parent = null
-      if (headers.Parents?.length && headers.Parents[0]) {
-        parent = headers.Parents[0].toString()
-      }
-      await tx.commit.create({
-        data: {
-          rootCid: headers.RootCid.toString(),
-          commitCid: headers.Cid.toString(),
-          repoDid: headers.Repo,
-          agentDid: headers.Author,
-          parent,
-          timestamp: headers.DateCreated,
-          Revisions: {
-            connect: body.map((revisionBundle) => ({
-              revisionCid: revisionBundle.headers.Cid.toString(),
-            })),
+        // 4. create commit
+        let parent = null
+        if (headers.Parents?.length && headers.Parents[0]) {
+          parent = headers.Parents[0].toString()
+        }
+        await tx.commit.create({
+          data: {
+            rootCid: headers.RootCid.toString(),
+            commitCid: headers.Cid.toString(),
+            repoDid: headers.Repo,
+            agentDid: headers.Author,
+            parent,
+            timestamp: headers.DateCreated,
+            Revisions: {
+              connect: body.map((revisionBundle) => ({
+                revisionCid: revisionBundle.headers.Cid.toString(),
+              })),
+            },
           },
-        },
-      })
+        })
 
-      // 5. update repo head
-      const head = headers.RootCid.toString()
-      const tail = parent ? undefined : head
-      await tx.repo.update({
-        where: { did: this.did },
-        data: { head, tail },
-      })
+        // 5. update repo head
+        const head = headers.RootCid.toString()
+        const tail = parent ? undefined : head
+        await tx.repo.update({
+          where: { did: this.did },
+          data: { head, tail },
+        })
 
-      return ret
-    })
+        return ret
+      },
+      {
+        maxWait: 5000,
+        timeout: 10000,
+      },
+    )
   }
 
   async assignUids(
