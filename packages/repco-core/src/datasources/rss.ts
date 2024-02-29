@@ -148,10 +148,17 @@ export class RssDataSource extends BaseDataSource implements DataSource {
     const url = new URL(this.endpoint)
 
     // TODO: Make configurable
-    const pagination = {
-      offsetParam: 'start',
-      limitParam: 'anzahl',
+    var pagination = {
+      offsetParam: 'offset',
+      limitParam: 'limit',
       limit: 100,
+    }
+    if (url.href.indexOf('freie-radios') != -1) {
+      pagination = {
+        offsetParam: 'start',
+        limitParam: 'anzahl',
+        limit: 100,
+      }
     }
 
     const page = cursor.pageNumber || 0
