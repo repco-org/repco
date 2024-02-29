@@ -68,7 +68,7 @@
           "table": "Concept",
           "schema": "public",
           "label": "Concept",
-          "columns": ["name", "summary", "description"],
+          "columns": ["name"],
           "primary_key": ["uid"],
           "relationship": {
             "variant": "object",

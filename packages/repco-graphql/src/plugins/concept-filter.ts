@@ -2,8 +2,8 @@ import { makeAddPgTableConditionPlugin } from 'graphile-utils'
 
 const ConceptFilterPlugin = makeAddPgTableConditionPlugin(
   'public',
-  'ContentItem',
-  'filterName',
+  'Concept',
+  'containsName',
   (build) => ({
     description:
       'Filters the list to ContentItems that have a specific keyword in title.',
@@ -12,7 +12,7 @@ const ConceptFilterPlugin = makeAddPgTableConditionPlugin(
   }),
   (value, helpers, build) => {
     const { sql, sqlTableAlias } = helpers
-    return sql.raw(`LOWER(title::text) LIKE LOWER('%${value}%')`)
+    return sql.raw(`LOWER(name::text) LIKE LOWER('%${value}%')`)
   },
 )
 
