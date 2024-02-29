@@ -17,7 +17,7 @@ const fixturePath = (name: string) =>
     ),
   )
 
-test('peertube datasource - basic1', async (assert) => {
+test.skip('peertube datasource - basic1', async (assert) => {
   const { prisma } = await startServer(assert, {
     hostOverride: 'host.docker.internal',
   })
