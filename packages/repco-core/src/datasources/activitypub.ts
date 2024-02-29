@@ -521,7 +521,7 @@ export class ActivityPubDataSource
     } else {
       // HLS transcoding enabled
       const hlsLink = video.url.find((url) =>
-        url.mediaType.endsWith('x-mpegURL'),
+        url.mediaType?.endsWith('x-mpegURL'),
       ) as ActivityHlsPlaylistUrlObject
       const hlsUrls =
         hlsLink &&
@@ -531,7 +531,7 @@ export class ActivityPubDataSource
             url.mediaType &&
             url.mediaType.startsWith('video'),
         ) as ActivityVideoUrlObject[])
-      if (hlsUrls.length) {
+      if (hlsUrls && hlsUrls.length) {
         videoUrls.push(...hlsUrls)
       }
     }
