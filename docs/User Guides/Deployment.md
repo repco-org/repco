@@ -3,11 +3,11 @@
 The easiest way to deploy repco is via `docker` and `docker compose`.
 
 * Create a directory on your server
-* Download the latest `docker-compose.yml` file:
+* Download the latest [`docker-compose.yml`](../../docker/docker-compose.yml) file:
 ```
 wget https://raw.githubusercontent.com/repco-org/repco/main/docker/docker-compose.yml
 ```
-* Download the `sample.env` file and save it as `.env`:
+* Download the [`sample.env`](../../sample.env) file and save it as `.env`:
 ```
 wget https://raw.githubusercontent.com/repco-org/repco/main/sample.env -o .env
 ```
