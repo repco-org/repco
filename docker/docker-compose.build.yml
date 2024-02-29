@@ -6,6 +6,7 @@ services:
       context: '..'
       dockerfile: './docker/Dockerfile'
     container_name: repco-app
+    restart: unless-stopped
     ports:
       - 8766:8765
     # links:
@@ -23,6 +24,7 @@ services:
   db:
     image: postgres
     container_name: repco-db
+    restart: unless-stopped
     volumes:
       - './data/postgres:/var/lib/postgresql/data'
     expose:
@@ -42,6 +44,7 @@ services:
   es01:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.10.4
     container_name: repco-es
+    restart: unless-stopped
     labels:
       co.elastic.logs/module: elasticsearch
     volumes:
@@ -77,6 +80,7 @@ services:
   redis:
     image: 'redis:alpine'
     container_name: repco-redis
+    restart: unless-stopped
     command: ['redis-server', '--requirepass', 'repco']
     volumes:
       - ./data/redis:/data
@@ -87,6 +91,7 @@ services:
     build:
       context: ../pgsync
     container_name: repco-pgsync
+    restart: unless-stopped
     volumes:
       - /var/www/repco.cba.media/repco/docker/data/pgsync:/data
     sysctls:
