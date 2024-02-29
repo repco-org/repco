@@ -38,7 +38,12 @@ export function getLocals(res: Response): Locals {
   return { prisma, log }
 }
 
-export function runServer(prisma: PrismaClient, port: number) {
+type ServerOpts = {
+  port?: number
+  publicUrl?: string
+}
+
+export function runServer(prisma: PrismaClient, opts: ServerOpts = {}) {
   if (!process.env.DATABASE_URL) {
     throw new Error('DATABASE_URL environment variable is required.')
   }
@@ -46,6 +51,10 @@ export function runServer(prisma: PrismaClient, port: number) {
   const graphqlHandler = createGraphqlHandler(pgPool)
 
   const app = express()
+
+  const port = opts.port || process.env.PORT || 8765
+  const publicUrl =
+    opts.publicUrl || process.env.REPCO_URL || 'http://localhost:' + port
 
   app.use(httpLogger)
   app.use((req, res, next) => {
@@ -62,23 +71,17 @@ export function runServer(prisma: PrismaClient, port: number) {
     next()
   })
 
-  if (!process.env.AP_BASE_URL) {
-    logger.warn(
-      'Missing AP_BASE_URL environment variable, activitypub is disabled',
-    )
-  } else {
-    const ap = new ActivityPub(prisma, process.env.AP_BASE_URL)
-    mountActivityPub(app, ap, {
-      prefix: '/ap',
-      api: {
-        prefix: '/api/ap',
-        auth: async (req) => {
-          return authorizeRequest(req)
-        },
+  const ap = new ActivityPub(prisma, publicUrl + '/ap')
+  mountActivityPub(app, ap, {
+    prefix: '/ap',
+    api: {
+      prefix: '/api/ap',
+      auth: async (req) => {
+        return authorizeRequest(req)
       },
-    })
-    setGlobalApInstance(ap)
-  }
+    },
+  })
+  setGlobalApInstance(ap)
 
   app.use((req, _res, next) => {
     if (!req.header('content-type')) {
