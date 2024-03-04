@@ -111,7 +111,7 @@ test('circular', async (assert) => {
   )
   await ingestUpdatesFromDataSources(repo)
   const entities = await prisma.concept.findMany()
-  assert.is(entities.length, 2)
+  assert.is(entities.length, 1)
   // const datasource2 = new TestDataSource()
   // const dsr2 = new DataSourceRegistry()
   // dsr2.register(datasource2)

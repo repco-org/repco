@@ -15,6 +15,7 @@ async function createTestRepo(prisma: PrismaClient) {
       content: 'badoo',
       subtitle: 'asdf',
       summary: 'yoo',
+      contentUrl: 'url',
     },
   }
   await repo.saveEntity('me', input)
