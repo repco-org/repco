@@ -131,6 +131,19 @@ router.get('/repo/:repo', async (req, res) => {
   }
 })
 
+// Delete a repo
+router.delete('/repo:repo', async (req, res) => {
+  try {
+    const { prisma } = getLocals(res)
+    await repoRegistry.delete(prisma, req.params.repo)
+  } catch (err) {
+    throw new ServerError(
+      500,
+      `Failed to get information for repo ${req.params.repo}` + err,
+    )
+  }
+})
+
 // create datasource
 router.post('/repo/:repo/ds', async (req, res) => {
   try {

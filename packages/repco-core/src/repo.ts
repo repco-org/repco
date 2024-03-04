@@ -200,6 +200,14 @@ class RepoRegistry extends EventEmitter {
     return repo
   }
 
+  public async delete(prisma: PrismaClient, didOrName: string) {
+    const did = await this.nameToDid(prisma, didOrName)
+    var repo = await this.load(prisma, did)
+    await prisma.repo.delete({
+      where: { did },
+    })
+  }
+
   async nameToDid(prisma: PrismaClient, name: string): Promise<string> {
     if (name.startsWith('did:')) return name
     const record = await prisma.repo.findFirst({
@@ -321,6 +329,8 @@ export class Repo extends EventEmitter {
       this.did,
     )
   }
+
+  async deleteCascading() {}
 
   async refreshInfo() {
     const record = await this.prisma.repo.findUnique({
