@@ -993,6 +993,8 @@ export type ConceptConceptsByConceptSameAsUidAndParentUidManyToManyEdgeChildConc
 
 /** A condition to be used against `Concept` object types. All fields are tested for equality and combined with a logical ‘and.’ */
 export type ConceptCondition = {
+  /** Filters the list to ContentItems that have a specific keyword in title. */
+  containsName?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `description` field. */
   description?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `kind` field. */
@@ -2750,8 +2752,6 @@ export type File = {
   /** Reads a single `Revision` that is related to this `File`. */
   revision?: Maybe<Revision>
   revisionId: Scalars['String']
-  /** Reads and enables pagination through a set of `Subtitle`. */
-  subtitles: FileSubtitlesByFileToSubtitleAAndBManyToManyConnection
   uid: Scalars['String']
 }
 
@@ -2797,17 +2797,6 @@ export type FileMediaAssetsByTeaserImageArgs = {
   last: InputMaybe<Scalars['Int']>
   offset: InputMaybe<Scalars['Int']>
   orderBy?: InputMaybe<Array<MediaAssetsOrderBy>>
-}
-
-export type FileSubtitlesArgs = {
-  after: InputMaybe<Scalars['Cursor']>
-  before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<SubtitleCondition>
-  filter: InputMaybe<SubtitleFilter>
-  first: InputMaybe<Scalars['Int']>
-  last: InputMaybe<Scalars['Int']>
-  offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<SubtitlesOrderBy>>
 }
 
 /** A condition to be used against `File` object types. All fields are tested for equality and combined with a logical ‘and.’ */
@@ -2948,41 +2937,6 @@ export type FileMediaAssetsByFileToMediaAssetAAndBManyToManyEdge_FileToMediaAsse
     last: InputMaybe<Scalars['Int']>
     offset: InputMaybe<Scalars['Int']>
     orderBy?: InputMaybe<Array<_FileToMediaAssetsOrderBy>>
-  }
-
-/** A connection to a list of `Subtitle` values, with data from `_FileToSubtitle`. */
-export type FileSubtitlesByFileToSubtitleAAndBManyToManyConnection = {
-  /** A list of edges which contains the `Subtitle`, info from the `_FileToSubtitle`, and the cursor to aid in pagination. */
-  edges: Array<FileSubtitlesByFileToSubtitleAAndBManyToManyEdge>
-  /** A list of `Subtitle` objects. */
-  nodes: Array<Subtitle>
-  /** Information to aid in pagination. */
-  pageInfo: PageInfo
-  /** The count of *all* `Subtitle` you could get from the connection. */
-  totalCount: Scalars['Int']
-}
-
-/** A `Subtitle` edge in the connection, with data from `_FileToSubtitle`. */
-export type FileSubtitlesByFileToSubtitleAAndBManyToManyEdge = {
-  /** Reads and enables pagination through a set of `_FileToSubtitle`. */
-  _fileToSubtitlesByB: _FileToSubtitlesConnection
-  /** A cursor for use in pagination. */
-  cursor?: Maybe<Scalars['Cursor']>
-  /** The `Subtitle` at the end of the edge. */
-  node: Subtitle
-}
-
-/** A `Subtitle` edge in the connection, with data from `_FileToSubtitle`. */
-export type FileSubtitlesByFileToSubtitleAAndBManyToManyEdge_FileToSubtitlesByBArgs =
-  {
-    after: InputMaybe<Scalars['Cursor']>
-    before: InputMaybe<Scalars['Cursor']>
-    condition: InputMaybe<_FileToSubtitleCondition>
-    filter: InputMaybe<_FileToSubtitleFilter>
-    first: InputMaybe<Scalars['Int']>
-    last: InputMaybe<Scalars['Int']>
-    offset: InputMaybe<Scalars['Int']>
-    orderBy?: InputMaybe<Array<_FileToSubtitlesOrderBy>>
   }
 
 /** A filter to be used against many `Contributor` object types. All fields are combined with a logical ‘and.’ */
@@ -3674,8 +3628,6 @@ export type MediaAsset = {
   /** Reads a single `Revision` that is related to this `MediaAsset`. */
   revision?: Maybe<Revision>
   revisionId: Scalars['String']
-  /** Reads and enables pagination through a set of `Subtitle`. */
-  subtitles: SubtitlesConnection
   /** Reads a single `File` that is related to this `MediaAsset`. */
   teaserImage?: Maybe<File>
   teaserImageUid?: Maybe<Scalars['String']>
@@ -3740,18 +3692,7 @@ export type MediaAssetFilesArgs = {
   orderBy?: InputMaybe<Array<FilesOrderBy>>
 }
 
-export type MediaAssetSubtitlesArgs = {
-  after: InputMaybe<Scalars['Cursor']>
-  before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<SubtitleCondition>
-  filter: InputMaybe<SubtitleFilter>
-  first: InputMaybe<Scalars['Int']>
-  last: InputMaybe<Scalars['Int']>
-  offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<SubtitlesOrderBy>>
-}
-
-export type MediaAssetFilesArgs = {
+export type MediaAssetTranscriptsArgs = {
   after: InputMaybe<Scalars['Cursor']>
   before: InputMaybe<Scalars['Cursor']>
   condition: InputMaybe<FileCondition>
@@ -3968,10 +3909,6 @@ export type MediaAssetFilter = {
   revision?: InputMaybe<RevisionFilter>
   /** Filter by the object’s `revisionId` field. */
   revisionId?: InputMaybe<StringFilter>
-  /** Filter by the object’s `subtitles` relation. */
-  subtitles?: InputMaybe<MediaAssetToManySubtitleFilter>
-  /** Some related `subtitles` exist. */
-  subtitlesExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `teaserImage` relation. */
   teaserImage?: InputMaybe<FileFilter>
   /** A related `teaserImage` exists. */
@@ -3996,16 +3933,6 @@ export type MediaAssetToManyChapterFilter = {
   none?: InputMaybe<ChapterFilter>
   /** Some related `Chapter` matches the filter criteria. All fields are combined with a logical ‘and.’ */
   some?: InputMaybe<ChapterFilter>
-}
-
-/** A filter to be used against many `Subtitle` object types. All fields are combined with a logical ‘and.’ */
-export type MediaAssetToManySubtitleFilter = {
-  /** Every related `Subtitle` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  every?: InputMaybe<SubtitleFilter>
-  /** No related `Subtitle` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  none?: InputMaybe<SubtitleFilter>
-  /** Some related `Subtitle` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  some?: InputMaybe<SubtitleFilter>
 }
 
 /** A filter to be used against many `Transcript` object types. All fields are combined with a logical ‘and.’ */
@@ -4576,9 +4503,6 @@ export type Query = {
   sourceRecord?: Maybe<SourceRecord>
   /** Reads and enables pagination through a set of `SourceRecord`. */
   sourceRecords?: Maybe<SourceRecordsConnection>
-  subtitle?: Maybe<Subtitle>
-  /** Reads and enables pagination through a set of `Subtitle`. */
-  subtitles?: Maybe<SubtitlesConnection>
   transcript?: Maybe<Transcript>
   /** Reads and enables pagination through a set of `Transcript`. */
   transcripts?: Maybe<TranscriptsConnection>
@@ -4944,24 +4868,7 @@ export type QuerySourceRecordsArgs = {
 }
 
 /** The root query type which gives access points into the data universe. */
-export type QuerySubtitleArgs = {
-  uid: Scalars['String']
-}
-
-/** The root query type which gives access points into the data universe. */
-export type QuerySubtitlesArgs = {
-  after: InputMaybe<Scalars['Cursor']>
-  before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<SubtitleCondition>
-  filter: InputMaybe<SubtitleFilter>
-  first: InputMaybe<Scalars['Int']>
-  last: InputMaybe<Scalars['Int']>
-  offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<SubtitlesOrderBy>>
-}
-
-/** The root query type which gives access points into the data universe. */
-export type QuerySubtitleArgs = {
+export type QueryTranscriptArgs = {
   uid: Scalars['String']
 }
 
@@ -5351,8 +5258,6 @@ export type Revision = {
   /** Reads and enables pagination through a set of `MediaAsset`. */
   mediaAssetsByChapterRevisionIdAndMediaAssetUid: RevisionMediaAssetsByChapterRevisionIdAndMediaAssetUidManyToManyConnection
   /** Reads and enables pagination through a set of `MediaAsset`. */
-  mediaAssetsBySubtitleRevisionIdAndMediaAssetUid: RevisionMediaAssetsBySubtitleRevisionIdAndMediaAssetUidManyToManyConnection
-  /** Reads and enables pagination through a set of `MediaAsset`. */
   mediaAssetsByTranscriptRevisionIdAndMediaAssetUid: RevisionMediaAssetsByTranscriptRevisionIdAndMediaAssetUidManyToManyConnection
   /** Reads and enables pagination through a set of `Metadatum`. */
   metadata: MetadataConnection
@@ -5372,8 +5277,6 @@ export type Revision = {
   revisionUris?: Maybe<Array<Maybe<Scalars['String']>>>
   /** Reads and enables pagination through a set of `Revision`. */
   revisionsByPrevRevisionId: RevisionsConnection
-  /** Reads and enables pagination through a set of `Subtitle`. */
-  subtitles: SubtitlesConnection
   /** Reads and enables pagination through a set of `Transcript`. */
   transcripts: TranscriptsConnection
   uid: Scalars['String']
@@ -5646,17 +5549,6 @@ export type RevisionMediaAssetsByChapterRevisionIdAndMediaAssetUidArgs = {
   orderBy?: InputMaybe<Array<MediaAssetsOrderBy>>
 }
 
-export type RevisionMediaAssetsBySubtitleRevisionIdAndMediaAssetUidArgs = {
-  after: InputMaybe<Scalars['Cursor']>
-  before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<MediaAssetCondition>
-  filter: InputMaybe<MediaAssetFilter>
-  first: InputMaybe<Scalars['Int']>
-  last: InputMaybe<Scalars['Int']>
-  offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<MediaAssetsOrderBy>>
-}
-
 export type RevisionMediaAssetsByTranscriptRevisionIdAndMediaAssetUidArgs = {
   after: InputMaybe<Scalars['Cursor']>
   before: InputMaybe<Scalars['Cursor']>
@@ -5723,17 +5615,6 @@ export type RevisionRevisionsByPrevRevisionIdArgs = {
   last: InputMaybe<Scalars['Int']>
   offset: InputMaybe<Scalars['Int']>
   orderBy?: InputMaybe<Array<RevisionsOrderBy>>
-}
-
-export type RevisionSubtitlesArgs = {
-  after: InputMaybe<Scalars['Cursor']>
-  before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<SubtitleCondition>
-  filter: InputMaybe<SubtitleFilter>
-  first: InputMaybe<Scalars['Int']>
-  last: InputMaybe<Scalars['Int']>
-  offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<SubtitlesOrderBy>>
 }
 
 export type RevisionTranscriptsArgs = {
@@ -6212,10 +6093,6 @@ export type RevisionFilter = {
   revisionsByPrevRevisionId?: InputMaybe<RevisionToManyRevisionFilter>
   /** Some related `revisionsByPrevRevisionId` exist. */
   revisionsByPrevRevisionIdExist?: InputMaybe<Scalars['Boolean']>
-  /** Filter by the object’s `subtitles` relation. */
-  subtitles?: InputMaybe<RevisionToManySubtitleFilter>
-  /** Some related `subtitles` exist. */
-  subtitlesExist?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `transcripts` relation. */
   transcripts?: InputMaybe<RevisionToManyTranscriptFilter>
   /** Some related `transcripts` exist. */
@@ -6370,43 +6247,6 @@ export type RevisionMediaAssetsByChapterRevisionIdAndMediaAssetUidManyToManyEdge
     last: InputMaybe<Scalars['Int']>
     offset: InputMaybe<Scalars['Int']>
     orderBy?: InputMaybe<Array<ChaptersOrderBy>>
-  }
-
-/** A connection to a list of `MediaAsset` values, with data from `Subtitle`. */
-export type RevisionMediaAssetsBySubtitleRevisionIdAndMediaAssetUidManyToManyConnection =
-  {
-    /** A list of edges which contains the `MediaAsset`, info from the `Subtitle`, and the cursor to aid in pagination. */
-    edges: Array<RevisionMediaAssetsBySubtitleRevisionIdAndMediaAssetUidManyToManyEdge>
-    /** A list of `MediaAsset` objects. */
-    nodes: Array<MediaAsset>
-    /** Information to aid in pagination. */
-    pageInfo: PageInfo
-    /** The count of *all* `MediaAsset` you could get from the connection. */
-    totalCount: Scalars['Int']
-  }
-
-/** A `MediaAsset` edge in the connection, with data from `Subtitle`. */
-export type RevisionMediaAssetsBySubtitleRevisionIdAndMediaAssetUidManyToManyEdge =
-  {
-    /** A cursor for use in pagination. */
-    cursor?: Maybe<Scalars['Cursor']>
-    /** The `MediaAsset` at the end of the edge. */
-    node: MediaAsset
-    /** Reads and enables pagination through a set of `Subtitle`. */
-    subtitles: SubtitlesConnection
-  }
-
-/** A `MediaAsset` edge in the connection, with data from `Subtitle`. */
-export type RevisionMediaAssetsBySubtitleRevisionIdAndMediaAssetUidManyToManyEdgeSubtitlesArgs =
-  {
-    after: InputMaybe<Scalars['Cursor']>
-    before: InputMaybe<Scalars['Cursor']>
-    condition: InputMaybe<SubtitleCondition>
-    filter: InputMaybe<SubtitleFilter>
-    first: InputMaybe<Scalars['Int']>
-    last: InputMaybe<Scalars['Int']>
-    offset: InputMaybe<Scalars['Int']>
-    orderBy?: InputMaybe<Array<SubtitlesOrderBy>>
   }
 
 /** A connection to a list of `MediaAsset` values, with data from `Transcript`. */
@@ -6658,16 +6498,6 @@ export type RevisionToManyRevisionFilter = {
   none?: InputMaybe<RevisionFilter>
   /** Some related `Revision` matches the filter criteria. All fields are combined with a logical ‘and.’ */
   some?: InputMaybe<RevisionFilter>
-}
-
-/** A filter to be used against many `Subtitle` object types. All fields are combined with a logical ‘and.’ */
-export type RevisionToManySubtitleFilter = {
-  /** Every related `Subtitle` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  every?: InputMaybe<SubtitleFilter>
-  /** No related `Subtitle` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  none?: InputMaybe<SubtitleFilter>
-  /** Some related `Subtitle` matches the filter criteria. All fields are combined with a logical ‘and.’ */
-  some?: InputMaybe<SubtitleFilter>
 }
 
 /** A filter to be used against many `Transcript` object types. All fields are combined with a logical ‘and.’ */
@@ -7759,73 +7589,6 @@ export type _FileToMediaAssetsEdge = {
 
 /** Methods to use when ordering `_FileToMediaAsset`. */
 export enum _FileToMediaAssetsOrderBy {
-  AAsc = 'A_ASC',
-  ADesc = 'A_DESC',
-  BAsc = 'B_ASC',
-  BDesc = 'B_DESC',
-  Natural = 'NATURAL',
-}
-
-export type _FileToSubtitle = {
-  a: Scalars['String']
-  b: Scalars['String']
-  /** Reads a single `File` that is related to this `_FileToSubtitle`. */
-  fileByA?: Maybe<File>
-  /** Reads a single `Subtitle` that is related to this `_FileToSubtitle`. */
-  subtitleByB?: Maybe<Subtitle>
-}
-
-/**
- * A condition to be used against `_FileToSubtitle` object types. All fields are
- * tested for equality and combined with a logical ‘and.’
- */
-export type _FileToSubtitleCondition = {
-  /** Checks for equality with the object’s `a` field. */
-  a?: InputMaybe<Scalars['String']>
-  /** Checks for equality with the object’s `b` field. */
-  b?: InputMaybe<Scalars['String']>
-}
-
-/** A filter to be used against `_FileToSubtitle` object types. All fields are combined with a logical ‘and.’ */
-export type _FileToSubtitleFilter = {
-  /** Filter by the object’s `a` field. */
-  a?: InputMaybe<StringFilter>
-  /** Checks for all expressions in this list. */
-  and?: InputMaybe<Array<_FileToSubtitleFilter>>
-  /** Filter by the object’s `b` field. */
-  b?: InputMaybe<StringFilter>
-  /** Filter by the object’s `fileByA` relation. */
-  fileByA?: InputMaybe<FileFilter>
-  /** Negates the expression. */
-  not?: InputMaybe<_FileToSubtitleFilter>
-  /** Checks for any expressions in this list. */
-  or?: InputMaybe<Array<_FileToSubtitleFilter>>
-  /** Filter by the object’s `subtitleByB` relation. */
-  subtitleByB?: InputMaybe<SubtitleFilter>
-}
-
-/** A connection to a list of `_FileToSubtitle` values. */
-export type _FileToSubtitlesConnection = {
-  /** A list of edges which contains the `_FileToSubtitle` and cursor to aid in pagination. */
-  edges: Array<_FileToSubtitlesEdge>
-  /** A list of `_FileToSubtitle` objects. */
-  nodes: Array<_FileToSubtitle>
-  /** Information to aid in pagination. */
-  pageInfo: PageInfo
-  /** The count of *all* `_FileToSubtitle` you could get from the connection. */
-  totalCount: Scalars['Int']
-}
-
-/** A `_FileToSubtitle` edge in the connection. */
-export type _FileToSubtitlesEdge = {
-  /** A cursor for use in pagination. */
-  cursor?: Maybe<Scalars['Cursor']>
-  /** The `_FileToSubtitle` at the end of the edge. */
-  node: _FileToSubtitle
-}
-
-/** Methods to use when ordering `_FileToSubtitle`. */
-export enum _FileToSubtitlesOrderBy {
   AAsc = 'A_ASC',
   ADesc = 'A_DESC',
   BAsc = 'B_ASC',
