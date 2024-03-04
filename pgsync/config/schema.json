@@ -18,21 +18,6 @@
           },
           "children": [
             {
-              "table": "Subtitles",
-              "schema": "public",
-              "label": "Subtitles",
-              "columns": ["languageCode"],
-              "primary_key": ["uid"],
-              "relationship": {
-                "variant": "object",
-                "type": "one_to_many",
-                "foreign_key": {
-                  "child": ["mediaAssetUid"],
-                  "parent": ["uid"]
-                }
-              }
-            },
-            {
               "table": "Transcript",
               "schema": "public",
               "label": "Transcript",
