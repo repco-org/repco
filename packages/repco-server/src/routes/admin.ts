@@ -132,10 +132,11 @@ router.get('/repo/:repo', async (req, res) => {
 })
 
 // Delete a repo
-router.delete('/repo:repo', async (req, res) => {
+router.delete('/repo/:repo', async (req, res) => {
   try {
     const { prisma } = getLocals(res)
     await repoRegistry.delete(prisma, req.params.repo)
+    res.send({ ok: true })
   } catch (err) {
     throw new ServerError(
       500,
