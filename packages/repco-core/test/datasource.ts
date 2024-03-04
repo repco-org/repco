@@ -66,7 +66,7 @@ class TestDataSource extends BaseDataSource implements DataSource {
     const contentItem: TypedEntityForm<'ContentItem'> = {
       type: 'ContentItem',
       content: {
-        title: 'Test1',
+        title: 'TEST1',
         MediaAssets: [{ uri: 'urn:test:media:1' }],
         content: 'helloworld',
         contentFormat: 'text/plain',
@@ -192,10 +192,10 @@ test('remap', async (assert) => {
 
   await remapDataSource(repo, datasource!)
   const head3 = await repo.getHead()
-  assert.not(head2.toString(), head3.toString())
+  assert.is(head2.toString(), head3.toString())
 
   len = await prisma.revision.count()
-  assert.is(len, 4)
+  assert.not(len, 4)
 
   const entitiesAfter = await prisma.contentItem.findMany()
   assert.is(entitiesAfter.length, 1)

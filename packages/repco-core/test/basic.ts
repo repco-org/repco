@@ -13,6 +13,7 @@ test('smoke', async (assert) => {
       content: 'badoo',
       subtitle: 'asdf',
       summary: 'yoo',
+      contentUrl: 'url',
     },
   }
   await repo.saveEntity(input)
