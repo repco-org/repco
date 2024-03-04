@@ -533,7 +533,7 @@ export class ActivityPubDataSource
     } else {
       // HLS transcoding enabled
       const hlsLink = video.url.find((url) =>
-        url.mediaType.endsWith('x-mpegURL'),
+        url.mediaType?.endsWith('x-mpegURL'),
       ) as ActivityHlsPlaylistUrlObject
       const hlsUrls =
         hlsLink &&
@@ -543,7 +543,7 @@ export class ActivityPubDataSource
             url.mediaType &&
             url.mediaType.startsWith('video'),
         ) as ActivityVideoUrlObject[])
-      if (hlsUrls.length) {
+      if (hlsUrls && hlsUrls.length) {
         videoUrls.push(...hlsUrls)
       }
     }
@@ -649,7 +649,7 @@ export class ActivityPubDataSource
       const category =
         video.category &&
         video.category !== undefined &&
-        this._uriLink('category', video.category.identifier)
+        this._uriLink('category', 'peertube:' + video.category.name)
       category && conceptLinks.push(category)
 
       const tags =

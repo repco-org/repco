@@ -1,9 +1,7 @@
-import test, { Test } from 'brittle'
-import getPort from 'get-port'
+import test from 'brittle'
 import { PrismaClient, repoRegistry } from 'repco-core'
-import { setup } from 'repco-core/dist/test/util/setup.js'
 import { fetch } from 'undici'
-import { runServer } from '../src/lib.js'
+import { startServer } from './util/start.js'
 
 async function createTestRepo(prisma: PrismaClient) {
   const repo = await repoRegistry.create(prisma, 'default')
@@ -20,16 +18,6 @@ async function createTestRepo(prisma: PrismaClient) {
   }
   await repo.saveEntity('me', input)
   return repo
-}
-
-async function startServer(assert: Test) {
-  const prisma = await setup(assert)
-  const port = await getPort()
-  const url = `http://localhost:${port}`
-  const { shutdown, isReady } = runServer(prisma, port)
-  assert.teardown(shutdown, { order: Infinity })
-  await isReady
-  return { url, prisma }
 }
 
 test('smoke', async (assert) => {

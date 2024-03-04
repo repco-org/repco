@@ -1,0 +1,1 @@
+{"@context":["https://www.w3.org/ns/activitystreams","https://w3id.org/security/v1",{"RsaSignature2017":"https://w3id.org/security#RsaSignature2017"}],"id":"http://host.docker.internal:9000/video-channels/root_channel/outbox","type":"OrderedCollection","totalItems":2,"first":"http://host.docker.internal:9000/video-channels/root_channel/outbox?page=1"}

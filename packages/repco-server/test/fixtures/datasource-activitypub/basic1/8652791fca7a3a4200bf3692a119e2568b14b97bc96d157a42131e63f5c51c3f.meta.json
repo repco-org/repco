@@ -1,0 +1,1 @@
+{"method":"POST","url":"http://host.docker.internal:9000/video-channels/root_channel/inbox","status":204,"headers":["x-powered-by","PeerTube","X-Frame-Options","DENY","Tk","N","Date","Mon, 11 Dec 2023 20:13:30 GMT","Connection","keep-alive","Keep-Alive","timeout=5"],"trailers":null}

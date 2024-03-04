@@ -11,6 +11,6 @@ export const server = createCommand({
   async run(opts) {
     const prisma = new PrismaClient()
     const port = Number(opts.port) || Number(process.env.PORT) || 8765
-    runServer(prisma, port)
+    runServer(prisma, { port })
   },
 })
