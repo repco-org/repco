@@ -36,10 +36,6 @@ export const run = createCommand({
       Number(process.env.PORT) ||
       DEFAULT_PORT
 
-    if (!process.env.REPCO_URL) {
-      process.env.REPCO_URL = `http://localhost:${port}/graphql`
-    }
-
     // start sync all repos
     const sync = syncAllRepos(prisma)
     shutdown.push(sync.shutdown)
@@ -49,7 +45,7 @@ export const run = createCommand({
     shutdown.push(ingest.shutdown)
 
     // start server
-    const server = runServer(prisma, port)
+    const server = runServer(prisma, { port })
     shutdown.push(server.shutdown)
 
     exitHook(async (callback) => {

@@ -2,7 +2,7 @@ version: '3.1'
 
 services:
   app:
-    image: arsoxyz/repco:latest
+    image: arsoxyz/repco:main
     container_name: repco-app
     restart: unless-stopped
     expose:
