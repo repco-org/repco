@@ -56,7 +56,7 @@ model Commit {
   Revisions Revision[] @relation("RevisionToCommit")
   Agent     Agent      @relation(fields: [agentDid], references: [did])
   IsHeadOf  Repo?      @relation("RepoToHead")
-  Repo      Repo       @relation(fields: [repoDid], references: [did])
+  Repo      Repo       @relation(fields: [repoDid], references: [did], onDelete: Cascade)
   // CommitBlock Block      @relation("CommitBlock", fields: [commitCid], references: [cid])
   // RootBlock   Block      @relation("RootBlock", fields: [rootCid], references: [cid])
 }
@@ -99,7 +99,7 @@ model DataSource {
   active    Boolean?
 
   SourceRecords SourceRecord[]
-  Repo          Repo           @relation(fields: [repoDid], references: [did])
+  Repo          Repo           @relation(fields: [repoDid], references: [did], onDelete: Cascade)
 }
 
 enum KeypairScope {
@@ -142,7 +142,7 @@ model Entity {
   revisionId String @unique
   type       String
 
-  Revision Revision   @relation(fields: [revisionId], references: [id])
+  Revision Revision   @relation(fields: [revisionId], references: [id], onDelete: Cascade)
   Metadata Metadata[]
 }
 
@@ -170,7 +170,7 @@ model Revision {
   revisionCid String @unique // cid of revision block
 
   // core relations
-  Repo         Repo      @relation(fields: [repoDid], references: [did])
+  Repo         Repo      @relation(fields: [repoDid], references: [did], onDelete: Cascade)
   Agent        Agent     @relation(fields: [agentDid], references: [did])
   // ContentBlock  Block     @relation("ContentBlock", fields: [contentCid], references: [cid])
   // RevisionBlock Block     @relation("RevisionBlock", fields: [revisionCid], references: [cid])
@@ -218,7 +218,7 @@ model SourceRecord {
   meta        Json?
 
   dataSourceUid String?
-  DataSource    DataSource? @relation(fields: [dataSourceUid], references: [uid])
+  DataSource    DataSource? @relation(fields: [dataSourceUid], references: [uid], onDelete: Cascade)
 
   // DerivedRevisions Revision[] @relation("DerivedRevisions")
 }
@@ -245,7 +245,7 @@ model ContentGrouping {
   License                License?      @relation(fields: [licenseUid], references: [uid])
   ContentItemsPrimary    ContentItem[] @relation("primaryGrouping")
   ContentItemsAdditional ContentItem[]
-  Revision               Revision      @relation(fields: [revisionId], references: [id])
+  Revision               Revision      @relation(fields: [revisionId], references: [id], onDelete: Cascade)
 }
 
 /// @repco(Entity)
@@ -264,7 +264,7 @@ model ContentItem {
   publicationServiceUid String?
   licenseUid            String?
 
-  Revision            Revision            @relation(fields: [revisionId], references: [id])
+  Revision            Revision            @relation(fields: [revisionId], references: [id], onDelete: Cascade)
   AdditionalGroupings ContentGrouping[]
   BroadcastEvents     BroadcastEvent[]
   Concepts            Concept[]
@@ -281,7 +281,7 @@ model License {
   revisionId String @unique
   name       String
 
-  Revision         Revision          @relation(fields: [revisionId], references: [id])
+  Revision         Revision          @relation(fields: [revisionId], references: [id], onDelete: Cascade)
   ContentItems     ContentItem[]
   MediaAssets      MediaAsset[]
   ContentGroupings ContentGrouping[]
@@ -299,7 +299,7 @@ model MediaAsset {
   teaserImageUid String?
   licenseUid     String?
 
-  Revision      Revision       @relation(fields: [revisionId], references: [id])
+  Revision      Revision       @relation(fields: [revisionId], references: [id], onDelete: Cascade)
   Files         File[]
   ContentItems  ContentItem[]
   Transcripts   Transcript[]
@@ -321,7 +321,7 @@ model Contribution {
   Contributor  Contributor[]
   ContentItems ContentItem[]
   MediaAssets  MediaAsset[]
-  Revision     Revision      @relation(fields: [revisionId], references: [id])
+  Revision     Revision      @relation(fields: [revisionId], references: [id], onDelete: Cascade)
 }
 
 /// @repco(Entity)
@@ -334,7 +334,7 @@ model Contributor {
 
   profilePictureUid String
 
-  Revision         Revision             @relation(fields: [revisionId], references: [id])
+  Revision         Revision             @relation(fields: [revisionId], references: [id], onDelete: Cascade)
   BroadcastService PublicationService[]
   Contributions    Contribution[]
   ProfilePicture   File?                @relation(fields: [profilePictureUid], references: [uid])
@@ -353,7 +353,7 @@ model Chapter {
   mediaAssetUid String
 
   MediaAsset MediaAsset @relation(fields: [mediaAssetUid], references: [uid])
-  Revision   Revision   @relation(fields: [revisionId], references: [id])
+  Revision   Revision   @relation(fields: [revisionId], references: [id], onDelete: Cascade)
 }
 
 /// @repco(Entity)
@@ -367,7 +367,7 @@ model BroadcastEvent {
   broadcastServiceUid String
   contentItemUid      String
 
-  Revision         Revision           @relation(fields: [revisionId], references: [id])
+  Revision         Revision           @relation(fields: [revisionId], references: [id], onDelete: Cascade)
   ContentItem      ContentItem        @relation(fields: [contentItemUid], references: [uid])
   BroadcastService PublicationService @relation(fields: [broadcastServiceUid], references: [uid])
 }
@@ -384,7 +384,7 @@ model PublicationService {
 
   publisherUid String?
 
-  Revision        Revision         @relation(fields: [revisionId], references: [id])
+  Revision        Revision         @relation(fields: [revisionId], references: [id], onDelete: Cascade)
   BroadcastEvents BroadcastEvent[]
   ContentItem     ContentItem[]
 }
@@ -404,7 +404,7 @@ model Transcript {
 
   //TODO: Contributor relation
   MediaAsset MediaAsset @relation(fields: [mediaAssetUid], references: [uid])
-  Revision   Revision   @relation(fields: [revisionId], references: [id])
+  Revision   Revision   @relation(fields: [revisionId], references: [id], onDelete: Cascade)
 }
 
 // might not be needed?
@@ -435,7 +435,7 @@ model File {
   resolution         String?
   additionalMetadata String?
 
-  Revision      Revision      @relation(fields: [revisionId], references: [id])
+  Revision      Revision      @relation(fields: [revisionId], references: [id], onDelete: Cascade)
   AsMediaAssets MediaAsset[]
   AsThumbnail   MediaAsset[]  @relation("thumbnail")
   contributors  Contributor[]
@@ -461,7 +461,7 @@ model Concept {
   sameAsUid          String?     @unique
   parentUid          String?
 
-  Revision         Revision  @relation(fields: [revisionId], references: [id])
+  Revision         Revision  @relation(fields: [revisionId], references: [id], onDelete: Cascade)
   SameAs           Concept?  @relation("isSameAs", fields: [sameAsUid], references: [uid])
   SameAsReverse    Concept?  @relation("isSameAs")
   ParentConcept    Concept?  @relation("parentConcept", fields: [parentUid], references: [uid])
@@ -481,7 +481,7 @@ model Metadata {
 
   targetUid String
 
-  Revision     Revision @relation(fields: [revisionId], references: [id])
+  Revision     Revision @relation(fields: [revisionId], references: [id], onDelete: Cascade)
   TargetEntity Entity   @relation(fields: [targetUid], references: [uid])
 }
 
@@ -494,7 +494,7 @@ model Subtitles {
   Files         File[]
   MediaAsset    MediaAsset @relation(fields: [mediaAssetUid], references: [uid])
   mediaAssetUid String
-  Revision      Revision   @relation(fields: [revisionId], references: [id])
+  Revision      Revision   @relation(fields: [revisionId], references: [id], onDelete: Cascade)
 }
 
 model ApLocalActor {
