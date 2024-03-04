@@ -442,13 +442,17 @@ export class ActivityPubDataSource
     }
     entities.push(fileEntity)
     // create Subtitles entity
-    const subtitles: form.SubtitlesInput = {
-      languageCode,
-      Files: [{ uri: fileUri }],
+    const subtitles: form.TranscriptInput = {
+      language: languageCode,
+      subtitleUrl: fileUri,
+      text: '',
+      engine: 'engine',
       MediaAsset: { uri: mediaAssetUri },
+      license: '',
+      author: '',
     }
     const subtitlesEntity: EntityForm = {
-      type: 'Subtitles',
+      type: 'Transcript',
       content: subtitles,
       headers: { EntityUris: [subtitlesEntityUri] },
     }
@@ -615,7 +619,6 @@ export class ActivityPubDataSource
       // Contributions: null,
       TeaserImage: { uri: teaserImageUri },
       Concepts: conceptUris.length > 0 ? conceptUris : undefined,
-      Subtitles: [],
     }
 
     const mediaEntity: EntityForm = {

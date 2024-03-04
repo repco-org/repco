@@ -199,7 +199,7 @@ model Revision {
   Contribution       Contribution?
   Metadata           Metadata?
   Transcript         Transcript?
-  Subtitles          Subtitles?
+  // Subtitles          Subtitles?
 }
 
 model SourceRecord {
@@ -309,7 +309,7 @@ model MediaAsset {
   Contributions Contribution[]
   Concepts      Concept[]
   // Translation   Translation[]
-  Subtitles     Subtitles[]
+  // Subtitles     Subtitles[]
 }
 
 /// @repco(Entity)
@@ -439,7 +439,7 @@ model File {
   AsMediaAssets MediaAsset[]
   AsThumbnail   MediaAsset[]  @relation("thumbnail")
   contributors  Contributor[]
-  AsSubtitles   Subtitles[]
+  // AsSubtitles   Subtitles[]
 }
 
 enum ConceptKind {
@@ -485,17 +485,18 @@ model Metadata {
   TargetEntity Entity   @relation(fields: [targetUid], references: [uid])
 }
 
+// deprecated
 /// @repco(Entity)
-model Subtitles {
-  uid          String @id @unique
-  revisionId   String @unique
-  languageCode String
+// model Subtitles {
+//   uid          String @id @unique
+//   revisionId   String @unique
+//   languageCode String
 
-  Files         File[]
-  MediaAsset    MediaAsset @relation(fields: [mediaAssetUid], references: [uid])
-  mediaAssetUid String
-  Revision      Revision   @relation(fields: [revisionId], references: [id], onDelete: Cascade)
-}
+//   Files         File[]
+//   MediaAsset    MediaAsset @relation(fields: [mediaAssetUid], references: [uid])
+//   mediaAssetUid String
+//   Revision      Revision   @relation(fields: [revisionId], references: [id], onDelete: Cascade)
+// }
 
 model ApLocalActor {
   name    String @unique
