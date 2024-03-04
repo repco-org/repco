@@ -290,8 +290,8 @@ export const deleteCommand = createCommand({
     { name: 'repo', required: true, help: 'DID or name of repo' },
   ] as const,
   async run(_opts, args) {
-    const repo = await repoRegistry.openWithDefaults(args.repo)
-    const res = (await request('/repo', {
+    // const repo = await repoRegistry.openWithDefaults(args.repo)
+    const res = (await request(`/repo/${args.repo}`, {
       method: 'DELETE',
       body: { name: args.repo },
     })) as any
@@ -310,5 +310,6 @@ export const command = createCommandGroup({
     carExport,
     logRevisions,
     syncCommand,
+    deleteCommand,
   ],
 })

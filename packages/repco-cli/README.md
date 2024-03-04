@@ -14,6 +14,7 @@ repo info           Info on a repo
 repo car-import     Import a CAR file into a repo
 repo car-export     Export repo to CAR file
 repo log-revisions  Print all revisions as JSON
+repo delete         Delete a repo and all children
 
 Manage datasources
 ds add           Add a datasource
