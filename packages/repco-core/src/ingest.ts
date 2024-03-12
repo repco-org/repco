@@ -14,25 +14,6 @@ export enum WorkerStatus {
   Stopped = 'stopped',
 }
 
-const POLL_INTERVAL = 10000
-
-const stopped = (uid: string) => ({
-  uid,
-  ok: true,
-  finished: false,
-  canclled: true,
-})
-const errored = (uid: string, error: Error | any) => ({
-  uid,
-  ok: false,
-  finished: true,
-  error: error instanceof Error ? error : new Error(String(error)),
-})
-
-export type WorkOpts = {
-  pollInterval?: number
-}
-
 export enum IngestState {
   Cancelled = 'cancelled',
   Ready = 'ready',
@@ -68,8 +49,8 @@ export class IngestOutcome {
 }
 
 export class Ingester {
-  // recheck finished datasources every 60 seconds
-  waitAfterFinish = 1000 * 60
+  // recheck finished datasources every 10 seconds
+  waitAfterFinish = 1000 * 10
   // retry failed datasources every 30 seconds
   waitRetry = 1000 * 30
   plugins: DataSourcePluginRegistry

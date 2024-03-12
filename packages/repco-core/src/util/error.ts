@@ -54,8 +54,11 @@ export class HttpError extends Error {
   ) {
     super(message)
     this.code = code
-    this.details = details
+    this.cause = details
     this.url = url?.toString()
+  }
+  toString() {
+    return `Failed to fetch: ${this.message} (URL: ${this.url})`
   }
   static async fromResponseJson(
     response: Response,

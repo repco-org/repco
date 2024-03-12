@@ -310,17 +310,13 @@ export class IngestError extends Error {
     let s = ''
     switch (this.scope) {
       case IngestErrorScope.FetchUpdates:
-        s = `Failed to fetch updates. Reason: ${
-          this.cause
-        }, cursor: ${JSON.stringify(this.cursor)}`
+        s = 'Failed to fetch updates.'
         break
       case IngestErrorScope.MapRecord:
-        s = `Failed to map source record. Reason: ${this.cause}, id: ${this.sourceRecordId}`
+        s = `Failed to map source record ${this.sourceRecordId}`
         break
       case IngestErrorScope.SaveBatch:
-        s = `Failed to save entity batch. Reason: ${
-          this.cause
-        }, cursor: ${JSON.stringify(this.cursor)}`
+        s = `Failed to save entity batch.`
         break
     }
     if (this.previousErrors?.length) {
@@ -525,7 +521,7 @@ export async function ingestUpdatesFromDataSource(
     const finished = records.length === 0
     if (errors) {
       for (const error of errors) {
-        log.warn(`ingest ${uid}: skipped record - ${error.toString()}`)
+        log.warn({ error, mesage: `ingest ${uid}: record failed, id: ${error.sourceRecordId}`})
         await error.persist(repo.prisma)
       }
     }

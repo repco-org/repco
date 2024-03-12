@@ -753,7 +753,7 @@ export class CbaDataSource implements DataSource {
       return json as T
     } catch (err) {
       log.debug(`fetch failed (url: ${url}, error: ${err})`)
-      throw err
+      throw new HttpError(0, 'Fetch failed', err, url)
     }
   }
 }

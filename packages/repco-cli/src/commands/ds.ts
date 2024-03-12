@@ -162,6 +162,11 @@ export const errors = createCommand({
       help: 'Offset',
       default: '100',
     },
+    stack: {
+      type: 'boolean',
+      short: 's',
+      help: 'Show stack trace',
+    },
     json: {
       type: 'boolean',
       short: 'j',
@@ -196,11 +201,14 @@ export const errors = createCommand({
           console.log('kind:        ', row.kind)
           console.log('error:       ', row.errorMessage)
           for (const cause of row.errorDetails?.causes || []) {
+            if (cause === row.errorMessage) continue
             console.log('  caused by:', cause)
           }
           console.log('cursor:      ', JSON.parse(row.cursor))
           console.log('sourcerecord:', row.sourceRecordId)
-          console.log('stack:       ', row.errorDetails.stack)
+          if (opts.stack) {
+            console.log('stack:       ', row.errorDetails.stack)
+          }
           console.log('---')
         }
       }

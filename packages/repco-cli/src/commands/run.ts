@@ -73,7 +73,7 @@ function ingestAll(prisma: PrismaClient) {
       if (outcome.didFail()) {
         log.error({
           error: outcome.error,
-          message: `ingest ${outcome.uid} failed: ${outcome.error?.toString()}`,
+          msg: `ingest ${outcome.uid} failed: ${outcome.error?.toString()}`,
         })
       } else {
         if (outcome.cursor != lastCursor) {
