@@ -170,7 +170,7 @@ export const errors = createCommand({
     json: {
       type: 'boolean',
       short: 'j',
-      help: 'Print as JSON'
+      help: 'Print as JSON',
     },
   },
   async run(opts, _args) {
@@ -235,9 +235,12 @@ export const remap = createCommand({
       if (!opts.repo) {
         throw new Error('Repo name or did required with -r option.')
       }
-      const res = (await request(`/repo/${opts.repo}/ds/${args.datasource}/remap`, {
-        method: 'GET',
-      })) as any
+      const res = (await request(
+        `/repo/${opts.repo}/ds/${args.datasource}/remap`,
+        {
+          method: 'GET',
+        },
+      )) as any
       console.log(res.result)
     } catch (err) {
       console.error('Error remapping datasource:', err)

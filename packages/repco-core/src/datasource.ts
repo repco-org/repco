@@ -521,7 +521,10 @@ export async function ingestUpdatesFromDataSource(
     const finished = records.length === 0
     if (errors) {
       for (const error of errors) {
-        log.warn({ error, mesage: `ingest ${uid}: record failed, id: ${error.sourceRecordId}`})
+        log.warn({
+          error,
+          mesage: `ingest ${uid}: record failed, id: ${error.sourceRecordId}`,
+        })
         await error.persist(repo.prisma)
       }
     }
