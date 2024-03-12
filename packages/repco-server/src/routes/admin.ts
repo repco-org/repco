@@ -6,6 +6,7 @@ import {
   remapDataSource,
   repoRegistry,
 } from 'repco-core'
+import type { Prisma } from 'repco-prisma'
 import { ServerError } from '../error.js'
 import { getLocals } from '../lib.js'
 
@@ -218,6 +219,31 @@ router.get('/repo/:repo/ds/:dsuid', async (req, res) => {
       500,
       `Failed to remap datasource ${req.params.dsuid} for repo ${req.params.repo}` +
         err,
+    )
+  }
+})
+
+router.get('/repo/:repo/ds/errors', async (req, res) => {
+  try {
+    const { prisma } = getLocals(res)
+    const repo = await repoRegistry.open(prisma, req.params.repo)
+    const { datasource, offset, count } = req.query
+    const where: Prisma.IngestErrorWhereInput = {
+      repoDid: repo.did
+    }
+    if (datasource) {
+      where.datasourceUid = datasource.toString()
+    }
+    const data = prisma.ingestError.findMany({
+      take: Number(count) || 100,
+      skip: Number(offset) || 100,
+      where,
+    })
+    res.send({ data })
+  } catch (err) {
+    throw new ServerError(
+      500,
+      `Failed to list all datasources for repo ${req.params.repo}` + err,
     )
   }
 })

@@ -133,6 +133,70 @@ export const ingest = createCommand({
   },
 })
 
+export const errors = createCommand({
+  name: 'errors',
+  help: 'Show ingest error log',
+  arguments: [],
+  options: {
+    repo: {
+      type: 'string',
+      required: true,
+      short: 'r',
+      help: 'Repo name or DID',
+    },
+    ds: {
+      type: 'string',
+      required: false,
+      short: 'd',
+      help: 'Datasource UID (optional)',
+    },
+    offset: {
+      type: 'string',
+      short: 'o',
+      help: 'Offset',
+      default: '0',
+    },
+    count: {
+      type: 'string',
+      short: 'o',
+      help: 'Offset',
+      default: '100',
+    },
+    json: {
+      type: 'boolean',
+      short: 'j',
+      help: 'Print as JSON'
+    },
+  },
+  async run(opts, _args) {
+    try {
+      if (!opts.repo) {
+        throw new Error('Repo name or did required with -r option.')
+      }
+      const query = new URLSearchParams()
+      if (opts.offset) {
+        query.set('offset', opts.offset)
+      }
+      if (opts.count) {
+        query.set('count', opts.count)
+      }
+      if (opts.ds) {
+        query.set('datasource', opts.ds)
+      }
+      const res = (await request(`/repo/${opts.repo}/ds/errors?${query}`, {
+        method: 'GET',
+      })) as any
+      if (opts.json) {
+        console.log(JSON.stringify(res.data))
+      } else {
+        console.log(res.data)
+      }
+    } catch (err) {
+      console.error('Error ingesting from datasource: ', err)
+    }
+  },
+})
+
 export const remap = createCommand({
   name: 'remap',
   help: 'Remap all content from a datasource',
