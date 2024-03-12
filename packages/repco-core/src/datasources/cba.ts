@@ -126,7 +126,9 @@ export class CbaDataSource implements DataSource {
   }
 
   // Fetch a list of URIs in batches
-  async fetchByUriBatch(uris: string[]): Promise<SourceRecordForm[]> {
+  async fetchByUriBatch(
+    uris: string[],
+  ): Promise<{ sourceRecords: SourceRecordForm[]; errors?: Error[] }> {
     // Map of (source record type) -> (batch endpoint)
     const batchEndpoints: Record<string, string> = {
       post: 'post',
@@ -165,12 +167,14 @@ export class CbaDataSource implements DataSource {
     // Map each endpoint bucket to list of promises.
     // Each promise in the list fetches a slice of the overall URLs (to respect page limits)
     // Collect the list of all bucket promises in a single promise.
-    const batchedPromises: Promise<SourceRecordForm[][]> = Promise.all(
+    const batchedPromises: Promise<
+      { sourceRecords: SourceRecordForm[]; errors: any[] }[]
+    > = Promise.all(
       Object.entries(buckets).map(async ([endpoint, { type, ids }]) => {
         try {
           let idx = 0
           const pageLimit = this.config.pageLimit
-          const res = []
+          const res: SourceRecordForm[] = []
           while (idx < ids.length) {
             const slice = ids.slice(idx, idx + pageLimit)
             idx += slice.length
@@ -191,18 +195,25 @@ export class CbaDataSource implements DataSource {
               }),
             )
           }
-          return res
+          return { sourceRecords: res, errors: [] }
         } catch (error) {
           // TODO: Persist the error.
           log.warn({ msg: `CBA datasource failure`, error })
-          return []
+          return { errors: [error as Error], sourceRecords: [] }
         }
       }),
     )
     // Map the URIs without batch support to a promise that resolves this URI.
     // Combine them all in a single promise.
     const unbatchedPromises = Promise.all(
-      unbatched.map((uri) => this.fetchByUri(uri)),
+      unbatched.map(async (uri) => {
+        try {
+          const sourceRecords = await this.fetchByUri(uri)
+          return { sourceRecords, errors: [] }
+        } catch (err) {
+          return { errors: [err], sourceRecords: [] }
+        }
+      }),
     )
 
     // Resolve all pending promises-of-promises in a single call
@@ -211,8 +222,14 @@ export class CbaDataSource implements DataSource {
       unbatchedPromises,
     ])
 
-    // Flatten the paged arrays
-    return [...batchedRes.flat(), ...unbatchedRes.flat()]
+    const allRes = [...batchedRes, ...unbatchedRes]
+    const errors: Error[] = []
+    const sourceRecords: SourceRecordForm[] = []
+    for (const row of allRes) {
+      errors.push(...row.errors.filter(notEmpty))
+      sourceRecords.push(...row.sourceRecords)
+    }
+    return { sourceRecords, errors }
   }
 
   async fetchByUri(uri: string): Promise<SourceRecordForm[]> {

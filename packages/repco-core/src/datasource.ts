@@ -85,7 +85,9 @@ export interface DataSource {
    * @returns A `Promise` that resolves to the fetched record, or `null` if no record was found.
    */
   fetchByUri(uri: string): Promise<SourceRecordForm[] | null>
-  fetchByUriBatch(uris: string[]): Promise<SourceRecordForm[]>
+  fetchByUriBatch(
+    uris: string[],
+  ): Promise<{ sourceRecords: SourceRecordForm[]; errors?: Error[] }>
   /**
    * Determines whether the data source is capable of fetching records by UID.
    *
@@ -115,9 +117,20 @@ export abstract class BaseDataSource implements DataSource {
     return this.definition.uid
   }
 
-  async fetchByUriBatch(uris: string[]): Promise<SourceRecordForm[]> {
-    const res = await Promise.all(uris.map((uri) => this.fetchByUri(uri)))
-    return res.filter(notEmpty).flat()
+  async fetchByUriBatch(uris: string[]) {
+    const errors: Error[] = []
+    const res = await Promise.all(
+      uris.map(async (uri) => {
+        try {
+          return await this.fetchByUri(uri)
+        } catch (err) {
+          errors.push(err as Error)
+          return []
+        }
+      }),
+    )
+    const sourceRecords = res.filter(notEmpty).flat()
+    return { sourceRecords, errors }
   }
 
   canFetchUri(_uid: string): boolean {
@@ -126,6 +139,24 @@ export abstract class BaseDataSource implements DataSource {
   async fetchUpdates(_cursor: string | null): Promise<FetchUpdatesResult> {
     return { cursor: '', records: [] }
   }
+
+  async getErrors(repo: Repo, opts: GetErrorOpts = { take: 100 }) {
+    const where: Prisma.IngestErrorWhereInput = {
+      repoDid: repo.did,
+      datasourceUid: this.definition.uid,
+    }
+    const data = repo.prisma.ingestError.findMany({
+      take: opts.take,
+      skip: opts.skip,
+      where,
+    })
+    return data
+  }
+}
+
+export type GetErrorOpts = {
+  take?: number
+  skip?: number
 }
 
 type FailedHydrates = { err: Error; row: any }
@@ -161,64 +192,42 @@ export class DataSourceRegistry extends Registry<DataSource> {
       // checked above
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const ds = this.get(uid)!
-      const sourceRecords = await ds.fetchByUriBatch(filteredUris)
-      const { entities, errors } = await persistAndMapSourceRecords(
-        repo,
-        ds,
-        sourceRecords,
-      )
-      for (const error of errors) {
-        await error.persist(repo.prisma)
+      try {
+        const { err, res } = await tryCatch(
+          async () => await ds.fetchByUriBatch(filteredUris),
+          (cause) => IngestError.atFetchUpdates(cause, repo, ds),
+        )
+        if (!res) {
+          throw err
+        }
+        const { sourceRecords, errors: fetchErrors } = res
+        if (fetchErrors) {
+          for (const cause of fetchErrors) {
+            const error = IngestError.atFetchUpdates(cause, repo, ds)
+            await error.persist(repo.prisma)
+          }
+        }
+        const { entities, errors } = await persistAndMapSourceRecords(
+          repo,
+          ds,
+          sourceRecords,
+        )
+        for (const error of errors) {
+          await error.persist(repo.prisma)
+        }
+        for (const e of entities) {
+          e.headers?.EntityUris?.forEach((uri) => found.add(uri))
+        }
+        fetched.push(...entities)
+      } catch (err) {
+        if (!(err instanceof IngestError)) throw err
+        await err.persist(repo.prisma)
       }
-      for (const e of entities) {
-        e.headers?.EntityUris?.forEach((uri) => found.add(uri))
-      }
-      fetched.push(...entities)
     }
     for (const uri of uris) {
       if (!found.has(uri)) notFound.add(uri)
     }
     return { fetched, notFound: Array.from(notFound) }
-
-    //
-    //   let found = false
-    //   for (const datasource of matchingSources) {
-    //     try {
-    //       const sourceRecords = await datasource.fetchByUri(uri)
-    //       if (sourceRecords && sourceRecords.length) {
-    //         const entities = await mapAndPersistSourceRecord(
-    //           repo,
-    //           datasource,
-    //           sourceRecords,
-    //         )
-    //         fetched.push(...entities)
-    //         found = true
-    //         break
-    //       }
-    //     } catch (err) {
-    //       // The datasource failed to fetch the entity.
-    //       // Log the error and proceed.
-    //       const fail = {
-    //         uri,
-    //         datasourceUid: datasource.definition.uid,
-    //         timestamp: new Date(),
-    //         errorMessage: (err as Error).message,
-    //         errorDetails: errToSerializable(err as Error),
-    //       }
-    //       await repo.prisma.failedDatasourceFetches.upsert({
-    //         create: { ...fail },
-    //         update: { ...fail },
-    //         where: {
-    //           uri_datasourceUid: {
-    //             uri: fail.uri,
-    //             datasourceUid: fail.datasourceUid,
-    //           },
-    //         },
-    //       })
-    //     }
-    //   }
-    //   if (!found) notFound.push(uri)
-    // }
   }
 
   registerFromPlugins(
@@ -363,7 +372,7 @@ export class IngestError extends Error {
     cause: any,
     repo: Repo,
     datasource: DataSource,
-    cursor: string | null,
+    cursor?: string | null,
   ) {
     return new IngestError({
       scope: IngestErrorScope.FetchUpdates,
@@ -415,6 +424,10 @@ export class IngestError extends Error {
       }
     }
     const id = createRandomId()
+    const details: any = {
+      stack: this.cause?.stack || this.stack,
+      nextCursor: this.nextCursor,
+    }
     const data = {
       id,
       repoDid: this.repoDid,
@@ -424,7 +437,7 @@ export class IngestError extends Error {
       sourceRecordId: this.sourceRecordId,
       timestamp: this.timestamp,
       errorMessage: this.toString(),
-      errorDetails: JSON.stringify(this),
+      errorDetails: details,
     }
     await prisma.ingestError.create({ data })
   }
@@ -546,6 +559,7 @@ export async function ingestUpdatesFromDataSourceAtCursor(
       await repo.saveBatch(entities) // TODO: Agent
       return { nextCursor, records, entities, errors }
     } catch (cause) {
+      console.log('saveBatch failure', cause)
       const err = IngestError.atSaveBatch(
         cause,
         repo,

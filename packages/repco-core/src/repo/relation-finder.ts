@@ -178,6 +178,7 @@ export class RelationFinder {
       const res = stack.map((uid) => this.entities.get(uid)!)
       return res
     } catch (err) {
+      console.log('RESOLVE ERROR', err)
       if (err instanceof GGraphError) {
         console.error('circular relation', {
           from: this.entities.get(err.id),
