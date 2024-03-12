@@ -2,6 +2,7 @@ import express from 'express'
 import pc from 'picocolors'
 import {
   defaultDataSourcePlugins as plugins,
+  fetchCursor,
   Ingester,
   remapDataSource,
   repoRegistry,
@@ -160,9 +161,19 @@ router.get('/repo/:repo/ds', async (req, res) => {
     const { prisma } = getLocals(res)
     const repo = await repoRegistry.open(prisma, req.params.repo)
     await repo.dsr.hydrate(repo.prisma, plugins, repo.did)
-    const data = repo.dsr
-      .all()
-      .map((ds) => ({ ...ds.definition, config: ds.config }))
+    const data = await Promise.all(
+      repo.dsr.all().map(async (ds) => ({
+        ...ds.definition,
+        config: ds.config,
+        cursor: await fetchCursor(repo.prisma, ds),
+        errorCount: await prisma.ingestError.count({
+          where: {
+            repoDid: repo.did,
+            datasourceUid: ds.definition.uid,
+          },
+        }),
+      })),
+    )
     res.send({ data })
   } catch (err) {
     throw new ServerError(
@@ -204,8 +215,34 @@ See server logs for results of the ingestion process.`
   }
 })
 
+router.get('/repo/:repo/ds/errors', async (req, res) => {
+  try {
+    const { prisma } = getLocals(res)
+    const repo = await repoRegistry.open(prisma, req.params.repo)
+    const { datasource, offset, count } = req.query
+    const where: Prisma.IngestErrorWhereInput = {
+      repoDid: repo.did,
+    }
+    if (datasource) {
+      where.datasourceUid = datasource.toString()
+    }
+    const data = await prisma.ingestError.findMany({
+      take: Number(count) || 100,
+      skip: Number(offset) || 0,
+      where,
+      orderBy: { timestamp: 'desc' },
+    })
+    res.send({ data })
+  } catch (err) {
+    throw new ServerError(
+      500,
+      `Failed to list all datasources for repo ${req.params.repo}` + err,
+    )
+  }
+})
+
 // Remap a datasource
-router.get('/repo/:repo/ds/:dsuid', async (req, res) => {
+router.get('/repo/:repo/ds/:dsuid/remap', async (req, res) => {
   try {
     const { prisma } = getLocals(res)
     const repo = await repoRegistry.open(prisma, req.params.repo)
@@ -219,31 +256,6 @@ router.get('/repo/:repo/ds/:dsuid', async (req, res) => {
       500,
       `Failed to remap datasource ${req.params.dsuid} for repo ${req.params.repo}` +
         err,
-    )
-  }
-})
-
-router.get('/repo/:repo/ds/errors', async (req, res) => {
-  try {
-    const { prisma } = getLocals(res)
-    const repo = await repoRegistry.open(prisma, req.params.repo)
-    const { datasource, offset, count } = req.query
-    const where: Prisma.IngestErrorWhereInput = {
-      repoDid: repo.did
-    }
-    if (datasource) {
-      where.datasourceUid = datasource.toString()
-    }
-    const data = prisma.ingestError.findMany({
-      take: Number(count) || 100,
-      skip: Number(offset) || 100,
-      where,
-    })
-    res.send({ data })
-  } catch (err) {
-    throw new ServerError(
-      500,
-      `Failed to list all datasources for repo ${req.params.repo}` + err,
     )
   }
 })

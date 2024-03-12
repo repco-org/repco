@@ -17,7 +17,7 @@ import {
 } from 'repco-prisma'
 import { fetch } from 'undici'
 import { ZodError } from 'zod'
-import { DataSource, DataSourceRegistry } from './datasource.js'
+import { BaseDataSource, DataSource, DataSourceRegistry } from './datasource.js'
 import { plugins as defaultDataSourcePlugins } from './datasources/defaults.js'
 import {
   entityForm,

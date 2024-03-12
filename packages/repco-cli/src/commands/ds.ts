@@ -189,10 +189,23 @@ export const errors = createCommand({
       if (opts.json) {
         console.log(JSON.stringify(res.data))
       } else {
-        console.log(res.data)
+        for (const row of res.data) {
+          console.log('repo:        ', row.repoDid)
+          console.log('datasource:  ', row.datasourceUid)
+          console.log('timestamp:   ', row.timestamp)
+          console.log('kind:        ', row.kind)
+          console.log('error:       ', row.errorMessage)
+          for (const cause of row.errorDetails?.causes || []) {
+            console.log('  caused by:', cause)
+          }
+          console.log('cursor:      ', JSON.parse(row.cursor))
+          console.log('sourcerecord:', row.sourceRecordId)
+          console.log('stack:       ', row.errorDetails.stack)
+          console.log('---')
+        }
       }
     } catch (err) {
-      console.error('Error ingesting from datasource: ', err)
+      console.error(err)
     }
   },
 })
@@ -214,7 +227,7 @@ export const remap = createCommand({
       if (!opts.repo) {
         throw new Error('Repo name or did required with -r option.')
       }
-      const res = (await request(`/repo/${opts.repo}/ds/${args.datasource}`, {
+      const res = (await request(`/repo/${opts.repo}/ds/${args.datasource}/remap`, {
         method: 'GET',
       })) as any
       console.log(res.result)
@@ -227,5 +240,5 @@ export const remap = createCommand({
 export const command = createCommandGroup({
   name: 'ds',
   help: 'Manage datasources',
-  commands: [add, list, ingest, listPlugins, remap],
+  commands: [add, list, ingest, listPlugins, remap, errors],
 })

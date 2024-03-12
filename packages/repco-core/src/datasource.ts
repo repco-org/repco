@@ -424,9 +424,17 @@ export class IngestError extends Error {
       }
     }
     const id = createRandomId()
+    const collectCauses = (err: any) => {
+      const causes = [err.toString()]
+      if (err && 'cause' in err) {
+        causes.push(...collectCauses(err.cause))
+      }
+      return causes
+    }
     const details: any = {
-      stack: this.cause?.stack || this.stack,
       nextCursor: this.nextCursor,
+      causes: collectCauses(this),
+      stack: this.cause?.stack || this.stack,
     }
     const data = {
       id,
@@ -533,8 +541,7 @@ export async function ingestUpdatesFromDataSource(
       await saveCursor(repo.prisma, datasource, nextCursor)
     }
     await err.persist(repo.prisma)
-    const finished = false
-    return { finished, nextCursor }
+    throw err
   }
 }
 
@@ -716,7 +723,7 @@ async function fetchSourceRecords(
  * Returns a string which serves as a marker for the last fetch.
  * Usually this is a timestamp or something similar
  */
-async function fetchCursor(
+export async function fetchCursor(
   prisma: Prisma.TransactionClient,
   datasource: DataSource,
 ): Promise<string | null> {
