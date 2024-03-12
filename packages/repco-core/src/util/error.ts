@@ -5,6 +5,30 @@
 import { Response } from 'undici'
 import { ZodError } from 'zod'
 
+interface Ok<T> {
+  ok: true
+  res: T
+  err?: never
+}
+interface Err<E> {
+  ok: false
+  err: E
+  res?: never
+}
+type Result<T, E> = Ok<T> | Err<E>
+
+export async function tryCatch<T, E>(
+  inner: () => Promise<T>,
+  mapError: (error: any) => E,
+): Promise<Result<T, any>> {
+  try {
+    const res = await inner()
+    return { ok: true, res }
+  } catch (err) {
+    return { ok: false, err: mapError(err) }
+  }
+}
+
 export class ParseError extends ZodError {
   entityType: string
   constructor(err: ZodError, entityType: string) {

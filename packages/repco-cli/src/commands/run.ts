@@ -68,18 +68,18 @@ function ingestAll(prisma: PrismaClient) {
     const ingester = new Ingester(defaultDataSourcePlugins, repo)
     ingesters.push(ingester)
     const queue = ingester.workLoop()
-    for await (const result of queue) {
-      if ('error' in result) {
+    let lastCursor
+    for await (const outcome of queue) {
+      if (outcome.didFail()) {
         log.error({
-          error: result.error,
-          message: `ingest ${result.uid} ERROR: ${result.error}`,
+          error: outcome.error,
+          message: `ingest ${outcome.uid} failed: ${outcome.error?.toString()}`,
         })
       } else {
-        const cursor =
-          'cursor' in result && result.cursor
-            ? JSON.parse(result.cursor).pageNumber
-            : ''
-        log.debug(`ingest ${result.uid}: ${result.ok} ${cursor}`)
+        if (outcome.cursor != lastCursor) {
+          lastCursor = outcome.cursor
+          log.debug(`ingest ${outcome.uid}: now at ${outcome.cursor}`)
+        }
       }
     }
   }

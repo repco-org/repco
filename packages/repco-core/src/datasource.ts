@@ -1,10 +1,12 @@
 import { EventEmitter } from 'node:events'
 import { createLogger } from 'repco-common'
 import { EntityForm } from './entity.js'
+import { IngestOutcome, IngestState } from './ingest.js'
 import { DataSourcePluginRegistry } from './plugins.js'
 import { Prisma, PrismaCore, SourceRecord } from './prisma.js'
 import { Repo } from './repo.js'
-import { createSourceRecordId } from './util/id.js'
+import { tryCatch } from './util/error.js'
+import { createRandomId, createSourceRecordId } from './util/id.js'
 import { notEmpty } from './util/misc.js'
 import { Registry } from './util/registry.js'
 
@@ -88,7 +90,7 @@ export interface DataSource {
    * Determines whether the data source is capable of fetching records by UID.
    *
    * @param uid - The UID of the record to fetch.
-   * @returns `true` if the data source can fetch the record, `false` otherwise.
+   * @returns `true` if the tsdata source can fetch the record, `false` otherwise.
    */
   canFetchUri(uri: string): boolean
   /**
@@ -160,7 +162,14 @@ export class DataSourceRegistry extends Registry<DataSource> {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const ds = this.get(uid)!
       const sourceRecords = await ds.fetchByUriBatch(filteredUris)
-      const entities = await mapAndPersistSourceRecord(repo, ds, sourceRecords)
+      const { entities, errors } = await persistAndMapSourceRecords(
+        repo,
+        ds,
+        sourceRecords,
+      )
+      for (const error of errors) {
+        await error.persist(repo.prisma)
+      }
       for (const e of entities) {
         e.headers?.EntityUris?.forEach((uri) => found.add(uri))
       }
@@ -169,6 +178,7 @@ export class DataSourceRegistry extends Registry<DataSource> {
     for (const uri of uris) {
       if (!found.has(uri)) notFound.add(uri)
     }
+    return { fetched, notFound: Array.from(notFound) }
 
     //
     //   let found = false
@@ -209,7 +219,6 @@ export class DataSourceRegistry extends Registry<DataSource> {
     //   }
     //   if (!found) notFound.push(uri)
     // }
-    return { fetched, notFound: Array.from(notFound) }
   }
 
   registerFromPlugins(
@@ -271,23 +280,200 @@ export class DataSourceRegistry extends Registry<DataSource> {
   }
 }
 
-export type IngestResult = Record<
-  string,
-  {
-    count: number
-    cursor: string | null
+export enum IngestErrorScope {
+  FetchUpdates = 'fetch_updates',
+  MapRecord = 'map_record',
+  SaveBatch = 'save_batch',
+}
+
+export class IngestError extends Error {
+  public scope: IngestErrorScope
+  public repoDid: string
+  public datasourceUid: string
+  public cursor?: string | null
+  public sourceRecordId?: string
+  public cause: any
+  public nextCursor?: string
+  public previousErrors?: IngestError[]
+  public timestamp: Date
+
+  toString() {
+    let s = ''
+    switch (this.scope) {
+      case IngestErrorScope.FetchUpdates:
+        s = `Failed to fetch updates. Reason: ${
+          this.cause
+        }, cursor: ${JSON.stringify(this.cursor)}`
+        break
+      case IngestErrorScope.MapRecord:
+        s = `Failed to map source record. Reason: ${this.cause}, id: ${this.sourceRecordId}`
+        break
+      case IngestErrorScope.SaveBatch:
+        s = `Failed to save entity batch. Reason: ${
+          this.cause
+        }, cursor: ${JSON.stringify(this.cursor)}`
+        break
+    }
+    if (this.previousErrors?.length) {
+      s += '\nPrevious errors: \n'
+      for (const err of this.previousErrors) {
+        s += '    ' + err.toString() + '\n'
+      }
+    }
+    return s
   }
->
+
+  constructor({
+    scope,
+    repoDid,
+    datasourceUid,
+    cursor,
+    cause,
+    sourceRecordId,
+    nextCursor,
+    previousErrors,
+  }: {
+    scope: IngestErrorScope
+    repoDid: string
+    datasourceUid: string
+    cursor?: string | null
+    nextCursor?: string
+    cause: any
+    sourceRecordId?: string
+    previousErrors?: IngestError[]
+  }) {
+    super()
+    if (cause instanceof Error) {
+      this.stack = cause.stack
+      this.message = cause.message
+    } else {
+      this.message = String(cause)
+    }
+    this.scope = scope
+    this.repoDid = repoDid
+    this.datasourceUid = datasourceUid
+    this.cursor = cursor
+    this.nextCursor = nextCursor
+    this.cause = cause
+    this.sourceRecordId = sourceRecordId
+    this.previousErrors = previousErrors
+    this.timestamp = new Date()
+  }
+  static atFetchUpdates(
+    cause: any,
+    repo: Repo,
+    datasource: DataSource,
+    cursor: string | null,
+  ) {
+    return new IngestError({
+      scope: IngestErrorScope.FetchUpdates,
+      repoDid: repo.did,
+      datasourceUid: datasource.definition.uid,
+      cursor,
+      cause,
+    })
+  }
+
+  static atMapSourceRecord(
+    cause: any,
+    repo: Repo,
+    datasource: DataSource,
+    sourceRecordId?: string,
+  ) {
+    return new IngestError({
+      scope: IngestErrorScope.MapRecord,
+      repoDid: repo.did,
+      datasourceUid: datasource.definition.uid,
+      cause,
+      sourceRecordId,
+    })
+  }
+
+  static atSaveBatch(
+    cause: any,
+    repo: Repo,
+    datasource: DataSource,
+    cursor: string | null,
+    nextCursor: string,
+    previousErrors: IngestError[],
+  ) {
+    return new IngestError({
+      scope: IngestErrorScope.SaveBatch,
+      repoDid: repo.did,
+      datasourceUid: datasource.definition.uid,
+      cursor,
+      cause,
+      nextCursor,
+      previousErrors,
+    })
+  }
+
+  async persist(prisma: PrismaCore) {
+    if (this.previousErrors?.length) {
+      for (const error of this.previousErrors) {
+        await error.persist(prisma)
+      }
+    }
+    const id = createRandomId()
+    const data = {
+      id,
+      repoDid: this.repoDid,
+      datasourceUid: this.datasourceUid,
+      kind: this.scope,
+      cursor: this.cursor ? JSON.stringify(this.cursor) : undefined,
+      sourceRecordId: this.sourceRecordId,
+      timestamp: this.timestamp,
+      errorMessage: this.toString(),
+      errorDetails: JSON.stringify(this),
+    }
+    await prisma.ingestError.create({ data })
+  }
+}
+
+export type IngestResult = Record<string, IngestOutcome>
 
 export async function ingestUpdatesFromDataSources(
   repo: Repo,
 ): Promise<IngestResult> {
   const res: IngestResult = {}
   for (const ds of repo.dsr.all()) {
-    const ret = await ingestUpdatesFromDataSource(repo, ds)
+    const ret = await tryIngestUpdatesFromDataSource(repo, ds)
     res[ds.definition.uid] = ret
   }
   return res
+}
+
+async function tryIngestUpdatesFromDataSource(
+  repo: Repo,
+  datasource: DataSource,
+): Promise<IngestOutcome> {
+  const uid = datasource.definition.uid
+  try {
+    const { finished, nextCursor } = await ingestUpdatesFromDataSource(
+      repo,
+      datasource,
+      true,
+    )
+    const details = { cursor: nextCursor }
+    if (finished) {
+      return new IngestOutcome(uid, IngestState.Finished, details)
+    } else {
+      return new IngestOutcome(uid, IngestState.Ready, details)
+    }
+  } catch (error) {
+    // if the error is not an IngestError, it is a bug, and thus a fatal error
+    if (!(error instanceof IngestError)) {
+      return new IngestOutcome(uid, IngestState.FailedFatal, {
+        error: error as Error,
+      })
+    }
+
+    let state = IngestState.FailedAtIngest
+    if (error.scope === IngestErrorScope.FetchUpdates) {
+      state = IngestState.FailedAtFetch
+    }
+    return new IngestOutcome(uid, state, { error })
+  }
 }
 
 /**
@@ -301,31 +487,77 @@ export async function ingestUpdatesFromDataSources(
 export async function ingestUpdatesFromDataSource(
   repo: Repo,
   datasource: DataSource,
+  saveCursorOnFail: boolean,
 ) {
   const { uid } = datasource.definition
   const cursor = await fetchCursor(repo.prisma, datasource)
   log.debug(`ingest ${uid}: cursor ${JSON.stringify(cursor)}`)
 
-  const { cursor: nextCursor, records } = await datasource.fetchUpdates(cursor)
-  if (!records.length && (!nextCursor || nextCursor === cursor)) {
-    log.debug(`ingest ${uid}: fetched ${records.length}, return`)
-    return { cursor, count: 0 }
-  }
+  try {
+    const { nextCursor, records, entities, errors } =
+      await ingestUpdatesFromDataSourceAtCursor(repo, datasource, cursor)
 
-  let count = 0
+    log.debug(
+      `ingest ${uid}: ${records.length} records, ${entities.length} entities, ${errors.length} errors`,
+    )
+
+    const finished = records.length === 0
+    if (errors) {
+      for (const error of errors) {
+        log.warn(`ingest ${uid}: skipped record - ${error.toString()}`)
+        await error.persist(repo.prisma)
+      }
+    }
+    await saveCursor(repo.prisma, datasource, nextCursor)
+    return { finished, nextCursor }
+  } catch (err) {
+    if (!(err instanceof IngestError)) {
+      throw err
+    }
+    log.error(`ingest ${uid}: ${err.toString()}`)
+    const nextCursor = err.nextCursor
+    if (saveCursorOnFail && nextCursor) {
+      await saveCursor(repo.prisma, datasource, nextCursor)
+    }
+    await err.persist(repo.prisma)
+    const finished = false
+    return { finished, nextCursor }
+  }
+}
+
+export async function ingestUpdatesFromDataSourceAtCursor(
+  repo: Repo,
+  datasource: DataSource,
+  cursor: string | null,
+) {
+  const { res, err } = await tryCatch(
+    async () => await datasource.fetchUpdates(cursor),
+    (cause) => IngestError.atFetchUpdates(cause, repo, datasource, cursor),
+  )
+  if (!res) throw err
+  const { cursor: nextCursor, records } = res
   if (records.length) {
-    const entities = await mapAndPersistSourceRecord(repo, datasource, records)
-    await repo.saveBatch(entities) // TODO: Agent
-    count = entities.length
-  }
-  const finished = cursor === nextCursor
-  log.debug(`ingest ${uid}: ingested ${count}, finished ${finished}`)
-  await saveCursor(repo.prisma, datasource, nextCursor)
-
-  return {
-    finished: cursor === nextCursor,
-    count,
-    cursor: nextCursor,
+    const { entities, errors } = await persistAndMapSourceRecords(
+      repo,
+      datasource,
+      records,
+    )
+    try {
+      await repo.saveBatch(entities) // TODO: Agent
+      return { nextCursor, records, entities, errors }
+    } catch (cause) {
+      const err = IngestError.atSaveBatch(
+        cause,
+        repo,
+        datasource,
+        cursor,
+        nextCursor,
+        errors,
+      )
+      throw err
+    }
+  } else {
+    return { nextCursor, records, entities: [], errors: [] }
   }
 }
 
@@ -334,49 +566,65 @@ export async function ingestUpdatesFromDataSource(
 //
 // Important: Caller has to ensure that all source records have been
 // created by the datasource passed into this function.
-async function mapAndPersistSourceRecord(
+async function persistAndMapSourceRecords(
   repo: Repo,
   datasource: DataSource,
   sourceRecords: Array<SourceRecordForm & { uid?: string }>,
 ) {
   const entities = []
   const date = new Date()
+  const errors = []
   for (const sourceRecord of sourceRecords) {
-    const entitiesFromSourceRecord = await datasource.mapSourceRecord(
-      sourceRecord,
-    )
-    const containedEntityUris = entitiesFromSourceRecord
-      .map((e) => e.headers?.EntityUris || [])
-      .flat()
-
     let sourceRecordId = sourceRecord.uid
-    if (!sourceRecordId) {
-      sourceRecordId = createSourceRecordId()
-      // save the source record to the database
-      // this allows to potentially remap the source record
-      // if the mapSourceRecord function of a datasource is improved over time
-      await repo.prisma.sourceRecord.create({
-        data: {
-          uid: sourceRecordId,
-          contentType: sourceRecord.contentType,
-          body: sourceRecord.body,
-          sourceType: sourceRecord.sourceType,
-          sourceUri: sourceRecord.sourceUri,
-          timestamp: date,
-          dataSourceUid: datasource.definition.uid,
-          containedEntityUris,
-        },
+    try {
+      if (!sourceRecordId) {
+        sourceRecordId = createSourceRecordId()
+        // save the source record to the database
+        // this allows to potentially remap the source record
+        // if the mapSourceRecord function of a datasource is improved over time
+        await repo.prisma.sourceRecord.create({
+          data: {
+            uid: sourceRecordId,
+            contentType: sourceRecord.contentType,
+            body: sourceRecord.body,
+            sourceType: sourceRecord.sourceType,
+            sourceUri: sourceRecord.sourceUri,
+            timestamp: date,
+            dataSourceUid: datasource.definition.uid,
+            containedEntityUris: [],
+          },
+        })
+      }
+
+      const entitiesFromSourceRecord = await datasource.mapSourceRecord(
+        sourceRecord,
+      )
+      const containedEntityUris = entitiesFromSourceRecord
+        .map((e) => e.headers?.EntityUris || [])
+        .flat()
+
+      await repo.prisma.sourceRecord.update({
+        where: { uid: sourceRecordId },
+        data: { containedEntityUris },
       })
-    }
 
-    for (const entity of entitiesFromSourceRecord) {
-      if (!entity.headers) entity.headers = {}
-      entity.headers.DerivedFrom = sourceRecordId
-    }
+      for (const entity of entitiesFromSourceRecord) {
+        if (!entity.headers) entity.headers = {}
+        entity.headers.DerivedFrom = sourceRecordId
+      }
 
-    entities.push(...entitiesFromSourceRecord)
+      entities.push(...entitiesFromSourceRecord)
+    } catch (cause) {
+      const error = IngestError.atMapSourceRecord(
+        cause,
+        repo,
+        datasource,
+        sourceRecordId,
+      )
+      errors.push(error)
+    }
   }
-  return entities
+  return { entities, errors }
 }
 
 // Recreate all entities originating from a particular DataSource
@@ -417,7 +665,12 @@ export async function remapDataSource(
     const nextCursor = records[records.length - 1].uid
     if (nextCursor === cursor) break
 
-    const entities = await mapAndPersistSourceRecord(repo, datasource, records)
+    const { entities, errors } = await persistAndMapSourceRecords(
+      repo,
+      datasource,
+      records,
+    )
+    // TODO: handle errors
     state.processedEntities += entities.length
     const ret = await repo.saveBatch(entities)
     if (ret) state.savedRevisions += ret.length
