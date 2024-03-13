@@ -787,7 +787,7 @@ export class CbaDataSource implements DataSource {
       }
 
       const content: form.ContentItemInput = {
-        pubDate: new Date(post.date),
+        pubDate: parseAsUTC(post.date),
         content: contentJson,
         contentFormat: 'text/html',
         title: title,
@@ -896,5 +896,6 @@ export class CbaDataSource implements DataSource {
  * @param dateString Datetime string in format 1998-10-17T00:00:00
  */
 function parseAsUTC(dateString: string): Date {
-  return new Date(dateString + '.000Z')
+  const convertedDate = new Date(dateString + '.000Z')
+  return convertedDate
 }
