@@ -153,13 +153,13 @@ export const errors = createCommand({
     offset: {
       type: 'string',
       short: 'o',
-      help: 'Offset',
+      help: 'Offset from latest entries',
       default: '0',
     },
     count: {
       type: 'string',
       short: 'o',
-      help: 'Offset',
+      help: 'Number of entries to show',
       default: '100',
     },
     stack: {
@@ -202,7 +202,7 @@ export const errors = createCommand({
           console.log('error:       ', row.errorMessage)
           for (const cause of row.errorDetails?.causes || []) {
             if (cause === row.errorMessage) continue
-            console.log('  caused by:', cause)
+            console.log('  caused by: ', cause)
           }
           console.log('cursor:      ', JSON.parse(row.cursor))
           console.log('sourcerecord:', row.sourceRecordId)
