@@ -31,14 +31,12 @@ export type Scalars = {
 export type Agent = {
   /** Reads and enables pagination through a set of `Commit`. */
   commits: CommitsConnection
-  commits: CommitsConnection
   /** Reads and enables pagination through a set of `Commit`. */
   commitsByCommitAgentDidAndParent: AgentCommitsByCommitAgentDidAndParentManyToManyConnection
   did: Scalars['String']
   /** Reads and enables pagination through a set of `Repo`. */
   reposByCommitAgentDidAndRepoDid: AgentReposByCommitAgentDidAndRepoDidManyToManyConnection
   /** Reads and enables pagination through a set of `Revision`. */
-  revisions: RevisionsConnection
   revisions: RevisionsConnection
   type?: Maybe<AgentType>
   /** Reads a single `User` that is related to this `Agent`. */
@@ -3704,23 +3702,12 @@ export type MediaAssetFilesArgs = {
 export type MediaAssetTranscriptsArgs = {
   after: InputMaybe<Scalars['Cursor']>
   before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<FileCondition>
-  filter: InputMaybe<FileFilter>
+  condition: InputMaybe<TranscriptCondition>
+  filter: InputMaybe<TranscriptFilter>
   first: InputMaybe<Scalars['Int']>
   last: InputMaybe<Scalars['Int']>
   offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<FilesOrderBy>>
-}
-
-export type MediaAssetTranslationsArgs = {
-  after: InputMaybe<Scalars['Cursor']>
-  before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<TranslationCondition>
-  filter: InputMaybe<TranslationFilter>
-  first: InputMaybe<Scalars['Int']>
-  last: InputMaybe<Scalars['Int']>
-  offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<TranslationsOrderBy>>
+  orderBy?: InputMaybe<Array<TranscriptsOrderBy>>
 }
 
 /** A connection to a list of `Concept` values, with data from `_ConceptToMediaAsset`. */
@@ -4882,32 +4869,15 @@ export type QueryTranscriptArgs = {
 }
 
 /** The root query type which gives access points into the data universe. */
-export type QuerySubtitlesArgs = {
+export type QueryTranscriptsArgs = {
   after: InputMaybe<Scalars['Cursor']>
   before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<SubtitleCondition>
-  filter: InputMaybe<SubtitleFilter>
+  condition: InputMaybe<TranscriptCondition>
+  filter: InputMaybe<TranscriptFilter>
   first: InputMaybe<Scalars['Int']>
   last: InputMaybe<Scalars['Int']>
   offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<SubtitlesOrderBy>>
-}
-
-/** The root query type which gives access points into the data universe. */
-export type QueryTranslationArgs = {
-  uid: Scalars['String']
-}
-
-/** The root query type which gives access points into the data universe. */
-export type QueryTranslationsArgs = {
-  after: InputMaybe<Scalars['Cursor']>
-  before: InputMaybe<Scalars['Cursor']>
-  condition: InputMaybe<TranslationCondition>
-  filter: InputMaybe<TranslationFilter>
-  first: InputMaybe<Scalars['Int']>
-  last: InputMaybe<Scalars['Int']>
-  offset: InputMaybe<Scalars['Int']>
-  orderBy?: InputMaybe<Array<TranslationsOrderBy>>
+  orderBy?: InputMaybe<Array<TranscriptsOrderBy>>
 }
 
 /** The root query type which gives access points into the data universe. */
@@ -6827,7 +6797,7 @@ export type Transcript = {
 }
 
 /**
- * A condition to be used against `Translation` object types. All fields are tested
+ * A condition to be used against `Transcript` object types. All fields are tested
  * for equality and combined with a logical ‘and.’
  */
 export type TranscriptCondition = {
@@ -6851,8 +6821,8 @@ export type TranscriptCondition = {
   uid?: InputMaybe<Scalars['String']>
 }
 
-/** A filter to be used against `Translation` object types. All fields are combined with a logical ‘and.’ */
-export type TranslationFilter = {
+/** A filter to be used against `Transcript` object types. All fields are combined with a logical ‘and.’ */
+export type TranscriptFilter = {
   /** Checks for all expressions in this list. */
   and?: InputMaybe<Array<TranscriptFilter>>
   /** Filter by the object’s `author` field. */
@@ -6868,7 +6838,7 @@ export type TranslationFilter = {
   /** Filter by the object’s `mediaAssetUid` field. */
   mediaAssetUid?: InputMaybe<StringFilter>
   /** Negates the expression. */
-  not?: InputMaybe<TranslationFilter>
+  not?: InputMaybe<TranscriptFilter>
   /** Checks for any expressions in this list. */
   or?: InputMaybe<Array<TranscriptFilter>>
   /** Filter by the object’s `revision` relation. */
@@ -6883,24 +6853,24 @@ export type TranslationFilter = {
   uid?: InputMaybe<StringFilter>
 }
 
-/** A connection to a list of `Translation` values. */
-export type TranslationsConnection = {
-  /** A list of edges which contains the `Translation` and cursor to aid in pagination. */
-  edges: Array<TranslationsEdge>
-  /** A list of `Translation` objects. */
-  nodes: Array<Translation>
+/** A connection to a list of `Transcript` values. */
+export type TranscriptsConnection = {
+  /** A list of edges which contains the `Transcript` and cursor to aid in pagination. */
+  edges: Array<TranscriptsEdge>
+  /** A list of `Transcript` objects. */
+  nodes: Array<Transcript>
   /** Information to aid in pagination. */
   pageInfo: PageInfo
-  /** The count of *all* `Translation` you could get from the connection. */
+  /** The count of *all* `Transcript` you could get from the connection. */
   totalCount: Scalars['Int']
 }
 
-/** A `Translation` edge in the connection. */
-export type TranslationsEdge = {
+/** A `Transcript` edge in the connection. */
+export type TranscriptsEdge = {
   /** A cursor for use in pagination. */
   cursor?: Maybe<Scalars['Cursor']>
-  /** The `Translation` at the end of the edge. */
-  node: Translation
+  /** The `Transcript` at the end of the edge. */
+  node: Transcript
 }
 
 /** Methods to use when ordering `Transcript`. */
