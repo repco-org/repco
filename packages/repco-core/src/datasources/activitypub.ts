@@ -681,6 +681,7 @@ export class ActivityPubDataSource
         PrimaryGrouping: this._uriLink('account', this.account),
         summary: {},
         contentUrl: '',
+        originalLanguages: {},
       }
       const revisionUri = this._revisionUri(
         'videoContent',

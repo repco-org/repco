@@ -2262,7 +2262,9 @@ input ConceptCondition {
   """
   containsName: String = ""
 
-  """Checks for equality with the object’s `description` field."""
+  """
+  Checks for equality with the object’s `description` field.
+  """
   description: JSON
 
   """
@@ -3787,6 +3789,7 @@ type ContentItem {
     """
     orderBy: [MediaAssetsOrderBy!] = [PRIMARY_KEY_ASC]
   ): ContentItemMediaAssetsByContentItemToMediaAssetAAndBManyToManyConnection!
+  originalLanguages: JSON
 
   """
   Reads a single `ContentGrouping` that is related to this `ContentItem`.
@@ -3950,6 +3953,11 @@ for equality and combined with a logical ‘and.’
 """
 input ContentItemCondition {
   """
+  Filters the list to ContentItems that are in the list of ids.
+  """
+  byIds: String = ""
+
+  """
   Checks for equality with the object’s `content` field.
   """
   content: JSON
@@ -3968,6 +3976,11 @@ input ContentItemCondition {
   Checks for equality with the object’s `licenseUid` field.
   """
   licenseUid: String
+
+  """
+  Checks for equality with the object’s `originalLanguages` field.
+  """
+  originalLanguages: JSON
 
   """
   Checks for equality with the object’s `primaryGroupingUid` field.
@@ -4255,6 +4268,11 @@ input ContentItemFilter {
   Checks for any expressions in this list.
   """
   or: [ContentItemFilter!]
+
+  """
+  Filter by the object’s `originalLanguages` field.
+  """
+  originalLanguages: JSONFilter
 
   """
   Filter by the object’s `primaryGrouping` relation.
@@ -4567,6 +4585,8 @@ enum ContentItemsOrderBy {
   LICENSE_UID_ASC
   LICENSE_UID_DESC
   NATURAL
+  ORIGINAL_LANGUAGES_ASC
+  ORIGINAL_LANGUAGES_DESC
   PRIMARY_GROUPING_UID_ASC
   PRIMARY_GROUPING_UID_DESC
   PRIMARY_KEY_ASC
@@ -8459,7 +8479,9 @@ type MediaAsset {
   revision: Revision
   revisionId: String!
 
-  """Reads a single `File` that is related to this `MediaAsset`."""
+  """
+  Reads a single `File` that is related to this `MediaAsset`.
+  """
   teaserImage: File
   teaserImageUid: String
   title: String!
@@ -9017,7 +9039,9 @@ input MediaAssetFilter {
   """
   revisionId: StringFilter
 
-  """Filter by the object’s `teaserImage` relation."""
+  """
+  Filter by the object’s `teaserImage` relation.
+  """
   teaserImage: FileFilter
 
   """
@@ -13137,7 +13161,9 @@ type Revision {
     orderBy: [MediaAssetsOrderBy!] = [PRIMARY_KEY_ASC]
   ): RevisionMediaAssetsByChapterRevisionIdAndMediaAssetUidManyToManyConnection!
 
-  """Reads and enables pagination through a set of `MediaAsset`."""
+  """
+  Reads and enables pagination through a set of `MediaAsset`.
+  """
   mediaAssetsByTranscriptRevisionIdAndMediaAssetUid(
     """
     Read all values in the set after (below) this cursor.
@@ -13425,7 +13451,9 @@ type Revision {
     orderBy: [RevisionsOrderBy!] = [PRIMARY_KEY_ASC]
   ): RevisionsConnection!
 
-  """Reads and enables pagination through a set of `Transcript`."""
+  """
+  Reads and enables pagination through a set of `Transcript`.
+  """
   transcripts(
     """
     Read all values in the set after (below) this cursor.
@@ -14575,7 +14603,9 @@ input RevisionFilter {
   """
   revisionsByPrevRevisionIdExist: Boolean
 
-  """Filter by the object’s `transcripts` relation."""
+  """
+  Filter by the object’s `transcripts` relation.
+  """
   transcripts: RevisionToManyTranscriptFilter
 
   """

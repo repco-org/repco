@@ -84,6 +84,7 @@ function createItem() {
       content: casual.sentences(3),
       summary: '{}',
       contentUrl: '',
+      originalLanguages: {},
     },
   }
   return item

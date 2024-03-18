@@ -250,15 +250,16 @@ model ContentGrouping {
 
 /// @repco(Entity)
 model ContentItem {
-  uid           String    @id @unique /// @zod.refine(imports.isValidUID)
-  revisionId    String    @unique
-  title         Json      @default("{}")
-  subtitle      String?
-  pubDate       DateTime? // TODO: Review this
-  summary       Json?
-  content       Json      @default("{}")
-  contentFormat String
-  contentUrl    String
+  uid               String    @id @unique /// @zod.refine(imports.isValidUID)
+  revisionId        String    @unique
+  title             Json      @default("{}")
+  subtitle          String?
+  pubDate           DateTime? // TODO: Review this
+  summary           Json?
+  content           Json      @default("{}")
+  contentFormat     String
+  contentUrl        String
+  originalLanguages Json?
 
   primaryGroupingUid    String?
   publicationServiceUid String?

@@ -34,6 +34,13 @@ export interface CbaPost {
   _links: Links
   _fetchedAttachements: any[]
   translations: any[] | {}
+  license: {
+    license_image: string
+    license: string
+    version: string
+    conditions: string
+    license_link: string
+  }
 }
 
 export interface About {
