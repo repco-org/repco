@@ -1,12 +1,12 @@
 import { makeAddPgTableConditionPlugin } from 'graphile-utils'
 
-const ContentItemByIdsFilterPlugin = makeAddPgTableConditionPlugin(
+const ContentItemByUidsFilterPlugin = makeAddPgTableConditionPlugin(
   'public',
   'ContentItem',
-  'byIds',
+  'byUids',
   (build) => ({
     description:
-      'Filters the list to ContentItems that are in the list of ids.',
+      'Filters the list to ContentItems that are in the list of uids.',
     type: build.graphql.GraphQLString,
     defaultValue: '',
   }),
@@ -17,4 +17,4 @@ const ContentItemByIdsFilterPlugin = makeAddPgTableConditionPlugin(
   },
 )
 
-export default ContentItemByIdsFilterPlugin
+export default ContentItemByUidsFilterPlugin
