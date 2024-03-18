@@ -452,6 +452,7 @@ export class XrcbDataSource extends BaseDataSource implements DataSource {
             PrimaryGrouping: this._getPrimaryGrouping(post, { uri: '' }),
             MediaAssets: mediaAssetUris.map((uri) => ({ uri })),
             contentUrl: '',
+            originalLanguages: {},
           },
           headers: {
             EntityUris: [this._uri('post', post.id)],

@@ -1590,6 +1590,7 @@ export type ContentItem = {
   licenseUid?: Maybe<Scalars['String']>
   /** Reads and enables pagination through a set of `MediaAsset`. */
   mediaAssets: ContentItemMediaAssetsByContentItemToMediaAssetAAndBManyToManyConnection
+  originalLanguages?: Maybe<Scalars['JSON']>
   /** Reads a single `ContentGrouping` that is related to this `ContentItem`. */
   primaryGrouping?: Maybe<ContentGrouping>
   primaryGroupingUid?: Maybe<Scalars['String']>
@@ -1716,6 +1717,8 @@ export type ContentItemConceptsByConceptToContentItemBAndAManyToManyEdge_Concept
  * for equality and combined with a logical ‘and.’
  */
 export type ContentItemCondition = {
+  /** Filters the list to ContentItems that are in the list of ids. */
+  byIds?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `content` field. */
   content?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `contentFormat` field. */
@@ -1724,6 +1727,8 @@ export type ContentItemCondition = {
   contentUrl?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `licenseUid` field. */
   licenseUid?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `originalLanguages` field. */
+  originalLanguages?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `primaryGroupingUid` field. */
   primaryGroupingUid?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `pubDate` field. */
@@ -1846,6 +1851,8 @@ export type ContentItemFilter = {
   not?: InputMaybe<ContentItemFilter>
   /** Checks for any expressions in this list. */
   or?: InputMaybe<Array<ContentItemFilter>>
+  /** Filter by the object’s `originalLanguages` field. */
+  originalLanguages?: InputMaybe<JsonFilter>
   /** Filter by the object’s `primaryGrouping` relation. */
   primaryGrouping?: InputMaybe<ContentGroupingFilter>
   /** A related `primaryGrouping` exists. */
@@ -1989,6 +1996,8 @@ export enum ContentItemsOrderBy {
   LicenseUidAsc = 'LICENSE_UID_ASC',
   LicenseUidDesc = 'LICENSE_UID_DESC',
   Natural = 'NATURAL',
+  OriginalLanguagesAsc = 'ORIGINAL_LANGUAGES_ASC',
+  OriginalLanguagesDesc = 'ORIGINAL_LANGUAGES_DESC',
   PrimaryGroupingUidAsc = 'PRIMARY_GROUPING_UID_ASC',
   PrimaryGroupingUidDesc = 'PRIMARY_GROUPING_UID_DESC',
   PrimaryKeyAsc = 'PRIMARY_KEY_ASC',

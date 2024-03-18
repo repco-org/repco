@@ -491,6 +491,10 @@ export class CbaDataSource implements DataSource {
       Files: [{ uri: fileId }],
     }
 
+    const licenseEntity = this._mapLicense(
+      `${media.license.license}${media.license.version}`,
+    )
+
     const fileEntity: EntityForm = {
       type: 'File',
       content: file,
@@ -509,7 +513,7 @@ export class CbaDataSource implements DataSource {
       })
     }
 
-    return [fileEntity, mediaEntity, ...transcripts]
+    return [fileEntity, mediaEntity, licenseEntity, ...transcripts]
   }
 
   private _mapImage(media: CbaImage): EntityForm[] {
@@ -728,6 +732,7 @@ export class CbaDataSource implements DataSource {
   private _mapPost(post: CbaPost): EntityForm[] {
     try {
       const mediaAssetLinks = []
+      var licenseUri: string[] = []
       const entities: EntityForm[] = []
 
       if (post._fetchedAttachements?.length) {
@@ -747,6 +752,15 @@ export class CbaDataSource implements DataSource {
 
       if (post.featured_image) {
         mediaAssetLinks.push({ uri: this._uri('image', post.featured_image) })
+      }
+
+      if (post.license && post.license.license && post.license.version) {
+        const license = this._mapLicense(
+          post.license.license + post.license.version,
+        )
+
+        licenseUri = license.headers?.EntityUris || []
+        entities.push(license)
       }
 
       const categories =
@@ -798,6 +812,8 @@ export class CbaDataSource implements DataSource {
         MediaAssets: mediaAssetLinks,
         PrimaryGrouping: this._uriLink('series', post.post_parent),
         contentUrl: post.link,
+        originalLanguages: { language_codes: post.language_codes },
+        License: licenseUri.length > 0 ? { uri: licenseUri[0] } : null,
         //licenseUid
         //primaryGroupingUid
         //contributor
@@ -854,6 +870,19 @@ export class CbaDataSource implements DataSource {
     })
 
     return entities
+  }
+
+  private _mapLicense(name: string): EntityForm {
+    const licenseId = this._uri('license', name)
+    const license: form.LicenseInput = {
+      name: name,
+    }
+    const entity: EntityForm = {
+      type: 'License',
+      content: license,
+      headers: { EntityUris: [licenseId] },
+    }
+    return entity
   }
 
   private _url(urlString: string, opts: FetchOpts = {}) {

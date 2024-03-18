@@ -6,6 +6,7 @@ import { NodePlugin } from 'graphile-build'
 import { lexicographicSortSchema } from 'graphql'
 import { createPostGraphileSchema, postgraphile } from 'postgraphile'
 import ConceptFilterPlugin from './plugins/concept-filter.js'
+import ContentItemByIdsFilterPlugin from './plugins/content-item-by-ids-filter.js'
 import ContentItemContentFilterPlugin from './plugins/content-item-content-filter.js'
 import ContentItemFilterPlugin from './plugins/content-item-filter.js'
 import ContentItemTitleFilterPlugin from './plugins/content-item-title-filter.js'
@@ -59,6 +60,7 @@ export function getPostGraphileOptions() {
       ContentItemContentFilterPlugin,
       ContentItemTitleFilterPlugin,
       ConceptFilterPlugin,
+      ContentItemByIdsFilterPlugin,
       // ElasticTest,
       // CustomFilterPlugin,
     ],

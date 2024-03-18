@@ -59,6 +59,7 @@ function createItem(i: number) {
       content: 'foobar' + i,
       summary: '{}',
       contentUrl: '',
+      originalLanguages: {},
     },
   }
   return item
