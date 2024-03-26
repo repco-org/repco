@@ -1,6 +1,6 @@
 import { SchemaBuilder } from 'graphile-build'
 
-const FORBIDDEN_TABLES = ['Keypair', '_prisma_migrations']
+const FORBIDDEN_TABLES = ['Keypair', '_prisma_migrations', 'IngestError']
 
 // Custom tags for repco
 // * Do not expose relation tables on their own
