@@ -1,5 +1,6 @@
 import fetch from 'sync-fetch'
 import { makeAddPgTableConditionPlugin } from 'graphile-utils'
+import { log } from 'repco-common'
 
 const ContentItemFilterPlugin = makeAddPgTableConditionPlugin(
   'public',
@@ -34,37 +35,43 @@ const ContentItemFilterPlugin = makeAddPgTableConditionPlugin(
       body: JSON.stringify(data),
     })
 
-    var json = response.json()
-    var values = []
-
-    if (json.hits.hits.length > 0) {
-      for (let i = 0; i < json.hits.hits.length; i++) {
-        const element = json.hits.hits[i]
-        values.push(`('${element['_id']}',${element['_score']})`)
-      }
-
-      // console.log(values)
-      var temp = `JOIN (VALUES ${values.join(
-        ',',
-      )}) as x (id, ordering) on uid = x.id`
-
-      const customQueryBuilder = helpers.queryBuilder as any
-      customQueryBuilder['join'] = function (expr: any): void {
-        this.checkLock('join')
-        this.data.join.push(expr)
-      }
-      customQueryBuilder.join(sql.raw(temp))
-
-      helpers.queryBuilder.orderBy(sql.fragment`x.ordering`, false)
-
-      return sql.raw(
-        `uid IN (${json.hits.hits
-          .map((entry: any) => `'${entry['_id']}'`)
-          .join(',')})`,
-      )
-    } else {
+    if (!response.ok) {
+      log.debug(response.statusText)
       var query: string = value as string
       return sql.raw(`uid = '${query}'`)
+    } else {
+      var json = response.json()
+      var values = []
+
+      if (json.hits.hits.length > 0) {
+        for (let i = 0; i < json.hits.hits.length; i++) {
+          const element = json.hits.hits[i]
+          values.push(`('${element['_id']}',${element['_score']})`)
+        }
+
+        log.debug('es values found: ', values.length)
+        var temp = `JOIN (VALUES ${values.join(
+          ',',
+        )}) as x (id, ordering) on uid = x.id`
+
+        const customQueryBuilder = helpers.queryBuilder as any
+        customQueryBuilder['join'] = function (expr: any): void {
+          this.checkLock('join')
+          this.data.join.push(expr)
+        }
+        customQueryBuilder.join(sql.raw(temp))
+
+        helpers.queryBuilder.orderBy(sql.fragment`x.ordering`, false)
+
+        return sql.raw(
+          `uid IN (${json.hits.hits
+            .map((entry: any) => `'${entry['_id']}'`)
+            .join(',')})`,
+        )
+      } else {
+        var query: string = value as string
+        return sql.raw(`uid = '${query}'`)
+      }
     }
   },
 )
