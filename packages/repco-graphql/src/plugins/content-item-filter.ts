@@ -49,7 +49,7 @@ const ContentItemFilterPlugin = makeAddPgTableConditionPlugin(
           values.push(`('${element['_id']}',${element['_score']})`)
         }
 
-        log.info('es values found: ', values.length)
+        log.info('es values found: ' + values.length)
         var temp = `JOIN (VALUES ${values.join(
           ',',
         )}) as x (id, ordering) on uid = x.id`
