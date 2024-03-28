@@ -36,7 +36,7 @@ const ContentItemFilterPlugin = makeAddPgTableConditionPlugin(
     })
 
     if (!response.ok) {
-      log.debug(response.statusText)
+      log.warn(response.statusText)
       var query: string = value as string
       return sql.raw(`uid = '${query}'`)
     } else {

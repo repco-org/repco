@@ -332,8 +332,10 @@ model Contributor {
   name                 String
   personOrOrganization String
   contactInformation   String
-
-  profilePictureUid String
+  //contactEmail String
+  //url String
+  //description String
+  profilePictureUid    String
 
   Revision         Revision             @relation(fields: [revisionId], references: [id], onDelete: Cascade)
   BroadcastService PublicationService[]
