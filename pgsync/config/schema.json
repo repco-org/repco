@@ -1,0 +1,68 @@
+[
+  {
+    "nodes": {
+      "table": "ContentItem",
+      "schema": "public",
+      "columns": ["title", "subtitle", "pubDate", "summary", "content"],
+      "children": [
+        {
+          "table": "MediaAsset",
+          "schema": "public",
+          "label": "MediaAsset",
+          "columns": ["title", "description", "mediaType"],
+          "primary_key": ["uid"],
+          "relationship": {
+            "variant": "object",
+            "type": "one_to_many",
+            "through_tables": ["_ContentItemToMediaAsset"]
+          },
+          "children": [
+            {
+              "table": "Transcript",
+              "schema": "public",
+              "label": "Transcript",
+              "columns": ["language", "text"],
+              "primary_key": ["uid"],
+              "relationship": {
+                "variant": "object",
+                "type": "one_to_many",
+                "foreign_key": {
+                  "child": ["mediaAssetUid"],
+                  "parent": ["uid"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "table": "ContentGrouping",
+          "schema": "public",
+          "label": "ContentGrouping",
+          "columns": ["subtitle", "summary", "title"],
+          "primary_key": "uid",
+          "relationship": {
+            "variant": "object",
+            "type": "one_to_many",
+            "foreign_key": {
+              "child": ["uid"],
+              "parent": ["primaryGroupingUid"]
+            }
+          }
+        },
+        {
+          "table": "Concept",
+          "schema": "public",
+          "label": "Concept",
+          "columns": ["name"],
+          "primary_key": ["uid"],
+          "relationship": {
+            "variant": "object",
+            "type": "one_to_many",
+            "through_tables": ["_ConceptToContentItem"]
+          }
+        }
+      ]
+    },
+    "database": "repco"
+  }
+]

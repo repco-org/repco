@@ -442,13 +442,17 @@ export class ActivityPubDataSource
     }
     entities.push(fileEntity)
     // create Subtitles entity
-    const subtitles: form.SubtitlesInput = {
-      languageCode,
-      Files: [{ uri: fileUri }],
+    const subtitles: form.TranscriptInput = {
+      language: languageCode,
+      subtitleUrl: fileUri,
+      text: '',
+      engine: 'engine',
       MediaAsset: { uri: mediaAssetUri },
+      license: '',
+      author: '',
     }
     const subtitlesEntity: EntityForm = {
-      type: 'Subtitles',
+      type: 'Transcript',
       content: subtitles,
       headers: { EntityUris: [subtitlesEntityUri] },
     }
@@ -476,9 +480,13 @@ export class ActivityPubDataSource
   }
 
   private _mapTagToConceptEntity(tag: ActivityHashTagObject): EntityForm {
+    var nameJson: { [k: string]: any } = {}
+    nameJson['de'] = { value: tag.name }
     const concept: ConceptInput = {
       kind: ConceptKind.TAG,
-      name: tag.name,
+      name: nameJson,
+      description: {},
+      summary: {},
     }
     const uri = this._uri('tags', tag.name)
     const ConceptEntity: EntityForm = {
@@ -492,9 +500,13 @@ export class ActivityPubDataSource
   private _mapCategoryToConceptEntity(
     category: ActivityIdentifierObject,
   ): EntityForm[] {
+    var nameJson: { [k: string]: any } = {}
+    nameJson['de'] = { value: category.name }
     const concept: form.ConceptInput = {
       kind: ConceptKind.CATEGORY,
-      name: category.name,
+      name: nameJson,
+      description: {},
+      summary: {},
       // TODO: find originNamespace of AP categories
     }
     const uri = this._uri('category', 'peertube:' + category.name)
@@ -591,9 +603,14 @@ export class ActivityPubDataSource
       subtitleEntities && entities.push(...subtitleEntities)
     }
 
+    var titleJson: { [k: string]: any } = {}
+    titleJson[video.language?.name || 'de'] = { value: video.name }
+    var descriptionJson: { [k: string]: any } = {}
+    descriptionJson[video.language?.name || 'de'] = { value: video.content }
+
     const asset: form.MediaAssetInput = {
-      title: video.name,
-      description: video.content,
+      title: titleJson,
+      description: descriptionJson,
       duration,
       mediaType: video.type, //"Video"
       Files: files,
@@ -602,7 +619,6 @@ export class ActivityPubDataSource
       // Contributions: null,
       TeaserImage: { uri: teaserImageUri },
       Concepts: conceptUris.length > 0 ? conceptUris : undefined,
-      Subtitles: [],
     }
 
     const mediaEntity: EntityForm = {
@@ -642,11 +658,20 @@ export class ActivityPubDataSource
           .filter(notEmpty) ?? []
       conceptLinks.push(...tags)
 
+      // var summaryJson: { [k: string]: any } = {}
+      // summaryJson[''] = { value: '' }
+      var titleJson: { [k: string]: any } = {}
+      titleJson[video.language?.name || 'de'] = { value: video.name }
+      var contentJson: { [k: string]: any } = {}
+      contentJson[video.language?.name || 'de'] = {
+        value: video.content,
+      }
+
       const content: form.ContentItemInput = {
-        title: video.name,
+        title: titleJson,
         subtitle: 'missing',
         pubDate: new Date(video.published),
-        content: video.content || '',
+        content: contentJson,
         contentFormat: video.mediaType, // "text/markdown"
         // licenseUid TODO: plan to abolish License table and add license as string plus license_details
         Concepts: conceptLinks,
@@ -654,6 +679,9 @@ export class ActivityPubDataSource
         //License
         MediaAssets: mediaAssetUris,
         PrimaryGrouping: this._uriLink('account', this.account),
+        summary: {},
+        contentUrl: '',
+        originalLanguages: {},
       }
       const revisionUri = this._revisionUri(
         'videoContent',
@@ -683,10 +711,14 @@ export class ActivityPubDataSource
     channelInfo: ChannelInfo,
   ): EntityForm[] {
     try {
+      var titleJson: { [k: string]: any } = {}
+      titleJson['de'] = { value: channelInfo.account }
       const contentGrouping: form.ContentGroupingInput = {
-        title: channelInfo.account,
+        title: titleJson,
         variant: ContentGroupingVariant.EPISODIC, // @Frando is this used as intended?
         groupingType: 'activityPubChannel',
+        description: {},
+        summary: {},
       }
       const contentGroupingUri = this._uri('account', channelInfo.account)
       const headers = {

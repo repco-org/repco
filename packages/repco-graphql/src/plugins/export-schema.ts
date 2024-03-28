@@ -5,8 +5,8 @@ let SCHEMA: GraphQLSchema | null = null
 let SDL: string | null = null
 
 const ExportSchemaPlugin = makeProcessSchemaPlugin((schema) => {
-  SCHEMA = schema
-  SDL = printSchema(schema)
+  SCHEMA = schema as any
+  SDL = printSchema(schema as any)
   return schema
 })
 

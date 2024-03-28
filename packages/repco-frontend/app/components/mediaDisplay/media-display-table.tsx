@@ -48,7 +48,7 @@ export function MediaDisplayTable({
                 <tr key={i} className="bg-white border-b">
                   <td>{i + 1}</td>
                   <td>{mediaAsset.mediaType}</td>
-                  <td>{mediaAsset.title}</td>
+                  <td>{mediaAsset.title[Object.keys(mediaAsset?.title)[0]]['value']}</td>
                   <td>
                     <FileWidget
                       mediaAsset={mediaAsset}

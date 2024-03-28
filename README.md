@@ -10,9 +10,9 @@ Note: These are priliminary docs for how to run Repco in a developer's setup. Do
 
 #### Requirements
 
-* Node.js v18+
-* yarn v1 (yarn classic)
-* Docker and Docker Compose
+- Node.js v18+
+- yarn v1 (yarn classic)
+- Docker and Docker Compose
 
 ### Development setup
 
@@ -36,10 +36,9 @@ yarn repco repo create default
 # add datasource giving a config in json format
 yarn repco ds add -r <repo> <plugin-name> <config>
 # for example the cba plugin - need to define the api key for cba in .env file
-yarn repco ds add -r default repco:datasource:cba '{"endpoint": "https://cba.fro.at/wp-json/wp/v2"}'
+yarn cli ds add -r default repco:datasource:cba https://cba.media/wp-json/wp/v2
 # or add a peertube channel
 yarn repco ds add -r default repco:datasource:activitypub '{"user":"root_channel","domain":"https://your-peertube-server.org"}'
-
 # ingest updates from all datasources
 yarn repco ds ingest
 # print all revisions in a repo

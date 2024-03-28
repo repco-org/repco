@@ -30,7 +30,7 @@ export const meta: MetaFunction = ({ data }) => {
     }
   }
   return {
-    title: `${contentItem.title} | repco`,
+    title: `${contentItem.title[Object.keys(contentItem?.title)[0]]['value']} | repco`,
   }
 }
 
@@ -47,7 +47,7 @@ export default function IndexRoute() {
   return (
     <div>
       <h2 className="font-medium leading-tight text-4xl mt-0 mb-2 text-grey-600">
-        {node.title}
+        {node.title[Object.keys(node?.title)[0]]['value']}
       </h2>
       <p className="font-light leading-relaxed mt-0 mb-4 text-grey-600">
         <b>UID:</b> {node.uid}
@@ -55,7 +55,7 @@ export default function IndexRoute() {
         <b>Revision:</b> {node.revisionId}
       </p>
       <div className="text-lg font-normal leading-normal mt-6 mb-4 text-grey-600">
-        <SanitizedHTML html={node.content} />
+        <SanitizedHTML html={node.content[Object.keys(node?.content)[0]]['value']} />
       </div>
       {node.mediaAssets.nodes && (
         <MediaDisplayTable

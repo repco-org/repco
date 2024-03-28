@@ -8,6 +8,7 @@ export const ContentItemsQuery = gql`
     $before: Cursor
     $orderBy: [ContentItemsOrderBy!]
     $filter: ContentItemFilter
+    $condition: ContentItemCondition
   ) {
     contentItems(
       first: $first
@@ -16,6 +17,7 @@ export const ContentItemsQuery = gql`
       before: $before
       orderBy: $orderBy
       filter: $filter
+      condition: $condition
     ) {
       pageInfo {
         startCursor

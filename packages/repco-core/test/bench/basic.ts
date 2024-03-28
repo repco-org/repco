@@ -57,6 +57,9 @@ function createItem(i: number) {
       contentFormat: 'text/plain',
       title: 'Item #' + i,
       content: 'foobar' + i,
+      summary: '{}',
+      contentUrl: '',
+      originalLanguages: {},
     },
   }
   return item
