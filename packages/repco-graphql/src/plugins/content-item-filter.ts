@@ -35,6 +35,8 @@ const ContentItemFilterPlugin = makeAddPgTableConditionPlugin(
       body: JSON.stringify(data),
     })
 
+    log.info(JSON.stringify(data))
+
     if (!response.ok) {
       log.warn(response.statusText)
       var query: string = value as string
@@ -62,7 +64,7 @@ const ContentItemFilterPlugin = makeAddPgTableConditionPlugin(
         customQueryBuilder.join(sql.raw(temp))
 
         helpers.queryBuilder.orderBy(sql.fragment`x.ordering`, false)
-
+        log.info(`uid IN ${json.hits.hits.length}`)
         return sql.raw(
           `uid IN (${json.hits.hits
             .map((entry: any) => `'${entry['_id']}'`)
