@@ -66,6 +66,7 @@ const ContentItemFilterPlugin = makeAddPgTableConditionPlugin(
 
         helpers.queryBuilder.orderBy(sql.fragment`x.ordering`, false)
         var inStatement = `uid IN (${json.hits.hits
+          .filter((element: any) => element['_score'] >= 5)
           .map((entry: any) => `'${entry['_id']}'`)
           .join(',')})`
         log.info('in statement: ' + inStatement)
