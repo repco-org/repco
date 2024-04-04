@@ -48,7 +48,8 @@ const ContentItemFilterPlugin = makeAddPgTableConditionPlugin(
       if (json.hits.hits.length > 0) {
         for (let i = 0; i < json.hits.hits.length; i++) {
           const element = json.hits.hits[i]
-          values.push(`('${element['_id']}',${element['_score']})`)
+          if (element['_score'] >= 5)
+            values.push(`('${element['_id']}',${element['_score']})`)
         }
 
         var temp = `JOIN (VALUES ${values.join(
