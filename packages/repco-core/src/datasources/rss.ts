@@ -160,7 +160,7 @@ export class RssDataSource extends BaseDataSource implements DataSource {
     var pagination = {
       offsetParam: 'offset',
       limitParam: 'limit',
-      limit: 100,
+      limit: 50,
     }
     if (url.href.indexOf('freie-radios') != -1) {
       pagination = {
@@ -172,10 +172,12 @@ export class RssDataSource extends BaseDataSource implements DataSource {
 
     const page = cursor.pageNumber || 0
     url.searchParams.set(pagination.limitParam, pagination.limit.toString())
-    url.searchParams.set(
-      pagination.offsetParam,
-      (page * pagination.limit).toString(),
-    )
+    if (page * pagination.limit > 0) {
+      url.searchParams.set(
+        pagination.offsetParam,
+        (page * pagination.limit).toString(),
+      )
+    }
 
     const xml = await this.fetchPage(url)
     return { url, xml }

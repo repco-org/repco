@@ -17,6 +17,8 @@ docker compose -f "docker/docker-compose.build.yml" exec app yarn repco ds add -
 docker compose -f "docker/docker-compose.build.yml" exec app yarn repco ds add -r eurozine repco:datasource:rss '{"endpoint":"https://www.eurozine.com/feed/", "url":"https://eurozine.com","name":"Eurozine","image":"https://repco.cba.media/images/eurozine_logo.png","thumbnail":"https://repco.cba.media/images/eurozine_logo_th.png"}'
 # frn
 docker compose -f "docker/docker-compose.build.yml" exec app yarn repco ds add -r frn repco:datasource:rss '{"endpoint":"https://www.freie-radios.net/portal/podcast.php?rss", "url":"https://freie-radios.net","name":"Freie-Radios.net","image":"https://repco.cba.media/images/frn_logo.png","thumbnail":"https://repco.cba.media/images/frn_logo_th.png"}'
+# okto
+docker compose -f "docker/docker-compose.build.yml" exec app yarn repco ds add -r okto repco:datasource:rss '{"endpoint":"https://www.okto.tv/en/display-europe.rss", "url":"https://www.okto.tv/","name":"Okto.tv","image":"https://repco.cba.media/images/okto_logo.png","thumbnail":"https://repco.cba.media/images/okto_logo_th.png"}'
 # displayeurope
 yarn ds add -r default repco:datasource:activitypub '{"user":"unbiasthenews", "domain":"displayeurope.video"}'
 # peertube arso
