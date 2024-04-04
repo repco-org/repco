@@ -56,7 +56,7 @@ const ContentItemFilterPlugin = makeAddPgTableConditionPlugin(
           ',',
         )}) as x (id, ordering) on uid = x.id`
 
-        log.info('join statement: ' + temp)
+        //log.info('join statement: ' + temp)
         const customQueryBuilder = helpers.queryBuilder as any
         customQueryBuilder['join'] = function (expr: any): void {
           // this.checkLock('join')
@@ -69,7 +69,7 @@ const ContentItemFilterPlugin = makeAddPgTableConditionPlugin(
           .filter((element: any) => element['_score'] >= 5)
           .map((entry: any) => `'${entry['_id']}'`)
           .join(',')})`
-        log.info('in statement: ' + inStatement)
+        //log.info('in statement: ' + inStatement)
         return sql.raw(inStatement)
       } else {
         var query: string = value as string

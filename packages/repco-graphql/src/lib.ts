@@ -73,7 +73,7 @@ export function getPostGraphileOptions() {
       connectionFilterRelations: true,
     },
     watchPg: true,
-    disableQueryLog: process.env.NODE_ENV !== 'development',
+    disableQueryLog: false, //process.env.NODE_ENV !== 'development',
     // pgDefaultRole:
     //   process.env.NODE_ENV === 'development' ? 'graphql' : 'viewer',
   }
