@@ -35,7 +35,7 @@ const ContentItemFilterPlugin = makeAddPgTableConditionPlugin(
       body: JSON.stringify(data),
     })
 
-    log.info(JSON.stringify(data))
+    //log.info(JSON.stringify(data))
 
     if (!response.ok) {
       log.warn(response.statusText)
@@ -51,20 +51,20 @@ const ContentItemFilterPlugin = makeAddPgTableConditionPlugin(
           values.push(`('${element['_id']}',${element['_score']})`)
         }
 
-        log.info('es values found: ' + values.join(';'))
+        //log.info('es values found: ' + values.join(';'))
         var temp = `JOIN (VALUES ${values.join(
           ',',
         )}) as x (id, ordering) on uid = x.id`
 
         const customQueryBuilder = helpers.queryBuilder as any
         customQueryBuilder['join'] = function (expr: any): void {
-          this.checkLock('join')
+          // this.checkLock('join')
           this.data.join.push(expr)
         }
         customQueryBuilder.join(sql.raw(temp))
 
         helpers.queryBuilder.orderBy(sql.fragment`x.ordering`, false)
-        log.info(`uid IN ${json.hits.hits.length}`)
+        //log.info(`uid IN ${json.hits.hits.length}`)
         return sql.raw(
           `uid IN (${json.hits.hits
             .map((entry: any) => `'${entry['_id']}'`)
