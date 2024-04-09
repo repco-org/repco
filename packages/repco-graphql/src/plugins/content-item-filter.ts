@@ -26,7 +26,7 @@ const ContentItemFilterPlugin = makeAddPgTableConditionPlugin(
       _source: false,
     }
 
-    var url = 'http://localhost:9201/_search' //'http://es01:9200/_search' // for local dev work use 'http://localhost:9201/_search' since this will not be started in docker container
+    var url = 'http://es01:9200/_search' // for local dev work use 'http://localhost:9201/_search' since this will not be started in docker container
     const response = fetch(url, {
       method: 'POST',
       headers: {
