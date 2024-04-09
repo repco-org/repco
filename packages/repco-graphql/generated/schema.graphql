@@ -2868,8 +2868,8 @@ A condition to be used against `ContentItem` object types. All fields are tested
 for equality and combined with a logical ‘and.’
 """
 input ContentItemCondition {
-  """Filters the list to ContentItems that are in the list of ids."""
-  byIds: String = ""
+  """Filters the list to ContentItems that are in the list of uids."""
+  byUids: String = ""
 
   """Checks for equality with the object’s `content` field."""
   content: JSON
