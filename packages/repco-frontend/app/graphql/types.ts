@@ -1717,8 +1717,8 @@ export type ContentItemConceptsByConceptToContentItemBAndAManyToManyEdge_Concept
  * for equality and combined with a logical ‘and.’
  */
 export type ContentItemCondition = {
-  /** Filters the list to ContentItems that are in the list of ids. */
-  byIds?: InputMaybe<Scalars['String']>
+  /** Filters the list to ContentItems that are in the list of uids. */
+  byUids?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `content` field. */
   content?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `contentFormat` field. */
@@ -1739,10 +1739,6 @@ export type ContentItemCondition = {
   revisionId?: InputMaybe<Scalars['String']>
   /** Filters the list to ContentItems that have a specific keyword. */
   search?: InputMaybe<Scalars['String']>
-  /** Filters the list to ContentItems that have a specific keyword in title. */
-  searchContent?: InputMaybe<Scalars['String']>
-  /** Filters the list to ContentItems that have a specific keyword in title. */
-  searchTitle?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `subtitle` field. */
   subtitle?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `summary` field. */

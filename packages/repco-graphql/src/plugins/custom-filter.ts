@@ -12,6 +12,7 @@ const CustomFilterPlugin = makeAddPgTableConditionPlugin(
     ),
   }),
   (value, helpers, build) => {
+    if (value == null) return
     const { sql, sqlTableAlias } = helpers
     return sql.fragment`${sqlTableAlias}->>'en' LIKE '%${sql.value(value)}%'`
   },

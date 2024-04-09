@@ -1628,7 +1628,7 @@ input ConceptCondition {
   """
   Filters the list to ContentItems that have a specific keyword in title.
   """
-  containsName: String = ""
+  containsName: String
 
   """Checks for equality with the object’s `description` field."""
   description: JSON
@@ -2869,7 +2869,7 @@ for equality and combined with a logical ‘and.’
 """
 input ContentItemCondition {
   """Filters the list to ContentItems that are in the list of uids."""
-  byUids: String = ""
+  byUids: String
 
   """Checks for equality with the object’s `content` field."""
   content: JSON
@@ -2899,17 +2899,7 @@ input ContentItemCondition {
   revisionId: String
 
   """Filters the list to ContentItems that have a specific keyword."""
-  search: String = ""
-
-  """
-  Filters the list to ContentItems that have a specific keyword in title.
-  """
-  searchContent: String = ""
-
-  """
-  Filters the list to ContentItems that have a specific keyword in title.
-  """
-  searchTitle: String = ""
+  search: String
 
   """Checks for equality with the object’s `subtitle` field."""
   subtitle: String

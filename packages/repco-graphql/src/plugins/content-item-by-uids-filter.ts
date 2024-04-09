@@ -8,9 +8,9 @@ const ContentItemByUidsFilterPlugin = makeAddPgTableConditionPlugin(
     description:
       'Filters the list to ContentItems that are in the list of uids.',
     type: build.graphql.GraphQLString,
-    defaultValue: '',
   }),
   (value: any, helpers, build) => {
+    if (value == null) return
     const { sql, sqlTableAlias } = helpers
     var inValues = value.split(',')
     return sql.raw(`uid IN ('${inValues.join(`','`)}')`)

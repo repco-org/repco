@@ -8,9 +8,9 @@ const ContentItemTitleFilterPlugin = makeAddPgTableConditionPlugin(
     description:
       'Filters the list to ContentItems that have a specific keyword in title.',
     type: build.graphql.GraphQLString,
-    defaultValue: '',
   }),
   (value, helpers, build) => {
+    if (value == null) return
     const { sql, sqlTableAlias } = helpers
     return sql.raw(`LOWER(title::text) LIKE LOWER('%${value}%')`)
   },

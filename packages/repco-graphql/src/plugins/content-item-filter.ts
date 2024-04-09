@@ -10,9 +10,9 @@ const ContentItemFilterPlugin = makeAddPgTableConditionPlugin(
     description:
       'Filters the list to ContentItems that have a specific keyword.',
     type: build.graphql.GraphQLString,
-    defaultValue: '',
   }),
   (value, helpers, build) => {
+    if (value == null) return
     const { sql, sqlTableAlias } = helpers
 
     var data = {
@@ -26,7 +26,7 @@ const ContentItemFilterPlugin = makeAddPgTableConditionPlugin(
       _source: false,
     }
 
-    var url = 'http://es01:9200/_search' // for local dev work use 'http://localhost:9201/_search' since this will not be started in docker container
+    var url = 'http://localhost:9201/_search' //'http://es01:9200/_search' // for local dev work use 'http://localhost:9201/_search' since this will not be started in docker container
     const response = fetch(url, {
       method: 'POST',
       headers: {
