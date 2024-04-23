@@ -1,5 +1,7 @@
+import { parse as parseSubtitle } from '@plussub/srt-vtt-parser'
 import { EventEmitter } from 'node:events'
 import { createLogger } from 'repco-common'
+import { fetch } from 'undici'
 import { EntityForm } from './entity.js'
 import { IngestOutcome, IngestState } from './ingest.js'
 import { DataSourcePluginRegistry } from './plugins.js'
@@ -644,7 +646,46 @@ async function persistAndMapSourceRecords(
       errors.push(error)
     }
   }
+  await Promise.all(entities.map(processBeforeSave))
   return { entities, errors }
+}
+
+async function processBeforeSave(entity: EntityForm): Promise<void> {
+  if (entity.type === 'Transcript') {
+    const content = entity.content
+    if (!content.text && content.subtitleUrl) {
+      const url = content.subtitleUrl
+      try {
+        content.text = await fetchSubtitle(url)
+        log.debug(`Fetched subtitle text for ${entity.content.uid} from ${url}`)
+      } catch (error) {
+        log.warn({
+          error,
+          mesage: `Failed to fetch subtitle for ${content.uid} from ${url}`,
+        })
+      }
+    }
+  }
+}
+
+async function fetchSubtitle(url: string) {
+  const timeout = 2000
+  const controller = new AbortController()
+  const id = setTimeout(() => controller.abort(), timeout)
+  const res = await fetch(url, { signal: controller.signal })
+  if (!res.ok) {
+    const error = `${res.status} ${res.statusText}`
+    clearTimeout(id)
+    throw new Error(`Failed to fetch: ${error}`)
+  }
+  try {
+    const text = await res.text()
+    const { entries } = parseSubtitle(text)
+    const fullText = entries.map(({ text }) => text).join('\n')
+    return fullText
+  } finally {
+    clearTimeout(id)
+  }
 }
 
 // Recreate all entities originating from a particular DataSource

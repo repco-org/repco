@@ -19,6 +19,7 @@
   "dependencies": {
     "@ipld/car": "^5.1.0",
     "@noble/hashes": "^1.2.0",
+    "@plussub/srt-vtt-parser": "^1.1.1",
     "@types/b4a": "^1.6.0",
     "@ucans/ucans": "^0.11.2",
     "b4a": "^1.6.1",
@@ -44,9 +45,11 @@
     "@types/tempy": "^0.3.0",
     "brittle": "^2.4.0",
     "esbuild": "^0.14.51",
+    "express": "^4.18.1",
     "get-port": "^6.1.2",
     "nanobench-utils": "^1.0.1",
     "split2": "^4.2.0",
-    "tempy": "^3.0.0"
+    "tempy": "^3.0.0",
+    "why-is-node-running": "^2.2.2"
   }
 }
