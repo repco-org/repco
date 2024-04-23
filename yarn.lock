@@ -2427,6 +2427,11 @@
   resolved "https://registry.yarnpkg.com/@pkgjs/parseargs/-/parseargs-0.11.0.tgz#a77ea742fab25775145434eb1d2328cf5013ac33"
   integrity sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==
 
+"@plussub/srt-vtt-parser@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@plussub/srt-vtt-parser/-/srt-vtt-parser-1.1.1.tgz#62103c1e57eea3422afe2bff1a296774c1dc1027"
+  integrity sha512-uHZLKANNVoXSEjLRtkyyDFXaiC86ZNnjPnHve5bs5RSiXV0DfVlUvXMZXzfR7X+z2OVdoLFn6oYsS2a/VkN8Ew==
+
 "@prisma/client@^4.12.0":
   version "4.16.2"
   resolved "https://registry.yarnpkg.com/@prisma/client/-/client-4.16.2.tgz#3bb9ebd49b35c8236b3d468d0215192267016e2b"
@@ -15183,7 +15188,7 @@ which@^2.0.1:
   dependencies:
     isexe "^2.0.0"
 
-why-is-node-running@^2.2.1:
+why-is-node-running@^2.2.1, why-is-node-running@^2.2.2:
   version "2.2.2"
   resolved "https://registry.yarnpkg.com/why-is-node-running/-/why-is-node-running-2.2.2.tgz#4185b2b4699117819e7154594271e7e344c9973e"
   integrity sha512-6tSwToZxTOcotxHeA+qGCq1mVzKR3CwcJGmVcY+QE8SHy6TnpFnh8PAvPNHYr7EcuVeG0QSMxtYCuO1ta/G/oA==
