@@ -832,7 +832,7 @@ export type Concept = {
   /** Reads and enables pagination through a set of `ContentItem`. */
   contentItems: ConceptContentItemsByConceptToContentItemAAndBManyToManyConnection
   description?: Maybe<Scalars['JSON']>
-  kind: ConceptKind
+  kind: Scalars['String']
   /** Reads and enables pagination through a set of `MediaAsset`. */
   mediaAssets: ConceptMediaAssetsByConceptToMediaAssetAAndBManyToManyConnection
   name: Scalars['JSON']
@@ -996,7 +996,7 @@ export type ConceptCondition = {
   /** Checks for equality with the object’s `description` field. */
   description?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `kind` field. */
-  kind?: InputMaybe<ConceptKind>
+  kind?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `name` field. */
   name?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `originNamespace` field. */
@@ -1066,7 +1066,7 @@ export type ConceptFilter = {
   /** Filter by the object’s `description` field. */
   description?: InputMaybe<JsonFilter>
   /** Filter by the object’s `kind` field. */
-  kind?: InputMaybe<ConceptKindFilter>
+  kind?: InputMaybe<StringFilter>
   /** Filter by the object’s `name` field. */
   name?: InputMaybe<JsonFilter>
   /** Negates the expression. */
@@ -1102,32 +1102,6 @@ export type ConceptFilter = {
 export enum ConceptKind {
   Category = 'CATEGORY',
   Tag = 'TAG',
-}
-
-/** A filter to be used against ConceptKind fields. All fields are combined with a logical ‘and.’ */
-export type ConceptKindFilter = {
-  /** Not equal to the specified value, treating null like an ordinary value. */
-  distinctFrom?: InputMaybe<ConceptKind>
-  /** Equal to the specified value. */
-  equalTo?: InputMaybe<ConceptKind>
-  /** Greater than the specified value. */
-  greaterThan?: InputMaybe<ConceptKind>
-  /** Greater than or equal to the specified value. */
-  greaterThanOrEqualTo?: InputMaybe<ConceptKind>
-  /** Included in the specified list. */
-  in?: InputMaybe<Array<ConceptKind>>
-  /** Is null (if `true` is specified) or is not null (if `false` is specified). */
-  isNull?: InputMaybe<Scalars['Boolean']>
-  /** Less than the specified value. */
-  lessThan?: InputMaybe<ConceptKind>
-  /** Less than or equal to the specified value. */
-  lessThanOrEqualTo?: InputMaybe<ConceptKind>
-  /** Equal to the specified value, treating null like an ordinary value. */
-  notDistinctFrom?: InputMaybe<ConceptKind>
-  /** Not equal to the specified value. */
-  notEqualTo?: InputMaybe<ConceptKind>
-  /** Not included in the specified list. */
-  notIn?: InputMaybe<Array<ConceptKind>>
 }
 
 /** A connection to a list of `MediaAsset` values, with data from `_ConceptToMediaAsset`. */
@@ -1600,6 +1574,7 @@ export type ContentItem = {
   publicationServiceUid?: Maybe<Scalars['String']>
   /** Reads and enables pagination through a set of `PublicationService`. */
   publicationServicesByBroadcastEventContentItemUidAndBroadcastServiceUid: ContentItemPublicationServicesByBroadcastEventContentItemUidAndBroadcastServiceUidManyToManyConnection
+  removed: Scalars['Boolean']
   /** Reads a single `Revision` that is related to this `ContentItem`. */
   revision?: Maybe<Revision>
   revisionId: Scalars['String']
@@ -1735,6 +1710,8 @@ export type ContentItemCondition = {
   pubDate?: InputMaybe<Scalars['Datetime']>
   /** Checks for equality with the object’s `publicationServiceUid` field. */
   publicationServiceUid?: InputMaybe<Scalars['String']>
+  /** Checks for equality with the object’s `removed` field. */
+  removed?: InputMaybe<Scalars['Boolean']>
   /** Checks for equality with the object’s `revisionId` field. */
   revisionId?: InputMaybe<Scalars['String']>
   /** Filters the list to ContentItems that have a specific keyword. */
@@ -1863,6 +1840,8 @@ export type ContentItemFilter = {
   publicationServiceExists?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `publicationServiceUid` field. */
   publicationServiceUid?: InputMaybe<StringFilter>
+  /** Filter by the object’s `removed` field. */
+  removed?: InputMaybe<BooleanFilter>
   /** Filter by the object’s `revision` relation. */
   revision?: InputMaybe<RevisionFilter>
   /** Filter by the object’s `revisionId` field. */
@@ -2002,6 +1981,8 @@ export enum ContentItemsOrderBy {
   PublicationServiceUidDesc = 'PUBLICATION_SERVICE_UID_DESC',
   PubDateAsc = 'PUB_DATE_ASC',
   PubDateDesc = 'PUB_DATE_DESC',
+  RemovedAsc = 'REMOVED_ASC',
+  RemovedDesc = 'REMOVED_DESC',
   RevisionIdAsc = 'REVISION_ID_ASC',
   RevisionIdDesc = 'REVISION_ID_DESC',
   SubtitleAsc = 'SUBTITLE_ASC',

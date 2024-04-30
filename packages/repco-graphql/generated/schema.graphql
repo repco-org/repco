@@ -1447,7 +1447,7 @@ type Concept {
     orderBy: [ContentItemsOrderBy!] = [PRIMARY_KEY_ASC]
   ): ConceptContentItemsByConceptToContentItemAAndBManyToManyConnection!
   description: JSON
-  kind: ConceptKind!
+  kind: String!
 
   """Reads and enables pagination through a set of `MediaAsset`."""
   mediaAssets(
@@ -1634,7 +1634,7 @@ input ConceptCondition {
   description: JSON
 
   """Checks for equality with the object’s `kind` field."""
-  kind: ConceptKind
+  kind: String
 
   """Checks for equality with the object’s `name` field."""
   name: JSON
@@ -1748,7 +1748,7 @@ input ConceptFilter {
   description: JSONFilter
 
   """Filter by the object’s `kind` field."""
-  kind: ConceptKindFilter
+  kind: StringFilter
 
   """Filter by the object’s `name` field."""
   name: JSONFilter
@@ -1799,48 +1799,6 @@ input ConceptFilter {
 enum ConceptKind {
   CATEGORY
   TAG
-}
-
-"""
-A filter to be used against ConceptKind fields. All fields are combined with a logical ‘and.’
-"""
-input ConceptKindFilter {
-  """
-  Not equal to the specified value, treating null like an ordinary value.
-  """
-  distinctFrom: ConceptKind
-
-  """Equal to the specified value."""
-  equalTo: ConceptKind
-
-  """Greater than the specified value."""
-  greaterThan: ConceptKind
-
-  """Greater than or equal to the specified value."""
-  greaterThanOrEqualTo: ConceptKind
-
-  """Included in the specified list."""
-  in: [ConceptKind!]
-
-  """
-  Is null (if `true` is specified) or is not null (if `false` is specified).
-  """
-  isNull: Boolean
-
-  """Less than the specified value."""
-  lessThan: ConceptKind
-
-  """Less than or equal to the specified value."""
-  lessThanOrEqualTo: ConceptKind
-
-  """Equal to the specified value, treating null like an ordinary value."""
-  notDistinctFrom: ConceptKind
-
-  """Not equal to the specified value."""
-  notEqualTo: ConceptKind
-
-  """Not included in the specified list."""
-  notIn: [ConceptKind!]
 }
 
 """
@@ -2789,6 +2747,7 @@ type ContentItem {
     """The method to use when ordering `PublicationService`."""
     orderBy: [PublicationServicesOrderBy!] = [PRIMARY_KEY_ASC]
   ): ContentItemPublicationServicesByBroadcastEventContentItemUidAndBroadcastServiceUidManyToManyConnection!
+  removed: Boolean!
 
   """Reads a single `Revision` that is related to this `ContentItem`."""
   revision: Revision
@@ -2894,6 +2853,9 @@ input ContentItemCondition {
 
   """Checks for equality with the object’s `publicationServiceUid` field."""
   publicationServiceUid: String
+
+  """Checks for equality with the object’s `removed` field."""
+  removed: Boolean
 
   """Checks for equality with the object’s `revisionId` field."""
   revisionId: String
@@ -3108,6 +3070,9 @@ input ContentItemFilter {
 
   """Filter by the object’s `publicationServiceUid` field."""
   publicationServiceUid: StringFilter
+
+  """Filter by the object’s `removed` field."""
+  removed: BooleanFilter
 
   """Filter by the object’s `revision` relation."""
   revision: RevisionFilter
@@ -3327,6 +3292,8 @@ enum ContentItemsOrderBy {
   PUBLICATION_SERVICE_UID_DESC
   PUB_DATE_ASC
   PUB_DATE_DESC
+  REMOVED_ASC
+  REMOVED_DESC
   REVISION_ID_ASC
   REVISION_ID_DESC
   SUBTITLE_ASC

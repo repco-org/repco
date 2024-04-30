@@ -38,7 +38,7 @@ import {
   log,
   SourceRecordForm,
 } from '../datasource.js'
-import { ConceptKind, ContentGroupingVariant, EntityForm } from '../entity.js'
+import { ContentGroupingVariant, EntityForm } from '../entity.js'
 import { FetchOpts } from '../util/datamapping.js'
 import { HttpError } from '../util/error.js'
 
@@ -275,7 +275,7 @@ export class XrcbDataSource extends BaseDataSource implements DataSource {
     const content: form.ConceptInput = {
       name: category.name,
       description: category.description || '',
-      kind: ConceptKind.CATEGORY,
+      kind: 'CATEGORY',
       originNamespace: 'https://xrcb.cat/wp-json/wp/v2/podcast_category',
       summary: '{}',
     }
@@ -301,7 +301,7 @@ export class XrcbDataSource extends BaseDataSource implements DataSource {
     const content: form.ConceptInput = {
       name: tag.name,
       description: tag.description || '',
-      kind: ConceptKind.TAG,
+      kind: 'TAG',
       originNamespace: 'https://xrcb.cat/wp-json/wp/v2/podcast_tag',
       summary: '{}',
     }
@@ -453,6 +453,7 @@ export class XrcbDataSource extends BaseDataSource implements DataSource {
             MediaAssets: mediaAssetUris.map((uri) => ({ uri })),
             contentUrl: '',
             originalLanguages: {},
+            removed: false,
           },
           headers: {
             EntityUris: [this._uri('post', post.id)],

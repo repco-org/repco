@@ -396,11 +396,11 @@ export class RssDataSource extends BaseDataSource implements DataSource {
     const mediaUri = itemUri + '#media'
 
     var titleJson: { [k: string]: any } = {}
-    titleJson[language || 'de'] = {
+    titleJson[language] = {
       value: item.title || item.guid || 'missing',
     }
     var descriptionJson: { [k: string]: any } = {}
-    descriptionJson[language || 'de'] = {
+    descriptionJson[language] = {
       value: '{}',
     }
 
@@ -481,6 +481,7 @@ export class RssDataSource extends BaseDataSource implements DataSource {
           ? { uri: publicationServiceUri[0] }
           : null,
       License: licenseUri.length > 0 ? { uri: licenseUri[0] } : null,
+      removed: false,
     }
     const headers = {
       EntityUris: [itemUri],

@@ -38,6 +38,7 @@ test('update', async (assert) => {
       summary: 'yoo',
       contentUrl: 'url',
       originalLanguages: {},
+      removed: false,
     },
   }
   await repo.saveEntity(input)

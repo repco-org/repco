@@ -40,7 +40,7 @@ import {
   log,
   SourceRecordForm,
 } from '../datasource.js'
-import { ConceptKind, ContentGroupingVariant, EntityForm } from '../entity.js'
+import { ContentGroupingVariant, EntityForm } from '../entity.js'
 import { FetchOpts } from '../util/datamapping.js'
 import { HttpError } from '../util/error.js'
 import { notEmpty } from '../util/misc.js'
@@ -63,7 +63,7 @@ type ConfigSchema = zod.infer<typeof configSchema>
 type FullConfigSchema = ConfigSchema & { endpoint: string; pageLimit: number }
 
 const DEFAULT_CONFIG: FullConfigSchema = {
-  endpoint: 'https://cba.fro.at/wp-json/wp/v2',
+  endpoint: 'https://cba.media/wp-json/wp/v2',
   pageLimit: 30,
   apiKey: process.env.CBA_API_KEY,
   repo: 'default',
@@ -595,7 +595,7 @@ export class CbaDataSource implements DataSource {
     const content: form.ConceptInput = {
       name: nameJson,
       description: descriptionJson,
-      kind: ConceptKind.CATEGORY,
+      kind: 'CATEGORY',
       originNamespace: 'https://cba.fro.at/wp-json/wp/v2/categories',
       summary: summaryJson,
     }
@@ -634,7 +634,7 @@ export class CbaDataSource implements DataSource {
     const content: form.ConceptInput = {
       name: nameJson,
       description: descriptionJson,
-      kind: ConceptKind.TAG,
+      kind: 'TAG',
       originNamespace: 'https://cba.fro.at/wp-json/wp/v2/tags',
       summary: summaryJson,
     }
@@ -814,6 +814,7 @@ export class CbaDataSource implements DataSource {
         contentUrl: post.link,
         originalLanguages: { language_codes: post.language_codes },
         License: licenseUri.length > 0 ? { uri: licenseUri[0] } : null,
+        removed: false,
         //licenseUid
         //primaryGroupingUid
         //contributor

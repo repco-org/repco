@@ -260,6 +260,7 @@ model ContentItem {
   contentFormat     String
   contentUrl        String
   originalLanguages Json?
+  removed           Boolean
 
   primaryGroupingUid    String?
   publicationServiceUid String?
@@ -456,12 +457,12 @@ model Concept {
   revisionId String @unique
 
   originNamespace    String?
-  kind               ConceptKind
-  name               Json        @default("{}")
+  kind               String
+  name               Json    @default("{}")
   summary            Json?
   description        Json?
   wikidataIdentifier String?
-  sameAsUid          String?     @unique
+  sameAsUid          String? @unique
   parentUid          String?
 
   Revision         Revision  @relation(fields: [revisionId], references: [id], onDelete: Cascade)

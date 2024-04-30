@@ -60,6 +60,7 @@ function createItem(i: number) {
       summary: '{}',
       contentUrl: '',
       originalLanguages: {},
+      removed: false,
     },
   }
   return item

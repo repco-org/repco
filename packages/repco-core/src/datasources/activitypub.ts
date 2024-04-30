@@ -2,7 +2,7 @@ import zod from 'zod'
 import { parse, toSeconds } from 'iso8601-duration'
 import { getGlobalApInstance } from 'repco-activitypub'
 import { log } from 'repco-common'
-import { ConceptKind, ContentGroupingVariant, form } from 'repco-prisma'
+import { ContentGroupingVariant, form } from 'repco-prisma'
 import { ConceptInput } from 'repco-prisma/generated/repco/zod.js'
 import { fetch } from 'undici'
 import {
@@ -483,7 +483,7 @@ export class ActivityPubDataSource
     var nameJson: { [k: string]: any } = {}
     nameJson['de'] = { value: tag.name }
     const concept: ConceptInput = {
-      kind: ConceptKind.TAG,
+      kind: 'TAG',
       name: nameJson,
       description: {},
       summary: {},
@@ -503,7 +503,7 @@ export class ActivityPubDataSource
     var nameJson: { [k: string]: any } = {}
     nameJson['de'] = { value: category.name }
     const concept: form.ConceptInput = {
-      kind: ConceptKind.CATEGORY,
+      kind: 'CATEGORY',
       name: nameJson,
       description: {},
       summary: {},
@@ -682,6 +682,7 @@ export class ActivityPubDataSource
         summary: {},
         contentUrl: '',
         originalLanguages: {},
+        removed: false,
       }
       const revisionUri = this._revisionUri(
         'videoContent',

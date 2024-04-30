@@ -73,6 +73,7 @@ class TestDataSource extends BaseDataSource implements DataSource {
         summary: '{}',
         contentUrl: '',
         originalLanguages: {},
+        removed: false,
       },
       headers: { EntityUris: ['urn:test:content:1'] },
     }

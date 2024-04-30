@@ -85,6 +85,7 @@ function createItem() {
       summary: '{}',
       contentUrl: '',
       originalLanguages: {},
+      removed: false,
     },
   }
   return item
