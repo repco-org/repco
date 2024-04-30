@@ -224,7 +224,10 @@ export class TransposerDataSource extends BaseDataSource implements DataSource {
               kind: concept.kind,
               originNamespace: this.endpoint.toString(),
               summary: {},
-              ParentConcept: { uri: this._uri('concept', concept.parent) },
+              ParentConcept:
+                concept.id !== concept.parent
+                  ? { uri: this._uri('concept', concept.parent) }
+                  : null,
             }
 
             entities.push({
