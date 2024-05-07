@@ -29,8 +29,6 @@ services:
       - './data/postgres-showcase:/var/lib/postgresql/data'
     expose:
       - 5432
-    ports:
-      - 5435:5432
     command:
       ['postgres', '-c', 'wal_level=logical', '-c', 'max_replication_slots=4']
     environment:
@@ -95,7 +93,7 @@ services:
     container_name: repco-showcase-pgsync
     restart: unless-stopped
     volumes:
-      - /var/www/vhosts/arbeit.cba.media/httpdocs/repco-showcase/docker/data/pgsync:/data
+      - /var/www/vhosts/arbeit.cba.media/httpdocs/repco-showcase/repco/docker/data/pgsync:/data
     sysctls:
       - net.ipv4.tcp_keepalive_time=200
       - net.ipv4.tcp_keepalive_intvl=200
