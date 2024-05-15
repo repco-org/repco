@@ -231,7 +231,7 @@ export class TransposerDataSource extends BaseDataSource implements DataSource {
               summary: {},
               ParentConcept:
                 concept.id !== concept.parent
-                  ? { uri: this._uri('concept', concept.parent) }
+                  ? { uri: this._uri(concept.kind, concept.parent) }
                   : null,
             }
 
@@ -241,16 +241,16 @@ export class TransposerDataSource extends BaseDataSource implements DataSource {
               headers: {
                 RevisionUris: [
                   this._revisionUri(
-                    'concept',
+                    concept.kind,
                     concept.id,
                     new Date().getTime(),
                   ),
                 ],
-                EntityUris: [this._uri('concept', concept.id)],
+                EntityUris: [this._uri(concept.kind, concept.id)],
               },
             })
 
-            mediaConceptLinks.push({ uri: this._uri('concept', concept.id) })
+            mediaConceptLinks.push({ uri: this._uri(concept.kind, concept.id) })
           }
 
           const mediaAssetEntity: form.MediaAssetInput = {
@@ -281,7 +281,10 @@ export class TransposerDataSource extends BaseDataSource implements DataSource {
             kind: concept.kind,
             originNamespace: this.endpoint.toString(),
             summary: {},
-            ParentConcept: { uri: this._uri('concept', concept.parent) },
+            ParentConcept:
+              concept.id !== concept.parent
+                ? { uri: this._uri(concept.kind, concept.parent) }
+                : null,
           }
 
           entities.push({
@@ -289,13 +292,17 @@ export class TransposerDataSource extends BaseDataSource implements DataSource {
             content: conceptEntity,
             headers: {
               RevisionUris: [
-                this._revisionUri('concept', concept.id, new Date().getTime()),
+                this._revisionUri(
+                  concept.kind,
+                  concept.id,
+                  new Date().getTime(),
+                ),
               ],
-              EntityUris: [this._uri('concept', concept.id)],
+              EntityUris: [this._uri(concept.kind, concept.id)],
             },
           })
 
-          conceptLinks.push({ uri: this._uri('concept', concept.id) })
+          conceptLinks.push({ uri: this._uri(concept.kind, concept.id) })
         }
 
         // ContentItem
@@ -321,7 +328,7 @@ export class TransposerDataSource extends BaseDataSource implements DataSource {
           element.contentItem.ID,
           parseAsUTC(element.contentItem.modifiedDate).getTime(),
         )
-        const entityUri = this._uri('contentItem', element.contentItem.id)
+        const entityUri = this._uri('contentItem', element.contentItem.ID)
 
         const headers = {
           RevisionUris: [revisionId],
