@@ -84,7 +84,7 @@ function ingestAll(prisma: PrismaClient) {
     }
   }
   const tasks = repoRegistry.mapAsync(prisma, onRepo)
-  repoRegistry.on('create', onRepo)
+  //repoRegistry.on('create', onRepo)
 
   const shutdown = async () => {
     repoRegistry.removeListener('create', onRepo)
