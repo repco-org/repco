@@ -474,7 +474,7 @@ export class RssDataSource extends BaseDataSource implements DataSource {
       pubDate: item.pubDate ? new Date(item.pubDate) : null,
       PrimaryGrouping: { uri: this.endpoint.toString() },
       MediaAssets: mediaAssets,
-      contentUrl: item.link,
+      contentUrl: item.link || '',
       originalLanguages: { language_codes: [lang] },
       PublicationService:
         publicationServiceUri.length > 0
