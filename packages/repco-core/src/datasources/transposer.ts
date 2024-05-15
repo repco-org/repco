@@ -306,7 +306,7 @@ export class TransposerDataSource extends BaseDataSource implements DataSource {
           title: element.contentItem.title,
           subtitle: '', //element.contentItem.subtitle,
           summary: element.contentItem.summary,
-          PublicationService: this._uriLink('station', this.baseUri),
+          PublicationService: null, //this._uriLink('station', this.baseUri),
           Concepts: conceptLinks,
           MediaAssets: mediaAssetLinks,
           PrimaryGrouping: { uri: this.endpoint.toString() },
