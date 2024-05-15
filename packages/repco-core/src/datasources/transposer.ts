@@ -181,7 +181,12 @@ export class TransposerDataSource extends BaseDataSource implements DataSource {
       entities.push({
         type: 'ContentGrouping',
         content: contentGrouping,
-        headers: { EntityUris: [this.endpoint.toString()] },
+        headers: {
+          RevisionUris: [
+            this._revisionUri('grouping', this.repo, new Date().getTime()),
+          ],
+          EntityUris: [this.endpoint.toString()],
+        },
       })
 
       for (let index = 0; index < body.length; index++) {
@@ -233,7 +238,16 @@ export class TransposerDataSource extends BaseDataSource implements DataSource {
             entities.push({
               type: 'Concept',
               content: conceptEntity,
-              headers: { EntityUris: [this._uri('concept', concept.id)] },
+              headers: {
+                RevisionUris: [
+                  this._revisionUri(
+                    'concept',
+                    concept.id,
+                    new Date().getTime(),
+                  ),
+                ],
+                EntityUris: [this._uri('concept', concept.id)],
+              },
             })
 
             mediaConceptLinks.push({ uri: this._uri('concept', concept.id) })
@@ -273,7 +287,12 @@ export class TransposerDataSource extends BaseDataSource implements DataSource {
           entities.push({
             type: 'Concept',
             content: conceptEntity,
-            headers: { EntityUris: [this._uri('concept', concept.id)] },
+            headers: {
+              RevisionUris: [
+                this._revisionUri('concept', concept.id, new Date().getTime()),
+              ],
+              EntityUris: [this._uri('concept', concept.id)],
+            },
           })
 
           conceptLinks.push({ uri: this._uri('concept', concept.id) })
