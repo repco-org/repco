@@ -35,7 +35,7 @@ export default function Layout() {
           <Outlet />
         </div>
       </div>
-      <div
+      {/* <div
         className={
           'sticky bottom-0 w-full -z--1 flex-col justify-center bg-sky-500'
         }
@@ -46,7 +46,7 @@ export default function Layout() {
         <div className="bg-sky-700 flex  justify-center">
           <Player />
         </div>
-      </div>
+      </div> */}
     </div>
   )
 }

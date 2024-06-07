@@ -170,6 +170,7 @@ export class TransposerDataSource extends BaseDataSource implements DataSource {
         value: this.endpoint.toString(),
       }
 
+      // TODO: map from fetch und wenn leer -> relation löschen
       const contentGrouping: ContentGroupingInput = {
         groupingType: 'page',
         title: titleJson,
@@ -311,7 +312,7 @@ export class TransposerDataSource extends BaseDataSource implements DataSource {
           content: element.contentItem.content,
           contentFormat: 'text/html',
           title: element.contentItem.title,
-          subtitle: '', //element.contentItem.subtitle,
+          subtitle: element.contentItem.subtitle || '',
           summary: element.contentItem.summary,
           PublicationService: null, //this._uriLink('station', this.baseUri),
           Concepts: conceptLinks,

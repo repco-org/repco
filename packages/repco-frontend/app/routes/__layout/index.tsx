@@ -219,7 +219,7 @@ export default function Index() {
                     <h3 className="text-brand-primary text-lg" key={i}>
                       {repo.name}
                     </h3>
-                    <span className="text-xs italic">{repo.did}</span>
+                    <span className="text-xs italic">({repoChartData.datasets[repoChartData.labels.indexOf(repo.name)].data}) {repo.did}</span>
                   </div>
                 </ContentItemCard>
               </NavLink>
@@ -242,7 +242,7 @@ export default function Index() {
               <a href="https://cba.media" className="w-1/6 flex">
                 <img
                   className=" object-contain"
-                  src="https://cba.media/wp-content/themes/cba2020/images/cba_logo.svg"
+                  src="https://cba.media/wp-content/themes/cba2020/images/cba_media_logo.svg"
                   alt="cba-logo"
                 />
               </a>
@@ -250,13 +250,27 @@ export default function Index() {
           </div>
           <div className="flex flex-col w-1/3 space-y-2">
             <h4 className="text-xl">And kindly supported by:</h4>
-            <a className="flex w-1/2" href="https://culturalfoundation.eu">
+            <a className="flex w-1/3" href="https://culturalfoundation.eu">
               <img
                 className=" object-contain"
                 src="https://culturalfoundation.eu/wp-content/themes/ecf/img/logo.svg"
                 alt="ecf-logo"
               />
             </a>
+            <a href="#" className="w-1/3 flex">
+                <img
+                  className=" object-contain"
+                  src="https://cba.media/wp-content/uploads/6/3/0000660636/eu-logo.png"
+                  alt="eu-logo"
+                />
+              </a>
+              <a href="https://www.rtr.at" className="w-1/3 flex">
+                <img
+                  className=" object-contain"
+                  src="https://cba.media/wp-content/uploads/5/3/0000660635/rtr-logo.jpg"
+                  alt="rtr-logo"
+                />
+              </a>
           </div>
         </div>
       </div>
