@@ -5,15 +5,16 @@ import { EntityForm, repoRegistry } from '../lib.js'
 test('smoke', async (assert) => {
   const prisma = await setup(assert)
   const repo = await repoRegistry.create(prisma, 'default')
-  const input = {
+  const input: EntityForm = {
     type: 'ContentItem',
     content: {
-      title: 'foo',
+      title: { de: 'foo' },
       contentFormat: 'boo',
-      content: 'badoo',
+      content: { de: 'badoo' },
       subtitle: 'asdf',
-      summary: 'yoo',
+      summary: { de: 'yoo' },
       contentUrl: 'url',
+      originalLanguages: {},
     },
   }
   await repo.saveEntity(input)
@@ -21,7 +22,7 @@ test('smoke', async (assert) => {
   assert.is(revisions.length, 1)
   const revision = revisions[0]
   assert.is(typeof revision.revision.id, 'string')
-  assert.is((revision.content as any).title, 'foo')
+  assert.alike((revision.content as any).title, { de: 'foo' })
 })
 
 test('update', async (assert) => {
@@ -31,18 +32,18 @@ test('update', async (assert) => {
     type: 'ContentItem',
     headers: { EntityUris: ['first'] },
     content: {
-      title: 'foo',
+      title: { de: 'foo' },
       contentFormat: 'boo',
-      content: 'badoo',
+      content: { de: 'badoo' },
       subtitle: 'asdf',
-      summary: 'yoo',
+      summary: { de: 'yoo' },
       contentUrl: 'url',
       originalLanguages: {},
       removed: false,
     },
   }
   await repo.saveEntity(input)
-  input.content.title = 'bar'
+  input.content.title = { de: 'bar' }
   const revisions = await repo.fetchRevisionsWithContent()
   console.log('revisions 1', revisions)
   console.log('contentItems 1', await repo.prisma.contentItem.findMany())

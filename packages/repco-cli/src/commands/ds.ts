@@ -133,6 +133,91 @@ export const ingest = createCommand({
   },
 })
 
+export const errors = createCommand({
+  name: 'errors',
+  help: 'Show ingest error log',
+  arguments: [],
+  options: {
+    repo: {
+      type: 'string',
+      required: true,
+      short: 'r',
+      help: 'Repo name or DID',
+    },
+    ds: {
+      type: 'string',
+      required: false,
+      short: 'd',
+      help: 'Datasource UID (optional)',
+    },
+    offset: {
+      type: 'string',
+      short: 'o',
+      help: 'Offset from latest entries',
+      default: '0',
+    },
+    count: {
+      type: 'string',
+      short: 'o',
+      help: 'Number of entries to show',
+      default: '100',
+    },
+    stack: {
+      type: 'boolean',
+      short: 's',
+      help: 'Show stack trace',
+    },
+    json: {
+      type: 'boolean',
+      short: 'j',
+      help: 'Print as JSON',
+    },
+  },
+  async run(opts, _args) {
+    try {
+      if (!opts.repo) {
+        throw new Error('Repo name or did required with -r option.')
+      }
+      const query = new URLSearchParams()
+      if (opts.offset) {
+        query.set('offset', opts.offset)
+      }
+      if (opts.count) {
+        query.set('count', opts.count)
+      }
+      if (opts.ds) {
+        query.set('datasource', opts.ds)
+      }
+      const res = (await request(`/repo/${opts.repo}/ds/errors?${query}`, {
+        method: 'GET',
+      })) as any
+      if (opts.json) {
+        console.log(JSON.stringify(res.data))
+      } else {
+        for (const row of res.data) {
+          console.log('repo:        ', row.repoDid)
+          console.log('datasource:  ', row.datasourceUid)
+          console.log('timestamp:   ', row.timestamp)
+          console.log('kind:        ', row.kind)
+          console.log('error:       ', row.errorMessage)
+          for (const cause of row.errorDetails?.causes || []) {
+            if (cause === row.errorMessage) continue
+            console.log('  caused by: ', cause)
+          }
+          console.log('cursor:      ', JSON.parse(row.cursor))
+          console.log('sourcerecord:', row.sourceRecordId)
+          if (opts.stack) {
+            console.log('stack:       ', row.errorDetails.stack)
+          }
+          console.log('---')
+        }
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  },
+})
+
 export const remap = createCommand({
   name: 'remap',
   help: 'Remap all content from a datasource',
@@ -150,9 +235,12 @@ export const remap = createCommand({
       if (!opts.repo) {
         throw new Error('Repo name or did required with -r option.')
       }
-      const res = (await request(`/repo/${opts.repo}/ds/${args.datasource}`, {
-        method: 'GET',
-      })) as any
+      const res = (await request(
+        `/repo/${opts.repo}/ds/${args.datasource}/remap`,
+        {
+          method: 'GET',
+        },
+      )) as any
       console.log(res.result)
     } catch (err) {
       console.error('Error remapping datasource:', err)
@@ -163,5 +251,5 @@ export const remap = createCommand({
 export const command = createCommandGroup({
   name: 'ds',
   help: 'Manage datasources',
-  commands: [add, list, ingest, listPlugins, remap],
+  commands: [add, list, ingest, listPlugins, remap, errors],
 })

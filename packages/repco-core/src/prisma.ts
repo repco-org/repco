@@ -12,4 +12,5 @@ export type PrismaCore = Pick<
   | 'keypair'
   | 'repo'
   | 'revision'
+  | 'ingestError'
 >

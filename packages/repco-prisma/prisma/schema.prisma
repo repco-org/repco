@@ -124,6 +124,18 @@ model FailedDatasourceFetches {
   @@id([uri, datasourceUid])
 }
 
+model IngestError {
+  id            String   @id @unique
+  repoDid       String
+  datasourceUid String
+  kind          String
+  cursor        String?
+  sourceRecordId String?
+  timestamp     DateTime
+  errorMessage  String
+  errorDetails  Json?
+}
+
 // model Cursor {
 //   uid String @id @unique
 // }

@@ -1,6 +1,8 @@
 import { UntilStopped } from 'repco-common'
 import {
   DataSourceRegistry,
+  IngestError,
+  IngestErrorScope,
   ingestUpdatesFromDataSource,
 } from './datasource.js'
 import { DataSourcePluginRegistry } from './plugins.js'
@@ -12,27 +14,45 @@ export enum WorkerStatus {
   Stopped = 'stopped',
 }
 
-const POLL_INTERVAL = 10000
+export enum IngestState {
+  Cancelled = 'cancelled',
+  Ready = 'ready',
+  Finished = 'finished',
+  FailedAtFetch = 'failed_fetch',
+  FailedAtIngest = 'failed_ingest',
+  FailedFatal = 'failed_fatal',
+}
 
-const stopped = (uid: string) => ({
-  uid,
-  ok: true,
-  finished: false,
-  canclled: true,
-})
-const errored = (uid: string, error: Error | any) => ({
-  uid,
-  ok: false,
-  finished: true,
-  error: error instanceof Error ? error : new Error(String(error)),
-})
+export class IngestOutcome {
+  error?: Error
+  cursor?: string
 
-export type WorkOpts = {
-  pollInterval?: number
+  constructor(
+    public uid: string,
+    public state: IngestState,
+    details?: { error?: Error; cursor?: string },
+  ) {
+    this.error = details?.error
+    this.cursor = details?.cursor
+  }
+
+  didFail(): boolean {
+    return this.state.startsWith('failed_')
+  }
+
+  shouldContinue(): boolean {
+    return (
+      this.state !== IngestState.FailedFatal &&
+      this.state !== IngestState.Cancelled
+    )
+  }
 }
 
 export class Ingester {
-  interval = 1000 * 60
+  // recheck finished datasources every 10 seconds
+  waitAfterFinish = 1000 * 10
+  // retry failed datasources every 30 seconds
+  waitRetry = 1000 * 30
   plugins: DataSourcePluginRegistry
   repo: Repo
   hydrated = false
@@ -53,19 +73,48 @@ export class Ingester {
     this.hydrated = true
   }
 
-  async ingest(uid: string, wait?: number) {
-    if (this.untilStopped.stopped) return stopped(uid)
+  async ingest(uid: string, wait?: number): Promise<IngestOutcome> {
+    if (this.untilStopped.stopped) {
+      return new IngestOutcome(uid, IngestState.Cancelled)
+    }
     if (!this.hydrated) await this.init()
     const ds = this.datasources.get(uid)
-    if (!ds) return errored(uid, new Error(`Datasource \`${uid}\` not found`))
+    if (!ds) {
+      const error = new Error(`Datasource \`${uid}\` not found`)
+      return new IngestOutcome(uid, IngestState.FailedFatal, { error })
+    }
+
     if (wait) await this.untilStopped.timeout(wait)
-    if (this.untilStopped.stopped) return stopped(uid)
+
+    if (this.untilStopped.stopped) {
+      return new IngestOutcome(uid, IngestState.Cancelled)
+    }
+
     try {
-      const res = await ingestUpdatesFromDataSource(this.repo, ds)
-      const finished = res.count === 0
-      return { uid, ok: true, finished, ...res }
+      const { finished, nextCursor } = await ingestUpdatesFromDataSource(
+        this.repo,
+        ds,
+        true,
+      )
+      const details = { cursor: nextCursor }
+      if (finished) {
+        return new IngestOutcome(uid, IngestState.Finished, details)
+      } else {
+        return new IngestOutcome(uid, IngestState.Ready, details)
+      }
     } catch (error) {
-      return errored(uid, error)
+      // if the error is not an IngestError, it is a bug, and thus a fatal error
+      if (!(error instanceof IngestError)) {
+        return new IngestOutcome(uid, IngestState.FailedFatal, {
+          error: error as Error,
+        })
+      }
+
+      let state = IngestState.FailedAtIngest
+      if (error.scope === IngestErrorScope.FetchUpdates) {
+        state = IngestState.FailedAtFetch
+      }
+      return new IngestOutcome(uid, state, { error })
     }
   }
 
@@ -84,7 +133,7 @@ export class Ingester {
     return this.untilStopped.stopped
   }
 
-  async *workLoop(opts: WorkOpts = {}) {
+  async *workLoop() {
     if (!this.hydrated) await this.init()
     const pending = new Map(
       this.datasources.ids().map((uid) => [uid, this.ingest(uid)]),
@@ -104,10 +153,14 @@ export class Ingester {
       const res = await Promise.race(pending.values())
       yield res
       pending.delete(res.uid)
-      if (res.ok && !this.stopped) {
-        const wait = res.finished
-          ? opts.pollInterval || POLL_INTERVAL
-          : undefined
+
+      if (!this.stopped && res.shouldContinue()) {
+        let wait: number | undefined
+        if (res.state === IngestState.FailedAtFetch) {
+          wait = this.waitRetry
+        } else if (res.state === IngestState.Finished) {
+          wait = this.waitAfterFinish
+        }
         pending.set(res.uid, this.ingest(res.uid, wait))
       }
     }
