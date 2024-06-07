@@ -15,6 +15,7 @@ test('smoke', async (assert) => {
       summary: { de: 'yoo' },
       contentUrl: 'url',
       originalLanguages: {},
+      removed: false,
     },
   }
   await repo.saveEntity(input)
