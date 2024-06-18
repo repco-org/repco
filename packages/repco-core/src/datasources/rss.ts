@@ -171,6 +171,7 @@ export class RssDataSource extends BaseDataSource implements DataSource {
     }
 
     const page = cursor.pageNumber || 0
+    url.searchParams.set('paged', page.toString())
     url.searchParams.set(pagination.limitParam, pagination.limit.toString())
     if (page * pagination.limit > 0) {
       url.searchParams.set(
@@ -465,6 +466,10 @@ export class RssDataSource extends BaseDataSource implements DataSource {
     contentJson[lang] = {
       value: item.content || '',
     }
+    var contentUrlJson: { [k: string]: any } = {}
+    contentUrlJson[lang] = {
+      value: item.link || '',
+    }
 
     const content: form.ContentItemInput = {
       title: titleJson,
@@ -474,7 +479,7 @@ export class RssDataSource extends BaseDataSource implements DataSource {
       pubDate: item.pubDate ? new Date(item.pubDate) : null,
       PrimaryGrouping: { uri: this.endpoint.toString() },
       MediaAssets: mediaAssets,
-      contentUrl: item.link || '',
+      contentUrl: contentUrlJson,
       originalLanguages: { language_codes: [lang] },
       PublicationService:
         publicationServiceUri.length > 0

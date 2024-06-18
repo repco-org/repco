@@ -125,15 +125,15 @@ model FailedDatasourceFetches {
 }
 
 model IngestError {
-  id            String   @id @unique
-  repoDid       String
-  datasourceUid String
-  kind          String
-  cursor        String?
+  id             String   @id @unique
+  repoDid        String
+  datasourceUid  String
+  kind           String
+  cursor         String?
   sourceRecordId String?
-  timestamp     DateTime
-  errorMessage  String
-  errorDetails  Json?
+  timestamp      DateTime
+  errorMessage   String
+  errorDetails   Json?
 }
 
 // model Cursor {
@@ -270,7 +270,7 @@ model ContentItem {
   summary           Json?
   content           Json      @default("{}")
   contentFormat     String
-  contentUrl        String
+  contentUrl        Json
   originalLanguages Json?
   removed           Boolean
 

@@ -680,7 +680,7 @@ export class ActivityPubDataSource
         MediaAssets: mediaAssetUris,
         PrimaryGrouping: this._uriLink('account', this.account),
         summary: {},
-        contentUrl: '',
+        contentUrl: {},
         originalLanguages: {},
         removed: false,
       }

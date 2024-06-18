@@ -57,16 +57,22 @@ const configSchema = zod.object({
   apiKey: zod.string().or(zod.null()).optional(),
   pageLimit: zod.number().int().optional(),
   repo: zod.string(),
+  stationId: zod.number().or(zod.null()).optional(),
 })
 
 type ConfigSchema = zod.infer<typeof configSchema>
-type FullConfigSchema = ConfigSchema & { endpoint: string; pageLimit: number }
+type FullConfigSchema = ConfigSchema & {
+  endpoint: string
+  pageLimit: number
+  stationId: null | number
+}
 
 const DEFAULT_CONFIG: FullConfigSchema = {
   endpoint: 'https://cba.media/wp-json/wp/v2',
   pageLimit: 30,
   apiKey: process.env.CBA_API_KEY,
   repo: 'default',
+  stationId: null,
 }
 
 /**
@@ -345,8 +351,11 @@ export class CbaDataSource implements DataSource {
       const cursor = cursorString ? JSON.parse(cursorString) : {}
       const { posts: postsCursor = '1970-01-01T01:00:00' } = cursor
       const perPage = this.config.pageLimit
+      let station = this.config.stationId
+        ? `&station=${this.config.stationId}`
+        : ''
       const url = this._url(
-        `/posts?multilingual&page=1&per_page=${perPage}&_embed&orderby=modified&order=asc&modified_after=${postsCursor}`,
+        `/posts?multilingual${station}&page=1&per_page=${perPage}&_embed&orderby=modified&order=asc&modified_after=${postsCursor}`,
       )
       const posts = await this._fetch<CbaPost[]>(url)
 
@@ -799,6 +808,9 @@ export class CbaDataSource implements DataSource {
       var contentJson: { [k: string]: any } = {}
       contentJson[post.language_codes[0]] = { value: post.content.rendered }
 
+      var contentUrlJson: { [k: string]: any } = {}
+      contentUrlJson[post.language_codes[0]] = { value: post.link }
+
       if (Array.isArray(post.translations)) {
         Object.entries(post.translations).forEach((entry) => {
           title[entry[1]['language']] = { value: entry[1]['post_title'] }
@@ -828,7 +840,7 @@ export class CbaDataSource implements DataSource {
         Concepts: conceptLinks,
         MediaAssets: mediaAssetLinks,
         PrimaryGrouping: this._uriLink('series', post.post_parent),
-        contentUrl: post.link,
+        contentUrl: contentUrlJson,
         originalLanguages: { language_codes: post.language_codes },
         License: licenseUri.length > 0 ? { uri: licenseUri[0] } : null,
         removed: false,

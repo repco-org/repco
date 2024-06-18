@@ -1556,7 +1556,7 @@ export type ContentItem = {
   contentFormat: Scalars['String']
   /** Reads and enables pagination through a set of `ContentGrouping`. */
   contentGroupings: ContentItemContentGroupingsByContentGroupingToContentItemBAndAManyToManyConnection
-  contentUrl: Scalars['String']
+  contentUrl: Scalars['JSON']
   /** Reads and enables pagination through a set of `Contribution`. */
   contributions: ContentItemContributionsByContentItemToContributionAAndBManyToManyConnection
   /** Reads a single `License` that is related to this `ContentItem`. */
@@ -1699,7 +1699,7 @@ export type ContentItemCondition = {
   /** Checks for equality with the object’s `contentFormat` field. */
   contentFormat?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `contentUrl` field. */
-  contentUrl?: InputMaybe<Scalars['String']>
+  contentUrl?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `licenseUid` field. */
   licenseUid?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `originalLanguages` field. */
@@ -1813,7 +1813,7 @@ export type ContentItemFilter = {
   /** Filter by the object’s `contentFormat` field. */
   contentFormat?: InputMaybe<StringFilter>
   /** Filter by the object’s `contentUrl` field. */
-  contentUrl?: InputMaybe<StringFilter>
+  contentUrl?: InputMaybe<JsonFilter>
   /** Filter by the object’s `license` relation. */
   license?: InputMaybe<LicenseFilter>
   /** A related `license` exists. */

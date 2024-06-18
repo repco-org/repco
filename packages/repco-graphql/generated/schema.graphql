@@ -2626,7 +2626,7 @@ type ContentItem {
     """The method to use when ordering `ContentGrouping`."""
     orderBy: [ContentGroupingsOrderBy!] = [PRIMARY_KEY_ASC]
   ): ContentItemContentGroupingsByContentGroupingToContentItemBAndAManyToManyConnection!
-  contentUrl: String!
+  contentUrl: JSON!
 
   """Reads and enables pagination through a set of `Contribution`."""
   contributions(
@@ -2837,7 +2837,7 @@ input ContentItemCondition {
   contentFormat: String
 
   """Checks for equality with the object’s `contentUrl` field."""
-  contentUrl: String
+  contentUrl: JSON
 
   """Checks for equality with the object’s `licenseUid` field."""
   licenseUid: String
@@ -3030,7 +3030,7 @@ input ContentItemFilter {
   contentFormat: StringFilter
 
   """Filter by the object’s `contentUrl` field."""
-  contentUrl: StringFilter
+  contentUrl: JSONFilter
 
   """Filter by the object’s `license` relation."""
   license: LicenseFilter
