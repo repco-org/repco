@@ -475,6 +475,7 @@ export class RssDataSource extends BaseDataSource implements DataSource {
       title: titleJson,
       summary: summaryJson,
       content: contentJson,
+      subtitle: {},
       contentFormat: 'text/plain',
       pubDate: item.pubDate ? new Date(item.pubDate) : null,
       PrimaryGrouping: { uri: this.endpoint.toString() },

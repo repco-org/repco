@@ -669,7 +669,7 @@ export class ActivityPubDataSource
 
       const content: form.ContentItemInput = {
         title: titleJson,
-        subtitle: 'missing',
+        subtitle: {},
         pubDate: new Date(video.published),
         content: contentJson,
         contentFormat: video.mediaType, // "text/markdown"

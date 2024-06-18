@@ -265,7 +265,7 @@ model ContentItem {
   uid               String    @id @unique /// @zod.refine(imports.isValidUID)
   revisionId        String    @unique
   title             Json      @default("{}")
-  subtitle          String?
+  subtitle          Json?
   pubDate           DateTime? // TODO: Review this
   summary           Json?
   content           Json      @default("{}")

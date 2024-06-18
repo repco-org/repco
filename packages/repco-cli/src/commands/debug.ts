@@ -86,6 +86,7 @@ function createItem() {
       contentUrl: '',
       originalLanguages: {},
       removed: false,
+      subtitle: {},
     },
   }
   return item

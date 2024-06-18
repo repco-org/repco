@@ -61,6 +61,7 @@ function createItem(i: number) {
       contentUrl: '',
       originalLanguages: {},
       removed: false,
+      subtitle: {},
     },
   }
   return item
