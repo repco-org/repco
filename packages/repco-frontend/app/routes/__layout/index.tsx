@@ -220,7 +220,7 @@ export default function Index() {
                     <h3 className="text-brand-primary text-lg" key={i}>
                       {repo.name}
                     </h3>
-                    <span className="text-xs italic">({repoChartData.datasets[repoChartData.labels.indexOf(repo.name)]?.data}) {repo.did}</span>
+                    <span className="text-xs italic">({repoChartData.datasets[0].data[i]}) {repo.did}</span>
                   </div>
                 </ContentItemCard>
               </NavLink>
