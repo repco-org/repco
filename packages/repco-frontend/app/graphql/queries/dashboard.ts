@@ -61,6 +61,9 @@ export const DashboardQuery = gql`
     }
     dataSources {
       totalCount
+      nodes {
+        config
+      }
     }
     sourceRecords {
       totalCount

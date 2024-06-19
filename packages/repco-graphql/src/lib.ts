@@ -11,6 +11,7 @@ import ContentItemFilterPlugin from './plugins/content-item-filter.js'
 import ExportSchemaPlugin from './plugins/export-schema.js'
 // Change some inflection rules to better match our schema.
 import CustomInflector from './plugins/inflector.js'
+import RevisionsByEntityUris from './plugins/revisions-by-entity-uris.js'
 // Add custom tags to omit all queries for the relation tables
 import CustomTags from './plugins/tags.js'
 
@@ -59,6 +60,7 @@ export function getPostGraphileOptions() {
       //ContentItemTitleFilterPlugin,
       ConceptFilterPlugin,
       ContentItemByUidsFilterPlugin,
+      RevisionsByEntityUris,
       // ElasticTest,
       // CustomFilterPlugin,
     ],

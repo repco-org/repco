@@ -9835,6 +9835,9 @@ input RevisionCondition {
   """Checks for equality with the object’s `agentDid` field."""
   agentDid: String
 
+  """Filters the list to Revisions that are in the list of uris."""
+  byEntityUris: String
+
   """Checks for equality with the object’s `contentCid` field."""
   contentCid: String
 

@@ -5698,6 +5698,8 @@ export type RevisionConceptsByConceptRevisionIdAndSameAsUidManyToManyEdgeConcept
 export type RevisionCondition = {
   /** Checks for equality with the object’s `agentDid` field. */
   agentDid?: InputMaybe<Scalars['String']>
+  /** Filters the list to Revisions that are in the list of uris. */
+  byEntityUris?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `contentCid` field. */
   contentCid?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `dateCreated` field. */
@@ -7711,7 +7713,10 @@ export type LoadDashboardDataQuery = {
   totalPublicationServices?: { totalCount: number } | null
   totalContentItems?: { totalCount: number } | null
   contentGroupings?: { totalCount: number } | null
-  dataSources?: { totalCount: number } | null
+  dataSources?: {
+    totalCount: number
+    nodes: Array<{ config?: any | null }>
+  } | null
   sourceRecords?: { totalCount: number } | null
 }
 

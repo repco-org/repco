@@ -37,6 +37,7 @@ export class RssDataSourcePlugin implements DataSourcePlugin {
 const configSchema = zod.object({
   endpoint: zod.string().url(),
   repo: zod.string(),
+  language: zod.string().or(zod.null()).optional(),
 })
 type ConfigSchema = zod.infer<typeof configSchema>
 
@@ -106,6 +107,7 @@ export class RssDataSource extends BaseDataSource implements DataSource {
   })
   uriPrefix: string
   repo: string
+  language: string | null | undefined
   constructor(config: ConfigSchema) {
     super()
     const endpoint = new URL(config.endpoint)
@@ -114,10 +116,11 @@ export class RssDataSource extends BaseDataSource implements DataSource {
     this.baseUri = removeProtocol(this.endpoint)
     this.repo = config.repo
     this.uriPrefix = `repco:rss:${this.endpoint.host}`
+    this.language = config.language
   }
 
   get config() {
-    return { endpoint: this.endpoint.toString() }
+    return { endpoint: this.endpoint.toString(), language: this.language }
   }
 
   get definition(): DataSourceDefinition {
@@ -431,7 +434,8 @@ export class RssDataSource extends BaseDataSource implements DataSource {
     const itemUri = await this._deriveItemUri(item)
     var licenseUri: string[] = []
     var publicationServiceUri: string[] = []
-    var lang = item['frn:language'] || item['xml:lang'] || language
+    var lang =
+      item['frn:language'] || item['xml:lang'] || this.language || language
     if (lang.length > 2) {
       lang = lang.slice(0, 2)
     }

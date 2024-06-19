@@ -352,7 +352,7 @@ export class CbaDataSource implements DataSource {
       const { posts: postsCursor = '1970-01-01T01:00:00' } = cursor
       const perPage = this.config.pageLimit
       let station = this.config.stationId
-        ? `&station=${this.config.stationId}`
+        ? `&station_id=${this.config.stationId}`
         : ''
       const url = this._url(
         `/posts?multilingual${station}&page=1&per_page=${perPage}&_embed&orderby=modified&order=asc&modified_after=${postsCursor}`,

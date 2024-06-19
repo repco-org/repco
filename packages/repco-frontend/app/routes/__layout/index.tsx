@@ -119,6 +119,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   }
 
   const filteredRepoStats = repoStats.filter((result) => result !== null)
+  
   return {
     data,
     repoChartData,
@@ -227,6 +228,50 @@ export default function Index() {
           )}
         </div>
       </div>
+
+      <div>
+        <h3 className="text-2xl">Datasources ({data?.dataSources.totalCount})</h3>
+        <div className="flex flex-col p-1">
+          {data?.dataSources.nodes.map(
+            (ds: { config: any; }, i: number) => (
+              <a key={i} href={ds.config.url} target={'_blank'}>
+                <ContentItemCard
+                  aria-label={`Datasource ${ds.config.name}`}
+                >
+                  <div className="flex items-baseline space-x-4">
+                    <h3 className="text-brand-primary text-lg" key={i} style={{display: 'flex'}}>
+                      <img src={ds.config.thumbnail} style={{display: 'block', margin: 'auto', paddingRight: '8px'}} />
+                      {ds.config.name}
+                    </h3>
+                    <span className="text-xs italic">{ds.config.endpoint}</span>
+                  </div>
+                </ContentItemCard>
+              </a>
+            ),
+          )}
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-2xl">Publication Services ({data?.publicationServices.totalCount})</h3>
+        <div className="flex flex-col p-1">
+          {data?.publicationServices.nodes.map(
+            (ps: { name: any; contentItems: any }, i: number) => (
+              <ContentItemCard
+                aria-label={`Publicationservice ${ps.name[Object.keys(ps.name)[0]].value}`}
+              >
+                <div className="flex items-baseline space-x-4">
+                  <h3 className="text-brand-primary text-lg" key={i} style={{display: 'flex'}}>
+                    {ps.name[Object.keys(ps.name)[0]].value}
+                  </h3>
+                  <span className="text-xs italic">({ps.contentItems.totalCount})</span>
+                </div>
+              </ContentItemCard>
+            ),
+          )}
+        </div>
+      </div>
+
       <div className="flex flex-col space-y-4">
         <div className="flex justify-between align-middle">
           <div className="flex flex-col w-2/3 space-y-2">
@@ -248,16 +293,17 @@ export default function Index() {
               </a>
             </div>
           </div>
-          <div className="flex flex-col w-1/3 space-y-2">
+          <div className="flex flex-col w-1/3 space-y-2" style={{marginBottom: '8px'}}>
             <h4 className="text-xl">And kindly supported by:</h4>
-            <a className="flex w-1/3" href="https://culturalfoundation.eu">
-              <img
-                className=" object-contain"
-                src="https://culturalfoundation.eu/wp-content/themes/ecf/img/logo.svg"
-                alt="ecf-logo"
-              />
-            </a>
-            <a href="#" className="w-1/3 flex">
+            <div className='flex'>
+              <a className="flex w-1/3" href="https://culturalfoundation.eu">
+                <img
+                  className=" object-contain"
+                  src="https://culturalfoundation.eu/wp-content/themes/ecf/img/logo.svg"
+                  alt="ecf-logo"
+                />
+              </a>
+              <a href="#" className="w-1/3 flex">
                 <img
                   className=" object-contain"
                   src="https://cba.media/wp-content/uploads/6/3/0000660636/eu-logo.png"
@@ -271,6 +317,7 @@ export default function Index() {
                   alt="rtr-logo"
                 />
               </a>
+            </div>
           </div>
         </div>
       </div>
