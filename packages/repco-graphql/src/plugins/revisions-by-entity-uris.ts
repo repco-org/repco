@@ -12,7 +12,7 @@ const RevisionsByEntityUris = makeAddPgTableConditionPlugin(
     if (value == null) return
     const { sql, sqlTableAlias } = helpers
     var inValues = value.split(',')
-    return sql.raw(`uid IN ('{${inValues.join(`}','{`)}}')`)
+    return sql.raw(`entityUris IN ('{${inValues.join(`}','{`)}}')`)
   },
 )
 

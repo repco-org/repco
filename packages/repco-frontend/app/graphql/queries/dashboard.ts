@@ -35,11 +35,7 @@ export const DashboardQuery = gql`
       totalCount
       nodes {
         name
-        contentItems(
-          filter: {
-            pubDate: { greaterThanOrEqualTo: $start, lessThanOrEqualTo: $end }
-          }
-        ) {
+        contentItems {
           totalCount
         }
       }

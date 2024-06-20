@@ -83,7 +83,9 @@ export const loader: LoaderFunction = async ({ request }) => {
     publicationServicesNodes = top10
   }
 
-  const labels = publicationServicesNodes.map((item) => item.name[Object.keys(item.name)[0]]['value'])
+  const labels = publicationServicesNodes.map(
+    (item) => item.name[Object.keys(item.name)[0]]['value'],
+  )
   const dataPoints = publicationServicesNodes.map(
     (item) => item.contentItems?.totalCount,
   )
@@ -119,7 +121,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   }
 
   const filteredRepoStats = repoStats.filter((result) => result !== null)
-  
+
   return {
     data,
     repoChartData,
@@ -177,8 +179,12 @@ export default function Index() {
               (node: any, index: number) => (
                 <li key={index}>
                   <NavLink to={`/items/${node.uid}`}>
-                    {node.title[Object.keys(node?.title)[0]]['value'].length > 20
-                      ? node.title[Object.keys(node?.title)[0]]['value'].slice(0, 45) + '...'
+                    {node.title[Object.keys(node?.title)[0]]['value'].length >
+                    20
+                      ? node.title[Object.keys(node?.title)[0]]['value'].slice(
+                          0,
+                          45,
+                        ) + '...'
                       : node.title[Object.keys(node?.title)[0]]['value']}
                   </NavLink>
                 </li>
@@ -216,11 +222,20 @@ export default function Index() {
                 <ContentItemCard
                   aria-label={`Repository ${repo.name} with DID ${repo.did}`}
                 >
-                  <div className="flex items-baseline space-x-4">
-                    <h3 className="text-brand-primary text-lg" key={i}>
+                  <div
+                    className="flex items-baseline space-x-4"
+                    style={{ alignItems: 'center' }}
+                  >
+                    <h3
+                      className="text-brand-primary text-lg"
+                      key={i}
+                      style={{ alignItems: 'center' }}
+                    >
                       {repo.name}
                     </h3>
-                    <span className="text-xs italic">({repoChartData.datasets[0].data[i]}) {repo.did}</span>
+                    <span className="text-xs italic">
+                      ({repoChartData.datasets[0].data[i]}) {repo.did}
+                    </span>
                   </div>
                 </ContentItemCard>
               </NavLink>
@@ -230,41 +245,68 @@ export default function Index() {
       </div>
 
       <div>
-        <h3 className="text-2xl">Datasources ({data?.dataSources.totalCount})</h3>
+        <h3 className="text-2xl">
+          Datasources ({data?.dataSources.totalCount})
+        </h3>
         <div className="flex flex-col p-1">
-          {data?.dataSources.nodes.map(
-            (ds: { config: any; }, i: number) => (
-              <a key={i} href={ds.config.url} target={'_blank'}>
-                <ContentItemCard
-                  aria-label={`Datasource ${ds.config.name}`}
+          {data?.dataSources.nodes.map((ds: { config: any }, i: number) => (
+            <a key={i} href={ds.config.url} target={'_blank'}>
+              <ContentItemCard aria-label={`Datasource ${ds.config.name}`}>
+                <div
+                  className="flex items-baseline space-x-4"
+                  style={{ alignItems: 'center' }}
                 >
-                  <div className="flex items-baseline space-x-4">
-                    <h3 className="text-brand-primary text-lg" key={i} style={{display: 'flex'}}>
-                      <img src={ds.config.thumbnail} style={{display: 'block', margin: 'auto', paddingRight: '8px'}} />
-                      {ds.config.name}
-                    </h3>
-                    <span className="text-xs italic">{ds.config.endpoint}</span>
-                  </div>
-                </ContentItemCard>
-              </a>
-            ),
-          )}
+                  <h3
+                    className="text-brand-primary text-lg"
+                    key={i}
+                    style={{ display: 'flex', alignItems: 'center' }}
+                  >
+                    <img
+                      src={ds.config.thumbnail}
+                      style={{
+                        display: 'block',
+                        margin: 'auto',
+                        paddingRight: '8px',
+                        width: '100px',
+                        height: 'auto',
+                      }}
+                    />
+                    {ds.config.name}
+                  </h3>
+                  <span className="text-xs italic">{ds.config.url}</span>
+                </div>
+              </ContentItemCard>
+            </a>
+          ))}
         </div>
       </div>
 
       <div>
-        <h3 className="text-2xl">Publication Services ({data?.publicationServices.totalCount})</h3>
+        <h3 className="text-2xl">
+          Publication Services ({data?.publicationServices.totalCount})
+        </h3>
         <div className="flex flex-col p-1">
           {data?.publicationServices.nodes.map(
             (ps: { name: any; contentItems: any }, i: number) => (
               <ContentItemCard
-                aria-label={`Publicationservice ${ps.name[Object.keys(ps.name)[0]].value}`}
+                aria-label={`Publicationservice ${
+                  ps.name[Object.keys(ps.name)[0]].value
+                }`}
               >
-                <div className="flex items-baseline space-x-4">
-                  <h3 className="text-brand-primary text-lg" key={i} style={{display: 'flex'}}>
+                <div
+                  className="flex items-baseline space-x-4"
+                  style={{ alignItems: 'center' }}
+                >
+                  <h3
+                    className="text-brand-primary text-lg"
+                    key={i}
+                    style={{ display: 'flex', alignItems: 'center' }}
+                  >
                     {ps.name[Object.keys(ps.name)[0]].value}
                   </h3>
-                  <span className="text-xs italic">({ps.contentItems.totalCount})</span>
+                  <span className="text-xs italic">
+                    ({ps.contentItems.totalCount})
+                  </span>
                 </div>
               </ContentItemCard>
             ),
@@ -293,9 +335,12 @@ export default function Index() {
               </a>
             </div>
           </div>
-          <div className="flex flex-col w-1/3 space-y-2" style={{marginBottom: '8px'}}>
+          <div
+            className="flex flex-col w-1/3 space-y-2"
+            style={{ marginBottom: '8px' }}
+          >
             <h4 className="text-xl">And kindly supported by:</h4>
-            <div className='flex'>
+            <div className="flex">
               <a className="flex w-1/3" href="https://culturalfoundation.eu">
                 <img
                   className=" object-contain"
