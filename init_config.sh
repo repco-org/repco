@@ -1,19 +1,35 @@
 #!/bin/bash
 echo "Configuring repco repos and datasources"
-echo "creating cba repo..."
-docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app yarn repco repo create cba
+
+echo "creating orange repo..."
+docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app yarn repco repo create orange
 echo "adding Orange 94,0 ds..."
-docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app yarn repco ds add -r cba repco:datasource:cba '{"endpoint":"https://cba.media/wp-json/wp/v2", "stationId":262317, "url":"https://cba.media","name":"Orange 94,0","image":"https://cba.media/wp-content/uploads/7/0/0000474207/orange.gif","thumbnail":"https://cba.media/wp-content/uploads/7/0/0000474207/orange-360x240.gif"}'
+docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app yarn repco ds add -r orange repco:datasource:cba '{"endpoint":"https://cba.media/wp-json/wp/v2", "stationId":262317, "url":"https://cba.media","name":"Orange 94,0","image":"https://cba.media/wp-content/uploads/7/0/0000474207/orange.gif","thumbnail":"https://cba.media/wp-content/uploads/7/0/0000474207/orange-360x240.gif"}'
+
+echo "creating fro repo..."
+docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app yarn repco repo create fro
 echo "adding Radio FRO ds..."
-docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app yarn repco ds add -r cba repco:datasource:cba '{"endpoint":"https://cba.media/wp-json/wp/v2", "stationId":262315, "url":"https://cba.media","name":"Radio FRO","image":"https://cba.media/wp-content/uploads/3/0/0000348503/fro-logo-w-os.jpg","thumbnail":"https://cba.media/wp-content/uploads/3/0/0000348503/fro-logo-w-os-360x240.jpg"}'
+docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app yarn repco ds add -r fro repco:datasource:cba '{"endpoint":"https://cba.media/wp-json/wp/v2", "stationId":262315, "url":"https://cba.media","name":"Radio FRO","image":"https://cba.media/wp-content/uploads/3/0/0000348503/fro-logo-w-os.jpg","thumbnail":"https://cba.media/wp-content/uploads/3/0/0000348503/fro-logo-w-os-360x240.jpg"}'
+
+echo "creating radiofabrik repo..."
+docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app yarn repco repo create radiofabrik
 echo "adding Radiofabrik ds..."
-docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app yarn repco ds add -r cba repco:datasource:cba '{"endpoint":"https://cba.media/wp-json/wp/v2", "stationId":262323, "url":"https://cba.media","name":"Radiofabrik","image":"https://cba.media/wp-content/uploads/0/2/0000474220/radiofabrik.gif","thumbnail":"https://cba.media/wp-content/uploads/0/2/0000474220/radiofabrik-360x240.gif"}'
+docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app yarn repco ds add -r radiofabrik repco:datasource:cba '{"endpoint":"https://cba.media/wp-json/wp/v2", "stationId":262323, "url":"https://cba.media","name":"Radiofabrik","image":"https://cba.media/wp-content/uploads/0/2/0000474220/radiofabrik.gif","thumbnail":"https://cba.media/wp-content/uploads/0/2/0000474220/radiofabrik-360x240.gif"}'
+
+echo "creating proton repo..."
+docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app yarn repco repo create proton
 echo "adding Proton ds..."
-docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app yarn repco ds add -r cba repco:datasource:cba '{"endpoint":"https://cba.media/wp-json/wp/v2", "stationId":262342, "url":"https://cba.media","name":"Proton","image":"https://cba.media/wp-content/uploads/8/0/0000474208/proton.gif","thumbnail":"https://cba.media/wp-content/uploads/8/0/0000474208/proton-360x240.gif"}'
+docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app yarn repco ds add -r proton repco:datasource:cba '{"endpoint":"https://cba.media/wp-json/wp/v2", "stationId":262342, "url":"https://cba.media","name":"Proton","image":"https://cba.media/wp-content/uploads/8/0/0000474208/proton.gif","thumbnail":"https://cba.media/wp-content/uploads/8/0/0000474208/proton-360x240.gif"}'
+
+echo "creating fri repo..."
+docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app yarn repco repo create fri
 echo "adding Freies Radio Innviertel ds..."
-docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app yarn repco ds add -r cba repco:datasource:cba '{"endpoint":"https://cba.media/wp-json/wp/v2", "stationId":580988, "url":"https://cba.media","name":"Freies Radio Innviertel","image":"https://cba.media/wp-content/uploads/4/6/0000608864/fri-freiesradioinnviertel-logo-cmyk.jpg","thumbnail":"https://cba.media/wp-content/uploads/4/6/0000608864/fri-freiesradioinnviertel-logo-cmyk-360x141.jpg"}'
+docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app yarn repco ds add -r fri repco:datasource:cba '{"endpoint":"https://cba.media/wp-json/wp/v2", "stationId":580988, "url":"https://cba.media","name":"Freies Radio Innviertel","image":"https://cba.media/wp-content/uploads/4/6/0000608864/fri-freiesradioinnviertel-logo-cmyk.jpg","thumbnail":"https://cba.media/wp-content/uploads/4/6/0000608864/fri-freiesradioinnviertel-logo-cmyk-360x141.jpg"}'
+
+echo "creating mora repo..."
+docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app yarn repco repo create mora
 echo "adding Radio MORA ds..."
-docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app yarn repco ds add -r cba repco:datasource:cba '{"endpoint":"https://cba.media/wp-json/wp/v2", "stationId":299489, "url":"https://cba.media","name":"Radio MORA","image":"https://cba.media/wp-content/uploads/2/8/0000632782/logo-radio-mora-untertitel-deutsch-web-rz.png","thumbnail":"https://cba.media/wp-content/uploads/2/8/0000632782/logo-radio-mora-untertitel-deutsch-web-rz-360x240.png"}'
+docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app yarn repco ds add -r mora repco:datasource:cba '{"endpoint":"https://cba.media/wp-json/wp/v2", "stationId":299489, "url":"https://cba.media","name":"Radio MORA","image":"https://cba.media/wp-content/uploads/2/8/0000632782/logo-radio-mora-untertitel-deutsch-web-rz.png","thumbnail":"https://cba.media/wp-content/uploads/2/8/0000632782/logo-radio-mora-untertitel-deutsch-web-rz-360x240.png"}'
 
 echo "creating aracityradio repo..."
 docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app yarn repco repo create aracityradio

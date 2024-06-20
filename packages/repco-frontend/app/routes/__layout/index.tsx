@@ -158,7 +158,7 @@ export default function Index() {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         <div className="flex flex-col items-center p-2 bg-white shadow-lg rounded-lg hover:shadow-xl">
           <h3 className="text-xl text-center">
-            Publication Services by ContentItems (last 3 Month)
+            Publication Services by ContentItems
           </h3>
           <Doughnut
             aria-label="Publication services by content items chart"
