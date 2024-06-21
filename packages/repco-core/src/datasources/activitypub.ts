@@ -40,15 +40,17 @@ type ChannelInfo = {
 
 type Cursor = {
   lastIngest: Date
+  direction: 'front' | 'back'
+  pageNumber: number
 }
 
-function parseCursor(input?: string | null): Cursor {
-  const cursor = input ? JSON.parse(input) : {}
+function parseCursor(input: string, defaults: any): Cursor {
+  const cursor = JSON.parse(input)
   const dateFields = ['lastIngest']
   for (const field of dateFields) {
     if (cursor[field]) cursor[field] = new Date(cursor[field])
   }
-  return cursor as Cursor
+  return { ...cursor, ...defaults } as Cursor
 }
 
 export class ActivityPubDataSourcePlugin implements DataSourcePlugin {
@@ -219,22 +221,28 @@ export class ActivityPubDataSource
   }
 
   async fetchUpdates(cursorString: string | null): Promise<FetchUpdatesResult> {
-    const nextCursor = {
-      lastIngest: new Date(),
+    let cursor: Cursor
+    if (cursorString) {
+      cursor = parseCursor(cursorString, { direction: 'back', pageNumber: 1 })
+    } else {
+      cursor = {
+        lastIngest: new Date(),
+        direction: 'back',
+        pageNumber: 1,
+      }
     }
     const { ap, remoteId } = await this.getAndInitAp()
     const profile = remoteId
 
     // we have a previous cursor. ingest updates that were pushed to our inbox.
-    if (cursorString) {
+    if (cursor.direction === 'front') {
       try {
-        const cursor = parseCursor(cursorString)
         const activities = await ap.getActivitiesForRemoteActor(
           profile,
           cursor.lastIngest,
         )
         if (!activities.length) {
-          return { cursor: cursorString, records: [] }
+          return { cursor: JSON.stringify(cursor), records: [] }
         }
         // map activities to source records
         const items = await Promise.all(
@@ -244,18 +252,19 @@ export class ActivityPubDataSource
           (item): item is VideoObject => !!item,
         )
         if (!newVideoObjects.length) {
-          return { cursor: cursorString, records: [] }
+          return { cursor: JSON.stringify(cursor), records: [] }
         }
+        cursor.lastIngest = new Date()
         const records: SourceRecordForm[] = [
           {
             body: JSON.stringify(newVideoObjects),
             contentType: 'application/json',
             sourceType: 'videoObjects',
-            sourceUri: this.account + '#' + nextCursor.lastIngest.toISOString(),
+            sourceUri: this.account + '#' + cursor.lastIngest.toISOString(),
           },
         ]
         return {
-          cursor: JSON.stringify(nextCursor),
+          cursor: JSON.stringify(cursor),
           records,
         }
       } catch (error) {
@@ -285,13 +294,15 @@ export class ActivityPubDataSource
         // collect new video entities
         const newVideoObjects: VideoObject[] = []
         // start with first page
-        let pageNumber = 1
-        let currentPageUrl = firstPageUrl
-        let currentPage =
-          currentPageUrl && (await this._fetchAs<Page>(currentPageUrl))
+        const pageNumber = cursor.pageNumber
+        const currentPageUrl = firstPageUrl.replace(
+          'page=1',
+          `page=${pageNumber}`,
+        )
+        const currentPage = await this._fetchAs<Page>(currentPageUrl)
 
         // loop over pages while there are still items on the page
-        while (currentPage && currentPage.orderedItems.length !== 0) {
+        if (currentPage && currentPage.orderedItems.length !== 0) {
           const items =
             currentPage &&
             (await Promise.all(
@@ -309,11 +320,9 @@ export class ActivityPubDataSource
             ...items.filter((item): item is VideoObject => !!item),
           )
 
-          pageNumber++
-          currentPageUrl =
-            firstPageUrl && firstPageUrl.replace('page=1', `page=${pageNumber}`)
-          currentPage =
-            currentPageUrl && (await this._fetchAs<Page>(currentPageUrl))
+          cursor.pageNumber += 1
+        } else {
+          cursor.direction = 'front'
         }
 
         // save collected items as source records
@@ -324,8 +333,7 @@ export class ActivityPubDataSource
               body: JSON.stringify(newVideoObjects),
               contentType: 'application/json',
               sourceType: 'videoObjects',
-              sourceUri:
-                this.account + '#' + nextCursor.lastIngest.toISOString(),
+              sourceUri: this.account + '#' + cursor.lastIngest.toISOString(),
             },
           ]
         }
@@ -333,7 +341,7 @@ export class ActivityPubDataSource
           records.push(channelSourceRecord as SourceRecordForm)
         }
         return {
-          cursor: JSON.stringify(nextCursor),
+          cursor: JSON.stringify(cursor),
           records,
         }
       } catch (error) {
