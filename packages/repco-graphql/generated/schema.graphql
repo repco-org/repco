@@ -2752,7 +2752,7 @@ type ContentItem {
   """Reads a single `Revision` that is related to this `ContentItem`."""
   revision: Revision
   revisionId: String!
-  subtitle: String
+  subtitle: JSON
   summary: JSON
   title: JSON!
   uid: String!
@@ -2864,7 +2864,7 @@ input ContentItemCondition {
   search: String
 
   """Checks for equality with the object’s `subtitle` field."""
-  subtitle: String
+  subtitle: JSON
 
   """Checks for equality with the object’s `summary` field."""
   summary: JSON
@@ -3081,7 +3081,7 @@ input ContentItemFilter {
   revisionId: StringFilter
 
   """Filter by the object’s `subtitle` field."""
-  subtitle: StringFilter
+  subtitle: JSONFilter
 
   """Filter by the object’s `summary` field."""
   summary: JSONFilter
@@ -3735,7 +3735,7 @@ type Contributor {
 
   """Reads a single `File` that is related to this `Contributor`."""
   profilePicture: File
-  profilePictureUid: String!
+  profilePictureUid: String
 
   """Reads and enables pagination through a set of `PublicationService`."""
   publicationServicesByPublisher(
@@ -3891,6 +3891,9 @@ input ContributorFilter {
 
   """Filter by the object’s `profilePicture` relation."""
   profilePicture: FileFilter
+
+  """A related `profilePicture` exists."""
+  profilePictureExists: Boolean
 
   """Filter by the object’s `profilePictureUid` field."""
   profilePictureUid: StringFilter
@@ -9837,6 +9840,9 @@ input RevisionCondition {
 
   """Filters the list to Revisions that are in the list of uris."""
   byEntityUris: String
+
+  """Filters the list to Revisions that are in the list of uris."""
+  byEntityUrisNot: String
 
   """Checks for equality with the object’s `contentCid` field."""
   contentCid: String
