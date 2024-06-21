@@ -123,7 +123,7 @@ export class CbaDataSource implements DataSource {
       name: 'Cultural Broacasting Archive',
       uid:
         `repco:${this.repo}:datasource:cba:${this.endpoint}` +
-        (this.config.stationId ? this.config.stationId : ''),
+        (this.config.stationId ? ':' + this.config.stationId : ''),
       pluginUid: 'repco:datasource:cba',
     }
   }

@@ -5,7 +5,8 @@ const RevisionsByEntityUrisNot = makeAddPgTableConditionPlugin(
   'Revision',
   'byEntityUrisNot',
   (build) => ({
-    description: 'Filters the list to Revisions that are in the list of uris.',
+    description:
+      'Filters the list to Revisions that are not in the list of uris.',
     type: build.graphql.GraphQLString,
   }),
   (value: any, helpers, build) => {

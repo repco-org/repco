@@ -1578,7 +1578,7 @@ export type ContentItem = {
   /** Reads a single `Revision` that is related to this `ContentItem`. */
   revision?: Maybe<Revision>
   revisionId: Scalars['String']
-  subtitle?: Maybe<Scalars['String']>
+  subtitle?: Maybe<Scalars['JSON']>
   summary?: Maybe<Scalars['JSON']>
   title: Scalars['JSON']
   uid: Scalars['String']
@@ -1717,7 +1717,7 @@ export type ContentItemCondition = {
   /** Filters the list to ContentItems that have a specific keyword. */
   search?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `subtitle` field. */
-  subtitle?: InputMaybe<Scalars['String']>
+  subtitle?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `summary` field. */
   summary?: InputMaybe<Scalars['JSON']>
   /** Checks for equality with the object’s `title` field. */
@@ -1847,7 +1847,7 @@ export type ContentItemFilter = {
   /** Filter by the object’s `revisionId` field. */
   revisionId?: InputMaybe<StringFilter>
   /** Filter by the object’s `subtitle` field. */
-  subtitle?: InputMaybe<StringFilter>
+  subtitle?: InputMaybe<JsonFilter>
   /** Filter by the object’s `summary` field. */
   summary?: InputMaybe<JsonFilter>
   /** Filter by the object’s `title` field. */
@@ -2225,7 +2225,7 @@ export type Contributor = {
   personOrOrganization: Scalars['String']
   /** Reads a single `File` that is related to this `Contributor`. */
   profilePicture?: Maybe<File>
-  profilePictureUid: Scalars['String']
+  profilePictureUid?: Maybe<Scalars['String']>
   /** Reads and enables pagination through a set of `PublicationService`. */
   publicationServicesByPublisher: PublicationServicesConnection
   /** Reads a single `Revision` that is related to this `Contributor`. */
@@ -2328,6 +2328,8 @@ export type ContributorFilter = {
   personOrOrganization?: InputMaybe<StringFilter>
   /** Filter by the object’s `profilePicture` relation. */
   profilePicture?: InputMaybe<FileFilter>
+  /** A related `profilePicture` exists. */
+  profilePictureExists?: InputMaybe<Scalars['Boolean']>
   /** Filter by the object’s `profilePictureUid` field. */
   profilePictureUid?: InputMaybe<StringFilter>
   /** Filter by the object’s `publicationServicesByPublisher` relation. */
@@ -5700,6 +5702,8 @@ export type RevisionCondition = {
   agentDid?: InputMaybe<Scalars['String']>
   /** Filters the list to Revisions that are in the list of uris. */
   byEntityUris?: InputMaybe<Scalars['String']>
+  /** Filters the list to Revisions that are in the list of uris. */
+  byEntityUrisNot?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `contentCid` field. */
   contentCid?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `dateCreated` field. */
@@ -7668,7 +7672,7 @@ export type LoadContentItemsQuery = {
       pubDate?: any | null
       title: any
       uid: string
-      subtitle?: string | null
+      subtitle?: any | null
       summary?: any | null
       mediaAssets: {
         nodes: Array<{
