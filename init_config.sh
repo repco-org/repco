@@ -161,9 +161,9 @@ docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app ya
 echo "adding New Eastern Europe ds..."
 docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app yarn repco ds add -r new-eastern-europe repco:datasource:rss '{"endpoint":"https://www.spreaker.com/show/4065065/episodes/feed", "url":"https://neweasterneurope.eu/","name":"New Eastern Europe","image":"","thumbnail":""}'
 
-echo "creating beeldengeluid repo..."
-docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app yarn repco repo create beeldengeluid
-echo "adding Beeld & Geluid ds..."
-docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app yarn repco ds add -r beeldengeluid repco:datasource:activitypub '{"user":"openbeelden", "domain":"peertube.beeldengeluid.nl", "url":"https://beeldengeluid.nl","name":"Beeld & Geluid","image":"https://cba.media/wp-content/uploads/6/7/0000666176/logo-beeldengeluid.png","thumbnail":"https://cba.media/wp-content/uploads/6/7/0000666176/logo-beeldengeluid.png"}'
+# echo "creating beeldengeluid repo..."
+# docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app yarn repco repo create beeldengeluid
+# echo "adding Beeld & Geluid ds..."
+# docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app yarn repco ds add -r beeldengeluid repco:datasource:activitypub '{"user":"openbeelden", "domain":"peertube.beeldengeluid.nl", "url":"https://beeldengeluid.nl","name":"Beeld & Geluid","image":"https://cba.media/wp-content/uploads/6/7/0000666176/logo-beeldengeluid.png","thumbnail":"https://cba.media/wp-content/uploads/6/7/0000666176/logo-beeldengeluid.png"}'
 
 docker restart repco-app

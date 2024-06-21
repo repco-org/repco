@@ -656,7 +656,7 @@ export class Repo extends EventEmitter {
       },
       {
         maxWait: 5000,
-        timeout: 10000,
+        timeout: 20000,
       },
     )
   }
