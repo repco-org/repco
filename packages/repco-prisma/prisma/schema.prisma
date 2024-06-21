@@ -340,15 +340,15 @@ model Contribution {
 
 /// @repco(Entity)
 model Contributor {
-  uid                  String @id @unique
-  revisionId           String @unique
+  uid                  String  @id @unique
+  revisionId           String  @unique
   name                 String
   personOrOrganization String
   contactInformation   String
   //contactEmail String
   //url String
   //description String
-  profilePictureUid    String
+  profilePictureUid    String?
 
   Revision         Revision             @relation(fields: [revisionId], references: [id], onDelete: Cascade)
   BroadcastService PublicationService[]
