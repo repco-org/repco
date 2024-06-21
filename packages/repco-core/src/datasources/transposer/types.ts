@@ -3,6 +3,7 @@
 export interface TransposerPost {
   contentItem: TransposerContentItem
   mediaAssets: TransposerMediaAsset[]
+  publicationService: TransposerPublicationService
 }
 
 export interface TransposerContentItem {
@@ -67,6 +68,12 @@ export interface TransposerContentGrouping {
   title: any
   description: string
   url: string
+}
+
+export interface TransposerPublicationService {
+  address: string
+  medium: string
+  name: any
 }
 
 // export interface TransposerPost {

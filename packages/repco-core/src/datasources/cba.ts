@@ -518,7 +518,7 @@ export class CbaDataSource implements DataSource {
     }
 
     const licenseEntity = this._mapLicense(
-      `${media.license.license}${media.license.version}`,
+      `${media.license.license} ${media.license.version}`,
     )
 
     const fileEntity: EntityForm = {

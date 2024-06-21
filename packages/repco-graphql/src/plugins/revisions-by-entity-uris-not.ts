@@ -1,9 +1,9 @@
 import { makeAddPgTableConditionPlugin } from 'graphile-utils'
 
-const RevisionsByEntityUris = makeAddPgTableConditionPlugin(
+const RevisionsByEntityUrisNot = makeAddPgTableConditionPlugin(
   'public',
   'Revision',
-  'byEntityUris',
+  'byEntityUrisNot',
   (build) => ({
     description: 'Filters the list to Revisions that are in the list of uris.',
     type: build.graphql.GraphQLString,
@@ -12,8 +12,8 @@ const RevisionsByEntityUris = makeAddPgTableConditionPlugin(
     if (value == null) return
     const { sql, sqlTableAlias } = helpers
     var inValues = value.split(',')
-    return sql.raw(`"entityUris" IN ('{${inValues.join(`}','{`)}}')`)
+    return sql.raw(`"entityUris" NOT IN ('{${inValues.join(`}','{`)}}')`)
   },
 )
 
-export default RevisionsByEntityUris
+export default RevisionsByEntityUrisNot

@@ -306,6 +306,57 @@ export class TransposerDataSource extends BaseDataSource implements DataSource {
           conceptLinks.push({ uri: this._uri(concept.kind, concept.id) })
         }
 
+        // Contributions
+        for (let i = 0; i < element.contentItem.contributors.length; i++) {
+          const contributor = element.contentItem.contributors[i]
+
+          const contributorEntity: form.ContributorInput = {
+            name: contributor.name,
+            contactInformation: contributor.contactInformation,
+            personOrOrganization: contributor.personOrOrganization,
+          }
+
+          const contributionEntity: form.ContributionInput = {
+            role: contributor.role,
+            Contributor: [{ uri: this._uri('contributor', contributor.id) }],
+          }
+
+          entities.push({
+            type: 'Contribution',
+            content: contributionEntity,
+            headers: {
+              EntityUris: [this._uri('contribution', contributor.id)],
+            },
+          })
+
+          entities.push({
+            type: 'Contributor',
+            content: contributorEntity,
+            headers: {
+              EntityUris: [this._uri('contributor', contributor.id)],
+            },
+          })
+
+          conceptLinks.push({ uri: this._uri('contribution', contributor.id) })
+        }
+
+        // PublicationService
+        const publicationService: form.PublicationServiceInput = {
+          address: element.publicationService.address,
+          name: element.publicationService.name,
+          medium: element.publicationService.medium,
+        }
+
+        entities.push({
+          type: 'PublicationService',
+          content: publicationService,
+          headers: {
+            EntityUris: [
+              this._uri('publicationservice', element.publicationService.name),
+            ],
+          },
+        })
+
         // ContentItem
         const content: form.ContentItemInput = {
           pubDate: parseAsUTC(element.contentItem.pubDate),
@@ -314,7 +365,12 @@ export class TransposerDataSource extends BaseDataSource implements DataSource {
           title: element.contentItem.title,
           subtitle: element.contentItem.subtitle || '',
           summary: element.contentItem.summary,
-          PublicationService: null, //this._uriLink('station', this.baseUri),
+          PublicationService: {
+            uri: this._uri(
+              'publicationservice',
+              element.publicationService.name,
+            ),
+          },
           Concepts: conceptLinks,
           MediaAssets: mediaAssetLinks,
           PrimaryGrouping: { uri: this.endpoint.toString() },

@@ -2,8 +2,7 @@ import RssParser from 'rss-parser'
 import zod from 'zod'
 import { log } from 'repco-common'
 import { Link } from 'repco-common/zod'
-import { ContentGroupingVariant, form } from 'repco-prisma'
-import { ContentGroupingInput } from 'repco-prisma/generated/repco/zod.js'
+import { form } from 'repco-prisma'
 import { fetch } from 'undici'
 import {
   BaseDataSource,
@@ -102,6 +101,9 @@ export class RssDataSource extends BaseDataSource implements DataSource {
         'frn:title',
         'frn:licence',
         'frn:radio',
+        'image',
+        'itunes:image',
+        'image',
       ],
     },
   })
@@ -175,6 +177,7 @@ export class RssDataSource extends BaseDataSource implements DataSource {
 
     const page = cursor.pageNumber || 0
     url.searchParams.set('paged', page.toString())
+    url.searchParams.set('sort', 'modifiedAt')
     url.searchParams.set(pagination.limitParam, pagination.limit.toString())
     if (page * pagination.limit > 0) {
       url.searchParams.set(
@@ -360,18 +363,23 @@ export class RssDataSource extends BaseDataSource implements DataSource {
       descriptionJson[lang] = {
         value: feed.description || '',
       }
-      const entity: ContentGroupingInput = {
-        groupingType: 'feed',
-        title: titleJson,
-        variant: ContentGroupingVariant.EPISODIC,
-        description: descriptionJson,
-        summary: summaryJson,
+      const pubService: form.PublicationServiceInput = {
+        name: titleJson,
+        medium: '',
+        address: feed.feedUrl || '',
       }
       return [
         {
-          type: 'ContentGrouping',
-          content: entity,
-          headers: { EntityUris: [this.endpoint.toString()] },
+          type: 'PublicationService',
+          content: pubService,
+          headers: {
+            EntityUris: [
+              this._uri(
+                'publicationservice',
+                feed.title || feed.feedUrl || 'unknown',
+              ),
+            ],
+          },
         },
       ]
     }
@@ -413,7 +421,7 @@ export class RssDataSource extends BaseDataSource implements DataSource {
       content: {
         title: titleJson,
         duration: 0,
-        mediaType: 'audio',
+        mediaType: item.enclosure.type || 'audio',
         Files: [{ uri: fileUri }],
         description: descriptionJson,
       },
