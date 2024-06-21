@@ -136,4 +136,14 @@ docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app ya
 # echo "adding Beeld & Geluid ds..."
 # docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app yarn repco ds add -r beeldengeluid repco:datasource:activitypub '{"user":"openbeelden", "domain":"peertube.beeldengeluid.nl", "url":"https://beeldengeluid.nl","name":"Beeld & Geluid","image":"https://cba.media/wp-content/uploads/6/7/0000666176/logo-beeldengeluid.png","thumbnail":"https://cba.media/wp-content/uploads/6/7/0000666176/logo-beeldengeluid.png"}'
 
+echo "creating frn repo..."
+docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app yarn repco repo create frn
+echo "adding Freie-radios.net ds..."
+docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app yarn repco ds add -r frn repco:datasource:rss '{"endpoint":"https://www.freie-radios.net/portal/podcast.php?rss", "url":"http://freie-radios.net/","name":"Freie-radios.net","image":"https://cba.media/wp-content/uploads/7/4/0000667547/frn-logo.png","thumbnail":"https://cba.media/wp-content/uploads/7/4/0000667547/frn-logo.png"}'
+
+echo "creating okto repo..."
+docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app yarn repco repo create okto
+echo "adding Okto TV ds..."
+docker compose -f "docker/docker-compose.arbeit.build.yml" -p arbeit exec app yarn repco ds add -r okto repco:datasource:rss '{"endpoint":"https://www.okto.tv/de/display-europe.rss", "url":"https://www.okto.tv/","name":"Okto TV","image":"https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Okto.svg/800px-Okto.svg.png","thumbnail":"https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Okto.svg/293px-Okto.svg.png"}'
+
 docker restart repco-app
