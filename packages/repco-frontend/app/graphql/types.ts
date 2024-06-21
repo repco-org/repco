@@ -5702,7 +5702,7 @@ export type RevisionCondition = {
   agentDid?: InputMaybe<Scalars['String']>
   /** Filters the list to Revisions that are in the list of uris. */
   byEntityUris?: InputMaybe<Scalars['String']>
-  /** Filters the list to Revisions that are in the list of uris. */
+  /** Filters the list to Revisions that are not in the list of uris. */
   byEntityUrisNot?: InputMaybe<Scalars['String']>
   /** Checks for equality with the object’s `contentCid` field. */
   contentCid?: InputMaybe<Scalars['String']>

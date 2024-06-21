@@ -9841,7 +9841,7 @@ input RevisionCondition {
   """Filters the list to Revisions that are in the list of uris."""
   byEntityUris: String
 
-  """Filters the list to Revisions that are in the list of uris."""
+  """Filters the list to Revisions that are not in the list of uris."""
   byEntityUrisNot: String
 
   """Checks for equality with the object’s `contentCid` field."""
