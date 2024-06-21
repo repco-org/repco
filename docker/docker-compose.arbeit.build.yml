@@ -14,9 +14,8 @@ services:
     environment:
       - DATABASE_URL=postgresql://repco:repco@db:5432/repco
       - REPCO_ADMIN_TOKEN=kUBY0zsPHC9ubj3T6DZJKUACi3M=
-      - REPCO_URL=http://localhost:8765
+      - REPCO_URL=https://repco.arbeit.cba.media
       - CBA_API_KEY=k8WHfNbal0rjIs2f
-      - AP_BASE_URL=http://localhost:8765/ap
     depends_on:
       db:
         condition: service_healthy
