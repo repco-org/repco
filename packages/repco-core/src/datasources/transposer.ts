@@ -314,7 +314,6 @@ export class TransposerDataSource extends BaseDataSource implements DataSource {
             name: contributor.name,
             contactInformation: contributor.contactInformation,
             personOrOrganization: contributor.personOrOrganization,
-            ProfilePicture: {},
           }
 
           const contributionEntity: form.ContributionInput = {
