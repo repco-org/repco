@@ -194,6 +194,7 @@ export class TransposerDataSource extends BaseDataSource implements DataSource {
         const element = body[index]
         const mediaAssetLinks = []
         const conceptLinks = []
+        const contributionLinks = []
 
         // MediaAsset
         for (let i = 0; i < element.mediaAssets.length; i++) {
@@ -337,7 +338,9 @@ export class TransposerDataSource extends BaseDataSource implements DataSource {
             },
           })
 
-          conceptLinks.push({ uri: this._uri('contribution', contributor.id) })
+          contributionLinks.push({
+            uri: this._uri('contribution', contributor.id),
+          })
         }
 
         // PublicationService
@@ -378,6 +381,7 @@ export class TransposerDataSource extends BaseDataSource implements DataSource {
           originalLanguages: element.contentItem.originalLanguages,
           License: null,
           removed: false,
+          Contributions: contributionLinks,
         }
 
         const revisionId = this._revisionUri(
