@@ -121,7 +121,9 @@ export class CbaDataSource implements DataSource {
   get definition(): DataSourceDefinition {
     return {
       name: 'Cultural Broacasting Archive',
-      uid: `repco:${this.repo}:datasource:cba:` + this.endpoint,
+      uid:
+        `repco:${this.repo}:datasource:cba:${this.endpoint}` +
+        (this.config.stationId ? this.config.stationId : ''),
       pluginUid: 'repco:datasource:cba',
     }
   }
