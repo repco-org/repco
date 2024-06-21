@@ -115,7 +115,7 @@ export class TransposerDataSource extends BaseDataSource implements DataSource {
         page: pageCursor = 1,
         modified: modifiedCursor = '1970-01-01T01:00:00',
       } = cursor
-      const perPage = 100
+      const perPage = 50
       const url =
         this.endpoint + `?per_page=${perPage}&page=${pageCursor}&order=asc`
 
