@@ -39,6 +39,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    shm_size: '1gb'
 
   es01:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.10.4
