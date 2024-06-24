@@ -50,7 +50,7 @@ function parseCursor(input: string, defaults: any): Cursor {
   for (const field of dateFields) {
     if (cursor[field]) cursor[field] = new Date(cursor[field])
   }
-  return { ...cursor, ...defaults } as Cursor
+  return { ...defaults, ...cursor } as Cursor
 }
 
 export class ActivityPubDataSourcePlugin implements DataSourcePlugin {
@@ -299,17 +299,15 @@ export class ActivityPubDataSource
           'page=1',
           `page=${pageNumber}`,
         )
+        log.debug(`AP ingest backwards page ${pageNumber}: ${currentPageUrl}`)
         const currentPage = await this._fetchAs<Page>(currentPageUrl)
 
         // loop over pages while there are still items on the page
         if (currentPage && currentPage.orderedItems.length !== 0) {
-          const items =
-            currentPage &&
-            (await Promise.all(
-              currentPage.orderedItems.map((item) =>
-                this.handleActivities(item),
-              ),
-            ))
+          cursor.pageNumber += 1
+          const items = await Promise.all(
+            currentPage.orderedItems.map((item) => this.handleActivities(item)),
+          )
           if (items === undefined) {
             throw new Error(
               `Could not catch items under url ${currentPageUrl}.`,
@@ -319,8 +317,6 @@ export class ActivityPubDataSource
           newVideoObjects.push(
             ...items.filter((item): item is VideoObject => !!item),
           )
-
-          cursor.pageNumber += 1
         } else {
           cursor.direction = 'front'
         }
@@ -340,6 +336,7 @@ export class ActivityPubDataSource
         if (channelSourceRecord !== undefined) {
           records.push(channelSourceRecord as SourceRecordForm)
         }
+        log.debug(`AP ingest done - next cursor ${JSON.stringify(cursor)}`)
         return {
           cursor: JSON.stringify(cursor),
           records,
