@@ -665,13 +665,16 @@ export class ActivityPubDataSource
           ?.map((tag) => this._uriLink('tags', tag.href ? tag.href : tag.name))
           .filter(notEmpty) ?? []
       conceptLinks.push(...tags)
-
+      var lang = video.language?.name || 'de'
+      if (lang.length > 2) {
+        lang = lang.toLowerCase().slice(0, 2)
+      }
       // var summaryJson: { [k: string]: any } = {}
       // summaryJson[''] = { value: '' }
       var titleJson: { [k: string]: any } = {}
-      titleJson[video.language?.name || 'de'] = { value: video.name }
+      titleJson[lang] = { value: video.name }
       var contentJson: { [k: string]: any } = {}
-      contentJson[video.language?.name || 'de'] = {
+      contentJson[lang] = {
         value: video.content,
       }
 
