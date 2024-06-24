@@ -309,6 +309,7 @@ export class RssDataSource extends BaseDataSource implements DataSource {
 
     try {
       const feed = await this.parser.parseString(xml)
+      feed.items = feed.items.filter((item) => item.link != undefined)
       cursor.newest = this.extractNextCursor(cursor.newest, feed)
 
       const sourceUri = new URL(this.endpoint)
