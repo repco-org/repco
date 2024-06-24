@@ -41,6 +41,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    shm_size: '1gb'
 
   es01:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.10.4
@@ -93,6 +94,9 @@ services:
       context: ../pgsync
     container_name: repco-pgsync
     restart: unless-stopped
+    logging:
+      options:
+        max-size: 50m
     volumes:
       - /var/www/vhosts/arbeit.cba.media/httpdocs/repco/docker/data/pgsync:/data
     sysctls:
@@ -113,8 +117,8 @@ services:
       - PG_PORT=5432
       - PG_PASSWORD=repco
       - PG_DATABASE=repco
-      - LOG_LEVEL=DEBUG
-      - CONSOLE_LOGGING_HANDLER_MIN_LEVEL=DEBUG
+      - LOG_LEVEL=INFO
+      - CONSOLE_LOGGING_HANDLER_MIN_LEVEL=INFO
       - ELASTICSEARCH_PORT=9200
       - ELASTICSEARCH_SCHEME=http
       - ELASTICSEARCH_HOST=es01

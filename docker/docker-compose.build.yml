@@ -92,6 +92,9 @@ services:
       context: ../pgsync
     container_name: repco-pgsync
     restart: unless-stopped
+    logging:
+      options:
+        max-size: 50m
     volumes:
       - /var/www/repco.cba.media/repco/docker/data/pgsync:/data
     sysctls:
@@ -112,8 +115,8 @@ services:
       - PG_PORT=5432
       - PG_PASSWORD=repco
       - PG_DATABASE=repco
-      - LOG_LEVEL=DEBUG
-      - CONSOLE_LOGGING_HANDLER_MIN_LEVEL=DEBUG
+      - LOG_LEVEL=INFO
+      - CONSOLE_LOGGING_HANDLER_MIN_LEVEL=INFO
       - ELASTICSEARCH_PORT=9200
       - ELASTICSEARCH_SCHEME=http
       - ELASTICSEARCH_HOST=es01
