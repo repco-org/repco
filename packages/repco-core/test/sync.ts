@@ -17,7 +17,9 @@ test('simple sync', async (assert) => {
       content: 'hello',
       subtitle: 'asdf',
       summary: 'yoo',
-      contentUrl: 'url',
+      contentUrl: {},
+      removed: false,
+      originalLanguages: {},
     },
   }
   await repo1.saveEntity(input)

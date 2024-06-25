@@ -27,6 +27,8 @@ function mkinput(i: number) {
       subtitle: 'asdf',
       summary: 'yoo',
       contentUrl: 'url',
+      removed: false,
+      originalLanguages: {},
     },
   }
   return input

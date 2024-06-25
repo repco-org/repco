@@ -674,6 +674,10 @@ export class ActivityPubDataSource
       contentJson[lang] = {
         value: video.content,
       }
+      var contentUrlsJson: { [k: string]: any } = {}
+      contentJson[lang] = {
+        value: video.url[0].href,
+      }
 
       const content: form.ContentItemInput = {
         title: titleJson,
@@ -688,7 +692,7 @@ export class ActivityPubDataSource
         MediaAssets: mediaAssetUris,
         PrimaryGrouping: this._uriLink('account', this.account),
         summary: {},
-        contentUrl: {},
+        contentUrl: contentUrlsJson,
         originalLanguages: {},
         removed: false,
       }
