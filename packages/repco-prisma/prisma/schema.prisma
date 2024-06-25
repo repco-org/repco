@@ -56,7 +56,7 @@ model Commit {
   Revisions Revision[] @relation("RevisionToCommit")
   Agent     Agent      @relation(fields: [agentDid], references: [did])
   IsHeadOf  Repo?      @relation("RepoToHead")
-  Repo      Repo       @relation(fields: [repoDid], references: [did])
+  Repo      Repo       @relation(fields: [repoDid], references: [did], onDelete: Cascade)
   // CommitBlock Block      @relation("CommitBlock", fields: [commitCid], references: [cid])
   // RootBlock   Block      @relation("RootBlock", fields: [rootCid], references: [cid])
 }
@@ -99,7 +99,7 @@ model DataSource {
   active    Boolean?
 
   SourceRecords SourceRecord[]
-  Repo          Repo           @relation(fields: [repoDid], references: [did])
+  Repo          Repo           @relation(fields: [repoDid], references: [did], onDelete: Cascade)
 }
 
 enum KeypairScope {
@@ -125,15 +125,15 @@ model FailedDatasourceFetches {
 }
 
 model IngestError {
-  id            String   @id @unique
-  repoDid       String
-  datasourceUid String
-  kind          String
-  cursor        String?
+  id             String   @id @unique
+  repoDid        String
+  datasourceUid  String
+  kind           String
+  cursor         String?
   sourceRecordId String?
-  timestamp     DateTime
-  errorMessage  String
-  errorDetails  Json?
+  timestamp      DateTime
+  errorMessage   String
+  errorDetails   Json?
 }
 
 // model Cursor {
@@ -154,7 +154,7 @@ model Entity {
   revisionId String @unique
   type       String
 
-  Revision Revision   @relation(fields: [revisionId], references: [id])
+  Revision Revision   @relation(fields: [revisionId], references: [id], onDelete: Cascade)
   Metadata Metadata[]
 }
 
@@ -175,12 +175,14 @@ model Revision {
   entityUris   String[]
   revisionUris String[]
 
+  languages String @default("")
+
   // core derived fields
   contentCid  String // cid of content block
   revisionCid String @unique // cid of revision block
 
   // core relations
-  Repo         Repo      @relation(fields: [repoDid], references: [did])
+  Repo         Repo      @relation(fields: [repoDid], references: [did], onDelete: Cascade)
   Agent        Agent     @relation(fields: [agentDid], references: [did])
   // ContentBlock  Block     @relation("ContentBlock", fields: [contentCid], references: [cid])
   // RevisionBlock Block     @relation("RevisionBlock", fields: [revisionCid], references: [cid])
@@ -208,7 +210,8 @@ model Revision {
   Chapter            Chapter?
   Contribution       Contribution?
   Metadata           Metadata?
-  Subtitles          Subtitles?
+  Transcript         Transcript?
+  // Subtitles          Subtitles?
 }
 
 model SourceRecord {
@@ -227,7 +230,7 @@ model SourceRecord {
   meta        Json?
 
   dataSourceUid String?
-  DataSource    DataSource? @relation(fields: [dataSourceUid], references: [uid])
+  DataSource    DataSource? @relation(fields: [dataSourceUid], references: [uid], onDelete: Cascade)
 
   // DerivedRevisions Revision[] @relation("DerivedRevisions")
 }
@@ -240,13 +243,13 @@ model ContentGrouping {
   revisionId String @unique
 
   broadcastSchedule String? // TODO: JSON (channel, rrule)
-  description       String?
+  description       Json?
   groupingType      String // TODO: enum?
   startingDate      DateTime?
   subtitle          String?
-  summary           String?
+  summary           Json?
   terminationDate   DateTime?
-  title             String
+  title             Json                   @default("{}")
   variant           ContentGroupingVariant
 
   licenseUid String?
@@ -254,25 +257,28 @@ model ContentGrouping {
   License                License?      @relation(fields: [licenseUid], references: [uid])
   ContentItemsPrimary    ContentItem[] @relation("primaryGrouping")
   ContentItemsAdditional ContentItem[]
-  Revision               Revision      @relation(fields: [revisionId], references: [id])
+  Revision               Revision      @relation(fields: [revisionId], references: [id], onDelete: Cascade)
 }
 
 /// @repco(Entity)
 model ContentItem {
-  uid           String    @id @unique /// @zod.refine(imports.isValidUID)
-  revisionId    String    @unique
-  title         String
-  subtitle      String?
-  pubDate       DateTime? // TODO: Review this
-  summary       String?
-  content       String
-  contentFormat String
+  uid               String    @id @unique /// @zod.refine(imports.isValidUID)
+  revisionId        String    @unique
+  title             Json      @default("{}")
+  subtitle          Json?
+  pubDate           DateTime? // TODO: Review this
+  summary           Json?
+  content           Json      @default("{}")
+  contentFormat     String
+  contentUrl        Json
+  originalLanguages Json?
+  removed           Boolean
 
   primaryGroupingUid    String?
   publicationServiceUid String?
   licenseUid            String?
 
-  Revision            Revision            @relation(fields: [revisionId], references: [id])
+  Revision            Revision            @relation(fields: [revisionId], references: [id], onDelete: Cascade)
   AdditionalGroupings ContentGrouping[]
   BroadcastEvents     BroadcastEvent[]
   Concepts            Concept[]
@@ -289,7 +295,7 @@ model License {
   revisionId String @unique
   name       String
 
-  Revision         Revision          @relation(fields: [revisionId], references: [id])
+  Revision         Revision          @relation(fields: [revisionId], references: [id], onDelete: Cascade)
   ContentItems     ContentItem[]
   MediaAssets      MediaAsset[]
   ContentGroupings ContentGrouping[]
@@ -297,17 +303,17 @@ model License {
 
 /// @repco(Entity)
 model MediaAsset {
-  uid         String  @id @unique
-  revisionId  String  @unique
-  title       String
-  description String?
+  uid         String @id @unique
+  revisionId  String @unique
+  title       Json   @default("{}")
+  description Json?
   duration    Float?
   mediaType   String // TODO: Enum?
 
   teaserImageUid String?
   licenseUid     String?
 
-  Revision      Revision       @relation(fields: [revisionId], references: [id])
+  Revision      Revision       @relation(fields: [revisionId], references: [id], onDelete: Cascade)
   Files         File[]
   ContentItems  ContentItem[]
   Transcripts   Transcript[]
@@ -316,8 +322,8 @@ model MediaAsset {
   License       License?       @relation(fields: [licenseUid], references: [uid])
   Contributions Contribution[]
   Concepts      Concept[]
-  Translation   Translation[]
-  Subtitles     Subtitles[]
+  // Translation   Translation[]
+  // Subtitles     Subtitles[]
 }
 
 /// @repco(Entity)
@@ -329,20 +335,22 @@ model Contribution {
   Contributor  Contributor[]
   ContentItems ContentItem[]
   MediaAssets  MediaAsset[]
-  Revision     Revision      @relation(fields: [revisionId], references: [id])
+  Revision     Revision      @relation(fields: [revisionId], references: [id], onDelete: Cascade)
 }
 
 /// @repco(Entity)
 model Contributor {
-  uid                  String @id @unique
-  revisionId           String @unique
+  uid                  String  @id @unique
+  revisionId           String  @unique
   name                 String
   personOrOrganization String
   contactInformation   String
+  //contactEmail String
+  //url String
+  //description String
+  profilePictureUid    String?
 
-  profilePictureUid String
-
-  Revision         Revision             @relation(fields: [revisionId], references: [id])
+  Revision         Revision             @relation(fields: [revisionId], references: [id], onDelete: Cascade)
   BroadcastService PublicationService[]
   Contributions    Contribution[]
   ProfilePicture   File?                @relation(fields: [profilePictureUid], references: [uid])
@@ -355,13 +363,13 @@ model Chapter {
 
   start    Float
   duration Float
-  title    String
+  title    Json
   type     String // TODO: enum?
 
   mediaAssetUid String
 
   MediaAsset MediaAsset @relation(fields: [mediaAssetUid], references: [uid])
-  Revision   Revision   @relation(fields: [revisionId], references: [id])
+  Revision   Revision   @relation(fields: [revisionId], references: [id], onDelete: Cascade)
 }
 
 /// @repco(Entity)
@@ -375,7 +383,7 @@ model BroadcastEvent {
   broadcastServiceUid String
   contentItemUid      String
 
-  Revision         Revision           @relation(fields: [revisionId], references: [id])
+  Revision         Revision           @relation(fields: [revisionId], references: [id], onDelete: Cascade)
   ContentItem      ContentItem        @relation(fields: [contentItemUid], references: [uid])
   BroadcastService PublicationService @relation(fields: [broadcastServiceUid], references: [uid])
 }
@@ -385,41 +393,48 @@ model PublicationService {
   uid        String @id @unique
   revisionId String @unique
 
-  name      String
+  name      Json
   publisher Contributor? @relation(fields: [publisherUid], references: [uid])
   medium    String? // FM, Web, ...
   address   String
 
   publisherUid String?
 
-  Revision        Revision         @relation(fields: [revisionId], references: [id])
+  Revision        Revision         @relation(fields: [revisionId], references: [id], onDelete: Cascade)
   BroadcastEvents BroadcastEvent[]
   ContentItem     ContentItem[]
 }
 
 /// @repco(Entity)
 model Transcript {
-  uid      String @id @unique
-  language String
-  text     String
-  engine   String
+  uid         String @id @unique
+  revisionId  String @unique
+  language    String
+  text        String
+  engine      String
+  subtitleUrl String // url to webvtt file (string)
+  author      String // field for author (string)
+  license     String // license field (string)
 
   mediaAssetUid String
 
+  //TODO: Contributor relation
   MediaAsset MediaAsset @relation(fields: [mediaAssetUid], references: [uid])
+  Revision   Revision   @relation(fields: [revisionId], references: [id], onDelete: Cascade)
 }
 
+// might not be needed?
 /// @repco(Entity)
-model Translation {
-  uid      String @id @unique
-  language String
-  text     String
-  engine   String
+// model Translation {
+//   uid      String @id @unique
+//   language String
+//   text     String
+//   engine   String
 
-  mediaAssetUid String
+//   mediaAssetUid String
 
-  MediaAsset MediaAsset @relation(fields: [mediaAssetUid], references: [uid])
-}
+//   MediaAsset MediaAsset @relation(fields: [mediaAssetUid], references: [uid])
+// }
 
 /// @repco(Entity)
 model File {
@@ -436,11 +451,11 @@ model File {
   resolution         String?
   additionalMetadata String?
 
-  Revision      Revision      @relation(fields: [revisionId], references: [id])
+  Revision      Revision      @relation(fields: [revisionId], references: [id], onDelete: Cascade)
   AsMediaAssets MediaAsset[]
   AsThumbnail   MediaAsset[]  @relation("thumbnail")
   contributors  Contributor[]
-  AsSubtitles   Subtitles[]
+  // AsSubtitles   Subtitles[]
 }
 
 enum ConceptKind {
@@ -454,15 +469,15 @@ model Concept {
   revisionId String @unique
 
   originNamespace    String?
-  kind               ConceptKind
-  name               String
-  summary            String?
-  description        String?
+  kind               String
+  name               Json    @default("{}")
+  summary            Json?
+  description        Json?
   wikidataIdentifier String?
-  sameAsUid          String?     @unique
+  sameAsUid          String? @unique
   parentUid          String?
 
-  Revision         Revision  @relation(fields: [revisionId], references: [id])
+  Revision         Revision  @relation(fields: [revisionId], references: [id], onDelete: Cascade)
   SameAs           Concept?  @relation("isSameAs", fields: [sameAsUid], references: [uid])
   SameAsReverse    Concept?  @relation("isSameAs")
   ParentConcept    Concept?  @relation("parentConcept", fields: [parentUid], references: [uid])
@@ -482,40 +497,42 @@ model Metadata {
 
   targetUid String
 
-  Revision     Revision @relation(fields: [revisionId], references: [id])
+  Revision     Revision @relation(fields: [revisionId], references: [id], onDelete: Cascade)
   TargetEntity Entity   @relation(fields: [targetUid], references: [uid])
 }
 
+// deprecated
 /// @repco(Entity)
-model Subtitles {
-  uid          String @id @unique
-  revisionId   String @unique
-  languageCode String
+// model Subtitles {
+//   uid          String @id @unique
+//   revisionId   String @unique
+//   languageCode String
 
-  Files         File[]
-  MediaAsset    MediaAsset @relation(fields: [mediaAssetUid], references: [uid])
-  mediaAssetUid String
-  Revision      Revision   @relation(fields: [revisionId], references: [id])
-}
+//   Files         File[]
+//   MediaAsset    MediaAsset @relation(fields: [mediaAssetUid], references: [uid])
+//   mediaAssetUid String
+//   Revision      Revision   @relation(fields: [revisionId], references: [id], onDelete: Cascade)
+// }
 
 model ApLocalActor {
-  name String @unique
+  name    String @unique
   keypair Json
 }
 
 model ApFollows {
   localName String
-  remoteId String
+  remoteId  String
+
   @@unique([localName, remoteId])
 }
 
 model ApActivities {
-  id String @unique
-  actorId String
-  type String
-  objectId String
+  id         String   @unique
+  actorId    String
+  type       String
+  objectId   String
   receivedAt DateTime
-  details Json
+  details    Json
 
   attributedTo String[]
 }

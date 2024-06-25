@@ -9,11 +9,11 @@ import { Pager } from '~/components/primitives/pager'
 import { ContentItemsQuery } from '~/graphql/queries/content-items'
 import type {
   ContentItem,
+  ContentItemCondition,
   ContentItemFilter,
   ContentItemsOrderBy,
   LoadContentItemsQuery,
   LoadContentItemsQueryVariables,
-  StringFilter,
 } from '~/graphql/types.js'
 import { graphqlQuery, parsePagination } from '~/lib/graphql.server'
 
@@ -25,20 +25,23 @@ export const loader: LoaderFunction = async ({ request }) => {
   const repoDid = url.searchParams.get('repoDid') || 'all'
   const { first, last, after, before } = parsePagination(url)
   let filter: ContentItemFilter | undefined = undefined
+  let condition: ContentItemCondition | undefined = undefined
   if (type === 'title' && q) {
-    const titleFilter: StringFilter = { includesInsensitive: q }
-    filter = { title: titleFilter }
+    //const titleFilter: StringFilter = { includesInsensitive: q }
+    //filter = { title: titleFilter }
+    condition = { search: q }
   }
 
   if (type === 'fulltext' && q) {
-    const titleFilter: StringFilter = { includesInsensitive: q }
-    const contentFilter: StringFilter = { includesInsensitive: q }
-    filter = { or: [{ title: titleFilter }, { content: contentFilter }] }
+    //const titleFilter: StringFilter = { includesInsensitive: q }
+    //const contentFilter: StringFilter = { includesInsensitive: q }
+    //filter = { or: [{ title: titleFilter }, { content: contentFilter }] }
+    condition = { search: q }
   }
 
   if (repoDid && repoDid !== 'all') {
     const repoFilter = { repoDid: { equalTo: repoDid } }
-    filter = { ...filter, revision: repoFilter }
+    filter = { revision: repoFilter }
   }
 
   const queryVariables = {
@@ -48,6 +51,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     before,
     orderBy: orderBy as ContentItemsOrderBy,
     filter,
+    condition,
   }
   const { data } = await graphqlQuery<
     LoadContentItemsQuery,
@@ -58,8 +62,13 @@ export const loader: LoaderFunction = async ({ request }) => {
       data?.contentItems?.nodes.map((node) => {
         return {
           ...node,
-          title: sanitize(node?.title, { allowedTags: [] }),
-          summary: sanitize(node?.summary || '', { allowedTags: [] }),
+          title: sanitize(node?.title[Object.keys(node?.title)[0]]['value'], {
+            allowedTags: [],
+          }),
+          summary: sanitize(
+            node?.summary[Object.keys(node?.title)[0]]['value'] || '',
+            { allowedTags: [] },
+          ),
         }
       }) || [],
     pageInfo: data?.contentItems?.pageInfo,
@@ -83,7 +92,7 @@ export default function ItemsIndex() {
         {nodes.map((node: ContentItem, i: number) => {
           const imageSrc = node.mediaAssets.nodes.find(
             (mediaAsset) => mediaAsset.mediaType === 'image',
-          )?.file?.contentUrl
+          )?.files?.nodes[0].contentUrl
           const altText = node.mediaAssets.nodes.find(
             (mediaAsset) => mediaAsset.mediaType === 'image',
           )?.title
@@ -117,18 +126,23 @@ export default function ItemsIndex() {
                       </NavLink>
                       <p className="text-xs text-slate-600">
                         {new Date(node.pubDate).toLocaleDateString()}
-                        {node.publicationService?.name && ' - '}
-                        {node.publicationService?.name}
+                        {node.publicationService?.name[
+                          Object.keys(node.publicationService?.name)[0]
+                        ]['value'] && ' - '}
+                        {
+                          node.publicationService?.name[
+                            Object.keys(node.publicationService?.name)[0]
+                          ]['value']
+                        }
                       </p>
                     </div>
-
                     <p className="text-xs">{node.summary || ''}</p>
                   </div>
                 </div>
               </div>
               <div className="flex my-4 align-middle justify-between">
                 {track && <PlayTrackButton track={track} />}
-                {firstAudioAsset?.file?.duration}
+                {firstAudioAsset?.files?.nodes[0].duration}
                 {track && <TrackDropdown track={track} />}
               </div>
             </ContentItemCard>

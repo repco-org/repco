@@ -1,9 +1,7 @@
-import Player from '~/components/player/player'
 import type { LoaderArgs } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { Outlet } from 'react-router-dom'
 import { NavBar } from '~/components/navigation/nav-bar'
-import { QueueView } from '~/components/player/queue-view'
 import { Logo } from '~/components/primitives/logo'
 import { GitHubLoginButton } from '~/routes/__layout/login'
 import { authenticator } from '~/services/auth.server'
@@ -35,7 +33,7 @@ export default function Layout() {
           <Outlet />
         </div>
       </div>
-      <div
+      {/* <div
         className={
           'sticky bottom-0 w-full -z--1 flex-col justify-center bg-sky-500'
         }
@@ -46,7 +44,7 @@ export default function Layout() {
         <div className="bg-sky-700 flex  justify-center">
           <Player />
         </div>
-      </div>
+      </div> */}
     </div>
   )
 }

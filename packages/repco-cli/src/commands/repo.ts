@@ -283,6 +283,21 @@ export const syncCommand = createCommand({
   },
 })
 
+export const deleteCommand = createCommand({
+  name: 'delete',
+  help: 'Delete a repo with all ingested data',
+  arguments: [
+    { name: 'repo', required: true, help: 'DID or name of repo' },
+  ] as const,
+  async run(_opts, args) {
+    // const repo = await repoRegistry.openWithDefaults(args.repo)
+    const res = (await request(`/repo/${args.repo}`, {
+      method: 'DELETE',
+      body: { name: args.repo },
+    })) as any
+  },
+})
+
 export const command = createCommandGroup({
   name: 'repo',
   help: 'Manage repco repositories',
@@ -295,5 +310,6 @@ export const command = createCommandGroup({
     carExport,
     logRevisions,
     syncCommand,
+    deleteCommand,
   ],
 })

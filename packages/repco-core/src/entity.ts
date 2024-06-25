@@ -9,7 +9,6 @@ import z from 'zod'
 import { revisionHeaders } from 'repco-common/schema'
 import { repco } from 'repco-prisma'
 import {
-  ConceptKind,
   ContentGrouping,
   ContentGroupingVariant,
   ContentItem,
@@ -18,7 +17,7 @@ import {
 } from './prisma.js'
 
 export type { ContentItem, MediaAsset, ContentGrouping, Revision }
-export { ContentGroupingVariant, ConceptKind }
+export { ContentGroupingVariant }
 
 export const headersForm = revisionHeaders.partial()
 export interface HeadersForm extends z.infer<typeof headersForm> {}

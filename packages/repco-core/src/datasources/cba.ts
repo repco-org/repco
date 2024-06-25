@@ -40,7 +40,7 @@ import {
   log,
   SourceRecordForm,
 } from '../datasource.js'
-import { ConceptKind, ContentGroupingVariant, EntityForm } from '../entity.js'
+import { ContentGroupingVariant, EntityForm } from '../entity.js'
 import { FetchOpts } from '../util/datamapping.js'
 import { HttpError } from '../util/error.js'
 import { notEmpty } from '../util/misc.js'
@@ -57,16 +57,22 @@ const configSchema = zod.object({
   apiKey: zod.string().or(zod.null()).optional(),
   pageLimit: zod.number().int().optional(),
   repo: zod.string(),
+  stationId: zod.number().or(zod.null()).optional(),
 })
 
 type ConfigSchema = zod.infer<typeof configSchema>
-type FullConfigSchema = ConfigSchema & { endpoint: string; pageLimit: number }
+type FullConfigSchema = ConfigSchema & {
+  endpoint: string
+  pageLimit: number
+  stationId: null | number
+}
 
 const DEFAULT_CONFIG: FullConfigSchema = {
-  endpoint: 'https://cba.fro.at/wp-json/wp/v2',
+  endpoint: 'https://cba.media/wp-json/wp/v2',
   pageLimit: 30,
   apiKey: process.env.CBA_API_KEY,
   repo: 'default',
+  stationId: null,
 }
 
 /**
@@ -115,7 +121,9 @@ export class CbaDataSource implements DataSource {
   get definition(): DataSourceDefinition {
     return {
       name: 'Cultural Broacasting Archive',
-      uid: `repco:${this.repo}:datasource:cba:` + this.endpoint,
+      uid:
+        `repco:${this.repo}:datasource:cba:${this.endpoint}` +
+        (this.config.stationId ? ':' + this.config.stationId : ''),
       pluginUid: 'repco:datasource:cba',
     }
   }
@@ -181,7 +189,15 @@ export class CbaDataSource implements DataSource {
             const params = new URLSearchParams()
             params.append('include', slice.map((id) => id.id).join(','))
             params.append('per_page', slice.length.toString())
-            const url = this._url(`/${endpoint}?${params}`)
+            var multilingual = ''
+            if (
+              endpoint === 'post' ||
+              endpoint === 'series' ||
+              endpoint === 'station'
+            ) {
+              multilingual = '&multilingual'
+            }
+            const url = this._url(`/${endpoint}?${params}${multilingual}`)
             const bodies = await this._fetch(url)
             res.push(
               ...bodies.map((body: any, i: number) => {
@@ -257,7 +273,15 @@ export class CbaDataSource implements DataSource {
       )
     }
 
-    const url = this._url(`/${endpoint}/${id}`)
+    var params = ''
+    if (
+      endpoint === 'post' ||
+      endpoint === 'series' ||
+      endpoint === 'station'
+    ) {
+      params = '?multilingual'
+    }
+    const url = this._url(`/${endpoint}/${id}${params}`)
     const [body] = await Promise.all([this._fetch(url)])
 
     return [
@@ -329,8 +353,11 @@ export class CbaDataSource implements DataSource {
       const cursor = cursorString ? JSON.parse(cursorString) : {}
       const { posts: postsCursor = '1970-01-01T01:00:00' } = cursor
       const perPage = this.config.pageLimit
+      const station = this.config.stationId
+        ? `&station_id=${this.config.stationId}`
+        : ''
       const url = this._url(
-        `/posts?page=1&per_page=${perPage}&_embed&orderby=modified&order=asc&modified_after=${postsCursor}`,
+        `/posts?multilingual${station}&page=1&per_page=${perPage}&_embed&orderby=modified&order=asc&modified_after=${postsCursor}`,
       )
       const posts = await this._fetch<CbaPost[]>(url)
 
@@ -469,9 +496,21 @@ export class CbaDataSource implements DataSource {
       resolution: null,
     }
 
+    var titleJson: { [k: string]: any } = {}
+    titleJson[media.language_codes[0]] = { value: media.title.rendered }
+    var descriptionJson: { [k: string]: any } = {}
+    descriptionJson[media.language_codes[0]] = {
+      value: media.description?.rendered,
+    }
+
+    Object.entries(media.translations).forEach((entry) => {
+      titleJson[entry[1]['language']] = { value: entry[1]['title'] }
+      descriptionJson[entry[1]['language']] = { value: entry[1]['description'] }
+    })
+
     const asset: form.MediaAssetInput = {
-      title: media.title.rendered,
-      description: media.description?.rendered,
+      title: titleJson,
+      description: descriptionJson,
       mediaType: 'audio',
       duration,
       Concepts: media.media_tag.map((cbaId) => ({
@@ -479,6 +518,10 @@ export class CbaDataSource implements DataSource {
       })),
       Files: [{ uri: fileId }],
     }
+
+    const licenseEntity = this._mapLicense(
+      `${media.license.license} ${media.license.version}`,
+    )
 
     const fileEntity: EntityForm = {
       type: 'File',
@@ -491,8 +534,14 @@ export class CbaDataSource implements DataSource {
       content: asset,
       headers: { EntityUris: [audioId] },
     }
+    var transcripts: Array<EntityForm> = []
+    if (media.transcripts.length > 0) {
+      transcripts = this._mapTranscripts(media, media.transcripts, {
+        uri: audioId,
+      })
+    }
 
-    return [fileEntity, mediaEntity]
+    return [fileEntity, mediaEntity, licenseEntity, ...transcripts]
   }
 
   private _mapImage(media: CbaImage): EntityForm[] {
@@ -521,9 +570,21 @@ export class CbaDataSource implements DataSource {
         media.media_details.width.toString()
     }
 
+    var titleJson: { [k: string]: any } = {}
+    titleJson[media.language_codes[0]] = { value: media.title.rendered }
+    var descriptionJson: { [k: string]: any } = {}
+    descriptionJson[media.language_codes[0]] = {
+      value: media.description?.rendered,
+    }
+
+    Object.entries(media.translations).forEach((entry) => {
+      titleJson[entry[1]['language']] = { value: entry[1]['title'] }
+      descriptionJson[entry[1]['language']] = { value: entry[1]['description'] }
+    })
+
     const asset: form.MediaAssetInput = {
-      title: media.title.rendered || '',
-      description: media.description?.rendered || null,
+      title: titleJson,
+      description: descriptionJson,
       mediaType: 'image',
       Concepts: media.media_tag.map((cbaId) => ({
         uri: this._uri('tags', cbaId),
@@ -543,15 +604,28 @@ export class CbaDataSource implements DataSource {
       headers: { EntityUris: [imageId] },
     }
 
-    return [fileEntity, mediaEntity]
+    var transcripts = this._mapTranscripts(media, media.transcripts, {
+      uri: imageId,
+    })
+
+    return [fileEntity, mediaEntity, ...transcripts]
   }
 
   private _mapCategories(categories: CbaCategory): EntityForm[] {
+    //TODO: find language code
+    var nameJson: { [k: string]: any } = {}
+    nameJson['de'] = { value: categories.name }
+    var descriptionJson: { [k: string]: any } = {}
+    descriptionJson['de'] = { value: categories.description }
+    var summaryJson: { [k: string]: any } = {}
+    summaryJson['de'] = { value: categories.description }
+
     const content: form.ConceptInput = {
-      name: categories.name,
-      description: categories.description,
-      kind: ConceptKind.CATEGORY,
+      name: nameJson,
+      description: descriptionJson,
+      kind: 'CATEGORY',
       originNamespace: 'https://cba.fro.at/wp-json/wp/v2/categories',
+      summary: summaryJson,
     }
     if (categories.parent !== undefined) {
       content.ParentConcept = {
@@ -576,11 +650,21 @@ export class CbaDataSource implements DataSource {
       console.error('Invalid tags input.')
       throw new Error('Invalid tags input.')
     }
+
+    //TODO: find language code
+    var nameJson: { [k: string]: any } = {}
+    nameJson['de'] = { value: tags.name }
+    var descriptionJson: { [k: string]: any } = {}
+    descriptionJson['de'] = { value: tags.description }
+    var summaryJson: { [k: string]: any } = {}
+    summaryJson['de'] = { value: tags.description }
+
     const content: form.ConceptInput = {
-      name: tags.name,
-      description: tags.description,
-      kind: ConceptKind.TAG,
+      name: nameJson,
+      description: descriptionJson,
+      kind: 'TAG',
       originNamespace: 'https://cba.fro.at/wp-json/wp/v2/tags',
+      summary: summaryJson,
     }
     const revisionId = this._revisionUri('tags', tags.id, new Date().getTime())
     const uri = this._uri('tags', tags.id)
@@ -598,10 +682,17 @@ export class CbaDataSource implements DataSource {
       )
     }
 
+    var nameJson: { [k: string]: any } = {}
+    nameJson[station.language_codes[0]] = { value: station.title.rendered }
+
+    Object.entries(station.translations).forEach((entry) => {
+      nameJson[entry[1]['language']] = { value: entry[1]['title'] }
+    })
+
     const content: form.PublicationServiceInput = {
       medium: station.type || '',
       address: station.link || '',
-      name: station.title.rendered,
+      name: nameJson,
     }
 
     const revisionId = this._revisionUri(
@@ -625,12 +716,29 @@ export class CbaDataSource implements DataSource {
       throw new Error('Series title is missing.')
     }
 
+    var descriptionJson: { [k: string]: any } = {}
+    descriptionJson[series.language_codes[0]] = {
+      value: series.content.rendered,
+    }
+    var summaryJson: { [k: string]: any } = {}
+    summaryJson[series.language_codes[0]] = { value: series.content.rendered }
+    var titleJson: { [k: string]: any } = {}
+    titleJson[series.language_codes[0]] = { value: series.title.rendered }
+
+    Object.entries(series.translations).forEach((entry) => {
+      titleJson[entry[1]['language']] = { value: entry[1]['title'] }
+      summaryJson[entry[1]['language']] = { value: entry[1]['content'] }
+      descriptionJson[entry[1]['language']] = {
+        value: entry[1]['content'],
+      }
+    })
+
     const content: form.ContentGroupingInput = {
-      title: series.title.rendered,
-      description: series.content.rendered || null,
+      title: titleJson,
+      description: descriptionJson,
       groupingType: 'show',
       subtitle: null,
-      summary: null,
+      summary: summaryJson,
       broadcastSchedule: null,
       startingDate: null,
       terminationDate: null,
@@ -652,6 +760,7 @@ export class CbaDataSource implements DataSource {
   private _mapPost(post: CbaPost): EntityForm[] {
     try {
       const mediaAssetLinks = []
+      var licenseUri: string[] = []
       const entities: EntityForm[] = []
 
       if (post._fetchedAttachements?.length) {
@@ -673,6 +782,15 @@ export class CbaDataSource implements DataSource {
         mediaAssetLinks.push({ uri: this._uri('image', post.featured_image) })
       }
 
+      if (post.license && post.license.license && post.license.version) {
+        const license = this._mapLicense(
+          post.license.license + post.license.version,
+        )
+
+        licenseUri = license.headers?.EntityUris || []
+        entities.push(license)
+      }
+
       const categories =
         post.categories
           ?.map((cbaId) => this._uriLink('categories', cbaId))
@@ -683,17 +801,51 @@ export class CbaDataSource implements DataSource {
           .filter(notEmpty) ?? []
       const conceptLinks = [...categories, ...tags]
 
+      var title: { [k: string]: any } = {}
+      title[post.language_codes[0]] = { value: post.title.rendered }
+
+      var summary: { [k: string]: any } = {}
+      summary[post.language_codes[0]] = { value: post.excerpt.rendered }
+
+      var contentJson: { [k: string]: any } = {}
+      contentJson[post.language_codes[0]] = { value: post.content.rendered }
+
+      var contentUrlJson: { [k: string]: any } = {}
+      contentUrlJson[post.language_codes[0]] = { value: post.link }
+
+      if (Array.isArray(post.translations)) {
+        Object.entries(post.translations).forEach((entry) => {
+          title[entry[1]['language']] = { value: entry[1]['post_title'] }
+          summary[entry[1]['language']] = { value: entry[1]['post_excerpt'] }
+          contentJson[entry[1]['language']] = {
+            value: entry[1]['post_content'],
+          }
+        })
+      } else {
+        var temp = post.translations as any
+        Object.keys(post.translations).forEach((code) => {
+          title[code] = { value: temp[code]['title'] }
+          summary[code] = { value: temp[code]['excerpt'] }
+          contentJson[code] = { value: temp[code]['content'] }
+        })
+        //title[Object.keys(post.translations)[0]]
+      }
+
       const content: form.ContentItemInput = {
         pubDate: parseAsUTC(post.date),
-        content: post.content.rendered,
+        content: contentJson,
         contentFormat: 'text/html',
-        title: post.title.rendered,
-        subtitle: 'missing',
-        summary: post.excerpt.rendered,
+        title: title,
+        summary: summary,
+        subtitle: {},
         PublicationService: this._uriLink('station', post.meta.station_id),
         Concepts: conceptLinks,
         MediaAssets: mediaAssetLinks,
         PrimaryGrouping: this._uriLink('series', post.post_parent),
+        contentUrl: contentUrlJson,
+        originalLanguages: { language_codes: post.language_codes },
+        License: licenseUri.length > 0 ? { uri: licenseUri[0] } : null,
+        removed: false,
         //licenseUid
         //primaryGroupingUid
         //contributor
@@ -722,6 +874,47 @@ export class CbaDataSource implements DataSource {
       console.error(`Error mapping post with ID ${post.id}:`, error)
       throw error
     }
+  }
+
+  private _mapTranscripts(
+    media: any,
+    transcripts: any[],
+    mediaAssetLinks: any,
+  ): EntityForm[] {
+    const entities: EntityForm[] = []
+
+    transcripts.forEach((transcript) => {
+      const transcriptId = this._uri('transcript', transcript.id)
+      const content: form.TranscriptInput = {
+        language: transcript['language'],
+        text: transcript['transcript'],
+        engine: 'engine',
+        MediaAsset: mediaAssetLinks,
+        license: transcript['license'],
+        subtitleUrl: transcript['subtitles'],
+        author: transcript['author'],
+      }
+      entities.push({
+        type: 'Transcript',
+        content,
+        headers: { EntityUris: [transcriptId] },
+      })
+    })
+
+    return entities
+  }
+
+  private _mapLicense(name: string): EntityForm {
+    const licenseId = this._uri('license', name)
+    const license: form.LicenseInput = {
+      name: name,
+    }
+    const entity: EntityForm = {
+      type: 'License',
+      content: license,
+      headers: { EntityUris: [licenseId] },
+    }
+    return entity
   }
 
   private _url(urlString: string, opts: FetchOpts = {}) {
@@ -764,5 +957,6 @@ export class CbaDataSource implements DataSource {
  * @param dateString Datetime string in format 1998-10-17T00:00:00
  */
 function parseAsUTC(dateString: string): Date {
-  return new Date(dateString + '.000Z')
+  const convertedDate = new Date(dateString + '.000Z')
+  return convertedDate
 }

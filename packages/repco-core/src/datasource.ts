@@ -236,11 +236,11 @@ export class DataSourceRegistry extends Registry<DataSource> {
     config: any,
   ) {
     const instance = plugins.createInstance(pluginUid, config)
-    if (this.has(instance.definition.uid)) {
-      throw new Error(
-        `Datasource with ${instance.definition.uid} already exists.`,
-      )
-    }
+    // if (this.has(instance.definition.uid)) {
+    //   throw new Error(
+    //     `Datasource with ${instance.definition.uid} already exists.`,
+    //   )
+    // }
     return this.register(instance)
   }
 

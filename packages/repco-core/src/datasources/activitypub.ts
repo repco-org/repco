@@ -2,7 +2,7 @@ import zod from 'zod'
 import { parse, toSeconds } from 'iso8601-duration'
 import { getGlobalApInstance } from 'repco-activitypub'
 import { log } from 'repco-common'
-import { ConceptKind, ContentGroupingVariant, form } from 'repco-prisma'
+import { ContentGroupingVariant, form } from 'repco-prisma'
 import { ConceptInput } from 'repco-prisma/generated/repco/zod.js'
 import { fetch } from 'undici'
 import {
@@ -40,15 +40,17 @@ type ChannelInfo = {
 
 type Cursor = {
   lastIngest: Date
+  direction: 'front' | 'back'
+  pageNumber: number
 }
 
-function parseCursor(input?: string | null): Cursor {
-  const cursor = input ? JSON.parse(input) : {}
+function parseCursor(input: string, defaults: any): Cursor {
+  const cursor = JSON.parse(input)
   const dateFields = ['lastIngest']
   for (const field of dateFields) {
     if (cursor[field]) cursor[field] = new Date(cursor[field])
   }
-  return cursor as Cursor
+  return { ...defaults, ...cursor } as Cursor
 }
 
 export class ActivityPubDataSourcePlugin implements DataSourcePlugin {
@@ -219,22 +221,28 @@ export class ActivityPubDataSource
   }
 
   async fetchUpdates(cursorString: string | null): Promise<FetchUpdatesResult> {
-    const nextCursor = {
-      lastIngest: new Date(),
+    let cursor: Cursor
+    if (cursorString) {
+      cursor = parseCursor(cursorString, { direction: 'back', pageNumber: 1 })
+    } else {
+      cursor = {
+        lastIngest: new Date(),
+        direction: 'back',
+        pageNumber: 1,
+      }
     }
     const { ap, remoteId } = await this.getAndInitAp()
     const profile = remoteId
 
     // we have a previous cursor. ingest updates that were pushed to our inbox.
-    if (cursorString) {
+    if (cursor.direction === 'front') {
       try {
-        const cursor = parseCursor(cursorString)
         const activities = await ap.getActivitiesForRemoteActor(
           profile,
           cursor.lastIngest,
         )
         if (!activities.length) {
-          return { cursor: cursorString, records: [] }
+          return { cursor: JSON.stringify(cursor), records: [] }
         }
         // map activities to source records
         const items = await Promise.all(
@@ -244,18 +252,19 @@ export class ActivityPubDataSource
           (item): item is VideoObject => !!item,
         )
         if (!newVideoObjects.length) {
-          return { cursor: cursorString, records: [] }
+          return { cursor: JSON.stringify(cursor), records: [] }
         }
+        cursor.lastIngest = new Date()
         const records: SourceRecordForm[] = [
           {
             body: JSON.stringify(newVideoObjects),
             contentType: 'application/json',
             sourceType: 'videoObjects',
-            sourceUri: this.account + '#' + nextCursor.lastIngest.toISOString(),
+            sourceUri: this.account + '#' + cursor.lastIngest.toISOString(),
           },
         ]
         return {
-          cursor: JSON.stringify(nextCursor),
+          cursor: JSON.stringify(cursor),
           records,
         }
       } catch (error) {
@@ -285,20 +294,20 @@ export class ActivityPubDataSource
         // collect new video entities
         const newVideoObjects: VideoObject[] = []
         // start with first page
-        let pageNumber = 1
-        let currentPageUrl = firstPageUrl
-        let currentPage =
-          currentPageUrl && (await this._fetchAs<Page>(currentPageUrl))
+        const pageNumber = cursor.pageNumber
+        const currentPageUrl = firstPageUrl.replace(
+          'page=1',
+          `page=${pageNumber}`,
+        )
+        log.debug(`AP ingest backwards page ${pageNumber}: ${currentPageUrl}`)
+        const currentPage = await this._fetchAs<Page>(currentPageUrl)
 
         // loop over pages while there are still items on the page
-        while (currentPage && currentPage.orderedItems.length !== 0) {
-          const items =
-            currentPage &&
-            (await Promise.all(
-              currentPage.orderedItems.map((item) =>
-                this.handleActivities(item),
-              ),
-            ))
+        if (currentPage && currentPage.orderedItems.length !== 0) {
+          cursor.pageNumber += 1
+          const items = await Promise.all(
+            currentPage.orderedItems.map((item) => this.handleActivities(item)),
+          )
           if (items === undefined) {
             throw new Error(
               `Could not catch items under url ${currentPageUrl}.`,
@@ -308,12 +317,8 @@ export class ActivityPubDataSource
           newVideoObjects.push(
             ...items.filter((item): item is VideoObject => !!item),
           )
-
-          pageNumber++
-          currentPageUrl =
-            firstPageUrl && firstPageUrl.replace('page=1', `page=${pageNumber}`)
-          currentPage =
-            currentPageUrl && (await this._fetchAs<Page>(currentPageUrl))
+        } else {
+          cursor.direction = 'front'
         }
 
         // save collected items as source records
@@ -324,16 +329,16 @@ export class ActivityPubDataSource
               body: JSON.stringify(newVideoObjects),
               contentType: 'application/json',
               sourceType: 'videoObjects',
-              sourceUri:
-                this.account + '#' + nextCursor.lastIngest.toISOString(),
+              sourceUri: this.account + '#' + cursor.lastIngest.toISOString(),
             },
           ]
         }
         if (channelSourceRecord !== undefined) {
           records.push(channelSourceRecord as SourceRecordForm)
         }
+        log.debug(`AP ingest done - next cursor ${JSON.stringify(cursor)}`)
         return {
-          cursor: JSON.stringify(nextCursor),
+          cursor: JSON.stringify(cursor),
           records,
         }
       } catch (error) {
@@ -442,13 +447,17 @@ export class ActivityPubDataSource
     }
     entities.push(fileEntity)
     // create Subtitles entity
-    const subtitles: form.SubtitlesInput = {
-      languageCode,
-      Files: [{ uri: fileUri }],
+    const subtitles: form.TranscriptInput = {
+      language: languageCode,
+      subtitleUrl: fileUri,
+      text: '',
+      engine: 'engine',
       MediaAsset: { uri: mediaAssetUri },
+      license: '',
+      author: '',
     }
     const subtitlesEntity: EntityForm = {
-      type: 'Subtitles',
+      type: 'Transcript',
       content: subtitles,
       headers: { EntityUris: [subtitlesEntityUri] },
     }
@@ -476,9 +485,13 @@ export class ActivityPubDataSource
   }
 
   private _mapTagToConceptEntity(tag: ActivityHashTagObject): EntityForm {
+    var nameJson: { [k: string]: any } = {}
+    nameJson['de'] = { value: tag.name }
     const concept: ConceptInput = {
-      kind: ConceptKind.TAG,
-      name: tag.name,
+      kind: 'TAG',
+      name: nameJson,
+      description: {},
+      summary: {},
     }
     const uri = this._uri('tags', tag.name)
     const ConceptEntity: EntityForm = {
@@ -492,9 +505,13 @@ export class ActivityPubDataSource
   private _mapCategoryToConceptEntity(
     category: ActivityIdentifierObject,
   ): EntityForm[] {
+    var nameJson: { [k: string]: any } = {}
+    nameJson['de'] = { value: category.name }
     const concept: form.ConceptInput = {
-      kind: ConceptKind.CATEGORY,
-      name: category.name,
+      kind: 'CATEGORY',
+      name: nameJson,
+      description: {},
+      summary: {},
       // TODO: find originNamespace of AP categories
     }
     const uri = this._uri('category', 'peertube:' + category.name)
@@ -591,9 +608,14 @@ export class ActivityPubDataSource
       subtitleEntities && entities.push(...subtitleEntities)
     }
 
+    var titleJson: { [k: string]: any } = {}
+    titleJson[video.language?.name || 'de'] = { value: video.name }
+    var descriptionJson: { [k: string]: any } = {}
+    descriptionJson[video.language?.name || 'de'] = { value: video.content }
+
     const asset: form.MediaAssetInput = {
-      title: video.name,
-      description: video.content,
+      title: titleJson,
+      description: descriptionJson,
       duration,
       mediaType: video.type, //"Video"
       Files: files,
@@ -602,7 +624,6 @@ export class ActivityPubDataSource
       // Contributions: null,
       TeaserImage: { uri: teaserImageUri },
       Concepts: conceptUris.length > 0 ? conceptUris : undefined,
-      Subtitles: [],
     }
 
     const mediaEntity: EntityForm = {
@@ -641,12 +662,28 @@ export class ActivityPubDataSource
           ?.map((tag) => this._uriLink('tags', tag.href ? tag.href : tag.name))
           .filter(notEmpty) ?? []
       conceptLinks.push(...tags)
+      var lang = video.language?.name || 'de'
+      if (lang.length > 2) {
+        lang = lang.toLowerCase().slice(0, 2)
+      }
+      // var summaryJson: { [k: string]: any } = {}
+      // summaryJson[''] = { value: '' }
+      var titleJson: { [k: string]: any } = {}
+      titleJson[lang] = { value: video.name }
+      var contentJson: { [k: string]: any } = {}
+      contentJson[lang] = {
+        value: video.content,
+      }
+      var contentUrlsJson: { [k: string]: any } = {}
+      contentJson[lang] = {
+        value: video.url[0].href,
+      }
 
       const content: form.ContentItemInput = {
-        title: video.name,
-        subtitle: 'missing',
+        title: titleJson,
+        subtitle: {},
         pubDate: new Date(video.published),
-        content: video.content || '',
+        content: contentJson,
         contentFormat: video.mediaType, // "text/markdown"
         // licenseUid TODO: plan to abolish License table and add license as string plus license_details
         Concepts: conceptLinks,
@@ -654,6 +691,10 @@ export class ActivityPubDataSource
         //License
         MediaAssets: mediaAssetUris,
         PrimaryGrouping: this._uriLink('account', this.account),
+        summary: {},
+        contentUrl: contentUrlsJson,
+        originalLanguages: {},
+        removed: false,
       }
       const revisionUri = this._revisionUri(
         'videoContent',
@@ -683,10 +724,14 @@ export class ActivityPubDataSource
     channelInfo: ChannelInfo,
   ): EntityForm[] {
     try {
+      var titleJson: { [k: string]: any } = {}
+      titleJson['de'] = { value: channelInfo.account }
       const contentGrouping: form.ContentGroupingInput = {
-        title: channelInfo.account,
+        title: titleJson,
         variant: ContentGroupingVariant.EPISODIC, // @Frando is this used as intended?
         groupingType: 'activityPubChannel',
+        description: {},
+        summary: {},
       }
       const contentGroupingUri = this._uri('account', channelInfo.account)
       const headers = {

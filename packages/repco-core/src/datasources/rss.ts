@@ -2,11 +2,7 @@ import RssParser from 'rss-parser'
 import zod from 'zod'
 import { log } from 'repco-common'
 import { Link } from 'repco-common/zod'
-import { ContentGroupingVariant } from 'repco-prisma'
-import {
-  ContentGroupingInput,
-  ContentItemInput,
-} from 'repco-prisma/generated/repco/zod.js'
+import { form } from 'repco-prisma'
 import { fetch } from 'undici'
 import {
   BaseDataSource,
@@ -40,6 +36,7 @@ export class RssDataSourcePlugin implements DataSourcePlugin {
 const configSchema = zod.object({
   endpoint: zod.string().url(),
   repo: zod.string(),
+  language: zod.string().or(zod.null()).optional(),
 })
 type ConfigSchema = zod.infer<typeof configSchema>
 
@@ -96,8 +93,23 @@ function getDateRangeFromFeed(feed: RssParser.Output<any>): [Date, Date] {
 export class RssDataSource extends BaseDataSource implements DataSource {
   endpoint: URL
   baseUri: string
-  parser: RssParser = new RssParser()
+  parser: RssParser = new RssParser({
+    customFields: {
+      item: [
+        'frn:language',
+        'xml:lang',
+        'frn:title',
+        'frn:licence',
+        'frn:radio',
+        'image',
+        'itunes:image',
+        'image',
+      ],
+    },
+  })
+  uriPrefix: string
   repo: string
+  language: string | null | undefined
   constructor(config: ConfigSchema) {
     super()
     const endpoint = new URL(config.endpoint)
@@ -105,10 +117,12 @@ export class RssDataSource extends BaseDataSource implements DataSource {
     this.endpoint = endpoint
     this.baseUri = removeProtocol(this.endpoint)
     this.repo = config.repo
+    this.uriPrefix = `repco:rss:${this.endpoint.host}`
+    this.language = config.language
   }
 
   get config() {
-    return { endpoint: this.endpoint.toString() }
+    return { endpoint: this.endpoint.toString(), language: this.language }
   }
 
   get definition(): DataSourceDefinition {
@@ -148,18 +162,29 @@ export class RssDataSource extends BaseDataSource implements DataSource {
     const url = new URL(this.endpoint)
 
     // TODO: Make configurable
-    const pagination = {
-      offsetParam: 'start',
-      limitParam: 'anzahl',
-      limit: 100,
+    var pagination = {
+      offsetParam: 'offset',
+      limitParam: 'limit',
+      limit: 50,
+    }
+    if (url.href.indexOf('freie-radios') != -1) {
+      pagination = {
+        offsetParam: 'start',
+        limitParam: 'anzahl',
+        limit: 50,
+      }
     }
 
     const page = cursor.pageNumber || 0
+    url.searchParams.set('paged', page.toString())
+    url.searchParams.set('sort', 'modifiedAt')
     url.searchParams.set(pagination.limitParam, pagination.limit.toString())
-    url.searchParams.set(
-      pagination.offsetParam,
-      (page * pagination.limit).toString(),
-    )
+    if (page * pagination.limit > 0) {
+      url.searchParams.set(
+        pagination.offsetParam,
+        (page * pagination.limit).toString(),
+      )
+    }
 
     const xml = await this.fetchPage(url)
     return { url, xml }
@@ -268,10 +293,10 @@ export class RssDataSource extends BaseDataSource implements DataSource {
     }
   }
 
-  async mapPage(feed: ParsedFeed) {
+  async mapPage(feed: any) {
     const entities = []
     for (const item of feed.items) {
-      entities.push(...(await this._mapItem(item)))
+      entities.push(...(await this._mapItem(item, feed.language)))
     }
     return entities
   }
@@ -284,6 +309,7 @@ export class RssDataSource extends BaseDataSource implements DataSource {
 
     try {
       const feed = await this.parser.parseString(xml)
+      feed.items = feed.items.filter((item) => item.link != undefined)
       cursor.newest = this.extractNextCursor(cursor.newest, feed)
 
       const sourceUri = new URL(this.endpoint)
@@ -321,17 +347,40 @@ export class RssDataSource extends BaseDataSource implements DataSource {
       const feed = await parseBodyCached(record, async (record) =>
         this.parser.parseString(record.body),
       )
-      const entity: ContentGroupingInput = {
-        groupingType: 'feed',
-        title: feed.title || feed.feedUrl || 'unknown',
-        variant: ContentGroupingVariant.EPISODIC,
-        description: feed.description,
+      var lang = feed['frn:language'] || feed['xml:lang'] || feed.language
+      if (lang.length > 2) {
+        lang = lang.slice(0, 2)
+      }
+
+      var titleJson: { [k: string]: any } = {}
+      titleJson[lang] = {
+        value: feed.title || feed.feedUrl || 'unknown',
+      }
+      var summaryJson: { [k: string]: any } = {}
+      summaryJson[lang] = {
+        value: '',
+      }
+      var descriptionJson: { [k: string]: any } = {}
+      descriptionJson[lang] = {
+        value: feed.description || '',
+      }
+      const pubService: form.PublicationServiceInput = {
+        name: titleJson,
+        medium: '',
+        address: feed.feedUrl || '',
       }
       return [
         {
-          type: 'ContentGrouping',
-          content: entity,
-          headers: { EntityUris: [this.endpoint.toString()] },
+          type: 'PublicationService',
+          content: pubService,
+          headers: {
+            EntityUris: [
+              this._uri(
+                'publicationservice',
+                feed.title || feed.feedUrl || 'unknown',
+              ),
+            ],
+          },
         },
       ]
     }
@@ -341,6 +390,7 @@ export class RssDataSource extends BaseDataSource implements DataSource {
   async _extractMediaAssets(
     itemUri: string,
     item: RssParser.Item,
+    language: string,
   ): Promise<{ mediaAssets: Link[]; entities: EntityForm[] }> {
     const entities: EntityForm[] = []
     if (!item.enclosure) {
@@ -358,13 +408,23 @@ export class RssDataSource extends BaseDataSource implements DataSource {
 
     const mediaUri = itemUri + '#media'
 
+    var titleJson: { [k: string]: any } = {}
+    titleJson[language] = {
+      value: item.title || item.guid || 'missing',
+    }
+    var descriptionJson: { [k: string]: any } = {}
+    descriptionJson[language] = {
+      value: '{}',
+    }
+
     entities.push({
       type: 'MediaAsset',
       content: {
-        title: item.title || item.guid || 'missing',
+        title: titleJson,
         duration: 0,
-        mediaType: 'audio',
+        mediaType: item.enclosure.type || 'audio',
         Files: [{ uri: fileUri }],
+        description: descriptionJson,
       },
       headers: { EntityUris: [mediaUri] },
     })
@@ -379,26 +439,109 @@ export class RssDataSource extends BaseDataSource implements DataSource {
     return 'rss:uuid:' + createRandomId()
   }
 
-  async _mapItem(item: RssParser.Item): Promise<EntityForm[]> {
+  async _mapItem(item: any, language: string): Promise<EntityForm[]> {
     const itemUri = await this._deriveItemUri(item)
+    var licenseUri: string[] = []
+    var publicationServiceUri: string[] = []
+    var lang =
+      item['frn:language'] || item['xml:lang'] || this.language || language
+    if (lang.length > 2) {
+      lang = lang.slice(0, 2)
+    }
     const { entities, mediaAssets } = await this._extractMediaAssets(
       itemUri,
       item,
+      lang,
     )
-    const content: ContentItemInput = {
-      title: item.title || item.guid || 'missing',
-      summary: item.contentSnippet,
-      content: item.content || '',
+
+    if (item['frn:radio'] != null) {
+      const pubService = this._mapPublicationService(item['frn:radio'], lang)
+      publicationServiceUri = pubService.headers?.EntityUris || []
+      entities.push(pubService)
+    }
+
+    if (item['frn:licence'] != null) {
+      const license = this._mapLicense(item['frn:licence'])
+
+      licenseUri = license.headers?.EntityUris || []
+      entities.push(license)
+    }
+
+    var titleJson: { [k: string]: any } = {}
+    titleJson[lang] = {
+      value: item['frn:title'] || item.title || item.guid || 'missing',
+    }
+    var summaryJson: { [k: string]: any } = {}
+    summaryJson[lang] = {
+      value: item.contentSnippet || '{}',
+    }
+    var contentJson: { [k: string]: any } = {}
+    contentJson[lang] = {
+      value: item.content || '',
+    }
+    var contentUrlJson: { [k: string]: any } = {}
+    contentUrlJson[lang] = {
+      value: item.link || '',
+    }
+
+    const content: form.ContentItemInput = {
+      title: titleJson,
+      summary: summaryJson,
+      content: contentJson,
+      subtitle: {},
       contentFormat: 'text/plain',
       pubDate: item.pubDate ? new Date(item.pubDate) : null,
       PrimaryGrouping: { uri: this.endpoint.toString() },
       MediaAssets: mediaAssets,
+      contentUrl: contentUrlJson,
+      originalLanguages: { language_codes: [lang] },
+      PublicationService:
+        publicationServiceUri.length > 0
+          ? { uri: publicationServiceUri[0] }
+          : null,
+      License: licenseUri.length > 0 ? { uri: licenseUri[0] } : null,
+      removed: false,
     }
     const headers = {
       EntityUris: [itemUri],
     }
     entities.push({ type: 'ContentItem', content, headers })
     return entities
+  }
+
+  private _mapPublicationService(name: string, lang: string): EntityForm {
+    const publicationServiceId = this._uri('radio', name)
+
+    var nameJson: { [k: string]: any } = {}
+    nameJson[lang] = { value: name }
+
+    const content: form.PublicationServiceInput = {
+      name: nameJson,
+      address: '',
+    }
+    const entity: EntityForm = {
+      type: 'PublicationService',
+      content,
+      headers: { EntityUris: [publicationServiceId] },
+    }
+    return entity
+  }
+
+  private _mapLicense(name: string): EntityForm {
+    const licenseId = this._uri('license', name)
+    const license: form.LicenseInput = {
+      name: name,
+    }
+    const entity: EntityForm = {
+      type: 'License',
+      content: license,
+      headers: { EntityUris: [licenseId] },
+    }
+    return entity
+  }
+
+  private _uri(type: string, id: string | number): string {
+    return `${this.uriPrefix}:e:${type}:${id}`
   }
 }
 

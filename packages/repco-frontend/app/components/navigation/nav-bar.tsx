@@ -12,7 +12,7 @@ export function NavBar() {
   const links = [
     { label: 'Dashboard', to: '/' },
     { label: 'Items', to: '/items' },
-    { label: 'Playlists', to: '/playlists' },
+    // { label: 'Playlists', to: '/playlists' },
   ]
 
   const handleMenuToggle = () => {

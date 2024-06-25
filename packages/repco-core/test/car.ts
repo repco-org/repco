@@ -26,6 +26,9 @@ function mkinput(i: number) {
       content: 'badoo',
       subtitle: 'asdf',
       summary: 'yoo',
+      contentUrl: 'url',
+      removed: false,
+      originalLanguages: {},
     },
   }
   return input

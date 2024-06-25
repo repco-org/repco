@@ -13,8 +13,13 @@ test('simple sync', async (assert) => {
     type: 'ContentItem',
     content: {
       title: 'foo',
-      content: 'hello',
       contentFormat: 'text/plain',
+      content: 'hello',
+      subtitle: 'asdf',
+      summary: 'yoo',
+      contentUrl: {},
+      removed: false,
+      originalLanguages: {},
     },
   }
   await repo1.saveEntity(input)

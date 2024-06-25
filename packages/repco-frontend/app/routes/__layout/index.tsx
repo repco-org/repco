@@ -83,7 +83,9 @@ export const loader: LoaderFunction = async ({ request }) => {
     publicationServicesNodes = top10
   }
 
-  const labels = publicationServicesNodes.map((item) => item.name)
+  const labels = publicationServicesNodes.map(
+    (item) => item.name[Object.keys(item.name)[0]]['value'],
+  )
   const dataPoints = publicationServicesNodes.map(
     (item) => item.contentItems?.totalCount,
   )
@@ -119,6 +121,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   }
 
   const filteredRepoStats = repoStats.filter((result) => result !== null)
+
   return {
     data,
     repoChartData,
@@ -155,7 +158,7 @@ export default function Index() {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         <div className="flex flex-col items-center p-2 bg-white shadow-lg rounded-lg hover:shadow-xl">
           <h3 className="text-xl text-center">
-            Publication Services by ContentItems (last 3 Month)
+            Publication Services by ContentItems
           </h3>
           <Doughnut
             aria-label="Publication services by content items chart"
@@ -176,9 +179,13 @@ export default function Index() {
               (node: any, index: number) => (
                 <li key={index}>
                   <NavLink to={`/items/${node.uid}`}>
-                    {node.title.length > 20
-                      ? node.title.slice(0, 45) + '...'
-                      : node.title}
+                    {node.title[Object.keys(node?.title)[0]]['value'].length >
+                    20
+                      ? node.title[Object.keys(node?.title)[0]]['value'].slice(
+                          0,
+                          45,
+                        ) + '...'
+                      : node.title[Object.keys(node?.title)[0]]['value']}
                   </NavLink>
                 </li>
               ),
@@ -215,11 +222,20 @@ export default function Index() {
                 <ContentItemCard
                   aria-label={`Repository ${repo.name} with DID ${repo.did}`}
                 >
-                  <div className="flex items-baseline space-x-4">
-                    <h3 className="text-brand-primary text-lg" key={i}>
+                  <div
+                    className="flex items-baseline space-x-4"
+                    style={{ alignItems: 'center' }}
+                  >
+                    <h3
+                      className="text-brand-primary text-lg"
+                      key={i}
+                      style={{ alignItems: 'center' }}
+                    >
                       {repo.name}
                     </h3>
-                    <span className="text-xs italic">{repo.did}</span>
+                    <span className="text-xs italic">
+                      ({repoChartData.datasets[0].data[i]}) {repo.did}
+                    </span>
                   </div>
                 </ContentItemCard>
               </NavLink>
@@ -227,6 +243,77 @@ export default function Index() {
           )}
         </div>
       </div>
+
+      <div>
+        <h3 className="text-2xl">
+          Datasources ({data?.dataSources.totalCount})
+        </h3>
+        <div className="flex flex-col p-1">
+          {data?.dataSources.nodes.map((ds: { config: any }, i: number) => (
+            <a key={i} href={ds.config.url} target={'_blank'}>
+              <ContentItemCard aria-label={`Datasource ${ds.config.name}`}>
+                <div
+                  className="flex items-baseline space-x-4"
+                  style={{ alignItems: 'center' }}
+                >
+                  <h3
+                    className="text-brand-primary text-lg"
+                    key={i}
+                    style={{ display: 'flex', alignItems: 'center' }}
+                  >
+                    <img
+                      src={ds.config.thumbnail}
+                      style={{
+                        display: 'block',
+                        margin: 'auto',
+                        paddingRight: '8px',
+                        width: '100px',
+                        height: 'auto',
+                      }}
+                    />
+                    {ds.config.name}
+                  </h3>
+                  <span className="text-xs italic">{ds.config.url}</span>
+                </div>
+              </ContentItemCard>
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-2xl">
+          Publication Services ({data?.publicationServices.totalCount})
+        </h3>
+        <div className="flex flex-col p-1">
+          {data?.publicationServices.nodes.map(
+            (ps: { name: any; contentItems: any }, i: number) => (
+              <ContentItemCard
+                aria-label={`Publicationservice ${
+                  ps.name[Object.keys(ps.name)[0]].value
+                }`}
+              >
+                <div
+                  className="flex items-baseline space-x-4"
+                  style={{ alignItems: 'center' }}
+                >
+                  <h3
+                    className="text-brand-primary text-lg"
+                    key={i}
+                    style={{ display: 'flex', alignItems: 'center' }}
+                  >
+                    {ps.name[Object.keys(ps.name)[0]].value}
+                  </h3>
+                  <span className="text-xs italic">
+                    ({ps.contentItems.totalCount})
+                  </span>
+                </div>
+              </ContentItemCard>
+            ),
+          )}
+        </div>
+      </div>
+
       <div className="flex flex-col space-y-4">
         <div className="flex justify-between align-middle">
           <div className="flex flex-col w-2/3 space-y-2">
@@ -242,21 +329,40 @@ export default function Index() {
               <a href="https://cba.media" className="w-1/6 flex">
                 <img
                   className=" object-contain"
-                  src="https://cba.media/wp-content/themes/cba2020/images/cba_logo.svg"
+                  src="https://cba.media/wp-content/themes/cba2020/images/cba_media_logo.svg"
                   alt="cba-logo"
                 />
               </a>
             </div>
           </div>
-          <div className="flex flex-col w-1/3 space-y-2">
+          <div
+            className="flex flex-col w-1/3 space-y-2"
+            style={{ marginBottom: '8px' }}
+          >
             <h4 className="text-xl">And kindly supported by:</h4>
-            <a className="flex w-1/2" href="https://culturalfoundation.eu">
-              <img
-                className=" object-contain"
-                src="https://culturalfoundation.eu/wp-content/themes/ecf/img/logo.svg"
-                alt="ecf-logo"
-              />
-            </a>
+            <div className="flex">
+              <a className="flex w-1/3" href="https://culturalfoundation.eu">
+                <img
+                  className=" object-contain"
+                  src="https://culturalfoundation.eu/wp-content/themes/ecf/img/logo.svg"
+                  alt="ecf-logo"
+                />
+              </a>
+              <a href="#" className="w-1/3 flex">
+                <img
+                  className=" object-contain"
+                  src="https://cba.media/wp-content/uploads/6/3/0000660636/eu-logo.png"
+                  alt="eu-logo"
+                />
+              </a>
+              <a href="https://www.rtr.at" className="w-1/3 flex">
+                <img
+                  className=" object-contain"
+                  src="https://cba.media/wp-content/uploads/5/3/0000660635/rtr-logo.jpg"
+                  alt="rtr-logo"
+                />
+              </a>
+            </div>
           </div>
         </div>
       </div>

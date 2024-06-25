@@ -38,7 +38,7 @@ import {
   log,
   SourceRecordForm,
 } from '../datasource.js'
-import { ConceptKind, ContentGroupingVariant, EntityForm } from '../entity.js'
+import { ContentGroupingVariant, EntityForm } from '../entity.js'
 import { FetchOpts } from '../util/datamapping.js'
 import { HttpError } from '../util/error.js'
 
@@ -275,8 +275,9 @@ export class XrcbDataSource extends BaseDataSource implements DataSource {
     const content: form.ConceptInput = {
       name: category.name,
       description: category.description || '',
-      kind: ConceptKind.CATEGORY,
+      kind: 'CATEGORY',
       originNamespace: 'https://xrcb.cat/wp-json/wp/v2/podcast_category',
+      summary: '{}',
     }
 
     const revisionId = this._revisionUri(
@@ -300,8 +301,9 @@ export class XrcbDataSource extends BaseDataSource implements DataSource {
     const content: form.ConceptInput = {
       name: tag.name,
       description: tag.description || '',
-      kind: ConceptKind.TAG,
+      kind: 'TAG',
       originNamespace: 'https://xrcb.cat/wp-json/wp/v2/podcast_tag',
+      summary: '{}',
     }
     const revisionId = this._revisionUri('tag', tag.id, new Date().getTime())
     const uri = this._uri('tag', tag.id)
@@ -356,6 +358,7 @@ export class XrcbDataSource extends BaseDataSource implements DataSource {
       description: series.description || '',
       variant: ContentGroupingVariant.SERIAL,
       groupingType: 'series',
+      summary: '{}',
     }
     const revisionId = this._revisionUri(
       'series',
@@ -442,12 +445,15 @@ export class XrcbDataSource extends BaseDataSource implements DataSource {
             content: postContent,
             contentFormat: 'text/html',
             title: postTitle,
-            subtitle: '',
+            subtitle: {},
             summary: '',
             Concepts: this._getConceptURIs(post, []),
             PublicationService: this._getPublicationService(post, { uri: '' }),
             PrimaryGrouping: this._getPrimaryGrouping(post, { uri: '' }),
             MediaAssets: mediaAssetUris.map((uri) => ({ uri })),
+            contentUrl: {},
+            originalLanguages: {},
+            removed: false,
           },
           headers: {
             EntityUris: [this._uri('post', post.id)],
@@ -528,6 +534,7 @@ export class XrcbDataSource extends BaseDataSource implements DataSource {
           title: post.acf?.img_podcast?.title ?? '',
           mediaType: 'image',
           Files: [{ uri: fileId }],
+          description: '{}',
         }
 
         const imageFileEntity: EntityForm = {
