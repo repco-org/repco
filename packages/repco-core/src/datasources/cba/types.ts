@@ -33,7 +33,7 @@ export interface CbaPost {
   production_date: string
   _links: Links
   _fetchedAttachements: any[]
-  translations: any[] | {}
+  translations: any[] | object
   license: {
     license_image: string
     license: string

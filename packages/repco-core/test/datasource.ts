@@ -145,7 +145,7 @@ class TestDataSource extends BaseDataSource implements DataSource {
     const form = JSON.parse(record.body) as EntityForm
     if (this.mapUppercase) {
       if (form.type === 'ContentItem') {
-        form.content.title = form.content.title //.toUpperCase()
+        //form.content.title = form.content.title //.toUpperCase()
       }
     }
     return [form]

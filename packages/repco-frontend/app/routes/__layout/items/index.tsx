@@ -14,7 +14,6 @@ import type {
   ContentItemsOrderBy,
   LoadContentItemsQuery,
   LoadContentItemsQueryVariables,
-  StringFilter,
 } from '~/graphql/types.js'
 import { graphqlQuery, parsePagination } from '~/lib/graphql.server'
 
@@ -26,7 +25,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   const repoDid = url.searchParams.get('repoDid') || 'all'
   const { first, last, after, before } = parsePagination(url)
   let filter: ContentItemFilter | undefined = undefined
-  let condition: ContentItemCondition | undefined = undefined;
+  let condition: ContentItemCondition | undefined = undefined
   if (type === 'title' && q) {
     //const titleFilter: StringFilter = { includesInsensitive: q }
     //filter = { title: titleFilter }
@@ -52,7 +51,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     before,
     orderBy: orderBy as ContentItemsOrderBy,
     filter,
-    condition
+    condition,
   }
   const { data } = await graphqlQuery<
     LoadContentItemsQuery,
@@ -63,8 +62,13 @@ export const loader: LoaderFunction = async ({ request }) => {
       data?.contentItems?.nodes.map((node) => {
         return {
           ...node,
-          title: sanitize(node?.title[Object.keys(node?.title)[0]]['value'], { allowedTags: [] }),
-          summary: sanitize(node?.summary[Object.keys(node?.title)[0]]['value'] || '', { allowedTags: [] }),
+          title: sanitize(node?.title[Object.keys(node?.title)[0]]['value'], {
+            allowedTags: [],
+          }),
+          summary: sanitize(
+            node?.summary[Object.keys(node?.title)[0]]['value'] || '',
+            { allowedTags: [] },
+          ),
         }
       }) || [],
     pageInfo: data?.contentItems?.pageInfo,
@@ -122,8 +126,14 @@ export default function ItemsIndex() {
                       </NavLink>
                       <p className="text-xs text-slate-600">
                         {new Date(node.pubDate).toLocaleDateString()}
-                        {node.publicationService?.name[Object.keys(node.publicationService?.name)[0]]['value'] && ' - '}
-                        {node.publicationService?.name[Object.keys(node.publicationService?.name)[0]]['value']}
+                        {node.publicationService?.name[
+                          Object.keys(node.publicationService?.name)[0]
+                        ]['value'] && ' - '}
+                        {
+                          node.publicationService?.name[
+                            Object.keys(node.publicationService?.name)[0]
+                          ]['value']
+                        }
                       </p>
                     </div>
                     <p className="text-xs">{node.summary || ''}</p>
