@@ -8,3 +8,4 @@ data
 *.0x
 packages/repco-frontend/app/styles
 packages/*/coverage
+docker/app.env

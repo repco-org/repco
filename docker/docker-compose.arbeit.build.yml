@@ -7,13 +7,14 @@ services:
       dockerfile: './docker/Dockerfile'
     container_name: repco-app
     restart: unless-stopped
+    env_file: 'app.env'
     ports:
       - 8766:8765
     # links:
     #   - 'es01:repco-es'
     environment:
       - DATABASE_URL=postgresql://repco:repco@db:5432/repco
-      - REPCO_ADMIN_TOKEN=kUBY0zsPHC9ubj3T6DZJKUACi3M=
+      - REPCO_ADMIN_TOKEN=${REPCO_ADMIN_TOKEN}
       - REPCO_URL=https://repco.arbeit.cba.media
       - CBA_API_KEY=k8WHfNbal0rjIs2f
     depends_on:
