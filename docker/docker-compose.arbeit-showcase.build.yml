@@ -7,13 +7,14 @@ services:
       dockerfile: './docker/Dockerfile'
     container_name: repco-showcase-app
     restart: unless-stopped
+    env_file: 'app.env'
     ports:
       - 8767:8765
     # links:
     #   - 'es01:repco-es'
     environment:
       - DATABASE_URL=postgresql://repco:repco@db:5432/repco
-      - REPCO_ADMIN_TOKEN=kUBY0zsPHC9ubj3T6DZJKUACi3M=
+      - REPCO_ADMIN_TOKEN=${REPCO_ADMIN_TOKEN}
       - REPCO_URL=http://localhost:8765
       - CBA_API_KEY=k8WHfNbal0rjIs2f
       - AP_BASE_URL=http://localhost:8765/ap
