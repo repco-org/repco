@@ -7,6 +7,7 @@ import { lexicographicSortSchema } from 'graphql'
 import { createPostGraphileSchema, postgraphile } from 'postgraphile'
 import ConceptFilterPlugin from './plugins/concept-filter.js'
 import ContentItemByUidsFilterPlugin from './plugins/content-item-by-uids-filter.js'
+import ContentItemContentUrlFilterPlugin from './plugins/content-item-content-url-filter.js'
 import ContentItemFilterPlugin from './plugins/content-item-filter.js'
 import ExportSchemaPlugin from './plugins/export-schema.js'
 // Change some inflection rules to better match our schema.
@@ -63,6 +64,7 @@ export function getPostGraphileOptions() {
       ContentItemByUidsFilterPlugin,
       RevisionsByEntityUris,
       RevisionsByEntityUrisNot,
+      ContentItemContentUrlFilterPlugin,
       // ElasticTest,
       // CustomFilterPlugin,
     ],
