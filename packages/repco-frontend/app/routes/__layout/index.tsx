@@ -150,7 +150,7 @@ export default function Index() {
       <div className="mx-auto w-full" aria-label="Jumbotron">
         <ClosableJumbotron
           title="Welcome to REPCO"
-          message={`${totalContentItems} ContentItems from ${totalPublicationServices} publication services have been indexed so far`}
+          message={`${totalContentItems} ContentItems from ${data?.repos.totalCount} datasources have been indexed so far`}
           aria-live="assertive"
           aria-atomic="true"
         />
@@ -214,37 +214,6 @@ export default function Index() {
       </div>
 
       <div>
-        <h3 className="text-2xl">Repositorys ({data?.repos.totalCount})</h3>
-        <div className="flex flex-col p-1">
-          {data?.repos.nodes.map(
-            (repo: { name: string; did: string }, i: number) => (
-              <NavLink key={i} to={`items?includes=&repoDid=${repo.did}`}>
-                <ContentItemCard
-                  aria-label={`Repository ${repo.name} with DID ${repo.did}`}
-                >
-                  <div
-                    className="flex items-baseline space-x-4"
-                    style={{ alignItems: 'center' }}
-                  >
-                    <h3
-                      className="text-brand-primary text-lg"
-                      key={i}
-                      style={{ alignItems: 'center' }}
-                    >
-                      {repo.name}
-                    </h3>
-                    <span className="text-xs italic">
-                      ({repoChartData.datasets[0].data[i]}) {repo.did}
-                    </span>
-                  </div>
-                </ContentItemCard>
-              </NavLink>
-            ),
-          )}
-        </div>
-      </div>
-
-      <div>
         <h3 className="text-2xl">
           Datasources ({data?.dataSources.totalCount})
         </h3>
@@ -278,6 +247,37 @@ export default function Index() {
               </ContentItemCard>
             </a>
           ))}
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-2xl">Repositories ({data?.repos.totalCount})</h3>
+        <div className="flex flex-col p-1">
+          {data?.repos.nodes.map(
+            (repo: { name: string; did: string }, i: number) => (
+              <NavLink key={i} to={`items?includes=&repoDid=${repo.did}`}>
+                <ContentItemCard
+                  aria-label={`Repository ${repo.name} with DID ${repo.did}`}
+                >
+                  <div
+                    className="flex items-baseline space-x-4"
+                    style={{ alignItems: 'center' }}
+                  >
+                    <h3
+                      className="text-brand-primary text-lg"
+                      key={i}
+                      style={{ alignItems: 'center' }}
+                    >
+                      {repo.name}
+                    </h3>
+                    <span className="text-xs italic">
+                      ({repoChartData.datasets[0].data[i]}) {repo.did}
+                    </span>
+                  </div>
+                </ContentItemCard>
+              </NavLink>
+            ),
+          )}
         </div>
       </div>
 

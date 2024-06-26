@@ -676,7 +676,7 @@ export class ActivityPubDataSource
       }
       var contentUrlsJson: { [k: string]: any } = {}
       contentJson[lang] = {
-        value: video.url[0].href,
+        value: video.url[0]['href'] || 'missing',
       }
 
       const content: form.ContentItemInput = {
