@@ -674,9 +674,9 @@ export class ActivityPubDataSource
       contentJson[lang] = {
         value: video.content,
       }
-      log.info(`video object: ${JSON.stringify(video)}`)
+
       var contentUrlsJson: { [k: string]: any } = {}
-      contentJson[lang] = {
+      contentUrlsJson[lang] = {
         value: video.url[0]['href'] || 'missing',
       }
 
