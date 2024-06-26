@@ -226,7 +226,7 @@ export class TransposerDataSource extends BaseDataSource implements DataSource {
           for (let j = 0; j < mediaAsset.concepts.length; j++) {
             const concept = mediaAsset.concepts[j]
             const conceptEntity: form.ConceptInput = {
-              name: concept.name,
+              name: concept?.name || 'missing',
               description: concept.description,
               kind: concept.kind,
               originNamespace: this.endpoint.toString(),
@@ -278,7 +278,7 @@ export class TransposerDataSource extends BaseDataSource implements DataSource {
         for (let i = 0; i < element.contentItem.concepts.length; i++) {
           const concept = element.contentItem.concepts[i]
           const conceptEntity: form.ConceptInput = {
-            name: concept.name,
+            name: concept?.name || 'missing',
             description: concept.description,
             kind: concept.kind,
             originNamespace: this.endpoint.toString(),
@@ -312,7 +312,7 @@ export class TransposerDataSource extends BaseDataSource implements DataSource {
           const contributor = element.contentItem.contributors[i]
 
           const contributorEntity: form.ContributorInput = {
-            name: contributor.name,
+            name: contributor?.name || 'missing',
             contactInformation: contributor.contactInformation,
             personOrOrganization: contributor.personOrOrganization,
           }
@@ -346,7 +346,7 @@ export class TransposerDataSource extends BaseDataSource implements DataSource {
         // PublicationService
         const publicationService: form.PublicationServiceInput = {
           address: element.publicationService.address,
-          name: element.publicationService.name,
+          name: element.publicationService?.name || 'missing',
           medium: element.publicationService.medium,
         }
 
@@ -355,7 +355,10 @@ export class TransposerDataSource extends BaseDataSource implements DataSource {
           content: publicationService,
           headers: {
             EntityUris: [
-              this._uri('publicationservice', element.publicationService.name),
+              this._uri(
+                'publicationservice',
+                element.publicationService?.name || 'missing',
+              ),
             ],
           },
         })
@@ -371,7 +374,7 @@ export class TransposerDataSource extends BaseDataSource implements DataSource {
           PublicationService: {
             uri: this._uri(
               'publicationservice',
-              element.publicationService.name,
+              element.publicationService?.name || 'missing',
             ),
           },
           Concepts: conceptLinks,
