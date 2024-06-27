@@ -35,7 +35,7 @@ const ContentItemFilterPlugin = makeAddPgTableConditionPlugin(
       body: JSON.stringify(data),
     })
 
-    log.info(JSON.stringify(data))
+    log.info(JSON.stringify(response))
 
     if (!response.ok) {
       log.warn(response.statusText)
