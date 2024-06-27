@@ -35,6 +35,7 @@ const ContentItemFilterPlugin = makeAddPgTableConditionPlugin(
       body: JSON.stringify(data),
     })
 
+    // {"size":10000,"query":{"query_string":{"query":"display europe"}},"fields":[],"_source":false}
     log.info(JSON.stringify(response))
 
     if (!response.ok) {
@@ -43,6 +44,7 @@ const ContentItemFilterPlugin = makeAddPgTableConditionPlugin(
       return sql.raw(`uid = '${query}'`)
     } else {
       var json = response.json()
+      log.info(JSON.stringify(json))
       var values = []
 
       if (json.hits.hits.length > 0) {
