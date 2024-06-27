@@ -57,7 +57,7 @@ const ContentItemFilterPlugin = makeAddPgTableConditionPlugin(
         var temp = `JOIN (VALUES ${values.join(
           ',',
         )}) as x (id, ordering) on uid = x.id`
-        log.info(temp)
+        log.debug(temp)
 
         //log.info('join statement: ' + temp)
         const customQueryBuilder = helpers.queryBuilder as any
@@ -69,10 +69,10 @@ const ContentItemFilterPlugin = makeAddPgTableConditionPlugin(
 
         helpers.queryBuilder.orderBy(sql.fragment`x.ordering`, false)
         var inStatement = `uid IN (${json.hits.hits
-          .filter((element: any) => element['_score'] >= 5)
+          //.filter((element: any) => element['_score'] >= 5)
           .map((entry: any) => `'${entry['_id']}'`)
           .join(',')})`
-        log.info(inStatement)
+        log.debug(inStatement)
         return sql.raw(inStatement)
       } else {
         var query: string = value as string
