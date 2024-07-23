@@ -518,7 +518,7 @@ export async function ingestUpdatesFromDataSource(
       `ingest ${uid}: ${records.length} records, ${entities.length} entities, ${errors.length} errors`,
     )
 
-    const finished = records.length === 0
+    const finished = records.length === 0 || nextCursor == cursor
     if (errors) {
       for (const error of errors) {
         log.warn({
