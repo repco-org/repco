@@ -229,7 +229,7 @@ export class RssDataSource extends BaseDataSource implements DataSource {
       // This means: Increase page number to keep fetching untilwe reach the most recent pub date.
     } else {
       nextCursor = {
-        lastCompletionDate: cursor.lastCompletionDate,
+        lastCompletionDate: mostRecentPubDate,
         pageNumber: page + 1,
         mostRecentPubDate,
         leastRecentPubDate,
@@ -264,7 +264,6 @@ export class RssDataSource extends BaseDataSource implements DataSource {
   // }
 
   async fetchPage(url: URL): Promise<string> {
-    // console.log('FETCH', url.toString())
     const maxRetries = 50
     let timeout = 1
     let retries = 0
@@ -303,14 +302,23 @@ export class RssDataSource extends BaseDataSource implements DataSource {
 
   async fetchUpdates(cursorInput: string | null): Promise<FetchUpdatesResult> {
     const cursor = parseCursor(cursorInput)
-    const nextCursor = cursor
     const date = new Date()
     const { url, xml } = await this._crawlNewestUntil(cursor.newest)
 
     try {
       const feed = await this.parser.parseString(xml)
       feed.items = feed.items.filter((item) => item.link != undefined)
-      cursor.newest = this.extractNextCursor(cursor.newest, feed)
+      const nextNewestCursor = this.extractNextCursor(cursor.newest, feed)
+
+      // If the cursor didn't change, there are no new records on the page, so do early return
+      if (JSON.stringify(nextNewestCursor) === JSON.stringify(cursor.newest)) {
+        return { cursor: JSON.stringify(cursor), records: [] }
+      }
+
+      const nextCursor = {
+        newest: nextNewestCursor,
+        oldest: cursor.oldest,
+      }
 
       const sourceUri = new URL(this.endpoint)
       sourceUri.hash = date.toISOString()
@@ -327,9 +335,8 @@ export class RssDataSource extends BaseDataSource implements DataSource {
       }
     } catch (err) {
       log.error(`Failed to parse feed from ${url.toString()}: ${err}`)
-      if (nextCursor.newest.pageNumber) nextCursor.newest.pageNumber += 1
       return {
-        cursor: JSON.stringify(nextCursor),
+        cursor: JSON.stringify(cursor),
         records: [],
       }
     }
