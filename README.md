@@ -2,7 +2,7 @@
 
 _repco_ deals with repositories of Community Media. Community Media is defined as media (audio, video, pictures) that are produced by community-based, mostly non-commercial media creators. This includes Community Radio stations, recordings of events and lectures, Podcasters and other media collections.
 
-This repo contains both an [in-progress specification document](SPEC.md) and a first implementation of repco. The implementation is written in TypeScript.
+This repo contains both an [in-progress specification document](REPCO-SPEC.md) and a first implementation of repco. The implementation is written in TypeScript.
 
 ## Installation and usage
 
